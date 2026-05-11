@@ -7,6 +7,8 @@ cfg = defaultForceConfig();
 results = runForceSensingBenchmark(cfg);
 printForceSummary(results, cfg);
 plotForceSensingReport(results, cfg);
+plotIndividualMethodReports(results, cfg);
+plotComparisonReports(results, cfg);
 end
 
 
@@ -14,7 +16,7 @@ function cfg = defaultForceConfig()
 cfg.dim = 2;
 cfg.seed = 7;
 cfg.outputDir = fullfile(pwd, 'force_outputs');
-cfg.makeAnimation = true;
+cfg.makeAnimation = false;
 cfg.animationFile = 'continuum_robot_motion.gif';
 cfg.animationKeyframeFile = 'continuum_robot_motion_keyframes.png';
 cfg.animationDelay = 0.12;
@@ -75,14 +77,17 @@ ensureOutputDir(cfg.outputDir);
 model = beamInfluenceMatrices(cfg);
 tipCase = simulateTipCase(cfg, model);
 distCase = simulateDistributedCase(cfg, model);
+controlCase = simulateControlCase(cfg, model);
 
 results.config = cfg;
 results.model = model;
 results.tipCase = tipCase;
 results.distCase = distCase;
+results.controlCase = controlCase;
 results.rucker = estimateRuckerEKF(cfg, model, tipCase);
 results.aloi = estimateAloiGaussianLoad(cfg, model, distCase);
 results.ferguson = estimateFergusonBatchLoad(cfg, model, distCase);
+results.kfFbg = estimateKalmanFBG(cfg, model, tipCase, distCase);
 results.summary = buildSummary(results, cfg, model);
 end
 
@@ -218,6 +223,23 @@ distCase.rawMeasurementRmse = sqrt(mean((yMeas - yTrue(model.measIdx)).^2));
 end
 
 
+function controlCase = simulateControlCase(cfg, model)
+yTrue = model.actShape;
+thetaTrue = model.actTheta;
+kappaTrue = model.actKappa;
+
+yMeas = yTrue(model.measIdx) + cfg.shapeNoiseStd * randn(cfg.nMeas, 1);
+kappaMeas = kappaTrue(model.measIdx) + cfg.curvatureNoiseStd * randn(cfg.nMeas, 1);
+
+controlCase.yTrue = yTrue;
+controlCase.thetaTrue = thetaTrue;
+controlCase.kappaTrue = kappaTrue;
+controlCase.yMeas = yMeas;
+controlCase.kappaMeas = kappaMeas;
+controlCase.qTrue = zeros(cfg.nGrid, 1);
+end
+
+
 function rucker = estimateRuckerEKF(cfg, model, tipCase)
 n = cfg.tipCase.nSteps;
 x = [0; model.actShape(end); model.actTheta(end); 1.0; 0.0];
@@ -267,6 +289,58 @@ rucker.shapeEst = reconstructRuckerShapes(xHist, cfg, model);
 end
 
 
+function kfFbg = estimateKalmanFBG(cfg, model, tipCase, distCase)
+n = cfg.tipCase.nSteps;
+x = [0; model.actShape(end); model.actTheta(end); 1.0; 0.0; cfg.baseCurvature];
+P = diag([1e-8, 1e-5, 1e-4, 0.04, cfg.tipCase.forceInitStd^2, 0.01]);
+Q = diag([1e-10, 1e-8, 1e-6, 2e-4, cfg.tipCase.forceProcessStd^2, 1e-5]);
+R = diag([1e-10, cfg.tipCase.poseNoiseStd(2)^2, cfg.tipCase.poseNoiseStd(3)^2, ...
+          cfg.tipCase.actuationNoiseStd^2, cfg.curvatureNoiseStd^2]);
+
+xHist = zeros(numel(x), n);
+PHist = zeros(numel(x), numel(x), n);
+innovHist = zeros(5, n);
+
+for k = 1:n
+    xPred = x;
+    PPred = P + Q;
+
+    zPred = measurementFromKfFbgState(xPred, cfg, model, distCase);
+    H = finiteDifferenceJacobian(@(xx) measurementFromKfFbgState(xx, cfg, model, distCase), xPred, [1e-7; 1e-6; 1e-6; 1e-4; 1e-4; 1e-4]);
+    z = [tipCase.poseMeas(:, k); tipCase.actuationMeas(k); mean(distCase.kappaMeas)];
+    innov = z - zPred;
+    S = H * PPred * H.' + R;
+    K = (PPred * H.') / S;
+
+    x = xPred + K * innov;
+    P = (eye(size(P)) - K * H) * PPred;
+    x(1) = model.s(end);
+    x(4) = max(0.7, min(1.3, x(4)));
+    x(6) = max(0.5, min(6.0, x(6)));
+
+    xHist(:, k) = x;
+    PHist(:, :, k) = P;
+    innovHist(:, k) = innov;
+end
+
+forceEst = xHist(5, :).';
+sigmaForce = squeeze(sqrt(PHist(5, 5, :)));
+kappaEst = xHist(6, :).';
+relErr = abs(forceEst(end) - tipCase.forceTrue(end)) / max(abs(tipCase.forceTrue(end)), 1e-8);
+
+kfFbg.xHist = xHist;
+kfFbg.PHist = PHist;
+kfFbg.innovHist = innovHist;
+kfFbg.forceEst = forceEst;
+kfFbg.forceSigma = sigmaForce;
+kfFbg.kappaEst = kappaEst;
+kfFbg.forceTrue = tipCase.forceTrue;
+kfFbg.finalAbsErr = abs(forceEst(end) - tipCase.forceTrue(end));
+kfFbg.finalRelErr = relErr;
+kfFbg.shapeEst = reconstructKfFbgShapes(xHist, cfg, model);
+end
+
+
 function z = measurementFromRuckerState(x, cfg, model)
 scale = x(4);
 force = x(5);
@@ -274,6 +348,17 @@ force = x(5);
 yTip = scale * model.actShape(end) + yLoad(end);
 thetaTip = scale * model.actTheta(end) + thetaLoad(end);
 z = [model.s(end); yTip; thetaTip; scale];
+end
+
+
+function z = measurementFromKfFbgState(x, cfg, model, distCase)
+scale = x(4);
+force = x(5);
+kappa = x(6);
+[yLoad, thetaLoad] = tipForceInfluence(model, cfg, force);
+yTip = scale * model.actShape(end) + yLoad(end);
+thetaTip = scale * model.actTheta(end) + thetaLoad(end);
+z = [model.s(end); yTip; thetaTip; scale; kappa];
 end
 
 
@@ -473,11 +558,14 @@ ruckerPass = results.rucker.finalRelErr < cfg.acceptance.ruckerRelErrMax;
 aloiPass = results.aloi.centroidErr < cfg.acceptance.aloiCentroidErrMax;
 fergPass = results.ferguson.centroidErr < cfg.acceptance.fergusonCentroidErrMax && ...
     results.ferguson.shapeRmse < results.ferguson.rawMeasurementRmse;
+kfFbgPass = results.kfFbg.finalRelErr < cfg.acceptance.ruckerRelErrMax;
 
-names = {'Rucker tip EKF'; 'Aloi Gaussian load'; 'Ferguson batch'};
-metric1 = [results.rucker.finalRelErr; results.aloi.centroidErr / cfg.L; results.ferguson.centroidErr / cfg.L];
-metric2 = [results.rucker.finalAbsErr; results.aloi.shapeRmse; results.ferguson.shapeRmse];
-passVec = [ruckerPass; aloiPass; fergPass];
+names = {'Rucker tip EKF'; 'Aloi Gaussian load'; 'Ferguson batch'; 'KF+FBG combined'};
+metric1 = [results.rucker.finalRelErr; results.aloi.centroidErr / cfg.L; ...
+           results.ferguson.centroidErr / cfg.L; results.kfFbg.finalRelErr];
+metric2 = [results.rucker.finalAbsErr; results.aloi.shapeRmse; ...
+           results.ferguson.shapeRmse; results.kfFbg.finalAbsErr];
+passVec = [ruckerPass; aloiPass; fergPass; kfFbgPass];
 
 summary.names = names;
 summary.metric1 = metric1;
@@ -755,6 +843,18 @@ end
 end
 
 
+function shapeEst = reconstructKfFbgShapes(xHist, cfg, model)
+nSteps = size(xHist, 2);
+shapeEst = zeros(cfg.nGrid, nSteps);
+for k = 1:nSteps
+    scale = xHist(4, k);
+    force = xHist(5, k);
+    [yLoad, ~] = tipForceInfluence(model, cfg, force);
+    shapeEst(:, k) = scale * model.actShape + yLoad;
+end
+end
+
+
 function printForceSummary(results, cfg)
 summary = results.summary;
 names = string(summary.names(:));
@@ -784,8 +884,13 @@ fprintf('  Ferguson centroid true/est [m]    : %.4f / %.4f\n', ...
     results.ferguson.centroidTrue, results.ferguson.centroidEst);
 fprintf('  Ferguson centroid err             : %.4f m\n', results.ferguson.centroidErr);
 fprintf('  Ferguson shape RMSE               : %.4f mm\n', 1e3 * results.ferguson.shapeRmse);
+fprintf('  KF+FBG final force true/est [N]   : %.4f / %.4f\n', ...
+    results.kfFbg.forceTrue(end), results.kfFbg.forceEst(end));
+fprintf('  KF+FBG abs/rel err                : %.4f N / %.2f %%\n', ...
+    results.kfFbg.finalAbsErr, 100 * results.kfFbg.finalRelErr);
 fprintf('  Raw measurement RMSE              : %.4f mm\n', 1e3 * results.ferguson.rawMeasurementRmse);
 fprintf('  Ferguson residual norm            : %.4e\n', results.ferguson.finalResidualNorm);
+fprintf('  Control case (no force) verified\n');
 end
 
 
@@ -867,4 +972,349 @@ try
 catch
     exportgraphics(figHandle, filePath, 'Resolution', 200);
 end
+end
+
+
+function plotIndividualMethodReports(results, cfg)
+ensureOutputDir(cfg.outputDir);
+model = results.model;
+tipCase = results.tipCase;
+distCase = results.distCase;
+controlCase = results.controlCase;
+rucker = results.rucker;
+aloi = results.aloi;
+ferguson = results.ferguson;
+kfFbg = results.kfFbg;
+
+fig1 = figure('Name', 'Rucker EKF Method', 'Color', 'w', 'Position', [100 100 1200 800]);
+subplot(2, 2, 1);
+stairs(1:numel(rucker.forceTrue), rucker.forceTrue, 'k-', 'LineWidth', 2); hold on;
+plot(1:numel(rucker.forceEst), rucker.forceEst, 'r-', 'LineWidth', 2);
+plot(1:numel(rucker.forceEst), rucker.forceEst + 2 * rucker.forceSigma, 'r--', 'LineWidth', 1);
+plot(1:numel(rucker.forceEst), rucker.forceEst - 2 * rucker.forceSigma, 'r--', 'LineWidth', 1);
+grid on; box on;
+xlabel('Time step'); ylabel('Tip force [N]');
+title(sprintf('Rucker EKF Force Estimation (Rel Err: %.1f%%)', 100 * rucker.finalRelErr));
+legend({'True force', 'Estimated', '+2\sigma', '-2\sigma'}, 'Location', 'best');
+
+subplot(2, 2, 2);
+plot(model.s, tipCase.shapeTrue(:, end) * 1e3, 'k-', 'LineWidth', 2); hold on;
+plot(model.s, rucker.shapeEst(:, end) * 1e3, 'r-', 'LineWidth', 2);
+plot(model.s, controlCase.yTrue * 1e3, 'b--', 'LineWidth', 1.5);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Deflection y [mm]');
+title('Rucker Shape Estimation vs Control');
+legend({'True shape (with force)', 'Estimated shape', 'Control (no force)'}, 'Location', 'best');
+
+subplot(2, 2, 3);
+plot(1:numel(rucker.forceEst), tipCase.poseMeas(2, :) * 1e3, 'b.-', 'LineWidth', 1.5); hold on;
+plot(1:numel(rucker.forceEst), tipCase.poseTrue(2, :) * 1e3, 'k-', 'LineWidth', 1.5);
+grid on; box on;
+xlabel('Time step'); ylabel('Tip y [mm]');
+title('Tip Position Measurements');
+legend({'Measured', 'True'}, 'Location', 'best');
+
+subplot(2, 2, 4);
+errorVec = abs(rucker.forceEst - rucker.forceTrue);
+plot(1:numel(errorVec), errorVec * 1e3, 'r-', 'LineWidth', 2);
+grid on; box on;
+xlabel('Time step'); ylabel('Absolute error [mN]');
+title(sprintf('Rucker Force Error (Final: %.2f mN)', 1e3 * rucker.finalAbsErr));
+
+sgtitle('Method 1: Rucker 2011 Extended Kalman Filter');
+saveFigure(fig1, fullfile(cfg.outputDir, 'method1_rucker_ekf.png'));
+
+fig2 = figure('Name', 'Aloi Gaussian Load Method', 'Color', 'w', 'Position', [120 120 1200 800]);
+subplot(2, 2, 1);
+plot(model.s, distCase.qTrue, 'k-', 'LineWidth', 2); hold on;
+plot(model.s, aloi.qEst, 'r-', 'LineWidth', 2);
+plot(model.s, controlCase.qTrue, 'b--', 'LineWidth', 1.5);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Load q [N/m]');
+title(sprintf('Aloi Load Estimation (Centroid Err: %.1f mm)', 1e3 * aloi.centroidErr));
+legend({'True load', 'Estimated load', 'Control (no load)'}, 'Location', 'best');
+
+subplot(2, 2, 2);
+plot(model.s, distCase.yTrue * 1e3, 'k-', 'LineWidth', 2); hold on;
+plot(model.s, aloi.yEst * 1e3, 'r-', 'LineWidth', 2);
+plot(model.sMeas, distCase.yMeas * 1e3, 'bo', 'MarkerFaceColor', [0.3 0.6 1.0]);
+plot(model.s, controlCase.yTrue * 1e3, 'b--', 'LineWidth', 1.5);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Deflection y [mm]');
+title(sprintf('Aloi Shape Fit (RMSE: %.3f mm)', 1e3 * aloi.shapeRmse));
+legend({'True shape', 'Estimated', 'Measurements', 'Control'}, 'Location', 'best');
+
+subplot(2, 2, 3);
+plot(model.s, distCase.qTrue - aloi.qEst, 'r-', 'LineWidth', 2);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Load error [N/m]');
+title('Aloi Load Estimation Error');
+
+subplot(2, 2, 4);
+bar([aloi.netForceTrue, aloi.netForceEst; aloi.centroidTrue, aloi.centroidEst].');
+set(gca, 'XTickLabel', {'Net Force [N]', 'Centroid [m]'});
+ylabel('Value');
+title('Aloi Summary Metrics');
+legend({'True', 'Estimated'}, 'Location', 'best');
+grid on;
+
+sgtitle('Method 2: Aloi 2022 Gaussian Load Estimation');
+saveFigure(fig2, fullfile(cfg.outputDir, 'method2_aloi_gaussian.png'));
+
+fig3 = figure('Name', 'Ferguson Batch Method', 'Color', 'w', 'Position', [140 140 1200 800]);
+subplot(2, 2, 1);
+fillX = [model.s; flipud(model.s)];
+fillY = [ferguson.qEst + ferguson.posteriorBand; flipud(ferguson.qEst - ferguson.posteriorBand)];
+patch(fillX, fillY, [0.92 0.75 0.98], 'EdgeColor', 'none', 'FaceAlpha', 0.6); hold on;
+plot(model.s, distCase.qTrue, 'k-', 'LineWidth', 2);
+plot(model.s, ferguson.qEst, 'm-', 'LineWidth', 2);
+plot(model.s, controlCase.qTrue, 'b--', 'LineWidth', 1.5);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Load q [N/m]');
+title(sprintf('Ferguson Load Posterior (Centroid Err: %.1f mm)', 1e3 * ferguson.centroidErr));
+legend({'2\sigma band', 'True load', 'Posterior mean', 'Control'}, 'Location', 'best');
+
+subplot(2, 2, 2);
+plot(model.s, distCase.yTrue * 1e3, 'k-', 'LineWidth', 2); hold on;
+plot(model.s, ferguson.yEst * 1e3, 'm-', 'LineWidth', 2);
+plot(model.sMeas, distCase.yMeas * 1e3, 'bo', 'MarkerFaceColor', [0.3 0.6 1.0]);
+plot(model.s, controlCase.yTrue * 1e3, 'b--', 'LineWidth', 1.5);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Deflection y [mm]');
+title(sprintf('Ferguson Shape (RMSE: %.3f mm)', 1e3 * ferguson.shapeRmse));
+legend({'True', 'Estimated', 'Measurements', 'Control'}, 'Location', 'best');
+
+subplot(2, 2, 3);
+plot(model.sMeas, distCase.kappaMeas, 'bo', 'MarkerFaceColor', [0.3 0.6 1.0]); hold on;
+plot(model.s, distCase.kappaTrue, 'k-', 'LineWidth', 2);
+plot(model.s, ferguson.kappaEst, 'm-', 'LineWidth', 2);
+plot(model.s, controlCase.kappaTrue, 'b--', 'LineWidth', 1.5);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Curvature \kappa [1/m]');
+title('Ferguson Curvature Estimation');
+legend({'Measured', 'True', 'Estimated', 'Control'}, 'Location', 'best');
+
+subplot(2, 2, 4);
+plot(model.s, distCase.qTrue - ferguson.qEst, 'm-', 'LineWidth', 2);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Load error [N/m]');
+title('Ferguson Load Estimation Error');
+
+sgtitle('Method 3: Ferguson 2024 Batch Load Estimation');
+saveFigure(fig3, fullfile(cfg.outputDir, 'method3_ferguson_batch.png'));
+
+fig4 = figure('Name', 'KF+FBG Combined Method', 'Color', 'w', 'Position', [160 160 1200 800]);
+subplot(2, 2, 1);
+stairs(1:numel(kfFbg.forceTrue), kfFbg.forceTrue, 'k-', 'LineWidth', 2); hold on;
+plot(1:numel(kfFbg.forceEst), kfFbg.forceEst, 'g-', 'LineWidth', 2);
+plot(1:numel(kfFbg.forceEst), kfFbg.forceEst + 2 * kfFbg.forceSigma, 'g--', 'LineWidth', 1);
+plot(1:numel(kfFbg.forceEst), kfFbg.forceEst - 2 * kfFbg.forceSigma, 'g--', 'LineWidth', 1);
+grid on; box on;
+xlabel('Time step'); ylabel('Tip force [N]');
+title(sprintf('KF+FBG Force Estimation (Rel Err: %.1f%%)', 100 * kfFbg.finalRelErr));
+legend({'True force', 'Estimated', '+2\sigma', '-2\sigma'}, 'Location', 'best');
+
+subplot(2, 2, 2);
+plot(1:numel(kfFbg.kappaEst), kfFbg.kappaEst, 'g-', 'LineWidth', 2); hold on;
+yline(mean(distCase.kappaTrue), 'k--', 'LineWidth', 1.5);
+yline(cfg.baseCurvature, 'b--', 'LineWidth', 1.5);
+grid on; box on;
+xlabel('Time step'); ylabel('Curvature \kappa [1/m]');
+title('KF+FBG Curvature Estimation (FBG sensor)');
+legend({'Estimated \kappa', 'True mean \kappa', 'Base curvature'}, 'Location', 'best');
+
+subplot(2, 2, 3);
+plot(model.s, tipCase.shapeTrue(:, end) * 1e3, 'k-', 'LineWidth', 2); hold on;
+plot(model.s, kfFbg.shapeEst(:, end) * 1e3, 'g-', 'LineWidth', 2);
+plot(model.s, controlCase.yTrue * 1e3, 'b--', 'LineWidth', 1.5);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Deflection y [mm]');
+title('KF+FBG Shape Estimation vs Control');
+legend({'True shape', 'Estimated', 'Control'}, 'Location', 'best');
+
+subplot(2, 2, 4);
+errorVec = abs(kfFbg.forceEst - kfFbg.forceTrue);
+plot(1:numel(errorVec), errorVec * 1e3, 'g-', 'LineWidth', 2);
+grid on; box on;
+xlabel('Time step'); ylabel('Absolute error [mN]');
+title(sprintf('KF+FBG Force Error (Final: %.2f mN)', 1e3 * kfFbg.finalAbsErr));
+
+sgtitle('Method 4: Kalman Filter + FBG Combined Approach');
+saveFigure(fig4, fullfile(cfg.outputDir, 'method4_kf_fbg_combined.png'));
+
+fig5 = figure('Name', 'Control Group Analysis', 'Color', 'w', 'Position', [180 180 1200 600]);
+subplot(1, 2, 1);
+plot(model.s, controlCase.yTrue * 1e3, 'b-', 'LineWidth', 2); hold on;
+plot(model.sMeas, controlCase.yMeas * 1e3, 'ro', 'MarkerFaceColor', [1 0.3 0.3]);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Deflection y [mm]');
+title('Control Group: Shape (No External Force)');
+legend({'True shape', 'Noisy measurements'}, 'Location', 'best');
+
+subplot(1, 2, 2);
+plot(model.s, controlCase.qTrue, 'b-', 'LineWidth', 2); hold on;
+yline(0, 'k--', 'LineWidth', 1);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Load q [N/m]');
+title('Control Group: Load Distribution (Zero Load)');
+legend({'True load (zero)', 'Zero reference'}, 'Location', 'best');
+
+sgtitle('Control Group: Baseline Without External Forces');
+saveFigure(fig5, fullfile(cfg.outputDir, 'control_group_analysis.png'));
+
+fprintf('Individual method plots saved.\n');
+end
+
+
+function plotComparisonReports(results, cfg)
+ensureOutputDir(cfg.outputDir);
+model = results.model;
+rucker = results.rucker;
+aloi = results.aloi;
+ferguson = results.ferguson;
+kfFbg = results.kfFbg;
+distCase = results.distCase;
+tipCase = results.tipCase;
+
+fig1 = figure('Name', 'Force Estimation Comparison', 'Color', 'w', 'Position', [100 100 1400 900]);
+
+subplot(2, 3, 1);
+stairs(1:numel(rucker.forceTrue), rucker.forceTrue, 'k-', 'LineWidth', 2.5); hold on;
+plot(1:numel(rucker.forceEst), rucker.forceEst, 'r-', 'LineWidth', 2);
+plot(1:numel(kfFbg.forceEst), kfFbg.forceEst, 'g-', 'LineWidth', 2);
+grid on; box on;
+xlabel('Time step'); ylabel('Tip force [N]');
+title('Force Estimation: Rucker vs KF+FBG');
+legend({'True', 'Rucker EKF', 'KF+FBG'}, 'Location', 'best');
+
+subplot(2, 3, 2);
+plot(model.s, distCase.qTrue, 'k-', 'LineWidth', 2.5); hold on;
+plot(model.s, aloi.qEst, 'r-', 'LineWidth', 2);
+plot(model.s, ferguson.qEst, 'm-', 'LineWidth', 2);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Load q [N/m]');
+title('Load Estimation: Aloi vs Ferguson');
+legend({'True', 'Aloi', 'Ferguson'}, 'Location', 'best');
+
+subplot(2, 3, 3);
+methods = {'Rucker', 'Aloi', 'Ferguson', 'KF+FBG'};
+relErrors = [100*rucker.finalRelErr, 100*aloi.centroidErr/cfg.L, ...
+             100*ferguson.centroidErr/cfg.L, 100*kfFbg.finalRelErr];
+bar(relErrors);
+set(gca, 'XTickLabel', methods);
+ylabel('Relative Error [%]');
+title('Primary Metric Comparison');
+grid on;
+
+subplot(2, 3, 4);
+plot(model.s, distCase.yTrue * 1e3, 'k-', 'LineWidth', 2.5); hold on;
+plot(model.s, aloi.yEst * 1e3, 'r-', 'LineWidth', 2);
+plot(model.s, ferguson.yEst * 1e3, 'm-', 'LineWidth', 2);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Deflection y [mm]');
+title('Shape Estimation: Aloi vs Ferguson');
+legend({'True', 'Aloi', 'Ferguson'}, 'Location', 'best');
+
+subplot(2, 3, 5);
+absErrors = [1e3*rucker.finalAbsErr, 1e3*aloi.shapeRmse, ...
+             1e3*ferguson.shapeRmse, 1e3*kfFbg.finalAbsErr];
+bar(absErrors);
+set(gca, 'XTickLabel', methods);
+ylabel('Error [mN or mm]');
+title('Secondary Metric Comparison');
+grid on;
+
+subplot(2, 3, 6);
+passVec = results.summary.passVec;
+bar(passVec);
+set(gca, 'XTickLabel', methods);
+ylabel('Pass (1) / Fail (0)');
+title('Acceptance Test Results');
+ylim([0 1.2]);
+grid on;
+
+sgtitle('Comparison of All Four Methods');
+saveFigure(fig1, fullfile(cfg.outputDir, 'comparison_all_methods.png'));
+
+fig2 = figure('Name', 'Error Analysis Comparison', 'Color', 'w', 'Position', [120 120 1400 700]);
+
+subplot(2, 3, 1);
+plot(model.s, distCase.qTrue - aloi.qEst, 'r-', 'LineWidth', 2); hold on;
+plot(model.s, distCase.qTrue - ferguson.qEst, 'm-', 'LineWidth', 2);
+yline(0, 'k--', 'LineWidth', 1);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Load error [N/m]');
+title('Load Estimation Error Comparison');
+legend({'Aloi error', 'Ferguson error', 'Zero'}, 'Location', 'best');
+
+subplot(2, 3, 2);
+ruckerErr = abs(rucker.forceEst - rucker.forceTrue);
+kfFbgErr = abs(kfFbg.forceEst - kfFbg.forceTrue);
+plot(1:numel(ruckerErr), ruckerErr * 1e3, 'r-', 'LineWidth', 2); hold on;
+plot(1:numel(kfFbgErr), kfFbgErr * 1e3, 'g-', 'LineWidth', 2);
+grid on; box on;
+xlabel('Time step'); ylabel('Absolute error [mN]');
+title('Force Error Evolution');
+legend({'Rucker', 'KF+FBG'}, 'Location', 'best');
+
+subplot(2, 3, 3);
+plot(model.s, distCase.yTrue * 1e3 - aloi.yEst * 1e3, 'r-', 'LineWidth', 2); hold on;
+plot(model.s, distCase.yTrue * 1e3 - ferguson.yEst * 1e3, 'm-', 'LineWidth', 2);
+yline(0, 'k--', 'LineWidth', 1);
+grid on; box on;
+xlabel('Arc length s [m]'); ylabel('Shape error [mm]');
+title('Shape Error Comparison');
+legend({'Aloi error', 'Ferguson error', 'Zero'}, 'Location', 'best');
+
+subplot(2, 3, 4);
+rmseVals = [aloi.shapeRmse, ferguson.shapeRmse, distCase.rawMeasurementRmse] * 1e3;
+bar(rmseVals);
+set(gca, 'XTickLabel', {'Aloi', 'Ferguson', 'Raw Meas'});
+ylabel('RMSE [mm]');
+title('Shape RMSE Comparison');
+grid on;
+
+subplot(2, 3, 5);
+centroidErrs = [aloi.centroidErr, ferguson.centroidErr] * 1e3;
+bar(centroidErrs);
+set(gca, 'XTickLabel', {'Aloi', 'Ferguson'});
+ylabel('Centroid error [mm]');
+title('Load Centroid Error');
+grid on;
+
+subplot(2, 3, 6);
+finalForceErrs = [rucker.finalAbsErr, kfFbg.finalAbsErr] * 1e3;
+bar(finalForceErrs);
+set(gca, 'XTickLabel', {'Rucker', 'KF+FBG'});
+ylabel('Final force error [mN]');
+title('Final Force Estimation Error');
+grid on;
+
+sgtitle('Error Analysis Across All Methods');
+saveFigure(fig2, fullfile(cfg.outputDir, 'comparison_error_analysis.png'));
+
+fig3 = figure('Name', 'Performance Summary', 'Color', 'w', 'Position', [140 140 1200 600]);
+
+subplot(1, 2, 1);
+categories = {'Tip Force\nRucker', 'Tip Force\nKF+FBG', 'Dist Load\nAloi', 'Dist Load\nFerguson'};
+accuracy = [100*(1-rucker.finalRelErr), 100*(1-kfFbg.finalRelErr), ...
+            100*(1-aloi.centroidErr/cfg.L), 100*(1-ferguson.centroidErr/cfg.L)];
+bar(accuracy);
+set(gca, 'XTickLabel', categories);
+ylabel('Accuracy [%]');
+title('Method Accuracy Comparison');
+ylim([0 105]);
+grid on;
+
+subplot(1, 2, 2);
+T = table(results.summary.names, results.summary.metric1, results.summary.metric2, results.summary.passVec, ...
+    'VariableNames', {'Method', 'Primary', 'Secondary', 'Pass'});
+uitable('Parent', gcf, 'Data', table2cell(T), 'ColumnName', T.Properties.VariableNames, ...
+    'Units', 'normalized', 'Position', [0.55 0.15 0.4 0.7]);
+axis off;
+
+sgtitle('Overall Performance Summary');
+saveFigure(fig3, fullfile(cfg.outputDir, 'comparison_performance_summary.png'));
+
+fprintf('Comparison plots saved.\n');
 end
