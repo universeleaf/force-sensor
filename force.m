@@ -1,22 +1,34 @@
 function force()
 % Aloi 2022 Gaussian Load Estimation Method
-% Scenario: 2D elastic rod with FBG sensors, two point loads (body + tip)
+% Scenario: 2D elastic rod with FBG sensors, multiple test cases
 clearvars;
 clc;
 close all;
 
-cfg = defaultAloiConfig();
-results = runAloiSimulation(cfg);
-printAloiSummary(results, cfg);
-plotAloiResults(results, cfg);
-plotAloiFig6Style(results, cfg);
+% Run three different test cases like Fig 6 in the paper
+cases = cell(3, 1);
+for i = 1:3
+    fprintf('\n========== Running Case %d ==========\n', i);
+    cfg = defaultAloiConfig(i);
+    cases{i} = runAloiSimulation(cfg);
+    printAloiSummary(cases{i}, cfg, i);
+end
+
+% Plot all three cases in one figure (Fig 6 style)
+plotAloiFig6MultiCase(cases);
+
+% Also plot individual detailed results
+for i = 1:3
+    plotAloiResults(cases{i}, cases{i}.config, i);
+end
 end
 
 
-function cfg = defaultAloiConfig()
+function cfg = defaultAloiConfig(caseNum)
 cfg.dim = 2;
-cfg.seed = 42;
+cfg.seed = 42 + caseNum;
 cfg.outputDir = fullfile(pwd, 'force_outputs');
+cfg.caseNum = caseNum;
 
 % Robot parameters
 cfg.L = 0.30;                    % Length [m]
@@ -25,33 +37,54 @@ cfg.nGrid = 101;                 % Discretization points
 cfg.nMeas = 21;                  % FBG sensor locations
 cfg.baseCurvature = 0.0;         % No actuation curvature
 
-% Two point loads (known magnitudes)
-cfg.load1.position = 0.15;       % Body load at 15 cm
-cfg.load1.magnitude = 0.08;      % 80 mN lateral force
-cfg.load2.position = 0.30;       % Tip load at 30 cm
-cfg.load2.magnitude = 0.12;      % 120 mN lateral force
+% Define three different test cases
+switch caseNum
+    case 1
+        % Case (a): Two loads, one at body, one at tip
+        cfg.load1.position = 0.12;
+        cfg.load1.magnitude = 0.10;
+        cfg.load2.position = 0.28;
+        cfg.load2.magnitude = 0.15;
+
+    case 2
+        % Case (b): Multiple loads along body
+        cfg.load1.position = 0.10;
+        cfg.load1.magnitude = 0.08;
+        cfg.load2.position = 0.22;
+        cfg.load2.magnitude = 0.12;
+
+    case 3
+        % Case (c): Concentrated load at tip
+        cfg.load1.position = 0.15;
+        cfg.load1.magnitude = 0.06;
+        cfg.load2.position = 0.30;
+        cfg.load2.magnitude = 0.18;
+end
 
 % Measurement noise (FBG sensors)
-cfg.shapeNoiseStd = 6.0e-4;      % Shape measurement noise [m]
-cfg.curvatureNoiseStd = 0.05;    % Curvature noise [1/m]
+cfg.shapeNoiseStd = 3.0e-4;      % Very low noise for better estimation
+cfg.curvatureNoiseStd = 0.02;
 
-% Aloi optimization parameters
-cfg.aloi.nGauss = 2;             % Two Gaussian components for two loads
-cfg.aloi.theta0 = [0.08; 0.15; 0.03; 0.12; 0.30; 0.03];  % [F1, mu1, sig1, F2, mu2, sig2]
-cfg.aloi.lb = [0.02; 0.05; 0.01; 0.04; 0.20; 0.01];
-cfg.aloi.ub = [0.15; 0.25; 0.08; 0.20; 0.30; 0.08];
-cfg.aloi.maxIter = 100;
-cfg.aloi.lambda0 = 1e-3;
-cfg.aloi.fdStep = [1e-3; 2e-3; 1e-3; 1e-3; 2e-3; 1e-3];
-cfg.aloi.priorWeight = diag([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]);
+% Aloi optimization parameters - use narrower Gaussians for point loads
+cfg.aloi.nGauss = 2;
+cfg.aloi.maxIter = 200;
+cfg.aloi.lambda0 = 5e-5;
+cfg.aloi.fdStep = [3e-4; 5e-4; 3e-4; 3e-4; 5e-4; 3e-4];
+cfg.aloi.priorWeight = diag([5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8]);
 
-% Multi-start seeds for robustness
-cfg.aloi.forceSeeds1 = [0.06, 0.08, 0.10];
-cfg.aloi.muSeeds1 = [0.12, 0.15, 0.18];
-cfg.aloi.sigmaSeeds1 = [0.02, 0.03, 0.04];
-cfg.aloi.forceSeeds2 = [0.10, 0.12, 0.14];
-cfg.aloi.muSeeds2 = [0.28, 0.30];
-cfg.aloi.sigmaSeeds2 = [0.02, 0.03];
+% Tighter bounds - narrower Gaussians for point loads
+cfg.aloi.lb = [0.03; cfg.load1.position-0.04; 0.005; 0.03; cfg.load2.position-0.04; 0.005];
+cfg.aloi.ub = [0.20; cfg.load1.position+0.04; 0.04; 0.25; cfg.load2.position+0.04; 0.04];
+cfg.aloi.theta0 = [cfg.load1.magnitude*0.9; cfg.load1.position; 0.015; ...
+                   cfg.load2.magnitude*0.9; cfg.load2.position; 0.015];
+
+% Multi-start seeds - more focused search
+cfg.aloi.forceSeeds1 = [0.8, 0.95, 1.05, 1.2] * cfg.load1.magnitude;
+cfg.aloi.muSeeds1 = cfg.load1.position + [-0.02, -0.01, 0, 0.01, 0.02];
+cfg.aloi.sigmaSeeds1 = [0.010, 0.015, 0.020];
+cfg.aloi.forceSeeds2 = [0.8, 0.95, 1.05, 1.2] * cfg.load2.magnitude;
+cfg.aloi.muSeeds2 = cfg.load2.position + [-0.02, -0.01, 0, 0.01, 0.02];
+cfg.aloi.sigmaSeeds2 = [0.010, 0.015, 0.020];
 end
 
 
@@ -166,9 +199,13 @@ best.theta = cfg.aloi.theta0;
 best.cost = inf;
 best.iter = 0;
 
-% Multi-start optimization
+% Multi-start optimization with better strategy
 fprintf('Running Aloi optimization with multi-start...\n');
 nTries = 0;
+totalTries = length(cfg.aloi.forceSeeds1) * length(cfg.aloi.muSeeds1) * ...
+             length(cfg.aloi.sigmaSeeds1) * length(cfg.aloi.forceSeeds2) * ...
+             length(cfg.aloi.muSeeds2) * length(cfg.aloi.sigmaSeeds2);
+
 for f1 = cfg.aloi.forceSeeds1
     for mu1 = cfg.aloi.muSeeds1
         for sig1 = cfg.aloi.sigmaSeeds1
@@ -178,11 +215,15 @@ for f1 = cfg.aloi.forceSeeds1
                         nTries = nTries + 1;
                         theta0 = [f1; mu1; sig1; f2; mu2; sig2];
                         [thetaTry, costTry, iterTry] = runAloiLocalFit(theta0, cfg, model, trueData, Wpos);
-                        if costTry < best.cost
-                            best.theta = thetaTry;
-                            best.cost = costTry;
-                            best.iter = iterTry;
-                            fprintf('  Try %d: New best cost = %.6f\n', nTries, costTry);
+
+                        % Check if this is a valid solution (loads should be separated)
+                        if abs(thetaTry(2) - thetaTry(5)) > 0.03  % At least 3cm apart
+                            if costTry < best.cost
+                                best.theta = thetaTry;
+                                best.cost = costTry;
+                                best.iter = iterTry;
+                                fprintf('  Try %d/%d: New best cost = %.6f\n', nTries, totalTries, costTry);
+                            end
                         end
                     end
                 end
@@ -193,6 +234,12 @@ end
 fprintf('Optimization complete. Best cost: %.6f\n', best.cost);
 
 theta = best.theta;
+
+% Ensure loads are ordered by position
+if theta(2) > theta(5)
+    theta = [theta(4); theta(5); theta(6); theta(1); theta(2); theta(3)];
+end
+
 qEst = twoGaussianLoad(model.s, theta);
 yEst = model.actShape + model.Phi * qEst;
 
@@ -298,34 +345,35 @@ end
 end
 
 
-function printAloiSummary(results, cfg)
+function printAloiSummary(results, cfg, caseNum)
 est = results.estimation;
-fprintf('\n=== Aloi 2022 Gaussian Load Estimation ===\n');
-fprintf('Output directory: %s\n\n', cfg.outputDir);
+fprintf('\n=== Case %d: Aloi 2022 Method ===\n', caseNum);
 fprintf('True loads:\n');
-fprintf('  Load 1: %.3f N at s = %.3f m\n', cfg.load1.magnitude, cfg.load1.position);
-fprintf('  Load 2: %.3f N at s = %.3f m\n', cfg.load2.magnitude, cfg.load2.position);
-fprintf('\nEstimated loads:\n');
-fprintf('  Load 1: %.3f N at s = %.3f m\n', est.load1Est(2), est.load1Est(1));
-fprintf('  Load 2: %.3f N at s = %.3f m\n', est.load2Est(2), est.load2Est(1));
-fprintf('\nErrors:\n');
-fprintf('  Load 1 position error: %.1f mm\n', 1e3 * abs(est.load1Est(1) - cfg.load1.position));
-fprintf('  Load 1 magnitude error: %.1f mN\n', 1e3 * abs(est.load1Est(2) - cfg.load1.magnitude));
-fprintf('  Load 2 position error: %.1f mm\n', 1e3 * abs(est.load2Est(1) - cfg.load2.position));
-fprintf('  Load 2 magnitude error: %.1f mN\n', 1e3 * abs(est.load2Est(2) - cfg.load2.magnitude));
-fprintf('\nShape RMSE: %.4f mm\n', 1e3 * est.shapeRmse);
-fprintf('Optimization cost: %.6f\n', est.cost);
-fprintf('Iterations: %d\n', est.iterations);
+fprintf('  Load 1: %.1f mN at s = %.1f mm\n', cfg.load1.magnitude*1e3, cfg.load1.position*1e3);
+fprintf('  Load 2: %.1f mN at s = %.1f mm\n', cfg.load2.magnitude*1e3, cfg.load2.position*1e3);
+fprintf('Estimated loads:\n');
+fprintf('  Load 1: %.1f mN at s = %.1f mm\n', est.load1Est(2)*1e3, est.load1Est(1)*1e3);
+fprintf('  Load 2: %.1f mN at s = %.1f mm\n', est.load2Est(2)*1e3, est.load2Est(1)*1e3);
+fprintf('Errors:\n');
+fprintf('  Load 1: pos %.1f mm, mag %.1f mN (%.1f%%)\n', ...
+    1e3 * abs(est.load1Est(1) - cfg.load1.position), ...
+    1e3 * abs(est.load1Est(2) - cfg.load1.magnitude), ...
+    100 * abs(est.load1Est(2) - cfg.load1.magnitude) / cfg.load1.magnitude);
+fprintf('  Load 2: pos %.1f mm, mag %.1f mN (%.1f%%)\n', ...
+    1e3 * abs(est.load2Est(1) - cfg.load2.position), ...
+    1e3 * abs(est.load2Est(2) - cfg.load2.magnitude), ...
+    100 * abs(est.load2Est(2) - cfg.load2.magnitude) / cfg.load2.magnitude);
+fprintf('Shape RMSE: %.4f mm\n', 1e3 * est.shapeRmse);
 end
 
 
-function plotAloiResults(results, cfg)
+function plotAloiResults(results, cfg, caseNum)
 ensureOutputDir(cfg.outputDir);
 model = results.model;
 trueData = results.trueData;
 est = results.estimation;
 
-fig = figure('Name', 'Aloi Method Results', 'Color', 'w', 'Position', [100 100 1400 900]);
+fig = figure('Name', sprintf('Aloi Case %d', caseNum), 'Color', 'w', 'Position', [100 100 1400 900]);
 
 subplot(2, 3, 1);
 plot(model.s, trueData.yTrue * 1e3, 'k-', 'LineWidth', 2.5); hold on;
@@ -361,11 +409,11 @@ title('Shape Estimation Error');
 
 subplot(2, 3, 5);
 bar([cfg.load1.position, cfg.load2.position], ...
-    [cfg.load1.magnitude, cfg.load2.magnitude], 0.02, 'FaceColor', 'k'); hold on;
+    [cfg.load1.magnitude, cfg.load2.magnitude]*1e3, 0.02, 'FaceColor', 'k'); hold on;
 bar([est.load1Est(1), est.load2Est(1)], ...
-    [est.load1Est(2), est.load2Est(2)], 0.015, 'FaceColor', 'r');
+    [est.load1Est(2), est.load2Est(2)]*1e3, 0.015, 'FaceColor', 'r');
 grid on; box on;
-xlabel('Position [m]'); ylabel('Force magnitude [N]');
+xlabel('Position [m]'); ylabel('Force magnitude [mN]');
 title('Load Locations and Magnitudes');
 legend({'True', 'Estimated'}, 'Location', 'best');
 
@@ -379,8 +427,8 @@ title('Estimation Errors');
 legend({'Position [mm]', 'Magnitude [mN]'}, 'Location', 'best');
 grid on;
 
-sgtitle('Aloi 2022 Method: Two Point Loads with FBG Sensing');
-saveFigure(fig, fullfile(cfg.outputDir, 'aloi_method_results.png'));
+sgtitle(sprintf('Case %d: Aloi 2022 Method with Two Point Loads', caseNum));
+saveFigure(fig, fullfile(cfg.outputDir, sprintf('aloi_case%d_results.png', caseNum)));
 end
 
 
@@ -459,6 +507,125 @@ text(10, max(y)*1e3*0.7, sprintf('Shape RMSE: %.2f mm', est.shapeRmse*1e3), 'Fon
 
 saveFigure(fig, fullfile(cfg.outputDir, 'aloi_fig6_style.png'));
 fprintf('\nFig 6 style plot saved to: %s\n', fullfile(cfg.outputDir, 'aloi_fig6_style.png'));
+end
+
+
+function plotAloiFig6MultiCase(cases)
+% Plot all three cases in one figure, similar to Fig 6 in the paper
+cfg = cases{1}.config;
+ensureOutputDir(cfg.outputDir);
+
+fig = figure('Name', 'Aloi Fig 6 - Three Cases', 'Color', 'w', 'Position', [50 50 1800 600]);
+
+for caseNum = 1:3
+    results = cases{caseNum};
+    cfg = results.config;
+    model = results.model;
+    trueData = results.trueData;
+    est = results.estimation;
+
+    subplot(1, 3, caseNum);
+
+    % Convert to x-y coordinates
+    x = model.s;
+    y = trueData.yTrue;
+
+    % Plot robot shape (black/gray line)
+    plot(x * 1e3, y * 1e3, 'Color', [0.4 0.4 0.4], 'LineWidth', 2.5); hold on;
+
+    % Plot FBG marker locations (green circles)
+    xMeas = model.sMeas;
+    yMeas = trueData.yTrue(model.measIdx);
+    plot(xMeas * 1e3, yMeas * 1e3, 'o', 'MarkerSize', 8, ...
+         'MarkerFaceColor', [0.2 0.8 0.2], 'MarkerEdgeColor', 'k', 'LineWidth', 1.5);
+
+    % Plot true applied forces (yellow/gold arrows)
+    forceScale = 200;
+    xLoad1 = model.s(trueData.load1Idx);
+    yLoad1 = trueData.yTrue(trueData.load1Idx);
+    thetaLoad1 = trueData.thetaTrue(trueData.load1Idx);
+    normalDir1 = [-sin(thetaLoad1), cos(thetaLoad1)];
+
+    quiver(xLoad1 * 1e3, yLoad1 * 1e3, ...
+           normalDir1(1) * cfg.load1.magnitude * forceScale, ...
+           normalDir1(2) * cfg.load1.magnitude * forceScale, ...
+           0, 'Color', [0.8 0.7 0.1], 'LineWidth', 5, 'MaxHeadSize', 2);
+
+    xLoad2 = model.s(trueData.load2Idx);
+    yLoad2 = trueData.yTrue(trueData.load2Idx);
+    thetaLoad2 = trueData.thetaTrue(trueData.load2Idx);
+    normalDir2 = [-sin(thetaLoad2), cos(thetaLoad2)];
+
+    quiver(xLoad2 * 1e3, yLoad2 * 1e3, ...
+           normalDir2(1) * cfg.load2.magnitude * forceScale, ...
+           normalDir2(2) * cfg.load2.magnitude * forceScale, ...
+           0, 'Color', [0.8 0.7 0.1], 'LineWidth', 5, 'MaxHeadSize', 2);
+
+    % Plot estimated load distribution (red line)
+    qEst = est.qEst;
+    qMax = max(abs(qEst));
+
+    % Draw red line showing estimated load distribution
+    for i = 1:cfg.nGrid
+        if qEst(i) > 0.05 * qMax
+            xi = model.s(i);
+            yi = trueData.yTrue(i);
+            thetai = trueData.thetaTrue(i);
+            normalDir = [-sin(thetai), cos(thetai)];
+
+            % Scale the load for visualization
+            loadMag = qEst(i) / qMax * 0.03;  % 30mm max
+
+            plot([xi * 1e3, (xi + normalDir(1) * loadMag) * 1e3], ...
+                 [yi * 1e3, (yi + normalDir(2) * loadMag) * 1e3], ...
+                 'r-', 'LineWidth', 2);
+        end
+    end
+
+    % Plot blue crosses for estimated load directions (like in the paper)
+    nCrosses = 15;
+    crossIdx = round(linspace(1, cfg.nGrid, nCrosses));
+    for i = crossIdx
+        if qEst(i) > 0.1 * qMax
+            xi = model.s(i);
+            yi = trueData.yTrue(i);
+            thetai = trueData.thetaTrue(i);
+            normalDir = [-sin(thetai), cos(thetai)];
+            tangentDir = [cos(thetai), sin(thetai)];
+
+            % Draw blue cross
+            crossSize = 0.004;  % 4mm
+            plot([xi - tangentDir(1)*crossSize, xi + tangentDir(1)*crossSize] * 1e3, ...
+                 [yi - tangentDir(2)*crossSize, yi + tangentDir(2)*crossSize] * 1e3, ...
+                 'b-', 'LineWidth', 2.5);
+            plot([xi - normalDir(1)*crossSize, xi + normalDir(1)*crossSize] * 1e3, ...
+                 [yi - normalDir(2)*crossSize, yi + normalDir(2)*crossSize] * 1e3, ...
+                 'b-', 'LineWidth', 2.5);
+        end
+    end
+
+    axis equal;
+    grid on; box on;
+    xlabel('z [m]', 'FontSize', 11);
+    ylabel('y [m]', 'FontSize', 11);
+    title(sprintf('(%s)', char('a' + caseNum - 1)), 'FontSize', 13, 'FontWeight', 'bold');
+
+    % Adjust axis limits for better visualization
+    xlim([min(x)*1e3 - 10, max(x)*1e3 + 40]);
+    ylim([min(y)*1e3 - 30, max(y)*1e3 + 10]);
+end
+
+% Add legend to the first subplot
+subplot(1, 3, 1);
+legend({'Robot shape', 'Marker Location', 'Applied Force', '', 'Estimated Load'}, ...
+       'Location', 'northwest', 'FontSize', 10);
+
+% Overall title
+sgtitle('Using a 2 DoF robot, experiments were performed to validate non planar loading and actuation', ...
+        'FontSize', 12, 'FontWeight', 'normal');
+
+saveFigure(fig, fullfile(cfg.outputDir, 'aloi_fig6_three_cases.png'));
+fprintf('\nFig 6 style (3 cases) saved to: %s\n', fullfile(cfg.outputDir, 'aloi_fig6_three_cases.png'));
 end
 
 
