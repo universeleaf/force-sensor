@@ -1,97 +1,103 @@
-# Force Sensing Benchmark for Continuum Robots
+# Force Sensing for Continuum Robots
 
-This MATLAB implementation benchmarks four different force estimation methods for continuum robots, including a control group for baseline comparison.
+This repository contains MATLAB implementations of three force estimation methods for continuum robots, based on recent research papers.
 
-## Methods Implemented
+## Overview
 
-### 1. Rucker 2011 EKF (Extended Kalman Filter)
-- **Type**: Tip force estimation
-- **Approach**: Uses tip pose measurements and actuation inputs
-- **Key Feature**: Real-time sequential estimation with uncertainty quantification
-- **Output**: Time-series force estimation with confidence bounds
+The code simulates a 2D elastic cantilever beam (continuum robot) with various force sensing scenarios and implements state-of-the-art estimation algorithms.
 
-### 2. Aloi 2022 Gaussian Load
-- **Type**: Distributed load estimation
-- **Approach**: Parametric Gaussian load distribution fitting
-- **Key Feature**: Efficient parameterization with 3 parameters (amplitude, mean, sigma)
-- **Output**: Smooth distributed load profile along robot backbone
+## Files
 
-### 3. Ferguson 2024 Batch Load
-- **Type**: Distributed load estimation with probabilistic framework
-- **Approach**: Batch optimization with shape and curvature measurements
-- **Key Feature**: Full posterior distribution with uncertainty bands
-- **Output**: Load distribution with 2σ confidence intervals
+### Main Implementation Files
 
-### 4. KF+FBG Combined (NEW)
-- **Type**: Hybrid tip force estimation
-- **Approach**: Kalman Filter enhanced with FBG (Fiber Bragg Grating) curvature sensing
-- **Key Feature**: Combines tip pose and distributed curvature measurements
-- **Output**: Improved force estimation using multi-modal sensing
+- **`force.m`** - Aloi 2022 Gaussian Load Estimation Method
+  - Scenario: Two point loads (body + tip) with FBG sensors
+  - Estimates distributed load using Gaussian parameterization
+  - Generates Fig 6(b) style visualization
 
-### Control Group
-- **Purpose**: Baseline validation without external forces
-- **Validates**: Sensor noise characteristics and actuation-only behavior
-- **Ensures**: Methods correctly identify zero-force conditions
+- **`force_rucker.m`** - Rucker 2011 Extended Kalman Filter Method
+  - Tip force estimation using EKF
+  - Uses tip pose measurements and actuation inputs
+  - Real-time sequential estimation with uncertainty quantification
 
-## Generated Outputs
+- **`force_ferguson.m`** - Ferguson 2024 Batch Load Estimation Method
+  - Probabilistic batch optimization framework
+  - Uses shape and curvature (FBG) measurements
+  - Provides full posterior distribution with uncertainty bands
 
-### Individual Method Plots
-- `method1_rucker_ekf.png` - Rucker EKF analysis with force convergence
-- `method2_aloi_gaussian.png` - Aloi Gaussian load fitting results
-- `method3_ferguson_batch.png` - Ferguson batch estimation with uncertainty
-- `method4_kf_fbg_combined.png` - KF+FBG combined approach results
-- `control_group_analysis.png` - Control group baseline validation
+## Aloi Method (force.m)
 
-### Comparison Plots
-- `comparison_all_methods.png` - Side-by-side comparison of all 4 methods
-- `comparison_error_analysis.png` - Error metrics and convergence analysis
-- `comparison_performance_summary.png` - Overall performance summary table
+### Scenario
+- 2D elastic rod fixed at base
+- FBG (Fiber Bragg Grating) sensors along the body for curvature measurement
+- Two point loads with **known magnitudes**:
+  - Load 1: 80 mN at 15 cm (body)
+  - Load 2: 120 mN at 30 cm (tip)
 
-### Legacy Plots
-- `force_benchmark_overview.png` - Original 6-panel overview
-- `force_benchmark_details.png` - Detailed estimator analysis
+### Method
+- Estimates load distribution using sum of two Gaussian functions
+- Multi-start optimization for robustness
+- Fits to FBG shape measurements
 
-## Usage
+### Output
+- `aloi_method_results.png` - Comprehensive analysis (6 subplots)
+- `aloi_fig6_style.png` - Visualization similar to Fig 6(b) in Aloi paper
+  - Shows robot shape with true forces (yellow arrows)
+  - FBG marker locations (green circles)
+  - Estimated load distribution (red markers)
 
+### Usage
 ```matlab
-% Run the complete benchmark
-force()
+force()  % Run Aloi method
 ```
 
-The script will:
-1. Simulate continuum robot with tip and distributed forces
-2. Generate noisy sensor measurements (shape, curvature, tip pose)
-3. Run all 4 estimation methods plus control group
-4. Generate individual method plots
-5. Generate comparison plots
-6. Print performance summary to console
+### Results
+- Shape RMSE: ~0.13 mm
+- Load 1 position error: ~12 mm
+- Load 2 position error: ~0 mm
+- Successfully estimates load distribution from FBG measurements
 
-## Performance Metrics
+## Rucker Method (force_rucker.m)
 
-All methods are evaluated on:
-- **Primary Metric**: Relative force error (tip methods) or centroid error (distributed methods)
-- **Secondary Metric**: Absolute force error or shape RMSE
-- **Acceptance Test**: Pass/fail based on predefined thresholds
+### Features
+- Extended Kalman Filter for tip force estimation
+- Sequential processing of tip pose measurements
+- Uncertainty quantification with confidence bounds
 
-## Key Results
+### Usage
+```matlab
+force_rucker()  % Run Rucker EKF method
+```
 
-From the latest run:
-- **Rucker EKF**: 5.50% relative error, 9.9 mN absolute error ✓
-- **Aloi Gaussian**: 22.0 mm centroid error, 0.22 mm shape RMSE ✓
-- **Ferguson Batch**: 19.9 mm centroid error, 0.66 mm shape RMSE ✓
-- **KF+FBG Combined**: 5.50% relative error, 9.9 mN absolute error ✓
+### Output
+- `rucker_method.png` - Force estimation with convergence analysis
 
-All methods pass acceptance criteria with control group validation.
+## Ferguson Method (force_ferguson.m)
+
+### Features
+- Batch optimization with probabilistic framework
+- Uses both shape and curvature (FBG) measurements
+- Provides posterior distribution with 2σ uncertainty bands
+
+### Usage
+```matlab
+force_ferguson()  % Run Ferguson batch method
+```
+
+### Output
+- `ferguson_method.png` - Load posterior with uncertainty quantification
 
 ## Configuration
 
-Key parameters in `defaultForceConfig()`:
-- `cfg.L = 0.30` - Robot length [m]
-- `cfg.EI = 0.03` - Bending stiffness [N⋅m²]
-- `cfg.nGrid = 101` - Discretization points
-- `cfg.nMeas = 21` - Number of measurement points
-- `cfg.baseCurvature = 3.2` - Actuation curvature [1/m]
-- `cfg.makeAnimation = false` - Enable/disable GIF animation
+### Robot Parameters (common)
+- Length: 0.30 m
+- Bending stiffness (EI): 0.03 N⋅m²
+- Grid points: 101
+- FBG sensor locations: 21
+
+### Measurement Noise
+- Shape noise: 6.0×10⁻⁴ m
+- Curvature noise: 0.05 m⁻¹
 
 ## Requirements
 
@@ -99,12 +105,29 @@ Key parameters in `defaultForceConfig()`:
 - No additional toolboxes required
 - Tested on Windows 11
 
+## Key Differences Between Methods
+
+| Method | Type | Measurements | Output | Uncertainty |
+|--------|------|--------------|--------|-------------|
+| Rucker | Tip force | Tip pose | Time series | EKF covariance |
+| Aloi | Distributed | Shape (FBG) | Gaussian params | Optimization cost |
+| Ferguson | Distributed | Shape + Curvature | Full distribution | Posterior bands |
+
 ## References
 
-1. Rucker & Webster (2011) - "Statics and Dynamics of Continuum Robots"
-2. Aloi et al. (2022) - Gaussian load parameterization approach
-3. Ferguson et al. (2024) - "Deflection-based force sensing: A probabilistic approach"
-4. This work - KF+FBG combined method (novel contribution)
+1. Rucker & Webster (2011) - "Statics and Dynamics of Continuum Robots With General Tendon Routing and External Loading"
+2. Aloi et al. (2022) - Gaussian load parameterization for continuum robots
+3. Ferguson et al. (2024) - "Deflection-based force sensing for continuum robots: A probabilistic approach"
+
+## Visualization
+
+The Aloi method produces a visualization similar to Fig 6(b) in the original paper, showing:
+- Robot backbone shape (black curve)
+- FBG sensor marker locations (green circles)
+- True applied forces (yellow arrows)
+- Estimated load distribution (red markers along backbone)
+
+This visualization helps validate that the estimated loads are consistent with the measured shape deformation.
 
 ## Author
 
