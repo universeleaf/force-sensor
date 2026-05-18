@@ -2,6 +2,8 @@
 
 This repository contains MATLAB implementations of three force estimation methods for continuum robots, based on recent research papers.
 
+**Author:** Tongyu Wang (Georgia Tech)
+
 ## Overview
 
 The code simulates a 2D elastic cantilever beam (continuum robot) with various force sensing scenarios and implements state-of-the-art estimation algorithms.
