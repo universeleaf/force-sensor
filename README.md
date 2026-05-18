@@ -82,15 +82,15 @@ The Aloi method uses **Gaussian parameterization** to approximate **point loads*
 4. **Ill-posed inverse problem**: Multiple load distributions can produce nearly identical shapes
 
 **What the method does well:**
-- ✅ Excellent shape reconstruction (RMSE < 0.12 mm)
-- ✅ Identifies that there are two distinct load regions
-- ✅ Approximate load locations (within 1-4 cm)
-- ✅ Captures overall load distribution pattern
+- Excellent shape reconstruction (RMSE < 0.12 mm)
+- Identifies that there are two distinct load regions
+- Approximate load locations (within 1-4 cm)
+- Captures overall load distribution pattern
 
 **Limitations:**
-- ❌ Cannot precisely recover point load magnitudes (inherent to Gaussian parameterization)
-- ❌ Struggles when loads are close together (Case 2)
-- ❌ Tends to overestimate larger loads
+- Cannot precisely recover point load magnitudes (inherent to Gaussian parameterization)
+- Struggles when loads are close together (Case 2)
+- Tends to overestimate larger loads
 
 This reflects the **actual capabilities and limitations** of the Aloi 2022 method when applied to point loads. The paper's experiments likely used more distributed loads or had additional constraints.
 
