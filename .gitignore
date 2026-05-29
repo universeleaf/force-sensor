@@ -3,6 +3,7 @@ meeting_notes*.tex
 meeting_notes*.pdf
 会议材料*.tex
 会议材料*.pdf
+meeting_agenda*.md
 
 # LaTeX auxiliary files
 *.aux
@@ -18,3 +19,21 @@ meeting_notes*.pdf
 # OS files
 .DS_Store
 Thumbs.db
+
+# Claude Code files
+.claude/
+
+# PDF papers and references
+*.pdf
+
+# Archived outputs
+*.zip
+
+# External repositories
+LCP-Continuum/
+
+# Test/development files
+force_test_single.m
+
+# Images (keep only in force_outputs/)
+aloifig6.png

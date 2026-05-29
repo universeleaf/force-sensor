@@ -1,25 +1,53 @@
-function force()
-% Aloi 2022 Gaussian Load Estimation Method
+function force(quickTest)
+% Aloi 2022 Gaussian Load Estimation Method with Cosserat Rod Theory
 % Scenario: 2D elastic rod with FBG sensors, multiple test cases
+% Modified to use Cosserat rod theory instead of simple beam model
+%
+% Usage:
+%   force()           - Run all 3 cases with full optimization
+%   force(true)       - Quick test: 1 case with reduced iterations
 clearvars;
 clc;
 close all;
 
-% Run three different test cases like Fig 6 in the paper
-cases = cell(3, 1);
-for i = 1:3
-    fprintf('\n========== Running Case %d ==========\n', i);
-    cfg = defaultAloiConfig(i);
-    cases{i} = runAloiSimulation(cfg);
-    printAloiSummary(cases{i}, cfg, i);
+% Quick test mode: set to true to run only one case with fewer iterations
+if nargin < 1
+    quickTest = false;
 end
 
-% Plot all three cases in one figure (Fig 6 style)
-plotAloiFig6MultiCase(cases);
+if quickTest
+    fprintf('Running in QUICK TEST mode (1 case, reduced iterations)\n');
+    cases = cell(1, 1);
+    cfg = defaultAloiConfig(1);
+    cfg.aloi.maxIter = 50;
+    cfg.aloi.forceSeeds1 = [0.9, 1.1] * cfg.load1.magnitude;
+    cfg.aloi.muSeeds1 = cfg.load1.position + [0];
+    cfg.aloi.sigmaSeeds1 = [0.015];
+    cfg.aloi.forceSeeds2 = [0.9, 1.1] * cfg.load2.magnitude;
+    cfg.aloi.muSeeds2 = cfg.load2.position + [0];
+    cfg.aloi.sigmaSeeds2 = [0.015];
 
-% Also plot individual detailed results
-for i = 1:3
-    plotAloiResults(cases{i}, cases{i}.config, i);
+    fprintf('\n========== Running Case 1 (Quick Test) ==========\n');
+    cases{1} = runAloiSimulation(cfg);
+    printAloiSummary(cases{1}, cfg, 1);
+    plotAloiResults(cases{1}, cases{1}.config, 1);
+else
+    % Run three different test cases like Fig 6 in the paper
+    cases = cell(3, 1);
+    for i = 1:3
+        fprintf('\n========== Running Case %d ==========\n', i);
+        cfg = defaultAloiConfig(i);
+        cases{i} = runAloiSimulation(cfg);
+        printAloiSummary(cases{i}, cfg, i);
+    end
+
+    % Plot all three cases in one figure (Fig 6 style)
+    plotAloiFig6MultiCase(cases);
+
+    % Also plot individual detailed results
+    for i = 1:3
+        plotAloiResults(cases{i}, cases{i}.config, i);
+    end
 end
 end
 
@@ -92,7 +120,7 @@ function results = runAloiSimulation(cfg)
 rng(cfg.seed, 'twister');
 ensureOutputDir(cfg.outputDir);
 
-model = buildBeamModel(cfg);
+model = buildCosseratModel(cfg);
 trueData = simulateTwoPointLoads(cfg, model);
 estimation = estimateAloiLoad(cfg, model, trueData);
 
@@ -103,7 +131,8 @@ results.estimation = estimation;
 end
 
 
-function model = buildBeamModel(cfg)
+function model = buildCosseratModel(cfg)
+% Build Cosserat rod model (replaces simple beam model)
 s = linspace(0, cfg.L, cfg.nGrid).';
 ds = s(2) - s(1);
 
@@ -116,51 +145,34 @@ if numel(measIdx) ~= cfg.nMeas
 end
 sMeas = s(measIdx);
 
-% Influence matrix (Green's function for cantilever beam)
-Phi = zeros(cfg.nGrid, cfg.nGrid);
-for i = 1:cfg.nGrid
-    si = s(i);
-    for j = 1:cfg.nGrid
-        xi = s(j);
-        if si <= xi
-            kernel = si^2 * (3 * xi - si) / (6 * cfg.EI);
-        else
-            kernel = xi^2 * (3 * si - xi) / (6 * cfg.EI);
-        end
-        Phi(i, j) = kernel * ds;
-    end
-end
-
-% Derivative operators
-D1 = zeros(cfg.nGrid, cfg.nGrid);
-for i = 2:(cfg.nGrid - 1)
-    D1(i, i-1) = -0.5 / ds;
-    D1(i, i+1) = 0.5 / ds;
-end
-D1(1, 1:2) = [-1, 1] / ds;
-D1(end, end-1:end) = [-1, 1] / ds;
-
-D2 = zeros(cfg.nGrid, cfg.nGrid);
-for i = 2:(cfg.nGrid - 1)
-    D2(i, i-1:i+1) = [1, -2, 1] / ds^2;
-end
-D2(1, 1:3) = [1, -2, 1] / ds^2;
-D2(end, end-2:end) = [1, -2, 1] / ds^2;
-
+% Cosserat rod parameters
+% For 2D planar case: u = [kappa_x; kappa_y; tau] where tau (twist) = 0
 model.s = s;
 model.ds = ds;
 model.sMeas = sMeas;
 model.measIdx = measIdx;
-model.Phi = Phi;
-model.D1 = D1;
-model.D2 = D2;
-model.actShape = zeros(cfg.nGrid, 1);  % No actuation
+
+% Stiffness matrix K = diag([EI_x, EI_y, GJ])
+% For 2D planar bending in y-direction, we mainly use EI_y
+model.K = [cfg.EI; cfg.EI; cfg.EI * 0.5];  % [EI_x, EI_y, GJ]
+
+% Base transformation (cantilever: fixed at origin, pointing in +z direction)
+model.T_base = eye(4);
+
+% Intrinsic curvature (no precurvature for straight rod)
+model.u_hat = zeros(3, cfg.nGrid);
+
+% Load Cosserat helper functions
+model.helpers = cosseratHelpers();
+
+% For compatibility with plotting
+model.actShape = zeros(cfg.nGrid, 1);
 model.actKappa = zeros(cfg.nGrid, 1);
 end
 
 
 function trueData = simulateTwoPointLoads(cfg, model)
-% Create two point loads as delta functions (matching Aloi paper setup)
+% Create two point loads and solve using Cosserat rod theory
 qTrue = zeros(cfg.nGrid, 1);
 
 % Load 1: body load (point load)
@@ -171,11 +183,36 @@ qTrue(idx1) = cfg.load1.magnitude / model.ds;
 [~, idx2] = min(abs(model.s - cfg.load2.position));
 qTrue(idx2) = cfg.load2.magnitude / model.ds;
 
-% Compute true deflection
-yLoad = model.Phi * qTrue;
-yTrue = model.actShape + yLoad;
-thetaTrue = model.D1 * yLoad;
-kappaTrue = model.actKappa + model.D2 * yLoad;
+% Convert distributed load q to force vectors for Cosserat rod
+% For 2D planar case: forces act in y-direction (perpendicular to rod axis)
+f_ext = zeros(3, cfg.nGrid);
+f_ext(2, :) = -qTrue';  % Negative y-direction (gravity-like)
+
+% Solve Cosserat rod with external loads
+[u, p, R, converged] = model.helpers.solveCosseratWithLoad(...
+    model.s, model.u_hat, model.K, f_ext, model.T_base, 100, 1e-6);
+
+if ~converged
+    warning('Cosserat rod solution did not converge for true loads');
+end
+
+% Extract deflection in y-direction
+yTrue = p(2, :)';
+
+% Compute angle and curvature from rotation matrices
+thetaTrue = zeros(cfg.nGrid, 1);
+kappaTrue = zeros(cfg.nGrid, 1);
+for i = 1:cfg.nGrid
+    % Extract rotation angle from rotation matrix (2D case)
+    thetaTrue(i) = atan2(R(1, 3, i), R(3, 3, i));
+end
+
+% Curvature is the derivative of angle
+for i = 2:(cfg.nGrid - 1)
+    kappaTrue(i) = (thetaTrue(i+1) - thetaTrue(i-1)) / (2 * model.ds);
+end
+kappaTrue(1) = (thetaTrue(2) - thetaTrue(1)) / model.ds;
+kappaTrue(end) = (thetaTrue(end) - thetaTrue(end-1)) / model.ds;
 
 % Add FBG measurement noise
 yMeas = yTrue(model.measIdx) + cfg.shapeNoiseStd * randn(cfg.nMeas, 1);
@@ -190,6 +227,9 @@ trueData.kappaMeas = kappaMeas;
 trueData.load1Idx = idx1;
 trueData.load2Idx = idx2;
 trueData.rawMeasurementRmse = sqrt(mean((yMeas - yTrue(model.measIdx)).^2));
+trueData.u = u;  % Store strain field
+trueData.R = R;  % Store rotation matrices
+trueData.p = p;  % Store full 3D position
 end
 
 
@@ -256,7 +296,13 @@ if theta(2) > theta(5)
 end
 
 qEst = twoGaussianLoad(model.s, theta);
-yEst = model.actShape + model.Phi * qEst;
+
+% Solve Cosserat rod with estimated load
+f_ext = zeros(3, cfg.nGrid);
+f_ext(2, :) = -qEst';
+[~, p_est, ~, ~] = model.helpers.solveCosseratWithLoad(...
+    model.s, model.u_hat, model.K, f_ext, model.T_base, 100, 1e-6);
+yEst = p_est(2, :)';
 
 shapeRmse = sqrt(mean((yEst(model.measIdx) - trueData.yTrue(model.measIdx)).^2));
 
@@ -330,7 +376,18 @@ end
 
 function y = predictSingleGaussian(theta, model, idx)
 q = gaussianLoad(model.s, theta(1), theta(2), theta(3));
-y = model.actShape + model.Phi * q;
+
+% Convert distributed load to force vectors
+f_ext = zeros(3, length(model.s));
+f_ext(2, :) = -q';
+
+% Solve Cosserat rod
+[~, p, ~, ~] = model.helpers.solveCosseratWithLoad(...
+    model.s, model.u_hat, model.K, f_ext, model.T_base, 100, 1e-6);
+
+% Extract y-deflection
+y = p(2, :)';
+
 if ~isempty(idx)
     y = y(idx);
 end
@@ -339,7 +396,18 @@ end
 
 function y = predictSingleGaussianDelta(theta, model, idx)
 q = gaussianLoad(model.s, theta(1), theta(2), theta(3));
-y = model.Phi * q;
+
+% Convert distributed load to force vectors
+f_ext = zeros(3, length(model.s));
+f_ext(2, :) = -q';
+
+% Solve Cosserat rod
+[~, p, ~, ~] = model.helpers.solveCosseratWithLoad(...
+    model.s, model.u_hat, model.K, f_ext, model.T_base, 100, 1e-6);
+
+% Extract y-deflection (delta from unloaded state, which is zero)
+y = p(2, :)';
+
 if ~isempty(idx)
     y = y(idx);
 end
@@ -397,7 +465,18 @@ if nargin < 3
     idx = [];
 end
 q = twoGaussianLoad(model.s, theta);
-y = model.actShape + model.Phi * q;
+
+% Convert distributed load to force vectors
+f_ext = zeros(3, length(model.s));
+f_ext(2, :) = -q';  % Forces in y-direction
+
+% Solve Cosserat rod
+[~, p, ~, ~] = model.helpers.solveCosseratWithLoad(...
+    model.s, model.u_hat, model.K, f_ext, model.T_base, 100, 1e-6);
+
+% Extract y-deflection
+y = p(2, :)';
+
 if ~isempty(idx)
     y = y(idx);
 end
