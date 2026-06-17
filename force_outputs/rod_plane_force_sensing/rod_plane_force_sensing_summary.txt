@@ -1,0 +1,31 @@
+Rod-plane force sensing validation
+==================================
+
+Forward model: copied rod-plane setup with a local tip-load extension; original LCP-Continuum files are unchanged.
+Inverse input: sparse noisy FBG-like curvature samples plus a biased plane point and plane normal measurement.
+
+Rod length: 200.0 mm
+Target bend: 180.0 deg
+Actual integrated precurvature: 180.00 deg
+True plane z: 20.0 mm, measured plane bias: 0.35 mm
+Friction coefficient: 2.80
+Applied tip load [Fx Fy Fz] N: [0 0 -3.5]
+Frames: 120, insertion: 30.0 mm
+
+Final true contact force [Fx Fy Fz] N: [-50.8779 4.15753e-14 -21.514]
+Final estimated contact force [Fx Fy Fz] N: [-47.6958 0 -20.6914]
+Final true tip load [Fx Fy Fz] N: [0 0 -3.5]
+Final estimated tip load [Fx Fy Fz] N: [-0.143667 0.00319012 -3.42599]
+Final true total load [Fx Fy Fz] N: [-50.8779 4.15753e-14 -25.014]
+Final estimated total load [Fx Fy Fz] N: [-47.8394 0.00319012 -24.1173]
+Final Aloi shape-only total load [Fx Fy Fz] N: [-96.3181 0.56773 -12.6541]
+
+Shape+environment contact-force RMSE: 1.49859 N
+Shape+environment tip-load RMSE: 0.414902 N
+Shape+environment total-load RMSE: 1.64057 N
+Shape+environment final total-load relative error: 5.5879 %
+Aloi total-load RMSE: 29.1297 N
+Aloi final total-load relative error: 83.0672 %
+
+Interpretation note:
+The estimate does not use the forward solver contact force or contact index. It uses the measured shape and measured plane to infer a contact candidate, then estimates both the contact force and tip load in the constrained MAP state x=[p1; eta1; s1; f1n; beta1; lambda1; fe]. Aloi is used only as a shape-only total-load baseline and does not receive the plane/friction constraints.
