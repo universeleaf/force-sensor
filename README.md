@@ -1,143 +1,160 @@
 # Force Sensing for Continuum Robots
 
-This repository contains MATLAB implementations of force estimation methods for continuum robots using Cosserat rod theory.
+This repository contains MATLAB experiments for continuum-robot force
+estimation with Cosserat rod models. It includes the original Gaussian
+load-estimation baseline and a newer rod-plane contact validation with a
+known forward tip load and inverse force estimation from the measured shape.
 
-**Author:** Tongyu Wang (Georgia Tech)
+## Repository Contents
 
-## Overview
+### Aloi-Style Gaussian Baseline
 
-The code implements force estimation for continuum robots with large deformations using Cosserat rod theory combined with the Aloi 2022 Gaussian load estimation method.
+- `force.m`
+  - Reproduces a Cosserat-rod version of the Aloi-style Gaussian load
+    parameterization.
+  - Runs three two-load test cases.
+  - Produces figures in `force_outputs/`.
 
-## Main Files
+- `force_rucker.m`, `force_ferguson.m`
+  - Additional comparison implementations.
 
-### Core Implementation
+- `cosseratHelpers.m`
+  - SE(3)/SO(3), strain integration, and helper routines for the Cosserat
+    rod tests.
 
-- **`force.m`** - Aloi 2022 Method with Cosserat Rod Theory
-  - Supports large deformations using Cosserat rod kinematics
-  - Three test cases with two point loads each
-  - Estimates distributed load using two-Gaussian parameterization
-  - Generates visualization with three subplots
+- `test_cosserat.m`
+  - Basic validation cases for the Cosserat implementation.
 
-- **`cosseratHelpers.m`** - Cosserat Rod Mathematical Functions
-  - SE(3) and SO(3) exponential maps
-  - Shape integration from strain field
-  - Equilibrium solver for external loads
+### Rod-Plane Tip-Load Validation
 
-- **`test_cosserat.m`** - Validation Tests
-  - Verifies Cosserat implementation against analytical solutions
-  - Tests unloaded, tip load, and distributed load cases
+The newer experiment is documented in:
 
-### Documentation
+- `ROD_PLANE_FORCE_SENSING_EXPERIMENT.md`
 
-- **`README_COSSERAT.md`** - Detailed usage guide
-- **`COSSERAT_IMPLEMENTATION.md`** - Technical documentation
+Main files:
 
-## Method
+- `simu_rod_plane_force_sensing_copy.m`
+- `run_rod_plane_force_sensing_experiment.m`
 
-### Cosserat Rod Theory
+This experiment uses Jia Shen's `LCP-Continuum` rod-plane model as a local
+dependency. The original files under `LCP-Continuum/` are not modified. The
+new script copies the rod-plane workflow into this repository and adds a local
+tip-load extension for the forward simulation.
 
-The implementation uses Cosserat rod theory for accurate modeling of large deformations:
+The forward pass generates:
 
-- **Kinematics**: Rod configuration described by SE(3) transformations
-- **Strain**: Curvature and twist vector u = [κ_x, κ_y, τ]^T
-- **Equilibrium**: Moment balance M(s) = ∫_s^L (x-s) * f(x) dx
-- **Constitutive**: Strain-moment relation u(s) = M(s) / K + u_hat(s)
+- a rod shape trajectory,
+- the contact-force trajectory,
+- a known external tip load,
+- and the total external load.
 
-### Load Estimation
+The inverse pass assumes the shape is measured and estimates the force state
 
-- Gaussian parameterization of distributed loads
-- Multi-start optimization for robustness
-- Levenberg-Marquardt with bounds
-- FBG shape measurements for fitting
-
-## Test Cases
-
-### Robot Parameters
-- Length: 0.30 m
-- Bending stiffness (EI): 0.03 N⋅m²
-- Grid points: 101
-- FBG sensor locations: 21
-
-### Three Scenarios
-
-**Case 1:**
-- Load 1: 100 mN at 120 mm
-- Load 2: 150 mN at 280 mm
-
-**Case 2:**
-- Load 1: 80 mN at 100 mm
-- Load 2: 120 mN at 220 mm
-
-**Case 3:**
-- Load 1: 60 mN at 150 mm
-- Load 2: 180 mN at 300 mm
-
-## Usage
-
-```matlab
-% Run all three test cases
-force()
-
-% Quick test (single case, reduced iterations)
-force(true)
-
-% Validate Cosserat implementation
-test_cosserat()
+```text
+x = [p1; eta1; s1; f1n; beta1; lambda1; fe]
 ```
 
-## Output
+where `p1` and `eta1` describe the plane, `s1` is the contact arclength,
+`f1n` and `beta1` describe the contact/friction force, `lambda1` is the
+friction-cone slack variable, and `fe` is the unknown tip load.
 
-Generated files in `force_outputs/`:
-- `aloi_fig6_three_cases.png` - Three cases comparison
-- `aloi_case1_results.png` - Case 1 detailed results
-- `aloi_case2_results.png` - Case 2 detailed results
-- `aloi_case3_results.png` - Case 3 detailed results
+The Aloi-style method is used as a shape-only total-load baseline for the same
+rod-plane trajectory. It does not use the plane, contact, or friction
+constraints.
 
-## Performance
+## Running the Code
 
-### Typical Results
-- Shape RMSE: 0.07-0.12 mm (excellent)
-- Total force error: 5-12%
-- Convergence: All cases converge successfully
+Run the Aloi-style baseline:
 
-### Validation
-Cosserat implementation verified against analytical beam solutions:
-- Tip load: 2.74% error
-- Uniform load: 6.70% error
+```matlab
+force()
+```
+
+Run the rod-plane tip-load experiment:
+
+```matlab
+results = simu_rod_plane_force_sensing_copy(false);
+```
+
+Run a shorter smoke test:
+
+```matlab
+results = simu_rod_plane_force_sensing_copy(true);
+```
+
+## Latest Rod-Plane Result
+
+Scenario:
+
+- Rod length: `200 mm`
+- Integrated precurvature: about `180 deg`
+- Plane: `z = 20 mm`
+- Friction coefficient: `mu = 2.8`
+- Base insertion: `0 mm` to `30 mm`
+- Forward tip load: `[0, 0, -3.5] N`
+- Frames: `120`
+
+Final-frame force estimates:
+
+```text
+True contact force:       [-50.8779, 0, -21.5140] N
+Estimated contact force:  [-47.6958, 0, -20.6914] N
+
+True tip load:            [0, 0, -3.5000] N
+Estimated tip load:       [-0.1437, 0.0032, -3.4260] N
+
+True total load:          [-50.8779, 0, -25.0140] N
+Estimated total load:     [-47.8394, 0.0032, -24.1173] N
+Aloi total-load estimate: [-96.3181, 0.5677, -12.6541] N
+```
+
+Trajectory metrics:
+
+```text
+Shape + environment contact-force RMSE: 1.4986 N
+Shape + environment tip-load RMSE:      0.4149 N
+Shape + environment total-load RMSE:    1.6406 N
+Shape + environment final total error:  5.5879 %
+
+Aloi total-load RMSE:                   29.1297 N
+Aloi final total error:                 83.0672 %
+```
+
+The shape + environment formulation is much better constrained in this
+rod-plane case because it uses the measured shape together with the plane and
+friction-cone information. The remaining error mainly comes from noisy
+curvature interpolation, plane offset bias, and the force-decomposition
+ambiguity between a near-tip contact and an actual tip load.
+
+## Output Files
+
+General Aloi/Cosserat outputs are written under `force_outputs/`.
+
+Rod-plane validation outputs are written under:
+
+```text
+force_outputs/rod_plane_force_sensing/
+```
+
+Key files:
+
+- `rod_plane_force_sensing_results.mat`
+- `rod_plane_force_sensing_trajectory.csv`
+- `rod_plane_force_sensing_summary.txt`
+- `rod_plane_force_sensing_overview.png`
+- `rod_plane_final_force_comparison.png`
 
 ## Requirements
 
-- MATLAB R2019b or later
-- No additional toolboxes required
-- Tested on Windows 11
-
-## Key Features
-
-- ✅ Large deformation support via Cosserat rod theory
-- ✅ Gaussian load parameterization (Aloi method)
-- ✅ Multi-start optimization for robustness
-- ✅ FBG sensor simulation
-- ✅ Comprehensive visualization
-
-## Performance Notes
-
-Cosserat rod solving is iterative and slower than linear beam models:
-- Beam model: ~0.001s per evaluation
-- Cosserat rod: ~0.01-0.05s per evaluation
-- Full optimization: 5-15 minutes
-
-Use `force(true)` for faster testing with reduced iterations.
+- MATLAB
+- Local `LCP-Continuum/` dependency for the rod-plane contact experiment
+- No changes to the upstream `LCP-Continuum` source files are required
 
 ## References
 
-1. Rucker & Webster (2011) - "Statics and Dynamics of Continuum Robots With General Tendon Routing and External Loading"
-2. Aloi et al. (2022) - Gaussian load parameterization for continuum robots
-3. Shen et al. (2024) - "Friction Modeling of Continuum Robots Through Linear Complementarity Problem"
-
-## License
-
-MIT License - See LICENSE file for details
-
-## Author
-
-Georgia Tech Force Sensing Research
+1. Rucker and Webster, "Statics and Dynamics of Continuum Robots With General
+   Tendon Routing and External Loading", 2011.
+2. Aloi et al., Gaussian load parameterization for continuum robot force
+   estimation.
+3. Shen et al., frictional contact modeling of continuum robots with a linear
+   complementarity formulation.
