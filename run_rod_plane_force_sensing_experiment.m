@@ -63,6 +63,10 @@ fprintf('Full constrained EKF-MAP total-load trajectory RMSE: %.3f N\n', ...
     results.metrics.ours.resultantRmse);
 fprintf('Aloi baseline final total-load error: %.2f%%\n', ...
     results.metrics.aloi.finalRelativeErrorPct);
+if results.metrics.ours.finalRelativeErrorPct > cfg.forceSensor.warningRelativeErrorPct || ...
+        results.metrics.ours.finalMeasurementResidualNorm > cfg.forceSensor.warningMeasurementResidualNorm
+    fprintf('WARNING: inverse estimate failed numerical sanity checks; inspect CSV/summary before using this run.\n');
+end
 fprintf('Saved results to %s\n', cfg.outputDir);
 end
 
@@ -108,6 +112,10 @@ cfg.forceSensor.priorStd.normalForceN = 35.0;
 cfg.forceSensor.priorStd.betaN = 35.0;
 cfg.forceSensor.priorStd.lambda = 10.0;
 cfg.forceSensor.priorStd.tipForceN = 4.0;
+cfg.forceSensor.forceBounds.normalForceN = 200.0;
+cfg.forceSensor.forceBounds.betaN = 200.0;
+cfg.forceSensor.forceBounds.lambda = 200.0;
+cfg.forceSensor.forceBounds.tipForceN = 25.0;
 cfg.forceSensor.processStd.planePointMm = [0.25; 0.25; 0.10];
 cfg.forceSensor.processStd.normalParam = [0.01; 0.01];
 cfg.forceSensor.processStd.sMm = 2.0;
@@ -129,6 +137,9 @@ cfg.forceSensor.solver = 'fmincon';
 cfg.forceSensor.allowApproximateFallback = false;
 cfg.forceSensor.showProgress = true;
 cfg.forceSensor.fminconProgressInterval = 10;
+cfg.forceSensor.dampingScales = [1.0, 0.5, 0.25, 0.1, 0.03, 0.0];
+cfg.forceSensor.warningRelativeErrorPct = 100.0;
+cfg.forceSensor.warningMeasurementResidualNorm = 1.0e4;
 
 % Aloi-style comparison: shape-only Gaussian load fitting. It does not use
 % the plane contact/friction information.
@@ -677,12 +688,15 @@ for iter = 1:cfg.forceSensor.maxEkfIterations
     h0 = mapMeasurementModel(tube, xLinearization, cfg, prevShape);
     H = finiteDifferenceMeasurementJacobian(tube, xLinearization, cfg, prevShape);
     progress.ekfIter = iter;
-    xNext = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress);
+    xProposal = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress);
+    [xNext, acceptedAlpha, acceptedCost] = acceptDampedMapStep(tube, xLinearization, xProposal, ...
+        xPrior, Pminus, z, Rdiag, cfg, prevShape);
     step = (xNext - xLinearization) ./ stateScaleVector(cfg);
     x = projectMapState(xNext, tube, cfg);
     if showProgress
-        fprintf('    frame %3d/%3d EKF iter %d/%d: scaled step %.3g\n', ...
-            progress.frame, progress.numFrames, iter, cfg.forceSensor.maxEkfIterations, norm(step));
+        fprintf('    frame %3d/%3d EKF iter %d/%d: alpha %.2g, nonlinear cost %.4g, scaled step %.3g\n', ...
+            progress.frame, progress.numFrames, iter, cfg.forceSensor.maxEkfIterations, ...
+            acceptedAlpha, acceptedCost, norm(step));
     end
     if norm(step) < cfg.forceSensor.convergenceTol
         break;
@@ -823,6 +837,42 @@ if ~cfg.forceSensor.allowApproximateFallback
     error('The full formulation solver requires MATLAB fmincon. Set cfg.forceSensor.solver=''projected'' only for approximate smoke tests.');
 end
 x = solveProjectedLinearizedMap(tube, xLinearization, xPrior, PInv, z, Rdiag, h0, H, cfg, prevShape);
+end
+
+
+function [xAccepted, acceptedAlpha, acceptedCost] = acceptDampedMapStep(tube, xCurrent, xProposal, xPrior, Pminus, z, Rdiag, cfg, prevShape)
+alphas = cfg.forceSensor.dampingScales;
+if isempty(alphas)
+    alphas = [1.0, 0.5, 0.25, 0.1, 0.0];
+end
+
+bestCost = inf;
+bestX = projectFullComplementarity(xCurrent, tube, cfg, prevShape);
+bestAlpha = 0;
+for ia = 1:numel(alphas)
+    alpha = alphas(ia);
+    xCandidate = xCurrent + alpha * (xProposal - xCurrent);
+    xCandidate = projectFullComplementarity(xCandidate, tube, cfg, prevShape);
+    cost = nonlinearMapMerit(tube, xCandidate, xPrior, Pminus, z, Rdiag, cfg, prevShape);
+    if cost < bestCost
+        bestCost = cost;
+        bestX = xCandidate;
+        bestAlpha = alpha;
+    end
+end
+
+xAccepted = bestX;
+acceptedAlpha = bestAlpha;
+acceptedCost = bestCost;
+end
+
+
+function value = nonlinearMapMerit(tube, x, xPrior, Pminus, z, Rdiag, cfg, prevShape)
+h = mapMeasurementModel(tube, x, cfg, prevShape);
+value = fullMapCost(x, xPrior, Pminus, z, Rdiag, h);
+[c, ceq] = fullMapConstraints(tube, x, cfg, prevShape);
+value = value + cfg.forceSensor.penalty.inequality * sum(max(c, 0) .^ 2) + ...
+    cfg.forceSensor.penalty.complementarity * sum(ceq .^ 2);
 end
 
 
@@ -1108,6 +1158,11 @@ ub(6) = tube.s(end);
 lb(7) = 0;
 lb(8:7 + m) = 0;
 lb(8 + m) = 0;
+ub(7) = cfg.forceSensor.forceBounds.normalForceN;
+ub(8:7 + m) = cfg.forceSensor.forceBounds.betaN;
+ub(8 + m) = cfg.forceSensor.forceBounds.lambda;
+lb(9 + m:11 + m) = -cfg.forceSensor.forceBounds.tipForceN;
+ub(9 + m:11 + m) = cfg.forceSensor.forceBounds.tipForceN;
 end
 
 
@@ -1208,8 +1263,10 @@ end
 
 function y = projectForceVariables(y, cfg)
 m = cfg.forceSensor.numFrictionDirs;
-y(1) = max(0, y(1));
-y(2:1 + m) = max(0, y(2:1 + m));
+y(1) = min(max(0, y(1)), cfg.forceSensor.forceBounds.normalForceN);
+y(2:1 + m) = min(max(0, y(2:1 + m)), cfg.forceSensor.forceBounds.betaN);
+y(2 + m:end) = min(max(y(2 + m:end), -cfg.forceSensor.forceBounds.tipForceN), ...
+    cfg.forceSensor.forceBounds.tipForceN);
 
 sumBeta = sum(y(2:1 + m));
 limit = cfg.frictionMu * y(1);
@@ -1361,9 +1418,11 @@ x(~isfinite(x)) = 0;
 x(4) = atan2(sin(x(4)), cos(x(4)));
 x(5) = min(max(x(5), -pi / 2 + 1e-4), pi / 2 - 1e-4);
 x(6) = min(max(x(6), tube.s(1)), tube.s(end));
-x(7) = max(0, x(7));
-x(8:7 + m) = max(0, x(8:7 + m));
-x(8 + m) = max(0, x(8 + m));
+x(7) = min(max(0, x(7)), cfg.forceSensor.forceBounds.normalForceN);
+x(8:7 + m) = min(max(0, x(8:7 + m)), cfg.forceSensor.forceBounds.betaN);
+x(8 + m) = min(max(0, x(8 + m)), cfg.forceSensor.forceBounds.lambda);
+x(9 + m:11 + m) = min(max(x(9 + m:11 + m), -cfg.forceSensor.forceBounds.tipForceN), ...
+    cfg.forceSensor.forceBounds.tipForceN);
 
 fn = x(7);
 betaIdx = 8:7 + m;
@@ -1613,6 +1672,7 @@ metrics.ours.maxNormalComplementarity = max(results.ours.normalComplementarity(a
 metrics.ours.maxFrictionComplementarity = max(results.ours.frictionComplementarity(active));
 metrics.ours.maxConeComplementarity = max(results.ours.coneComplementarity(active));
 metrics.ours.finalMeasurementResidualNorm = results.ours.measurementResidualNorm(end);
+metrics.ours.maxMeasurementResidualNorm = max(results.ours.measurementResidualNorm(active));
 
 metrics.aloi.resultantRmse = rmseByFrame(aloiTotalErr(:, active));
 metrics.aloi.finalErrorNorm = norm(aloiTotalErr(:, end));
@@ -1663,6 +1723,7 @@ xlabel('Base insertion [mm]');
 ylabel('Contact force [N]');
 title('Contact force estimate');
 legend({'True F_x', 'Ours F_x', 'True F_z', 'Ours F_z'}, 'Location', 'best');
+axis tight;
 
 subplot(2, 2, 3);
 oursErr = vecnorm(results.ours.totalForceResultant - results.forward.totalForceResultant, 2, 1);
@@ -1678,6 +1739,7 @@ xlabel('Base insertion [mm]');
 ylabel('Force error norm [N]');
 title('Error along trajectory');
 legend({'Ours total', 'Aloi total', 'Ours contact', 'Ours tip'}, 'Location', 'best');
+axis tight;
 
 subplot(2, 2, 4);
 barData = [results.forward.totalForceResultant(:, end), ...
@@ -1833,8 +1895,14 @@ fprintf(fid, 'Final normal complementarity |g*f_n|: %.6g\n', results.metrics.our
 fprintf(fid, 'Final friction complementarity ||(D^T v + lambda e).*beta||: %.6g\n', results.metrics.ours.finalFrictionComplementarity);
 fprintf(fid, 'Final cone complementarity |(mu*f_n - e^T beta)*lambda|: %.6g\n', results.metrics.ours.finalConeComplementarity);
 fprintf(fid, 'Final normalized measurement residual norm: %.6g\n', results.metrics.ours.finalMeasurementResidualNorm);
+fprintf(fid, 'Max normalized measurement residual norm: %.6g\n', results.metrics.ours.maxMeasurementResidualNorm);
 fprintf(fid, 'Aloi total-load RMSE: %.6g N\n', results.metrics.aloi.resultantRmse);
 fprintf(fid, 'Aloi final total-load relative error: %.4f %%\n\n', results.metrics.aloi.finalRelativeErrorPct);
+
+if results.metrics.ours.finalRelativeErrorPct > cfg.forceSensor.warningRelativeErrorPct || ...
+        results.metrics.ours.finalMeasurementResidualNorm > cfg.forceSensor.warningMeasurementResidualNorm
+    fprintf(fid, 'WARNING: inverse estimate failed numerical sanity checks. Do not use this run as a valid result without debugging.\n\n');
+end
 
 fprintf(fid, 'Implementation note:\n');
 fprintf(fid, 'Solver: %s, friction directions m=%d.\n', ...
@@ -1879,5 +1947,6 @@ try
 catch
     print(figHandle, filePath, '-dpng', '-r200');
 end
+fprintf('Saved figure: %s\n', filePath);
 close(figHandle);
 end
