@@ -45,7 +45,7 @@ force or contact index.
    known tip load. This produces the reference shape, contact force, and
    total external load.
 
-2. Shape + environment reduced MAP
+2. Shape + environment full EKF/MAP formulation
 
    The inverse state follows the state definition in the formulation note:
 
@@ -53,14 +53,19 @@ force or contact index.
    x = [p1; eta1; s1; f1n; beta1; lambda1; fe]
    ```
 
-   In this experiment the measured shape is treated as known. The code
-   searches for the contact arclength near the measured plane contact,
-   then solves the constrained force fit for contact normal force, planar
-   friction variables, and the unknown tip load `fe`. The force variables
-   are projected onto the unilateral contact and Coulomb friction cone. This
-   is a reduced shape-known MAP subproblem; it is not the full recursive
-   iterated EKF/MAP solve over the nonlinear measurement model in
-   `Formulation.pdf`.
+   The implementation now follows `Formulation.pdf` eqs. (19)-(29): each
+   frame uses the previous posterior as a random-walk prior, predicts the
+   curvature/shape through the nonlinear Cosserat map
+   `[p(s;x), u(s;x)] = F(s1, f1, fe)`, linearizes the measurement model
+   `h(x)`, solves the constrained MAP subproblem, and updates the approximate
+   posterior covariance. The constraints include normal contact
+   complementarity, tangential friction complementarity, the Coulomb cone
+   slack complementarity, and `0 <= s1 <= L`.
+
+   The rod-plane model stores `p(s)` on the rod centerline, so the plane gap
+   is evaluated at the radius-shifted surface point. This is the geometry
+   conversion needed to apply the PDF's plane-contact gap equation to this
+   simulation.
 
 3. Aloi-style baseline
 
@@ -80,7 +85,12 @@ Output files:
 - `rod_plane_force_sensing_overview.png`: trajectory and force-error plots.
 - `rod_plane_final_force_comparison.png`: final-frame shape and force plot.
 
-Final-frame values from the latest full run:
+The values below are the earlier 120-frame reduced-solver reference. They are
+kept to show the scenario and output format; re-run
+`simu_rod_plane_force_sensing_copy(false)` after the full EKF/MAP change to
+regenerate formal full-run numbers.
+
+Final-frame values from the earlier full run:
 
 ```text
 True contact force:       [-50.8779, 0, -21.5140] N

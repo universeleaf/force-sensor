@@ -48,7 +48,7 @@ The forward pass generates:
 - a known external tip load,
 - and the total external load.
 
-The inverse pass assumes the shape is measured and estimates the reduced force state
+The inverse pass estimates the full formulation state
 
 ```text
 x = [p1; eta1; s1; f1n; beta1; lambda1; fe]
@@ -56,9 +56,17 @@ x = [p1; eta1; s1; f1n; beta1; lambda1; fe]
 
 where `p1` and `eta1` describe the plane, `s1` is the contact arclength,
 `f1n` and `beta1` describe the contact/friction force, `lambda1` is the
-friction-cone slack variable, and `fe` is the unknown tip load. This script
-implements a shape-known constrained MAP force-balance subproblem from the
-formulation note, not the full recursive iterated EKF/MAP update.
+friction-cone slack variable, and `fe` is the unknown tip load. The current
+script implements the iterated constrained EKF/MAP update from
+`Formulation.pdf`: random-walk prior covariance, nonlinear Cosserat forward
+map `F(s1, f1, fe)`, measurement linearization `H = dh/dx`, posterior
+covariance update, and the normal/friction/cone complementarity constraints.
+
+For speed and reproducibility, the constrained subproblem is solved by a
+custom projected active-set step by default. Setting
+`cfg.forceSensor.useFminconIfAvailable = true` enables MATLAB `fmincon` when
+Optimization Toolbox is available, but that path is much slower for trajectory
+runs.
 
 The Aloi-style method is used as a shape-only total-load baseline for the same
 rod-plane trajectory. It does not use the plane, contact, or friction
@@ -85,6 +93,12 @@ results = simu_rod_plane_force_sensing_copy(true);
 ```
 
 ## Latest Rod-Plane Result
+
+The numeric values below are from the earlier full 120-frame reduced
+shape-known run and are kept only as a reference point while the full
+formulation implementation is being validated. Re-run
+`simu_rod_plane_force_sensing_copy(false)` to regenerate the result files with
+the full EKF/MAP solver.
 
 Scenario:
 
