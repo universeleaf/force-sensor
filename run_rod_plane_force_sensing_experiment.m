@@ -112,6 +112,7 @@ cfg.forceSensor.priorStd.normalForceN = 35.0;
 cfg.forceSensor.priorStd.betaN = 35.0;
 cfg.forceSensor.priorStd.lambda = 10.0;
 cfg.forceSensor.priorStd.tipForceN = 4.0;
+cfg.forceSensor.useForceBounds = false;
 cfg.forceSensor.forceBounds.normalForceN = 200.0;
 cfg.forceSensor.forceBounds.betaN = 200.0;
 cfg.forceSensor.forceBounds.lambda = 200.0;
@@ -1158,17 +1159,24 @@ ub(6) = tube.s(end);
 lb(7) = 0;
 lb(8:7 + m) = 0;
 lb(8 + m) = 0;
-ub(7) = cfg.forceSensor.forceBounds.normalForceN;
-ub(8:7 + m) = cfg.forceSensor.forceBounds.betaN;
-ub(8 + m) = cfg.forceSensor.forceBounds.lambda;
-lb(9 + m:11 + m) = -cfg.forceSensor.forceBounds.tipForceN;
-ub(9 + m:11 + m) = cfg.forceSensor.forceBounds.tipForceN;
+if forceBoundsEnabled(cfg)
+    ub(7) = cfg.forceSensor.forceBounds.normalForceN;
+    ub(8:7 + m) = cfg.forceSensor.forceBounds.betaN;
+    ub(8 + m) = cfg.forceSensor.forceBounds.lambda;
+    lb(9 + m:11 + m) = -cfg.forceSensor.forceBounds.tipForceN;
+    ub(9 + m:11 + m) = cfg.forceSensor.forceBounds.tipForceN;
+end
 end
 
 
 function scale = stateScaleVector(cfg)
 scale = stateStdVector(cfg);
 scale(scale <= 0) = 1;
+end
+
+
+function enabled = forceBoundsEnabled(cfg)
+enabled = isfield(cfg.forceSensor, 'useForceBounds') && cfg.forceSensor.useForceBounds;
 end
 
 
@@ -1263,10 +1271,14 @@ end
 
 function y = projectForceVariables(y, cfg)
 m = cfg.forceSensor.numFrictionDirs;
-y(1) = min(max(0, y(1)), cfg.forceSensor.forceBounds.normalForceN);
-y(2:1 + m) = min(max(0, y(2:1 + m)), cfg.forceSensor.forceBounds.betaN);
-y(2 + m:end) = min(max(y(2 + m:end), -cfg.forceSensor.forceBounds.tipForceN), ...
-    cfg.forceSensor.forceBounds.tipForceN);
+y(1) = max(0, y(1));
+y(2:1 + m) = max(0, y(2:1 + m));
+if forceBoundsEnabled(cfg)
+    y(1) = min(y(1), cfg.forceSensor.forceBounds.normalForceN);
+    y(2:1 + m) = min(y(2:1 + m), cfg.forceSensor.forceBounds.betaN);
+    y(2 + m:end) = min(max(y(2 + m:end), -cfg.forceSensor.forceBounds.tipForceN), ...
+        cfg.forceSensor.forceBounds.tipForceN);
+end
 
 sumBeta = sum(y(2:1 + m));
 limit = cfg.frictionMu * y(1);
@@ -1418,11 +1430,16 @@ x(~isfinite(x)) = 0;
 x(4) = atan2(sin(x(4)), cos(x(4)));
 x(5) = min(max(x(5), -pi / 2 + 1e-4), pi / 2 - 1e-4);
 x(6) = min(max(x(6), tube.s(1)), tube.s(end));
-x(7) = min(max(0, x(7)), cfg.forceSensor.forceBounds.normalForceN);
-x(8:7 + m) = min(max(0, x(8:7 + m)), cfg.forceSensor.forceBounds.betaN);
-x(8 + m) = min(max(0, x(8 + m)), cfg.forceSensor.forceBounds.lambda);
-x(9 + m:11 + m) = min(max(x(9 + m:11 + m), -cfg.forceSensor.forceBounds.tipForceN), ...
-    cfg.forceSensor.forceBounds.tipForceN);
+x(7) = max(0, x(7));
+x(8:7 + m) = max(0, x(8:7 + m));
+x(8 + m) = max(0, x(8 + m));
+if forceBoundsEnabled(cfg)
+    x(7) = min(x(7), cfg.forceSensor.forceBounds.normalForceN);
+    x(8:7 + m) = min(x(8:7 + m), cfg.forceSensor.forceBounds.betaN);
+    x(8 + m) = min(x(8 + m), cfg.forceSensor.forceBounds.lambda);
+    x(9 + m:11 + m) = min(max(x(9 + m:11 + m), -cfg.forceSensor.forceBounds.tipForceN), ...
+        cfg.forceSensor.forceBounds.tipForceN);
+end
 
 fn = x(7);
 betaIdx = 8:7 + m;
@@ -1905,8 +1922,9 @@ if results.metrics.ours.finalRelativeErrorPct > cfg.forceSensor.warningRelativeE
 end
 
 fprintf(fid, 'Implementation note:\n');
-fprintf(fid, 'Solver: %s, friction directions m=%d.\n', ...
-    results.config.forceSensor.solver, results.config.forceSensor.numFrictionDirs);
+fprintf(fid, 'Solver: %s, friction directions m=%d, force bounds enabled: %d.\n', ...
+    results.config.forceSensor.solver, results.config.forceSensor.numFrictionDirs, ...
+    forceBoundsEnabled(results.config));
 fprintf(fid, 'The inverse estimate does not use the forward solver contact force or contact index. ');
 fprintf(fid, 'It solves the iterated constrained EKF/MAP update in Formulation.pdf eqs. (19)-(29) ');
 fprintf(fid, 'with state x=[p1; eta1; s1; f1n; beta1; lambda1; fe], random-walk prior covariance, ');

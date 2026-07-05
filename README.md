@@ -68,6 +68,12 @@ short `quickMode` smoke test uses `cfg.forceSensor.solver = 'projected'` only
 to check that the pipeline executes; that approximate path should not be used
 for final force-error claims.
 
+The default configuration does not impose artificial upper bounds on the
+unknown contact or tip forces, because those bounds are not part of
+`Formulation.pdf` eqs. (19)-(23). The optional
+`cfg.forceSensor.useForceBounds = true` path is kept only as a numerical
+diagnostic/regularized variant and should be reported separately.
+
 The Aloi-style method is used as a shape-only total-load baseline for the same
 rod-plane trajectory. It does not use the plane, contact, or friction
 constraints.

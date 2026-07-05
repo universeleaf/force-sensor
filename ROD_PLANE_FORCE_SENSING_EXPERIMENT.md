@@ -72,6 +72,10 @@ force or contact index.
    it is useful for checking data flow but is not treated as the formulation
    result.
 
+   Force upper bounds are disabled by default because they are not part of
+   `Formulation.pdf` eqs. (19)-(23). They can be enabled only as a separate
+   bounded regularization diagnostic, not as the main formulation result.
+
 3. Aloi-style baseline
 
    The comparison baseline follows the Gaussian distributed-load idea used
