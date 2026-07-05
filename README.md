@@ -48,7 +48,7 @@ The forward pass generates:
 - a known external tip load,
 - and the total external load.
 
-The inverse pass assumes the shape is measured and estimates the force state
+The inverse pass assumes the shape is measured and estimates the reduced force state
 
 ```text
 x = [p1; eta1; s1; f1n; beta1; lambda1; fe]
@@ -56,7 +56,9 @@ x = [p1; eta1; s1; f1n; beta1; lambda1; fe]
 
 where `p1` and `eta1` describe the plane, `s1` is the contact arclength,
 `f1n` and `beta1` describe the contact/friction force, `lambda1` is the
-friction-cone slack variable, and `fe` is the unknown tip load.
+friction-cone slack variable, and `fe` is the unknown tip load. This script
+implements a shape-known constrained MAP force-balance subproblem from the
+formulation note, not the full recursive iterated EKF/MAP update.
 
 The Aloi-style method is used as a shape-only total-load baseline for the same
 rod-plane trajectory. It does not use the plane, contact, or friction
@@ -105,7 +107,7 @@ Estimated tip load:       [-0.1437, 0.0032, -3.4260] N
 
 True total load:          [-50.8779, 0, -25.0140] N
 Estimated total load:     [-47.8394, 0.0032, -24.1173] N
-Aloi total-load estimate: [-96.3181, 0.5677, -12.6541] N
+Aloi-style total-load estimate: [-96.3181, 0.5677, -12.6541] N
 ```
 
 Trajectory metrics:
@@ -120,8 +122,15 @@ Aloi total-load RMSE:                   29.1297 N
 Aloi final total error:                 83.0672 %
 ```
 
-The shape + environment formulation is much better constrained in this
-rod-plane case because it uses the measured shape together with the plane and
+In the final frame, the Aloi-style fit has a small normalized shape residual
+(`0.0604`) but places a broad body Gaussian near `s = 180 mm` with resultant
+`[-94.2041, 0.4996, -4.2274] N` and a tip Gaussian resultant of
+`[-2.1140, 0.0682, -8.4267] N`. This explains the large total-force error:
+the shape-only Gaussian fit can match the measured shape while producing an
+incorrect equivalent load distribution.
+
+The shape + environment result is much better constrained in this rod-plane
+case because it uses the measured shape together with the plane and
 friction-cone information. The remaining error mainly comes from noisy
 curvature interpolation, plane offset bias, and the force-decomposition
 ambiguity between a near-tip contact and an actual tip load.

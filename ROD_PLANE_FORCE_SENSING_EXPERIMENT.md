@@ -45,9 +45,9 @@ force or contact index.
    known tip load. This produces the reference shape, contact force, and
    total external load.
 
-2. Shape + environment formulation
+2. Shape + environment reduced MAP
 
-   The inverse state follows the formulation note:
+   The inverse state follows the state definition in the formulation note:
 
    ```text
    x = [p1; eta1; s1; f1n; beta1; lambda1; fe]
@@ -57,7 +57,10 @@ force or contact index.
    searches for the contact arclength near the measured plane contact,
    then solves the constrained force fit for contact normal force, planar
    friction variables, and the unknown tip load `fe`. The force variables
-   are projected onto the unilateral contact and Coulomb friction cone.
+   are projected onto the unilateral contact and Coulomb friction cone. This
+   is a reduced shape-known MAP subproblem; it is not the full recursive
+   iterated EKF/MAP solve over the nonlinear measurement model in
+   `Formulation.pdf`.
 
 3. Aloi-style baseline
 
@@ -88,7 +91,7 @@ Estimated tip load:       [-0.1437, 0.0032, -3.4260] N
 
 True total load:          [-50.8779, 0, -25.0140] N
 Estimated total load:     [-47.8394, 0.0032, -24.1173] N
-Aloi total-load estimate: [-96.3181, 0.5677, -12.6541] N
+Aloi-style total-load estimate: [-96.3181, 0.5677, -12.6541] N
 ```
 
 Trajectory metrics:
@@ -107,6 +110,14 @@ The shape + environment result is relatively accurate because the inverse
 problem is given the same Cosserat rod model, the measured shape, and the
 plane/friction constraints. The remaining error mostly comes from noisy
 curvature interpolation, the biased plane measurement, and the ambiguity
-between a near-tip contact force and a tip load. The Aloi-style baseline is
-much less constrained here, so it tends to overfit a distributed load that
-matches the shape but gives a poor total force in this contact case.
+between a near-tip contact force and a tip load.
+
+The Aloi-style baseline is much less constrained here, so it tends to overfit
+a distributed load that matches the shape but gives a poor total force in this
+contact case. In the final frame the normalized shape-fit residual is only
+`0.0604`, but the body Gaussian resultant is
+`[-94.2041, 0.4996, -4.2274] N` and the tip Gaussian resultant is
+`[-2.1140, 0.0682, -8.4267] N`. The large `83.0672 %` total-force error should
+therefore be interpreted as the error of this shape-only Gaussian baseline on
+the rod-plane contact/tip-load case, not as a general performance claim about
+the Aloi paper.

@@ -18,7 +18,11 @@ Final true tip load [Fx Fy Fz] N: [0 0 -3.5]
 Final estimated tip load [Fx Fy Fz] N: [-0.143667 0.00319012 -3.42599]
 Final true total load [Fx Fy Fz] N: [-50.8779 4.15753e-14 -25.014]
 Final estimated total load [Fx Fy Fz] N: [-47.8394 0.00319012 -24.1173]
-Final Aloi shape-only total load [Fx Fy Fz] N: [-96.3181 0.56773 -12.6541]
+Final Aloi-style shape-only total load [Fx Fy Fz] N: [-96.3181 0.56773 -12.6541]
+Final Aloi-style body Gaussian resultant [Fx Fy Fz] N: [-94.2041 0.4996 -4.2274]
+Final Aloi-style tip Gaussian resultant [Fx Fy Fz] N: [-2.114 0.0682 -8.4267]
+Final Aloi-style center/sigma/tip-sigma: 180.000 / 35.000 / 14.000 mm
+Final Aloi-style normalized shape-fit residual: 0.060368
 
 Shape+environment contact-force RMSE: 1.49859 N
 Shape+environment tip-load RMSE: 0.414902 N
@@ -27,5 +31,5 @@ Shape+environment final total-load relative error: 5.5879 %
 Aloi total-load RMSE: 29.1297 N
 Aloi final total-load relative error: 83.0672 %
 
-Interpretation note:
-The estimate does not use the forward solver contact force or contact index. It uses the measured shape and measured plane to infer a contact candidate, then estimates both the contact force and tip load in the constrained MAP state x=[p1; eta1; s1; f1n; beta1; lambda1; fe]. Aloi is used only as a shape-only total-load baseline and does not receive the plane/friction constraints.
+Implementation note:
+The estimate does not use the forward solver contact force or contact index. It uses the measured shape and measured plane to infer a contact candidate, then estimates both the contact force and tip load in the reduced constrained MAP state x=[p1; eta1; s1; f1n; beta1; lambda1; fe]. This is not the full recursive iterated EKF/MAP in Formulation.pdf eqs. (19)-(29); it is a shape-known force-balance subproblem using the same state variables and force constraints. Aloi is used only as a shape-only Gaussian total-load baseline and does not receive the plane/friction constraints.

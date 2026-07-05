@@ -1,13 +1,13 @@
 function results = run_rod_plane_force_sensing_experiment(quickMode)
 %RUN_ROD_PLANE_FORCE_SENSING_EXPERIMENT
-% Rod-plane validation for the constrained MAP force-sensing formulation.
+% Rod-plane validation for a reduced shape-known constrained MAP force fit.
 %
 % The forward trajectory is generated with Jia Shen's LCP-Continuum
 % rod_plane contact model. The inverse part is intentionally separated from
 % that solver: it receives simulated sparse FBG curvature data and a noisy
 % plane measurement, reconstructs the shape trajectory, then solves the
-% shape-known MAP subproblem from Formulation.pdf with unilateral contact
-% and Coulomb friction-cone constraints.
+% reduced shape-known MAP subproblem from Formulation.pdf with unilateral
+% contact and Coulomb friction-cone constraints.
 %
 % Usage:
 %   results = run_rod_plane_force_sensing_experiment();
@@ -57,9 +57,9 @@ writeTrajectoryCsv(results);
 plotExperimentResults(results);
 
 fprintf('\n=== Summary ===\n');
-fprintf('Force-sensor formulation final total-load error: %.2f%%\n', ...
+fprintf('Reduced shape+environment MAP final total-load error: %.2f%%\n', ...
     results.metrics.ours.finalRelativeErrorPct);
-fprintf('Force-sensor formulation total-load trajectory RMSE: %.3f N\n', ...
+fprintf('Reduced shape+environment MAP total-load trajectory RMSE: %.3f N\n', ...
     results.metrics.ours.resultantRmse);
 fprintf('Aloi baseline final total-load error: %.2f%%\n', ...
     results.metrics.aloi.finalRelativeErrorPct);
@@ -451,7 +451,7 @@ end
 
 
 function ours = estimateForcesWithShapeAndEnvironment(tube0, measurements, cfg)
-fprintf('\nEstimating contact/tip force with constrained EKF-MAP formulation...\n');
+fprintf('\nEstimating contact/tip force with reduced shape-known constrained MAP...\n');
 
 nt = numel(measurements.betaMm);
 nx = formulationStateSize(cfg);
@@ -588,10 +588,10 @@ end
 
 
 function est = solveConstrainedMapUpdate(tube, xInit, xPrior, z, cfg, measuredU)
-% Shape-known MAP subproblem from Formulation.pdf. The plane state and
-% contact arclength are initialized from the measured shape/plane; the force
-% variables are estimated by matching Cosserat bending moments under the
-% unilateral contact and Coulomb friction-cone constraints.
+% Reduced shape-known MAP subproblem from Formulation.pdf. This keeps the
+% state parameterization and unilateral/friction-cone force constraints, but
+% uses the measured curvature as known and solves a force-balance subproblem
+% instead of the full iterated EKF/MAP over h(x).
 x = projectMapState(xInit, tube, cfg);
 m = cfg.forceSensor.numFrictionDirs;
 n = etaToNormal(x(4:5));
@@ -1237,8 +1237,16 @@ fprintf(fid, 'Final true total load [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
     results.forward.totalForceResultant(:, end));
 fprintf(fid, 'Final estimated total load [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
     results.ours.totalForceResultant(:, end));
-fprintf(fid, 'Final Aloi shape-only total load [Fx Fy Fz] N: [%.6g %.6g %.6g]\n\n', ...
+fprintf(fid, 'Final Aloi-style shape-only total load [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
     results.aloi.totalForceResultant(:, end));
+fprintf(fid, 'Final Aloi-style body Gaussian resultant [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
+    results.aloi.componentResultants(:, 1, end));
+fprintf(fid, 'Final Aloi-style tip Gaussian resultant [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
+    results.aloi.componentResultants(:, 2, end));
+fprintf(fid, 'Final Aloi-style center/sigma/tip-sigma: %.3f / %.3f / %.3f mm\n', ...
+    results.aloi.centerMm(end), results.aloi.sigmaMm(end), results.aloi.tipSigmaMm(end));
+fprintf(fid, 'Final Aloi-style normalized shape-fit residual: %.6g\n\n', ...
+    results.aloi.cost(end));
 
 fprintf(fid, 'Shape+environment contact-force RMSE: %.6g N\n', results.metrics.ours.contactRmse);
 fprintf(fid, 'Shape+environment tip-load RMSE: %.6g N\n', results.metrics.ours.tipRmse);
@@ -1247,12 +1255,15 @@ fprintf(fid, 'Shape+environment final total-load relative error: %.4f %%\n', res
 fprintf(fid, 'Aloi total-load RMSE: %.6g N\n', results.metrics.aloi.resultantRmse);
 fprintf(fid, 'Aloi final total-load relative error: %.4f %%\n\n', results.metrics.aloi.finalRelativeErrorPct);
 
-fprintf(fid, 'Interpretation note:\n');
+fprintf(fid, 'Implementation note:\n');
 fprintf(fid, 'The estimate does not use the forward solver contact force or contact index. ');
 fprintf(fid, 'It uses the measured shape and measured plane to infer a contact candidate, ');
-fprintf(fid, 'then estimates both the contact force and tip load in the constrained MAP state ');
-fprintf(fid, 'x=[p1; eta1; s1; f1n; beta1; lambda1; fe]. Aloi is used only as a shape-only ');
-fprintf(fid, 'total-load baseline and does not receive the plane/friction constraints.\n');
+fprintf(fid, 'then estimates both the contact force and tip load in the reduced constrained MAP state ');
+fprintf(fid, 'x=[p1; eta1; s1; f1n; beta1; lambda1; fe]. This is not the full recursive ');
+fprintf(fid, 'iterated EKF/MAP in Formulation.pdf eqs. (19)-(29); it is a shape-known ');
+fprintf(fid, 'force-balance subproblem using the same state variables and force constraints. ');
+fprintf(fid, 'Aloi is used only as a shape-only Gaussian total-load baseline and does not ');
+fprintf(fid, 'receive the plane/friction constraints.\n');
 end
 
 
