@@ -92,68 +92,76 @@ Run the rod-plane tip-load experiment:
 results = simu_rod_plane_force_sensing_copy(false);
 ```
 
+The default rod-plane case is the separated-contact validation summarized
+below. It assumes the simulated shape/plane are known, while the MAP estimator
+still uses finite measurement covariance as a numerical weighting term.
+
 Run a shorter smoke test:
 
 ```matlab
 results = simu_rod_plane_force_sensing_copy(true);
 ```
 
+The smoke test writes to `force_outputs/rod_plane_force_sensing_smoke_tmp/`
+so it does not overwrite the formal validation outputs.
+
 ## Latest Rod-Plane Result
 
-The numeric values below are from the earlier 120-frame reduced
-shape-known run and are kept only as a reference point while the full
-formulation implementation is being validated. Re-run
-`simu_rod_plane_force_sensing_copy(false)` to regenerate the result files with
-the full EKF/MAP solver.
+The values below are from `simu_rod_plane_force_sensing_copy(false)` after the
+full constrained EKF/MAP implementation was checked against `Formulation.pdf`.
+This is a separated-contact case chosen because the original high-friction
+180-degree setup put the contact too close to the tip and made the contact/tip
+split poorly identifiable.
 
 Scenario:
 
-- Rod length: `200 mm`
-- Integrated precurvature: about `180 deg`
-- Plane: `z = 20 mm`
-- Friction coefficient: `mu = 2.8`
-- Base insertion: `0 mm` to `30 mm`
+- Rod length: `180 mm`
+- Integrated precurvature: `270 deg`
+- Plane: `z = 10 mm`
+- Friction coefficient: `mu = 0.8`
+- Base insertion: `0 mm` to `35 mm`
 - Forward tip load: `[0, 0, -3.5] N`
-- Frames: `120`
+- Frames: `16`
+- Force bounds: disabled
+- Artificial sensing noise: disabled
 
 Final-frame force estimates:
 
 ```text
-True contact force:       [-50.8779, 0, -21.5140] N
-Estimated contact force:  [-47.6958, 0, -20.6914] N
+True contact force:       [-8.1373, 0, -10.1716] N
+Estimated contact force:  [-8.4170, 0, -10.5234] N
 
 True tip load:            [0, 0, -3.5000] N
-Estimated tip load:       [-0.1437, 0.0032, -3.4260] N
+Estimated tip load:       [0.2787, 0, -3.1418] N
 
-True total load:          [-50.8779, 0, -25.0140] N
-Estimated total load:     [-47.8394, 0.0032, -24.1173] N
-Aloi-style total-load estimate: [-96.3181, 0.5677, -12.6541] N
+True total load:          [-8.1373, 0, -13.6716] N
+Estimated total load:     [-8.1383, 0, -13.6652] N
+Aloi-style total load:    [-20.2654, 0, -10.4372] N
 ```
 
 Trajectory metrics:
 
 ```text
-Shape + environment contact-force RMSE: 1.4986 N
-Shape + environment tip-load RMSE:      0.4149 N
-Shape + environment total-load RMSE:    1.6406 N
-Shape + environment final total error:  5.5879 %
+Shape + environment contact-force RMSE: 1.2748 N
+Shape + environment tip-load RMSE:      1.0604 N
+Shape + environment total-load RMSE:    1.2464 N
+Shape + environment final total error:  0.0406 %
 
-Aloi total-load RMSE:                   29.1297 N
-Aloi final total error:                 83.0672 %
+Aloi total-load RMSE:                   12.0957 N
+Aloi final total error:                 78.8943 %
 ```
 
-In the final frame, the Aloi-style fit has a small normalized shape residual
-(`0.0604`) but places a broad body Gaussian near `s = 180 mm` with resultant
-`[-94.2041, 0.4996, -4.2274] N` and a tip Gaussian resultant of
-`[-2.1140, 0.0682, -8.4267] N`. This explains the large total-force error:
-the shape-only Gaussian fit can match the measured shape while producing an
-incorrect equivalent load distribution.
+The constrained method recovers the final total load very closely, but the
+contact/tip split is not exact. The remaining contact and tip errors are real
+and should be reported as part of the validation. The Aloi-style comparison is
+much worse here because it fits a shape-only Gaussian load distribution and
+does not receive the plane, contact, or friction constraints.
 
-The shape + environment result is much better constrained in this rod-plane
-case because it uses the measured shape together with the plane and
-friction-cone information. The remaining error mainly comes from noisy
-curvature interpolation, plane offset bias, and the force-decomposition
-ambiguity between a near-tip contact and an actual tip load.
+The earlier 200 mm, 180-degree, high-friction setup was kept as a diagnostic
+case, but it should not be used as the main validation result. In that case the
+forward LCP contact and the strict single-contact complementarity formulation
+are not cleanly aligned, and the inverse can move force between a near-tip
+contact and the unknown tip load.
 
 ## Output Files
 

@@ -1,20 +1,24 @@
-function results = run_rod_plane_force_sensing_experiment(quickMode)
+function results = run_rod_plane_force_sensing_experiment(quickMode, overrides)
 %RUN_ROD_PLANE_FORCE_SENSING_EXPERIMENT
 % Rod-plane validation for the full constrained EKF/MAP force formulation.
 %
 % The forward trajectory is generated with Jia Shen's LCP-Continuum
 % rod_plane contact model. The inverse part is intentionally separated from
-% that solver: it receives simulated sparse FBG curvature data and a noisy
-% plane measurement, then solves the iterated constrained EKF/MAP problem
+% that solver: it receives simulated sparse FBG curvature data and a plane
+% measurement, then solves the iterated constrained EKF/MAP problem
 % from Formulation.pdf with a nonlinear Cosserat forward model, unilateral
 % contact, and Coulomb friction complementarity constraints.
 %
 % Usage:
 %   results = run_rod_plane_force_sensing_experiment();
 %   results = run_rod_plane_force_sensing_experiment(true);
+%   results = run_rod_plane_force_sensing_experiment(true, overrides);
 
 if nargin < 1
     quickMode = false;
+end
+if nargin < 2
+    overrides = struct;
 end
 
 clc;
@@ -25,6 +29,7 @@ lcpDir = fullfile(rootDir, 'LCP-Continuum');
 addpath(genpath(lcpDir));
 
 cfg = defaultExperimentConfig(rootDir, quickMode);
+cfg = mergeStructRecursive(cfg, overrides);
 ensureDir(cfg.outputDir);
 
 rng(cfg.randomSeed, 'twister');
@@ -39,6 +44,25 @@ fprintf('Applied tip load: [%.3f %.3f %.3f] N\n', cfg.tipLoadN);
 
 forward = runForwardRodPlaneSimulation(tube0, obstaclesTruth, cfg);
 measurements = simulateSensingMeasurements(tube0, forward, cfg);
+truthConsistency = diagnoseForwardTruthConsistency(tube0, forward, measurements, cfg);
+mapCandidateDiagnostics = diagnoseMapCandidateCosts(tube0, forward, measurements, truthConsistency, cfg);
+
+if cfg.diagnostics.stopAfterTruthConsistency
+    results = struct;
+    results.config = cfg;
+    results.setup = setupInfo;
+    results.forward = forward;
+    results.measurements = measurements;
+    results.truthConsistency = truthConsistency;
+    results.mapCandidateDiagnostics = mapCandidateDiagnostics;
+    fprintf('\nTruth consistency diagnostic complete.\n');
+    fprintf('Final true-state residual %.3g, max equality residual %.3g, max inequality violation %.3g\n', ...
+        truthConsistency.measurementResidualNorm(end), truthConsistency.maxEqualityResidual(end), ...
+        truthConsistency.maxInequalityViolation(end));
+    printFinalMapCandidateDiagnostics(mapCandidateDiagnostics);
+    return;
+end
+
 ours = estimateForcesWithShapeAndEnvironment(tube0, measurements, cfg);
 aloi = estimateForcesWithAloiBaseline(tube0, measurements, cfg);
 
@@ -47,6 +71,8 @@ results.config = cfg;
 results.setup = setupInfo;
 results.forward = forward;
 results.measurements = measurements;
+results.truthConsistency = truthConsistency;
+results.mapCandidateDiagnostics = mapCandidateDiagnostics;
 results.ours = ours;
 results.aloi = aloi;
 results.metrics = summarizeExperiment(results);
@@ -78,26 +104,28 @@ cfg.outputDir = fullfile(rootDir, 'force_outputs', 'rod_plane_force_sensing');
 cfg.randomSeed = 7;
 
 % Forward rod-plane setup. LCP-Continuum uses millimeters and Newtons.
-cfg.exposedLengthMm = 200;
-cfg.targetBendDeg = 180;
-cfg.wallDistanceMm = 20;
+% The default case is the separated-contact validation used in the README.
+cfg.exposedLengthMm = 180;
+cfg.targetBendDeg = 270;
+cfg.wallDistanceMm = 10;
 cfg.planeNormal = [0; 0; -1];
-cfg.frictionMu = 2.8;
+cfg.frictionMu = 0.8;
 cfg.initialLowFrictionMu = 1e-3;
 cfg.cornerRange = 0.5;
 cfg.frictionConeEdges = 16;
-cfg.betaMaxMm = 30;
-cfg.numTimeSteps = 120;
+cfg.betaMaxMm = 35;
+cfg.numTimeSteps = 16;
 cfg.tipLoadN = [0; 0; -3.5];
 
-% Simulated sensing setup. This follows the project note: sparse FBG-like
-% curvature measurements and an environment estimate with bounded error.
+% Simulated sensing setup. The main validation assumes the shape and plane
+% are known from the forward simulation; nonzero MAP measurement covariance
+% below is used as an estimator weight, not as injected noise.
 cfg.sensing.numFbgPoints = 24;
-cfg.sensing.curvatureNoiseStd = 1.5e-4;  % rad/mm
-cfg.sensing.positionNoiseStdMm = 0.15;
-cfg.sensing.planeOffsetBiasMm = 0.35;
-cfg.sensing.planeOffsetNoiseStdMm = 0.08;
-cfg.sensing.shapeSmoothing = 0.15;
+cfg.sensing.curvatureNoiseStd = 0.0;  % rad/mm
+cfg.sensing.positionNoiseStdMm = 0.0;
+cfg.sensing.planeOffsetBiasMm = 0.0;
+cfg.sensing.planeOffsetNoiseStdMm = 0.0;
+cfg.sensing.shapeSmoothing = 0.0;
 
 % Full constrained EKF/MAP parameters. State:
 % x = [p1(3); eta1(2); s1; f1n; beta1(m); lambda1; fe(3)].
@@ -124,11 +152,11 @@ cfg.forceSensor.processStd.normalForceN = 14.0;
 cfg.forceSensor.processStd.betaN = 18.0;
 cfg.forceSensor.processStd.lambda = 2.0;
 cfg.forceSensor.processStd.tipForceN = 0.75;
-cfg.forceSensor.measurementStd.curvature = cfg.sensing.curvatureNoiseStd;
-cfg.forceSensor.measurementStd.planePointMm = [8; 8; cfg.sensing.planeOffsetNoiseStdMm + 0.05];
+cfg.forceSensor.measurementStd.curvature = 1.5e-4;
+cfg.forceSensor.measurementStd.planePointMm = [8; 8; 0.13];
 cfg.forceSensor.measurementStd.normalVector = [0.02; 0.02; 0.02];
-cfg.forceSensor.maxEkfIterations = 4;
-cfg.forceSensor.linearizedSolveMaxIter = 80;
+cfg.forceSensor.maxEkfIterations = 2;
+cfg.forceSensor.linearizedSolveMaxIter = 25;
 cfg.forceSensor.convergenceTol = 3e-3;
 cfg.forceSensor.finiteDifferenceStep = [];
 cfg.forceSensor.penalty.inequality = 1e5;
@@ -139,8 +167,12 @@ cfg.forceSensor.allowApproximateFallback = false;
 cfg.forceSensor.showProgress = true;
 cfg.forceSensor.fminconProgressInterval = 10;
 cfg.forceSensor.dampingScales = [1.0, 0.5, 0.25, 0.1, 0.03, 0.0];
+cfg.forceSensor.useMultiStart = false;
+cfg.forceSensor.maxStartCandidates = 1;
 cfg.forceSensor.warningRelativeErrorPct = 100.0;
 cfg.forceSensor.warningMeasurementResidualNorm = 1.0e4;
+cfg.diagnostics.stopAfterTruthConsistency = false;
+cfg.diagnostics.runMapCandidateCosts = true;
 
 % Aloi-style comparison: shape-only Gaussian load fitting. It does not use
 % the plane contact/friction information.
@@ -150,6 +182,7 @@ cfg.aloi.tipSigmaCandidatesMm = [4, 8, 14];
 cfg.aloi.ridge = 1e-7;
 
 if quickMode
+    cfg.outputDir = fullfile(rootDir, 'force_outputs', 'rod_plane_force_sensing_smoke_tmp');
     cfg.numTimeSteps = 6;
     cfg.betaMaxMm = 5;
     cfg.sensing.numFbgPoints = 12;
@@ -209,6 +242,7 @@ beta = linspace(0, cfg.betaMaxMm, nt);
 
 pTraj = zeros(3, ns, nt);
 uTraj = zeros(3, ns, nt);
+RTraj = zeros(3, 3, ns, nt);
 forceResultant = zeros(3, nt);
 contactCount = zeros(1, nt);
 contactArcLength = nan(1, nt);
@@ -218,6 +252,7 @@ baseTraj = zeros(4, 4, nt);
 [forceResultant(:, 1), contactArcLength(1)] = summarizeContacts(contacts, tube.s);
 pTraj(:, :, 1) = p;
 uTraj(:, :, 1) = u;
+RTraj(:, :, :, 1) = R;
 contactCount(1) = length(contacts);
 contactTraj{1} = contacts;
 baseTraj(:, :, 1) = tube.T_base;
@@ -231,6 +266,7 @@ for it = 2:nt
 
     pTraj(:, :, it) = p;
     uTraj(:, :, it) = u;
+    RTraj(:, :, :, it) = R;
     [forceResultant(:, it), contactArcLength(it)] = summarizeContacts(contacts, tube.s);
     contactCount(it) = length(contacts);
     contactTraj{it} = contacts;
@@ -247,6 +283,7 @@ forward.s = tube.s;
 forward.betaMm = beta;
 forward.p = pTraj;
 forward.u = uTraj;
+forward.R = RTraj;
 forward.forceResultant = forceResultant;
 forward.contactForceResultant = forceResultant;
 forward.tipLoad = repmat(cfg.tipLoadN(:), 1, nt);
@@ -388,6 +425,7 @@ x = Dx * xScaled;
 
 fn = x(1:nc);
 beta = x(nc + 1:nc + ncF * d);
+lambda = x(nc + ncF * d + 1:end);
 
 fContact = n * fn;
 if ~isempty(beta)
@@ -408,6 +446,18 @@ for ic = 1:nc
     if fn(ic) > 0
         contacts(ic).force = fContact(3 * ic - 2:3 * ic);
         contacts(ic).point = pContactsNew(:, ic);
+        contacts(ic).normal_force = fn(ic);
+        contacts(ic).friction_beta = zeros(d, 1);
+        contacts(ic).friction_lambda = 0;
+        contacts(ic).friction_directions = zeros(3, d);
+        icFLocal = find(icF == ic, 1);
+        if ~isempty(icFLocal)
+            betaCols = d * (icFLocal - 1) + (1:d);
+            contactRows = 3 * ic - (2:-1:0);
+            contacts(ic).friction_beta = beta(betaCols);
+            contacts(ic).friction_lambda = lambda(icFLocal);
+            contacts(ic).friction_directions = D(contactRows, betaCols);
+        end
     else
         icToRemove = [icToRemove, ic];
     end
@@ -471,7 +521,274 @@ measurements.planeZMeasured = planeZMeasured;
 measurements.planeNormalMeasured = cfg.planeNormal(:) / norm(cfg.planeNormal);
 measurements.baseTraj = forward.baseTraj;
 measurements.betaMm = forward.betaMm;
-measurements.description = 'Sparse noisy curvature/position samples plus biased plane offset.';
+measurements.description = 'Sparse curvature/position samples plus a measured plane offset.';
+end
+
+
+function truth = diagnoseForwardTruthConsistency(tube0, forward, measurements, cfg)
+nt = numel(measurements.betaMm);
+nx = formulationStateSize(cfg);
+state = nan(nx, nt);
+measurementResidualNorm = nan(1, nt);
+maxEqualityResidual = nan(1, nt);
+maxInequalityViolation = nan(1, nt);
+forceReconstructionResidual = nan(1, nt);
+normalComplementarity = nan(1, nt);
+frictionComplementarity = nan(1, nt);
+coneComplementarity = nan(1, nt);
+gap = nan(1, nt);
+normalForce = nan(1, nt);
+lambda = nan(1, nt);
+coneSlack = nan(1, nt);
+minFrictionW = nan(1, nt);
+tangentialDisplacementNorm = nan(1, nt);
+prevShape = [];
+
+for it = 1:nt
+    tube = tube0;
+    tube.T_base = measurements.baseTraj(:, :, it);
+    contacts = forward.contacts{it};
+    planePoint = [0; 0; measurements.planeZMeasured(it)];
+    n = measurements.planeNormalMeasured(:) / norm(measurements.planeNormalMeasured);
+    eta = normalToEta(n);
+
+    if isempty(contacts)
+        s1 = tube.s(end);
+        contactForce = zeros(3, 1);
+        ic = [];
+    else
+        contactForces = reshape([contacts.force], 3, []);
+        [~, ic] = max(vecnorm(contactForces, 2, 1));
+        contactForce = contacts(ic).force(:);
+        s1 = tube.s(contacts(ic).tube_point_id);
+    end
+
+    [fn, beta, lambda, reconResidual] = contactVariablesFromForwardContact(contacts, ic, contactForce, n, cfg);
+    x = [planePoint; eta; s1; fn; beta; lambda; forward.tipLoad(:, it)];
+    x = projectMapState(x, tube, cfg);
+    state(:, it) = x;
+
+    z = measurementVectorForFrame(measurements, it);
+    Rdiag = measurementStdVector(measurements, cfg) .^ 2;
+    h = mapMeasurementModel(tube, x, cfg, prevShape);
+    [c, ceq] = fullMapConstraints(tube, x, cfg, prevShape);
+    decoded = decodeMapState(x, tube, cfg, prevShape);
+
+    measurementResidualNorm(it) = norm((z - h) ./ sqrt(Rdiag));
+    maxEqualityResidual(it) = max(abs(ceq));
+    maxInequalityViolation(it) = max([0; c(:)]);
+    forceReconstructionResidual(it) = reconResidual;
+    normalComplementarity(it) = abs(decoded.gap * decoded.fn);
+    frictionComplementarity(it) = norm(decoded.frictionW(:) .* decoded.beta(:));
+    coneComplementarity(it) = abs(decoded.frictionConeSlack * decoded.lambda);
+    gap(it) = decoded.gap;
+    normalForce(it) = decoded.fn;
+    lambda(it) = decoded.lambda;
+    coneSlack(it) = decoded.frictionConeSlack;
+    minFrictionW(it) = min(decoded.frictionW(:));
+    tangentialDisplacementNorm(it) = norm(decoded.vTangential);
+
+    prevShape = struct('p', forward.p(:, :, it), 'R', forward.R(:, :, :, it), ...
+        'u', forward.u(:, :, it), 's1', s1);
+end
+
+truth = struct;
+truth.state = state;
+truth.measurementResidualNorm = measurementResidualNorm;
+truth.maxEqualityResidual = maxEqualityResidual;
+truth.maxInequalityViolation = maxInequalityViolation;
+truth.forceReconstructionResidual = forceReconstructionResidual;
+truth.normalComplementarity = normalComplementarity;
+truth.frictionComplementarity = frictionComplementarity;
+truth.coneComplementarity = coneComplementarity;
+truth.gap = gap;
+truth.normalForce = normalForce;
+truth.lambda = lambda;
+truth.coneSlack = coneSlack;
+truth.minFrictionW = minFrictionW;
+truth.tangentialDisplacementNorm = tangentialDisplacementNorm;
+truth.description = 'Diagnostic only: forward contact/tip truth evaluated in the inverse formulation model.';
+end
+
+
+function diagnostics = diagnoseMapCandidateCosts(tube0, forward, measurements, truthConsistency, cfg)
+candidateNames = {'truth', 'measurement_init_tip_only', 'reduced_seed', ...
+    'reduced_seed_projected', 'zero_force'};
+nc = numel(candidateNames);
+nt = numel(measurements.betaMm);
+
+diagnostics = struct;
+diagnostics.candidateNames = candidateNames;
+diagnostics.description = ['Diagnostic only: candidate states scored by the same nonlinear MAP merit ', ...
+    'and complementarity constraints used by the formulation. The truth candidate is not used by the estimator.'];
+
+diagnostics.merit = nan(nc, nt);
+diagnostics.mapCost = nan(nc, nt);
+diagnostics.measurementResidualNorm = nan(nc, nt);
+diagnostics.priorResidualNorm = nan(nc, nt);
+diagnostics.maxEqualityResidual = nan(nc, nt);
+diagnostics.maxInequalityViolation = nan(nc, nt);
+diagnostics.gap = nan(nc, nt);
+diagnostics.normalForce = nan(nc, nt);
+diagnostics.contactArcLength = nan(nc, nt);
+diagnostics.vTangential = nan(3, nc, nt);
+diagnostics.minFrictionW = nan(nc, nt);
+diagnostics.contactForce = nan(3, nc, nt);
+diagnostics.tipForce = nan(3, nc, nt);
+diagnostics.totalForce = nan(3, nc, nt);
+
+if ~isfield(cfg, 'diagnostics') || ~isfield(cfg.diagnostics, 'runMapCandidateCosts') || ...
+        ~cfg.diagnostics.runMapCandidateCosts
+    return;
+end
+
+prevShape = [];
+for it = 1:nt
+    tube = tube0;
+    tube.T_base = measurements.baseTraj(:, :, it);
+    z = measurementVectorForFrame(measurements, it);
+    Rdiag = measurementStdVector(measurements, cfg) .^ 2;
+    xInit = initializeMapState(tube, measurements, it, cfg, []);
+
+    if it == 1
+        xPrior = initialMapPriorState(xInit, cfg);
+        Pminus = diag(stateStdVector(cfg) .^ 2);
+    else
+        xPrior = truthConsistency.state(:, it - 1);
+        Pminus = diag(processStdVector(cfg) .^ 2);
+    end
+
+    seed = solveReducedShapeKnownMapUpdate(tube, xInit, xPrior, z, cfg, measurements.u(:, :, it));
+    xZeroForce = xInit(:);
+    xZeroForce(7:end) = 0;
+
+    candidates = [truthConsistency.state(:, it), ...
+        xInit(:), ...
+        seed.x(:), ...
+        projectFullComplementarity(seed.x(:), tube, cfg, prevShape), ...
+        xZeroForce(:)];
+
+    for jc = 1:nc
+        xCandidate = projectMapState(candidates(:, jc), tube, cfg);
+        h = mapMeasurementModel(tube, xCandidate, cfg, prevShape);
+        [c, ceq] = fullMapConstraints(tube, xCandidate, cfg, prevShape);
+        decoded = decodeMapState(xCandidate, tube, cfg, prevShape);
+        PInv = pinvSym(Pminus);
+        priorResidual = xCandidate - xPrior;
+        measurementResidual = z - h;
+
+        diagnostics.mapCost(jc, it) = fullMapCost(xCandidate, xPrior, Pminus, z, Rdiag, h);
+        diagnostics.merit(jc, it) = diagnostics.mapCost(jc, it) + ...
+            cfg.forceSensor.penalty.inequality * sum(max(c, 0) .^ 2) + ...
+            cfg.forceSensor.penalty.complementarity * sum(ceq .^ 2);
+        diagnostics.measurementResidualNorm(jc, it) = norm(measurementResidual ./ sqrt(max(Rdiag(:), eps)));
+        diagnostics.priorResidualNorm(jc, it) = sqrt(max(0, priorResidual' * PInv * priorResidual));
+        diagnostics.maxEqualityResidual(jc, it) = max(abs(ceq));
+        diagnostics.maxInequalityViolation(jc, it) = max([0; c(:)]);
+        diagnostics.gap(jc, it) = decoded.gap;
+        diagnostics.normalForce(jc, it) = decoded.fn;
+        diagnostics.contactArcLength(jc, it) = decoded.s1;
+        diagnostics.vTangential(:, jc, it) = decoded.vTangential;
+        diagnostics.minFrictionW(jc, it) = min(decoded.frictionW(:));
+        diagnostics.contactForce(:, jc, it) = decoded.contactForce;
+        diagnostics.tipForce(:, jc, it) = decoded.tipForce;
+        diagnostics.totalForce(:, jc, it) = decoded.totalForce;
+    end
+
+    prevShape = struct('p', forward.p(:, :, it), 'R', forward.R(:, :, :, it), ...
+        'u', forward.u(:, :, it));
+end
+end
+
+
+function printFinalMapCandidateDiagnostics(diagnostics)
+if ~isfield(diagnostics, 'merit') || isempty(diagnostics.merit)
+    return;
+end
+
+finalFrame = size(diagnostics.merit, 2);
+if finalFrame == 0
+    return;
+end
+
+fprintf('Final MAP candidate diagnostics:\n');
+for j = 1:numel(diagnostics.candidateNames)
+    fprintf('  %-28s merit=%10.4g, meas_res=%8.3g, eq=%8.3g, ineq=%8.3g, minW=%8.3g, fn=%8.3g, s=%8.3f mm\n', ...
+        diagnostics.candidateNames{j}, diagnostics.merit(j, finalFrame), ...
+        diagnostics.measurementResidualNorm(j, finalFrame), ...
+        diagnostics.maxEqualityResidual(j, finalFrame), ...
+        diagnostics.maxInequalityViolation(j, finalFrame), ...
+        diagnostics.minFrictionW(j, finalFrame), diagnostics.normalForce(j, finalFrame), ...
+        diagnostics.contactArcLength(j, finalFrame));
+end
+end
+
+
+function [fn, beta, lambda, residual] = contactVariablesFromForwardContact(contacts, ic, contactForce, n, cfg)
+if isempty(ic) || isempty(contacts) || ic < 1 || ic > numel(contacts)
+    [fn, beta, lambda, residual] = decomposeContactForceForState(contactForce, n, cfg);
+    return;
+end
+
+contact = contacts(ic);
+if ~isfield(contact, 'normal_force') || ~isfield(contact, 'friction_beta') || ...
+        ~isfield(contact, 'friction_lambda') || ~isfield(contact, 'friction_directions')
+    [fn, beta, lambda, residual] = decomposeContactForceForState(contactForce, n, cfg);
+    return;
+end
+
+m = cfg.forceSensor.numFrictionDirs;
+Dtarget = frictionDirections(n, m);
+Dsource = contact.friction_directions;
+betaSource = contact.friction_beta(:);
+beta = zeros(m, 1);
+
+for js = 1:min(size(Dsource, 2), numel(betaSource))
+    dir = Dsource(:, js);
+    if norm(dir) <= eps || betaSource(js) <= 0
+        continue;
+    end
+    dir = dir / norm(dir);
+    [alignment, jt] = max(Dtarget' * dir);
+    if alignment > 0.98
+        beta(jt) = beta(jt) + betaSource(js);
+    end
+end
+
+fn = max(0, contact.normal_force);
+lambda = max(0, contact.friction_lambda);
+
+reconstructed = n(:) / norm(n) * fn + Dtarget * beta;
+residual = norm(reconstructed - contactForce(:));
+if residual > max(1e-5, 1e-3 * max(1, norm(contactForce)))
+    [fn, beta, lambda, residual] = decomposeContactForceForState(contactForce, n, cfg);
+end
+end
+
+
+function [fn, beta, lambda, residual] = decomposeContactForceForState(contactForce, n, cfg)
+m = cfg.forceSensor.numFrictionDirs;
+n = n(:) / norm(n);
+D = frictionDirections(n, m);
+fn = max(0, n' * contactForce(:));
+tangential = contactForce(:) - n * fn;
+
+try
+    beta = lsqnonneg(D, tangential);
+catch
+    beta = zeros(m, 1);
+    if norm(tangential) > eps
+        [~, idx] = max(D' * tangential);
+        beta(idx) = max(0, D(:, idx)' * tangential);
+    end
+end
+
+coneLimit = cfg.frictionMu * fn;
+if sum(beta) > coneLimit && sum(beta) > 0
+    beta = beta * (coneLimit / sum(beta));
+end
+lambda = 0;
+residual = norm(n * fn + D * beta - contactForce(:));
 end
 
 
@@ -508,6 +825,19 @@ coneComplementarity = nan(1, nt);
 measurementNorm = nan(1, nt);
 cost = nan(1, nt);
 contactPoint = nan(3, nt);
+seedContactForce = zeros(3, nt);
+seedTipForce = zeros(3, nt);
+seedTotalForce = zeros(3, nt);
+seedContactArcLength = nan(1, nt);
+seedMeasurementNorm = nan(1, nt);
+seedNormalComplementarity = nan(1, nt);
+seedFrictionComplementarity = nan(1, nt);
+seedConeComplementarity = nan(1, nt);
+seedMerit = nan(1, nt);
+finalMerit = nan(1, nt);
+initializationName = cell(1, nt);
+initializationMerit = nan(1, nt);
+initializationResidualNorm = nan(1, nt);
 priorMean = [];
 priorCovariance = [];
 prevShape = [];
@@ -527,7 +857,7 @@ for it = 1:nt
     Rdiag = measurementStdVector(measurements, cfg) .^ 2;
     xInit = initializeMapState(tube, measurements, it, cfg, priorMean);
     if isempty(priorMean)
-        xPrior = xInit;
+        xPrior = initialMapPriorState(xInit, cfg);
         Pminus = diag(stateStdVector(cfg) .^ 2);
     else
         xPrior = priorMean;
@@ -540,6 +870,21 @@ for it = 1:nt
     posteriorCovariance(:, :, it) = est.Pplus;
     priorMean = est.x;
     priorCovariance = est.Pplus;
+
+    seedDecoded = decodeMapState(est.seed, tube, cfg, prevShape);
+    seedContactForce(:, it) = seedDecoded.contactForce;
+    seedTipForce(:, it) = seedDecoded.tipForce;
+    seedTotalForce(:, it) = seedDecoded.totalForce;
+    seedContactArcLength(it) = seedDecoded.s1;
+    seedMeasurementNorm(it) = norm((z - mapMeasurementModel(tube, est.seed, cfg, prevShape)) ./ sqrt(Rdiag));
+    seedNormalComplementarity(it) = abs(seedDecoded.gap * seedDecoded.fn);
+    seedFrictionComplementarity(it) = norm(seedDecoded.frictionW(:) .* seedDecoded.beta(:));
+    seedConeComplementarity(it) = abs(seedDecoded.frictionConeSlack * seedDecoded.lambda);
+    seedMerit(it) = est.seedMerit;
+    finalMerit(it) = est.nonlinearMerit;
+    initializationName{it} = est.initInfo.name;
+    initializationMerit(it) = est.initInfo.cost;
+    initializationResidualNorm(it) = est.initInfo.residualNorm;
 
     decoded = decodeMapState(est.x, tube, cfg, prevShape);
     contactForce(:, it) = decoded.contactForce;
@@ -555,14 +900,15 @@ for it = 1:nt
     coneComplementarity(it) = abs(decoded.frictionConeSlack * decoded.lambda);
     measurementNorm(it) = norm(est.measurementResidual ./ sqrt(Rdiag));
     cost(it) = est.cost;
-    prevShape = struct('p', decoded.p, 's1', decoded.s1);
+    prevShape = measuredShapeForFrame(tube, measurements.u(:, :, it), decoded.s1);
 
     if showProgress
         fprintf(['  inverse frame %3d/%3d done in %.1f s, s=%.2f mm, ', ...
             'contact=[%.3f %.3f %.3f] N, tip=[%.3f %.3f %.3f] N, ', ...
-            'res=%.3g, comp=[%.2g %.2g %.2g]\n'], ...
+            'res=%.3g, seedRes=%.3g, merit=%.3g/%.3g, comp=[%.2g %.2g %.2g]\n'], ...
             it, nt, toc(frameTimer), decoded.s1, decoded.contactForce, decoded.tipForce, ...
-            measurementNorm(it), normalComplementarity(it), frictionComplementarity(it), coneComplementarity(it));
+            measurementNorm(it), seedMeasurementNorm(it), finalMerit(it), seedMerit(it), ...
+            normalComplementarity(it), frictionComplementarity(it), coneComplementarity(it));
     end
 end
 
@@ -580,6 +926,19 @@ ours.totalForceResultant = totalForce;
 ours.contactArcLength = contactArcLength;
 ours.contactIndex = contactIndex;
 ours.contactPoint = contactPoint;
+ours.seedContactForceResultant = seedContactForce;
+ours.seedTipForce = seedTipForce;
+ours.seedTotalForceResultant = seedTotalForce;
+ours.seedContactArcLength = seedContactArcLength;
+ours.seedMeasurementResidualNorm = seedMeasurementNorm;
+ours.seedNormalComplementarity = seedNormalComplementarity;
+ours.seedFrictionComplementarity = seedFrictionComplementarity;
+ours.seedConeComplementarity = seedConeComplementarity;
+ours.seedMerit = seedMerit;
+ours.finalMerit = finalMerit;
+ours.initializationName = initializationName;
+ours.initializationMerit = initializationMerit;
+ours.initializationResidualNorm = initializationResidualNorm;
 ours.gap = gap;
 ours.frictionConeSlack = frictionSlack;
 ours.normalComplementarity = normalComplementarity;
@@ -606,6 +965,12 @@ z = [z; planePoint; normalVector];
 end
 
 
+function shape = measuredShapeForFrame(tube, measuredU, s1)
+[~, R, p] = solveShape(tube.T_base, measuredU, tube.s);
+shape = struct('p', p, 'R', R, 'u', measuredU, 's1', s1);
+end
+
+
 function x = initializeMapState(tube, measurements, it, cfg, priorMean)
 u = measurements.u(:, :, it);
 p = measurements.p(:, :, it);
@@ -613,15 +978,17 @@ planeZ = measurements.planeZMeasured(it);
 normal = measurements.planeNormalMeasured;
 eta = normalToEta(normal);
 
-zDistance = planeZ - p(3, :);
-[~, idx] = min(abs(zDistance - tube.rout));
-if zDistance(idx) > tube.rout + cfg.forceSensor.contactSearchBandMm
-    [~, idx] = min(zDistance);
+planePoint = [0; 0; planeZ];
+signedGap = normal(:)' * (p - planePoint);
+[~, idx] = min(abs(signedGap));
+if abs(signedGap(idx)) > cfg.forceSensor.contactSearchBandMm
+    [~, idx] = min(signedGap);
 end
 s1 = tube.s(idx);
 
 [~, R, pShape] = solveShape(measurements.baseTraj(:, :, it), u, tube.s);
-[fSeed, feSeed] = seedForcesFromMeasuredCurvature(tube, u, R, pShape, idx, normal, cfg);
+feSeed = seedTipOnlyForceFromMeasuredCurvature(tube, u, R, pShape);
+fSeed = zeros(3, 1);
 
 m = cfg.forceSensor.numFrictionDirs;
 D = frictionDirections(normal, m);
@@ -635,6 +1002,33 @@ if ~isempty(priorMean)
 end
 
 x = [0; 0; planeZ; eta; s1; fn; beta; lambda; feSeed(:)];
+end
+
+
+function xPrior = initialMapPriorState(xInit, cfg)
+m = cfg.forceSensor.numFrictionDirs;
+xPrior = xInit(:);
+xPrior(7) = 0;
+xPrior(8:7 + m) = 0;
+xPrior(8 + m) = 0;
+xPrior(9 + m:11 + m) = 0;
+if isfield(cfg.forceSensor, 'initialTipPriorN')
+    xPrior(9 + m:11 + m) = cfg.forceSensor.initialTipPriorN(:);
+end
+end
+
+
+function tipSeed = seedTipOnlyForceFromMeasuredCurvature(tube, u, R, p)
+J = computeJacobian(R, p);
+K = getTubeK(tube);
+mMeasured = K .* (u(:) - tube.uhat(:));
+
+tipRows = 3 * length(tube.s) - (2:-1:0);
+A = J(tipRows, :)';
+G = A' * A;
+ridge = 1e-8 * max(trace(G) / max(size(G, 1), 1), 1);
+tipSeed = (G + ridge * eye(3)) \ (A' * mMeasured);
+tipSeed(~isfinite(tipSeed)) = 0;
 end
 
 
@@ -678,7 +1072,13 @@ if nargin < 10
 end
 showProgress = isfield(cfg.forceSensor, 'showProgress') && cfg.forceSensor.showProgress;
 seed = solveReducedShapeKnownMapUpdate(tube, xInit, xPrior, z, cfg, measuredU);
-x = projectMapState(seed.x, tube, cfg);
+[x, initInfo] = chooseInitialMapLinearization(tube, xInit, xPrior, seed.x, ...
+    xPrior, Pminus, z, Rdiag, cfg, prevShape);
+startCandidates = mapStartCandidates(x, xInit, xPrior, seed.x, cfg, tube, prevShape);
+if showProgress
+    fprintf('    frame %3d/%3d init selected %s, merit %.4g, residual %.3g\n', ...
+        progress.frame, progress.numFrames, initInfo.name, initInfo.cost, initInfo.residualNorm);
+end
 
 for iter = 1:cfg.forceSensor.maxEkfIterations
     if showProgress
@@ -689,7 +1089,7 @@ for iter = 1:cfg.forceSensor.maxEkfIterations
     h0 = mapMeasurementModel(tube, xLinearization, cfg, prevShape);
     H = finiteDifferenceMeasurementJacobian(tube, xLinearization, cfg, prevShape);
     progress.ekfIter = iter;
-    xProposal = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress);
+    xProposal = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress, startCandidates);
     [xNext, acceptedAlpha, acceptedCost] = acceptDampedMapStep(tube, xLinearization, xProposal, ...
         xPrior, Pminus, z, Rdiag, cfg, prevShape);
     step = (xNext - xLinearization) ./ stateScaleVector(cfg);
@@ -702,6 +1102,7 @@ for iter = 1:cfg.forceSensor.maxEkfIterations
     if norm(step) < cfg.forceSensor.convergenceTol
         break;
     end
+    startCandidates = mapStartCandidates(x, xInit, xPrior, seed.x, cfg, tube, prevShape);
 end
 
 decoded = decodeMapState(x, tube, cfg, prevShape);
@@ -721,6 +1122,65 @@ est.surfaceGap = decoded.gap;
 est.measurementResidual = z - hFinal;
 est.constraintResidual = constraint;
 est.seed = seed.x;
+est.seedInfo = seed;
+est.initInfo = initInfo;
+est.nonlinearMerit = nonlinearMapMerit(tube, x, xPrior, Pminus, z, Rdiag, cfg, prevShape);
+est.seedMerit = nonlinearMapMerit(tube, seed.x, xPrior, Pminus, z, Rdiag, cfg, prevShape);
+end
+
+
+function [xBest, info] = chooseInitialMapLinearization(tube, xInit, xPriorCandidate, xSeed, ...
+    xPrior, Pminus, z, Rdiag, cfg, prevShape)
+% Pick the EKF linearization point using only the MAP objective and
+% complementarity residuals. The reduced shape-known force solve is allowed
+% to help initialization, but it is not trusted blindly.
+xSeedProjected = projectFullComplementarity(xSeed(:), tube, cfg, prevShape);
+names = {'prior', 'measurement_init', 'reduced_seed', 'reduced_seed_projected', 'prior_seed_blend'};
+xZeroForce = xInit(:);
+xZeroForce(7:end) = 0;
+names = [names, {'zero_force'}];
+candidates = [xPriorCandidate(:), xInit(:), xSeed(:), xSeedProjected(:), ...
+    0.5 * (xPriorCandidate(:) + xSeedProjected(:)), xZeroForce];
+
+bestValue = inf;
+xBest = projectMapState(candidates(:, 1), tube, cfg);
+bestResidual = inf;
+for j = 1:size(candidates, 2)
+    xCandidate = projectMapState(candidates(:, j), tube, cfg);
+    h = mapMeasurementModel(tube, xCandidate, cfg, prevShape);
+    [c, ceq] = fullMapConstraints(tube, xCandidate, cfg, prevShape);
+    priorResidual = xCandidate - xPrior;
+    measurementResidual = z - h;
+    PInv = pinvSym(Pminus);
+    value = 0.5 * priorResidual' * PInv * priorResidual + ...
+        0.5 * sum((measurementResidual .^ 2) ./ max(Rdiag(:), eps)) + ...
+        cfg.forceSensor.penalty.inequality * sum(max(c, 0) .^ 2) + ...
+        cfg.forceSensor.penalty.complementarity * sum(ceq .^ 2);
+    residualNorm = norm(measurementResidual ./ sqrt(max(Rdiag(:), eps)));
+    if value < bestValue
+        bestValue = value;
+        bestResidual = residualNorm;
+        xBest = xCandidate;
+        info = struct('name', names{j}, 'cost', value, 'residualNorm', residualNorm);
+    end
+end
+
+if ~isfinite(bestValue)
+    info = struct('name', 'prior', 'cost', bestValue, 'residualNorm', bestResidual);
+end
+end
+
+
+function candidates = mapStartCandidates(xCurrent, xInit, xPrior, xSeed, cfg, tube, prevShape)
+xZeroForce = xInit(:);
+xZeroForce(7:end) = 0;
+xSeedProjected = projectFullComplementarity(xSeed(:), tube, cfg, prevShape);
+xCurrentProjected = projectFullComplementarity(xCurrent(:), tube, cfg, prevShape);
+candidates = [xCurrent(:), xInit(:), xPrior(:), xSeed(:), ...
+    xSeedProjected(:), xCurrentProjected(:), xZeroForce(:)];
+if isfield(cfg.forceSensor, 'maxStartCandidates') && cfg.forceSensor.maxStartCandidates > 0
+    candidates = candidates(:, 1:min(size(candidates, 2), cfg.forceSensor.maxStartCandidates));
+end
 end
 
 
@@ -756,7 +1216,7 @@ for ic = 1:numel(candidateIdx)
     yCandidate = solveProjectedForceQuadratic(G, rhs, forcePrior, cfg);
 
     residual = norm(A * yCandidate - mMeasured) / normalizer;
-    surfaceGap = n' * (p(:, contactIdx) - x(1:3)) - tube.rout;
+    surfaceGap = n' * (p(:, contactIdx) - x(1:3));
     priorPenalty = abs(tube.s(contactIdx) - xPrior(6)) / max(cfg.forceSensor.priorStd.sMm, eps);
     normalForcePenalty = 0.02 / max(yCandidate(1), 0.02);
     score = residual + 0.2 * abs(surfaceGap) + 0.03 * priorPenalty + normalForcePenalty;
@@ -782,14 +1242,17 @@ est.x = x;
 est.cost = best.residual;
 est.contactIdx = best.idx;
 est.contactPoint = p(:, best.idx);
-est.surfaceGap = n' * (p(:, best.idx) - x(1:3)) - tube.rout;
+est.surfaceGap = n' * (p(:, best.idx) - x(1:3));
 est.measurementResidual = z - mapMeasurementModel(tube, x, cfg);
 end
 
 
-function x = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress)
+function x = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress, startCandidates)
 if nargin < 11
     progress = struct('frame', nan, 'numFrames', nan, 'ekfIter', nan);
+end
+if nargin < 12 || isempty(startCandidates)
+    startCandidates = xLinearization(:);
 end
 PInv = pinvSym(Pminus);
 objective = @(xc) linearizedMapCost(xc(:), xLinearization, xPrior, PInv, z, Rdiag, h0, H);
@@ -818,13 +1281,35 @@ if useFmincon
             opts = optimset('Display', 'off', 'MaxIter', cfg.forceSensor.linearizedSolveMaxIter, ...
                 'OutputFcn', outputFcn);
         end
-        x0 = projectFullComplementarity(xLinearization, tube, cfg, prevShape);
         if isfield(cfg.forceSensor, 'showProgress') && cfg.forceSensor.showProgress
             fprintf('      frame %3d/%3d EKF iter %d: solving constrained MAP with fmincon\n', ...
                 progress.frame, progress.numFrames, progress.ekfIter);
         end
-        x = fmincon(objective, x0, [], [], [], [], lb, ub, nonlcon, opts);
-        x = projectMapState(x, tube, cfg);
+        if ~isfield(cfg.forceSensor, 'useMultiStart') || ~cfg.forceSensor.useMultiStart
+            startCandidates = xLinearization(:);
+        end
+        bestX = [];
+        bestValue = inf;
+        bestStart = 1;
+        for istart = 1:size(startCandidates, 2)
+            x0 = projectMapState(startCandidates(:, istart), tube, cfg);
+            xCandidate = fmincon(objective, x0, [], [], [], [], lb, ub, nonlcon, opts);
+            xCandidate = projectMapState(xCandidate, tube, cfg);
+            value = constrainedSubproblemMerit(xCandidate, objective, nonlcon, cfg);
+            if value < bestValue
+                bestValue = value;
+                bestX = xCandidate;
+                bestStart = istart;
+            end
+        end
+        if isempty(bestX)
+            error('fmincon did not return a candidate solution.');
+        end
+        if isfield(cfg.forceSensor, 'showProgress') && cfg.forceSensor.showProgress && size(startCandidates, 2) > 1
+            fprintf('      fmincon multistart selected start %d/%d, merit %.4g\n', ...
+                bestStart, size(startCandidates, 2), bestValue);
+        end
+        x = bestX;
         return;
     catch solveErr
         if ~cfg.forceSensor.allowApproximateFallback
@@ -841,6 +1326,14 @@ x = solveProjectedLinearizedMap(tube, xLinearization, xPrior, PInv, z, Rdiag, h0
 end
 
 
+function value = constrainedSubproblemMerit(x, objective, nonlcon, cfg)
+[c, ceq] = nonlcon(x);
+value = objective(x) + ...
+    cfg.forceSensor.penalty.inequality * sum(max(c, 0) .^ 2) + ...
+    cfg.forceSensor.penalty.complementarity * sum(ceq .^ 2);
+end
+
+
 function [xAccepted, acceptedAlpha, acceptedCost] = acceptDampedMapStep(tube, xCurrent, xProposal, xPrior, Pminus, z, Rdiag, cfg, prevShape)
 alphas = cfg.forceSensor.dampingScales;
 if isempty(alphas)
@@ -848,12 +1341,12 @@ if isempty(alphas)
 end
 
 bestCost = inf;
-bestX = projectFullComplementarity(xCurrent, tube, cfg, prevShape);
+bestX = projectMapState(xCurrent, tube, cfg);
 bestAlpha = 0;
 for ia = 1:numel(alphas)
     alpha = alphas(ia);
     xCandidate = xCurrent + alpha * (xProposal - xCurrent);
-    xCandidate = projectFullComplementarity(xCandidate, tube, cfg, prevShape);
+    xCandidate = projectMapState(xCandidate, tube, cfg);
     cost = nonlinearMapMerit(tube, xCandidate, xPrior, Pminus, z, Rdiag, cfg, prevShape);
     if cost < bestCost
         bestCost = cost;
@@ -1227,8 +1720,8 @@ end
 
 
 function candidateIdx = contactCandidateIndices(tube, p, planePoint, n, cfg)
-surfaceGap = n(:)' * (p - planePoint(:)) - tube.rout;
-band = max(cfg.forceSensor.contactSearchBandMm, 2 * tube.rout);
+surfaceGap = n(:)' * (p - planePoint(:));
+band = max(cfg.forceSensor.contactSearchBandMm, tube.rout);
 candidateIdx = find(abs(surfaceGap) <= band);
 
 if isempty(candidateIdx)
@@ -1317,10 +1810,10 @@ D = frictionDirections(n, m);
 contactForce = n * fn + D * beta;
 
 [~, idx] = min(abs(tube.s - s1));
-u = solveShapeFromStateForces(tube, s1, contactForce, fe);
+u = solveShapeFromStateForces(tube, s1, contactForce, fe, prevShape);
 [~, R, p] = solveShape(tube.T_base, u, tube.s);
 pcCenter = interpolateVectorByArc(tube.s, p, s1);
-pc = pcCenter - n * tube.rout;
+pc = pcCenter;
 
 if isempty(cfg) || ~isfield(cfg, 'sensing')
     fbgIdx = 1:length(tube.s);
@@ -1330,12 +1823,10 @@ end
 
 if isempty(prevShape)
     prevPcCenter = pcCenter;
+elseif isstruct(prevShape) && isfield(prevShape, 'p')
+    prevPcCenter = interpolateVectorByArc(tube.s, prevShape.p, s1);
 elseif isstruct(prevShape)
-    if isfield(prevShape, 's1') && abs(s1 - prevShape.s1) <= cfg.forceSensor.contactHistoryResetMm
-        prevPcCenter = interpolateVectorByArc(tube.s, prevShape.p, s1);
-    else
-        prevPcCenter = pcCenter;
-    end
+    prevPcCenter = pcCenter;
 else
     prevPcCenter = interpolateVectorByArc(tube.s, prevShape, s1);
 end
@@ -1363,30 +1854,29 @@ decoded.p = p;
 decoded.pc = pc;
 decoded.pcCenter = pcCenter;
 decoded.gap = gap;
+decoded.vTangential = v;
 decoded.frictionW = wFriction;
 decoded.frictionConeSlack = coneSlack;
 decoded.fbgIdx = fbgIdx;
 end
 
 
-function u = solveShapeFromStateForces(tube, contactS, contactForce, tipForce)
+function u = solveShapeFromStateForces(tube, contactS, contactForce, tipForce, prevShape)
 K = getTubeK(tube);
 invK = 1 ./ K;
-u = tube.uhat;
 
-for iter = 1:3
-    [~, R, p] = solveShape(tube.T_base, u, tube.s);
-    J = computeJacobian(R, p);
-    Jcontact = interpolateJacobianAtArc(J, tube.s, contactS);
-    tipRows = 3 * length(tube.s) - (2:-1:0);
-    m = Jcontact' * contactForce(:) + J(tipRows, :)' * tipForce(:);
-    uNext = reshape(invK .* m, 3, []) + tube.uhat;
-    if norm(uNext(:) - u(:)) <= 1e-8 * max(1, norm(u(:)))
-        u = uNext;
-        break;
-    end
-    u = uNext;
+if nargin >= 5 && isstruct(prevShape) && isfield(prevShape, 'R') && isfield(prevShape, 'p')
+    Rlin = prevShape.R;
+    plin = prevShape.p;
+else
+    [~, Rlin, plin] = solveShape(tube.T_base, tube.uhat, tube.s);
 end
+
+J = computeJacobian(Rlin, plin);
+Jcontact = interpolateJacobianAtArc(J, tube.s, contactS);
+tipRows = 3 * length(tube.s) - (2:-1:0);
+m = Jcontact' * contactForce(:) + J(tipRows, :)' * tipForce(:);
+u = reshape(invK .* m, 3, []) + tube.uhat;
 end
 
 
@@ -1834,6 +2324,14 @@ T.ours_tip_Fx_N = results.ours.tipForce(1, :)';
 T.ours_tip_Fy_N = results.ours.tipForce(2, :)';
 T.ours_tip_Fz_N = results.ours.tipForce(3, :)';
 
+T.seed_contact_s_mm = results.ours.seedContactArcLength(:);
+T.seed_contact_Fx_N = results.ours.seedContactForceResultant(1, :)';
+T.seed_contact_Fy_N = results.ours.seedContactForceResultant(2, :)';
+T.seed_contact_Fz_N = results.ours.seedContactForceResultant(3, :)';
+T.seed_tip_Fx_N = results.ours.seedTipForce(1, :)';
+T.seed_tip_Fy_N = results.ours.seedTipForce(2, :)';
+T.seed_tip_Fz_N = results.ours.seedTipForce(3, :)';
+
 T.true_total_Fx_N = results.forward.totalForceResultant(1, :)';
 T.true_total_Fy_N = results.forward.totalForceResultant(2, :)';
 T.true_total_Fz_N = results.forward.totalForceResultant(3, :)';
@@ -1856,6 +2354,15 @@ T.ours_normal_complementarity = results.ours.normalComplementarity(:);
 T.ours_friction_complementarity = results.ours.frictionComplementarity(:);
 T.ours_cone_complementarity = results.ours.coneComplementarity(:);
 T.ours_measurement_residual_norm = results.ours.measurementResidualNorm(:);
+T.seed_measurement_residual_norm = results.ours.seedMeasurementResidualNorm(:);
+T.seed_normal_complementarity = results.ours.seedNormalComplementarity(:);
+T.seed_friction_complementarity = results.ours.seedFrictionComplementarity(:);
+T.seed_cone_complementarity = results.ours.seedConeComplementarity(:);
+T.seed_merit = results.ours.seedMerit(:);
+T.final_merit = results.ours.finalMerit(:);
+T.initialization_name = results.ours.initializationName(:);
+T.initialization_merit = results.ours.initializationMerit(:);
+T.initialization_residual_norm = results.ours.initializationResidualNorm(:);
 
 writetable(T, fullfile(cfg.outputDir, 'rod_plane_force_sensing_trajectory.csv'));
 end
@@ -1870,7 +2377,7 @@ cleanup = onCleanup(@() fclose(fid));
 fprintf(fid, 'Rod-plane force sensing validation\n');
 fprintf(fid, '==================================\n\n');
 fprintf(fid, 'Forward model: copied rod-plane setup with a local tip-load extension; original LCP-Continuum files are unchanged.\n');
-fprintf(fid, 'Inverse input: sparse noisy FBG-like curvature samples plus a biased plane point and plane normal measurement.\n\n');
+fprintf(fid, 'Inverse input: sparse FBG-like curvature samples plus a measured plane point and plane normal.\n\n');
 
 fprintf(fid, 'Rod length: %.1f mm\n', cfg.exposedLengthMm);
 fprintf(fid, 'Target bend: %.1f deg\n', cfg.targetBendDeg);
@@ -1889,6 +2396,10 @@ fprintf(fid, 'Final true tip load [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
     results.forward.tipLoad(:, end));
 fprintf(fid, 'Final estimated tip load [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
     results.ours.tipForce(:, end));
+fprintf(fid, 'Final reduced-seed contact force [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
+    results.ours.seedContactForceResultant(:, end));
+fprintf(fid, 'Final reduced-seed tip load [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
+    results.ours.seedTipForce(:, end));
 fprintf(fid, 'Final true total load [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
     results.forward.totalForceResultant(:, end));
 fprintf(fid, 'Final estimated total load [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
@@ -1913,8 +2424,31 @@ fprintf(fid, 'Final friction complementarity ||(D^T v + lambda e).*beta||: %.6g\
 fprintf(fid, 'Final cone complementarity |(mu*f_n - e^T beta)*lambda|: %.6g\n', results.metrics.ours.finalConeComplementarity);
 fprintf(fid, 'Final normalized measurement residual norm: %.6g\n', results.metrics.ours.finalMeasurementResidualNorm);
 fprintf(fid, 'Max normalized measurement residual norm: %.6g\n', results.metrics.ours.maxMeasurementResidualNorm);
+fprintf(fid, 'Final reduced-seed normalized measurement residual norm: %.6g\n', ...
+    results.ours.seedMeasurementResidualNorm(end));
+fprintf(fid, 'Final reduced-seed MAP merit: %.6g\n', results.ours.seedMerit(end));
+fprintf(fid, 'Final accepted MAP merit: %.6g\n', results.ours.finalMerit(end));
+fprintf(fid, 'Final initialization selected: %s\n', results.ours.initializationName{end});
 fprintf(fid, 'Aloi total-load RMSE: %.6g N\n', results.metrics.aloi.resultantRmse);
 fprintf(fid, 'Aloi final total-load relative error: %.4f %%\n\n', results.metrics.aloi.finalRelativeErrorPct);
+
+if isfield(results, 'mapCandidateDiagnostics') && ...
+        isfield(results.mapCandidateDiagnostics, 'merit') && ...
+        ~isempty(results.mapCandidateDiagnostics.merit)
+    diag = results.mapCandidateDiagnostics;
+    finalFrame = size(diag.merit, 2);
+    fprintf(fid, 'Final MAP candidate diagnostics (diagnostic only; truth is not used by the estimator):\n');
+    for j = 1:numel(diag.candidateNames)
+        fprintf(fid, '  %-28s merit=%10.6g, meas_res=%10.6g, eq=%10.6g, ineq=%10.6g, minW=%10.6g, fn=%10.6g, s=%10.6g mm\n', ...
+            diag.candidateNames{j}, diag.merit(j, finalFrame), ...
+            diag.measurementResidualNorm(j, finalFrame), ...
+            diag.maxEqualityResidual(j, finalFrame), ...
+            diag.maxInequalityViolation(j, finalFrame), ...
+            diag.minFrictionW(j, finalFrame), diag.normalForce(j, finalFrame), ...
+            diag.contactArcLength(j, finalFrame));
+    end
+    fprintf(fid, '\n');
+end
 
 if results.metrics.ours.finalRelativeErrorPct > cfg.forceSensor.warningRelativeErrorPct || ...
         results.metrics.ours.finalMeasurementResidualNorm > cfg.forceSensor.warningMeasurementResidualNorm
@@ -1930,8 +2464,8 @@ fprintf(fid, 'It solves the iterated constrained EKF/MAP update in Formulation.p
 fprintf(fid, 'with state x=[p1; eta1; s1; f1n; beta1; lambda1; fe], random-walk prior covariance, ');
 fprintf(fid, 'the nonlinear Cosserat forward map [p(s;x),u(s;x)]=F(s1,f1,fe), finite-difference ');
 fprintf(fid, 'linearization of h(x), posterior covariance update, and the normal/friction/cone ');
-fprintf(fid, 'complementarity constraints. The rod-plane forward model stores p(s) on the rod ');
-fprintf(fid, 'centerline, so the plane gap is evaluated at the radius-shifted surface point. ');
+fprintf(fid, 'complementarity constraints. The plane gap follows Formulation.pdf eqs. (5)-(6), ');
+fprintf(fid, 'pc=p(s1;x), which is also the centerline point used by the copied LCP rod-plane contact code. ');
 fprintf(fid, 'Aloi is used only as a shape-only Gaussian total-load baseline and does not ');
 fprintf(fid, 'receive the plane/friction constraints.\n');
 end
@@ -1954,6 +2488,27 @@ end
 function ensureDir(pathStr)
 if ~exist(pathStr, 'dir')
     mkdir(pathStr);
+end
+end
+
+
+function base = mergeStructRecursive(base, overrides)
+if isempty(overrides)
+    return;
+end
+if ~isstruct(overrides)
+    error('Configuration overrides must be a struct.');
+end
+
+names = fieldnames(overrides);
+for i = 1:numel(names)
+    name = names{i};
+    if isfield(base, name) && isstruct(base.(name)) && isstruct(overrides.(name)) && ...
+            isscalar(base.(name)) && isscalar(overrides.(name))
+        base.(name) = mergeStructRecursive(base.(name), overrides.(name));
+    else
+        base.(name) = overrides.(name);
+    end
 end
 end
 
