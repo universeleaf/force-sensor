@@ -127,6 +127,8 @@ cfg.forceSensor.penalty.complementarity = 1e5;
 cfg.forceSensor.penalty.lineSearch = [1.0, 0.5, 0.25, 0.1, 0.03, 0.01];
 cfg.forceSensor.solver = 'fmincon';
 cfg.forceSensor.allowApproximateFallback = false;
+cfg.forceSensor.showProgress = true;
+cfg.forceSensor.fminconProgressInterval = 10;
 
 % Aloi-style comparison: shape-only Gaussian load fitting. It does not use
 % the plane contact/friction information.
@@ -498,8 +500,15 @@ priorMean = [];
 priorCovariance = [];
 prevShape = [];
 Q = diag(processStdVector(cfg) .^ 2);
+inverseTimer = tic;
+showProgress = isfield(cfg.forceSensor, 'showProgress') && cfg.forceSensor.showProgress;
 
 for it = 1:nt
+    frameTimer = tic;
+    if showProgress
+        fprintf('  inverse frame %3d/%3d started, insertion %.2f mm, elapsed %.1f min\n', ...
+            it, nt, measurements.betaMm(it), toc(inverseTimer) / 60);
+    end
     tube = tube0;
     tube.T_base = measurements.baseTraj(:, :, it);
     z = measurementVectorForFrame(measurements, it);
@@ -513,7 +522,8 @@ for it = 1:nt
         Pminus = priorCovariance + Q;
     end
 
-    est = solveConstrainedMapUpdate(tube, xInit, xPrior, Pminus, z, Rdiag, cfg, prevShape, measurements.u(:, :, it));
+    progress = struct('frame', it, 'numFrames', nt);
+    est = solveConstrainedMapUpdate(tube, xInit, xPrior, Pminus, z, Rdiag, cfg, prevShape, measurements.u(:, :, it), progress);
     state(:, it) = est.x;
     posteriorCovariance(:, :, it) = est.Pplus;
     priorMean = est.x;
@@ -534,6 +544,18 @@ for it = 1:nt
     measurementNorm(it) = norm(est.measurementResidual ./ sqrt(Rdiag));
     cost(it) = est.cost;
     prevShape = struct('p', decoded.p, 's1', decoded.s1);
+
+    if showProgress
+        fprintf(['  inverse frame %3d/%3d done in %.1f s, s=%.2f mm, ', ...
+            'contact=[%.3f %.3f %.3f] N, tip=[%.3f %.3f %.3f] N, ', ...
+            'res=%.3g, comp=[%.2g %.2g %.2g]\n'], ...
+            it, nt, toc(frameTimer), decoded.s1, decoded.contactForce, decoded.tipForce, ...
+            measurementNorm(it), normalComplementarity(it), frictionComplementarity(it), coneComplementarity(it));
+    end
+end
+
+if showProgress
+    fprintf('  inverse pass complete in %.1f min\n', toc(inverseTimer) / 60);
 end
 
 ours = struct;
@@ -634,21 +656,34 @@ components = [fn; ft];
 end
 
 
-function est = solveConstrainedMapUpdate(tube, xInit, xPrior, Pminus, z, Rdiag, cfg, prevShape, measuredU)
+function est = solveConstrainedMapUpdate(tube, xInit, xPrior, Pminus, z, Rdiag, cfg, prevShape, measuredU, progress)
 % Full iterated constrained EKF/MAP update from Formulation.pdf eqs. (19)-(29).
 % Each iteration linearizes h(x), solves the constrained MAP subproblem with
 % unilateral contact and Coulomb-friction complementarity constraints, then
 % updates the posterior covariance from the final measurement Jacobian.
+if nargin < 10
+    progress = struct('frame', nan, 'numFrames', nan);
+end
+showProgress = isfield(cfg.forceSensor, 'showProgress') && cfg.forceSensor.showProgress;
 seed = solveReducedShapeKnownMapUpdate(tube, xInit, xPrior, z, cfg, measuredU);
 x = projectMapState(seed.x, tube, cfg);
 
 for iter = 1:cfg.forceSensor.maxEkfIterations
+    if showProgress
+        fprintf('    frame %3d/%3d EKF iter %d/%d: linearizing h(x)\n', ...
+            progress.frame, progress.numFrames, iter, cfg.forceSensor.maxEkfIterations);
+    end
     xLinearization = projectMapState(x, tube, cfg);
     h0 = mapMeasurementModel(tube, xLinearization, cfg, prevShape);
     H = finiteDifferenceMeasurementJacobian(tube, xLinearization, cfg, prevShape);
-    xNext = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape);
+    progress.ekfIter = iter;
+    xNext = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress);
     step = (xNext - xLinearization) ./ stateScaleVector(cfg);
     x = projectMapState(xNext, tube, cfg);
+    if showProgress
+        fprintf('    frame %3d/%3d EKF iter %d/%d: scaled step %.3g\n', ...
+            progress.frame, progress.numFrames, iter, cfg.forceSensor.maxEkfIterations, norm(step));
+    end
     if norm(step) < cfg.forceSensor.convergenceTol
         break;
     end
@@ -737,7 +772,10 @@ est.measurementResidual = z - mapMeasurementModel(tube, x, cfg);
 end
 
 
-function x = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape)
+function x = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress)
+if nargin < 11
+    progress = struct('frame', nan, 'numFrames', nan, 'ekfIter', nan);
+end
 PInv = pinvSym(Pminus);
 objective = @(xc) linearizedMapCost(xc(:), xLinearization, xPrior, PInv, z, Rdiag, h0, H);
 nonlcon = @(xc) fullMapConstraints(tube, xc(:), cfg, prevShape);
@@ -752,17 +790,24 @@ end
 useFmincon = strcmp(solver, 'fmincon') && exist('fmincon', 'file') == 2;
 if useFmincon
     try
+        outputFcn = @(xcur, optimValues, state) fminconProgressOutput(xcur, optimValues, state, cfg, progress);
         if exist('optimoptions', 'file') == 2
             opts = optimoptions('fmincon', 'Display', 'off', 'Algorithm', 'sqp', ...
                 'MaxIterations', cfg.forceSensor.linearizedSolveMaxIter, ...
                 'MaxFunctionEvaluations', 4000, ...
                 'OptimalityTolerance', 1e-5, ...
                 'ConstraintTolerance', 1e-5, ...
-                'StepTolerance', 1e-5);
+                'StepTolerance', 1e-5, ...
+                'OutputFcn', outputFcn);
         else
-            opts = optimset('Display', 'off', 'MaxIter', cfg.forceSensor.linearizedSolveMaxIter);
+            opts = optimset('Display', 'off', 'MaxIter', cfg.forceSensor.linearizedSolveMaxIter, ...
+                'OutputFcn', outputFcn);
         end
         x0 = projectFullComplementarity(xLinearization, tube, cfg, prevShape);
+        if isfield(cfg.forceSensor, 'showProgress') && cfg.forceSensor.showProgress
+            fprintf('      frame %3d/%3d EKF iter %d: solving constrained MAP with fmincon\n', ...
+                progress.frame, progress.numFrames, progress.ekfIter);
+        end
         x = fmincon(objective, x0, [], [], [], [], lb, ub, nonlcon, opts);
         x = projectMapState(x, tube, cfg);
         return;
@@ -778,6 +823,48 @@ if ~cfg.forceSensor.allowApproximateFallback
     error('The full formulation solver requires MATLAB fmincon. Set cfg.forceSensor.solver=''projected'' only for approximate smoke tests.');
 end
 x = solveProjectedLinearizedMap(tube, xLinearization, xPrior, PInv, z, Rdiag, h0, H, cfg, prevShape);
+end
+
+
+function stop = fminconProgressOutput(~, optimValues, state, cfg, progress)
+stop = false;
+if ~isfield(cfg.forceSensor, 'showProgress') || ~cfg.forceSensor.showProgress
+    return;
+end
+
+interval = cfg.forceSensor.fminconProgressInterval;
+if isempty(interval) || interval < 1
+    interval = 10;
+end
+
+switch state
+    case 'init'
+        fprintf('        fmincon started\n');
+    case 'iter'
+        iteration = progressFieldOrDefault(optimValues, 'iteration', 0);
+        if iteration == 1 || mod(iteration, interval) == 0
+            fval = progressFieldOrDefault(optimValues, 'fval', nan);
+            constr = progressFieldOrDefault(optimValues, 'constrviolation', nan);
+            step = progressFieldOrDefault(optimValues, 'stepsize', nan);
+            fprintf('        fmincon iter %3d: objective %.4g, constraint %.3g, step %.3g\n', ...
+                iteration, fval, constr, step);
+        end
+    case 'done'
+        iteration = progressFieldOrDefault(optimValues, 'iteration', nan);
+        fval = progressFieldOrDefault(optimValues, 'fval', nan);
+        constr = progressFieldOrDefault(optimValues, 'constrviolation', nan);
+        fprintf('        fmincon done: iter %.0f, objective %.4g, constraint %.3g\n', ...
+            iteration, fval, constr);
+end
+end
+
+
+function value = progressFieldOrDefault(s, fieldName, defaultValue)
+if isstruct(s) && isfield(s, fieldName)
+    value = s.(fieldName);
+else
+    value = defaultValue;
+end
 end
 
 
