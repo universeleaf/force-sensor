@@ -97,7 +97,7 @@ cfg.sensing.shapeSmoothing = 0.15;
 
 % Full constrained EKF/MAP parameters. State:
 % x = [p1(3); eta1(2); s1; f1n; beta1(m); lambda1; fe(3)].
-cfg.forceSensor.numFrictionDirs = 2;
+cfg.forceSensor.numFrictionDirs = cfg.frictionConeEdges;
 cfg.forceSensor.contactSearchBandMm = 4.0;
 cfg.forceSensor.contactHistoryResetMm = 6.0;
 cfg.forceSensor.minContactDepthMm = -1.0;
@@ -121,11 +121,12 @@ cfg.forceSensor.measurementStd.normalVector = [0.02; 0.02; 0.02];
 cfg.forceSensor.maxEkfIterations = 4;
 cfg.forceSensor.linearizedSolveMaxIter = 80;
 cfg.forceSensor.convergenceTol = 3e-3;
-cfg.forceSensor.finiteDifferenceStep = [0.25; 0.25; 0.08; 2e-3; 2e-3; 0.25; 0.4; 0.4; 0.4; 0.2; 0.2; 0.2];
+cfg.forceSensor.finiteDifferenceStep = [];
 cfg.forceSensor.penalty.inequality = 1e5;
 cfg.forceSensor.penalty.complementarity = 1e5;
 cfg.forceSensor.penalty.lineSearch = [1.0, 0.5, 0.25, 0.1, 0.03, 0.01];
-cfg.forceSensor.useFminconIfAvailable = false;
+cfg.forceSensor.solver = 'fmincon';
+cfg.forceSensor.allowApproximateFallback = false;
 
 % Aloi-style comparison: shape-only Gaussian load fitting. It does not use
 % the plane contact/friction information.
@@ -140,6 +141,8 @@ if quickMode
     cfg.sensing.numFbgPoints = 12;
     cfg.forceSensor.maxEkfIterations = 1;
     cfg.forceSensor.linearizedSolveMaxIter = 25;
+    cfg.forceSensor.solver = 'projected';
+    cfg.forceSensor.allowApproximateFallback = true;
     cfg.aloi.numCenterCandidates = 17;
     cfg.aloi.sigmaCandidatesMm = [10, 25];
     cfg.aloi.tipSigmaCandidatesMm = [6, 12];
@@ -739,13 +742,14 @@ PInv = pinvSym(Pminus);
 objective = @(xc) linearizedMapCost(xc(:), xLinearization, xPrior, PInv, z, Rdiag, h0, H);
 nonlcon = @(xc) fullMapConstraints(tube, xc(:), cfg, prevShape);
 [lb, ub] = stateBounds(tube, cfg);
+solver = lower(char(cfg.forceSensor.solver));
 
-if ~cfg.forceSensor.useFminconIfAvailable
+if strcmp(solver, 'projected')
     x = solveProjectedLinearizedMap(tube, xLinearization, xPrior, PInv, z, Rdiag, h0, H, cfg, prevShape);
     return;
 end
 
-useFmincon = cfg.forceSensor.useFminconIfAvailable && exist('fmincon', 'file') == 2;
+useFmincon = strcmp(solver, 'fmincon') && exist('fmincon', 'file') == 2;
 if useFmincon
     try
         if exist('optimoptions', 'file') == 2
@@ -758,14 +762,21 @@ if useFmincon
         else
             opts = optimset('Display', 'off', 'MaxIter', cfg.forceSensor.linearizedSolveMaxIter);
         end
-        x = fmincon(objective, xLinearization, [], [], [], [], lb, ub, nonlcon, opts);
+        x0 = projectFullComplementarity(xLinearization, tube, cfg, prevShape);
+        x = fmincon(objective, x0, [], [], [], [], lb, ub, nonlcon, opts);
         x = projectMapState(x, tube, cfg);
         return;
     catch solveErr
-        fprintf('  fmincon failed (%s); using projected penalty fallback.\n', solveErr.message);
+        if ~cfg.forceSensor.allowApproximateFallback
+            error('Full formulation solve failed in fmincon: %s', solveErr.message);
+        end
+        fprintf('  fmincon failed (%s); using projected approximate fallback.\n', solveErr.message);
     end
 end
 
+if ~cfg.forceSensor.allowApproximateFallback
+    error('The full formulation solver requires MATLAB fmincon. Set cfg.forceSensor.solver=''projected'' only for approximate smoke tests.');
+end
 x = solveProjectedLinearizedMap(tube, xLinearization, xPrior, PInv, z, Rdiag, h0, H, cfg, prevShape);
 end
 
@@ -950,30 +961,13 @@ function H = finiteDifferenceMeasurementJacobian(tube, x, cfg, prevShape)
 hBase = mapMeasurementModel(tube, x, cfg, prevShape);
 nx = formulationStateSize(cfg);
 H = zeros(numel(hBase), nx);
-decoded = decodeMapState(x, tube, cfg, prevShape);
-numFbg = numel(decoded.fbgIdx);
-curvRows = 1:(3 * numFbg);
-planeRows = (3 * numFbg) + (1:3);
-normalRows = (3 * numFbg + 3) + (1:3);
-
-H(planeRows, 1:3) = eye(3);
-H(normalRows, 4:5) = normalParameterJacobian(x(4:5));
-
-m = cfg.forceSensor.numFrictionDirs;
-forceColumns = [7, 8:7 + m, 9 + m:11 + m];
-forceDirections = [decoded.n, decoded.D, eye(3)];
-for j = 1:numel(forceColumns)
-    du = curvatureSensitivityToPointForce(tube, decoded, forceDirections(:, j), j > 1 + m);
-    H(curvRows, forceColumns(j)) = reshape(du(:, decoded.fbgIdx), [], 1);
-end
 
 step = cfg.forceSensor.finiteDifferenceStep(:);
 if numel(step) ~= nx
-    step = stateScaleVector(cfg) * 1e-3;
+    step = max(stateScaleVector(cfg) * 1e-4, 1e-6 * ones(nx, 1));
 end
 
-finiteDifferenceColumns = [4, 5, 6];
-for j = finiteDifferenceColumns
+for j = 1:nx
     xp = x;
     xm = x;
     xp(j) = xp(j) + step(j);
@@ -988,30 +982,6 @@ for j = finiteDifferenceColumns
     hm = mapMeasurementModel(tube, xm, cfg, prevShape);
     H(:, j) = (hp - hm) / denom;
 end
-end
-
-
-function Jn = normalParameterJacobian(eta)
-az = eta(1);
-el = eta(2);
-Jn = [-cos(el) * sin(az), -sin(el) * cos(az); ...
-       cos(el) * cos(az), -sin(el) * sin(az); ...
-       0,                  cos(el)];
-end
-
-
-function du = curvatureSensitivityToPointForce(tube, decoded, direction, isTipForce)
-J = computeJacobian(decoded.R, decoded.p);
-K = getTubeK(tube);
-invK = 1 ./ K;
-if isTipForce
-    rows = 3 * length(tube.s) - (2:-1:0);
-    moment = J(rows, :)' * direction(:);
-else
-    Jcontact = interpolateJacobianAtArc(J, tube.s, decoded.s1);
-    moment = Jcontact' * direction(:);
-end
-du = reshape(invK .* moment, 3, []);
 end
 
 
@@ -1780,6 +1750,8 @@ fprintf(fid, 'Aloi total-load RMSE: %.6g N\n', results.metrics.aloi.resultantRms
 fprintf(fid, 'Aloi final total-load relative error: %.4f %%\n\n', results.metrics.aloi.finalRelativeErrorPct);
 
 fprintf(fid, 'Implementation note:\n');
+fprintf(fid, 'Solver: %s, friction directions m=%d.\n', ...
+    results.config.forceSensor.solver, results.config.forceSensor.numFrictionDirs);
 fprintf(fid, 'The inverse estimate does not use the forward solver contact force or contact index. ');
 fprintf(fid, 'It solves the iterated constrained EKF/MAP update in Formulation.pdf eqs. (19)-(29) ');
 fprintf(fid, 'with state x=[p1; eta1; s1; f1n; beta1; lambda1; fe], random-walk prior covariance, ');

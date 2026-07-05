@@ -67,6 +67,11 @@ force or contact index.
    conversion needed to apply the PDF's plane-contact gap equation to this
    simulation.
 
+   Formal runs use MATLAB `fmincon` for the constrained MAP subproblem in
+   eq. (26). The projected solver is kept only for short smoke tests, where
+   it is useful for checking data flow but is not treated as the formulation
+   result.
+
 3. Aloi-style baseline
 
    The comparison baseline follows the Gaussian distributed-load idea used
@@ -90,7 +95,7 @@ kept to show the scenario and output format; re-run
 `simu_rod_plane_force_sensing_copy(false)` after the full EKF/MAP change to
 regenerate formal full-run numbers.
 
-Final-frame values from the earlier full run:
+Final-frame values from the earlier reduced-reference run:
 
 ```text
 True contact force:       [-50.8779, 0, -21.5140] N

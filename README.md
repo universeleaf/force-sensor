@@ -62,11 +62,11 @@ script implements the iterated constrained EKF/MAP update from
 map `F(s1, f1, fe)`, measurement linearization `H = dh/dx`, posterior
 covariance update, and the normal/friction/cone complementarity constraints.
 
-For speed and reproducibility, the constrained subproblem is solved by a
-custom projected active-set step by default. Setting
-`cfg.forceSensor.useFminconIfAvailable = true` enables MATLAB `fmincon` when
-Optimization Toolbox is available, but that path is much slower for trajectory
-runs.
+Formal runs use MATLAB `fmincon` to solve the constrained MAP subproblem in
+eq. (26), with the complementarity constraints from eqs. (20)-(23). The
+short `quickMode` smoke test uses `cfg.forceSensor.solver = 'projected'` only
+to check that the pipeline executes; that approximate path should not be used
+for final force-error claims.
 
 The Aloi-style method is used as a shape-only total-load baseline for the same
 rod-plane trajectory. It does not use the plane, contact, or friction
@@ -94,7 +94,7 @@ results = simu_rod_plane_force_sensing_copy(true);
 
 ## Latest Rod-Plane Result
 
-The numeric values below are from the earlier full 120-frame reduced
+The numeric values below are from the earlier 120-frame reduced
 shape-known run and are kept only as a reference point while the full
 formulation implementation is being validated. Re-run
 `simu_rod_plane_force_sensing_copy(false)` to regenerate the result files with
