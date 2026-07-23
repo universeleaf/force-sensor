@@ -15,6 +15,8 @@ meeting_agenda*.md
 # MATLAB temporary files
 *.asv
 *.m~
+.matlab_pref/
+tmp/
 
 # OS files
 .DS_Store
@@ -34,6 +36,9 @@ LCP-Continuum/
 
 # Test/development files
 force_test_single.m
+force_outputs/*_tmp/
+force_outputs/rod_plane_force_sensing_diagnostic_*/
+forcesensing.mp4
 
 # Images (keep only in force_outputs/)
 aloifig6.png

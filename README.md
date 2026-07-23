@@ -1,197 +1,224 @@
-# Force Sensing for Continuum Robots
+# Continuum-Robot Force Sensing
 
-This repository contains MATLAB experiments for continuum-robot force
-estimation with Cosserat rod models. It includes the original Gaussian
-load-estimation baseline and a newer rod-plane contact validation with a
-known forward tip load and inverse force estimation from the measured shape.
+This repository contains MATLAB simulations for estimating external forces on
+a continuum robot from sparse shape measurements. The current rod-plane study
+compares two inverse methods against a displacement-aware frictional contact
+simulation:
 
-## Repository Contents
+1. the constrained EKF/MAP formulation in `Formulation.pdf`; and
+2. a shape-only Gaussian-load baseline based on Aloi et al. and `force.m`.
 
-### Aloi-Style Gaussian Baseline
+The upstream `LCP-Continuum/` working tree is used as a dependency and has not
+been modified.
 
-- `force.m`
-  - Reproduces a Cosserat-rod version of the Aloi-style Gaussian load
-    parameterization.
-  - Runs three two-load test cases.
-  - Produces figures in `force_outputs/`.
+## New Rod-Plane Work
 
-- `force_rucker.m`, `force_ferguson.m`
-  - Additional comparison implementations.
+All current rod-plane scripts and notes are now grouped under
+`rod_plane_force_sensing/`. Add that folder to the MATLAB path before running:
 
-- `cosseratHelpers.m`
-  - SE(3)/SO(3), strain integration, and helper routines for the Cosserat
-    rod tests.
+```matlab
+addpath(fullfile(pwd, 'rod_plane_force_sensing'));
+```
 
-- `test_cosserat.m`
-  - Basic validation cases for the Cosserat implementation.
+The main additions are:
 
-### Rod-Plane Tip-Load Validation
+- `rod_plane_force_sensing/simu_rod_plane_displacement_force_sensing.m`
+  - Defines the current push-then-slide scenario.
+  - Uses a 150 mm rod, zero true tip load, and `mu = 0.5` during lateral
+    motion.
+  - Solves 18 physical force/shape frames and renders two 60-frame videos.
+- `rod_plane_force_sensing/run_rod_plane_force_sensing_experiment.m`
+  - Contains the copied displacement-aware forward contact loop.
+  - Generates sparse FBG-like measurements.
+  - Solves the constrained EKF/MAP inverse problem.
+  - Fits the Aloi Gaussian position baseline.
+  - Writes MAT, CSV, text, figures, and video.
+- `rod_plane_force_sensing/validate_rod_plane_displacement_forward.m`
+  - Checks the copied forward solve for finite shapes, body contact, friction,
+    Coulomb-cone feasibility, and nonlinear formulation residuals.
+- `rod_plane_force_sensing/validate_rod_plane_displacement_results.m`
+  - Checks inverse force feasibility, all three complementarity products,
+    shape reconstruction, and forward-truth consistency.
+- `rod_plane_force_sensing/validate_rod_plane_displacement_inverse.m`
+  - Runs the strict six-frame `fmincon` regression used before the formal run.
+- `rod_plane_force_sensing/ROD_PLANE_FORCE_SENSING_EXPERIMENT.md`
+  - Gives the method-to-equation mapping and the latest numerical results.
+- `rod_plane_force_sensing/PROJECT_SUMMARY.md`
+  - Records implementation and debugging details for future work.
 
-The newer experiment is documented in:
+## Run
 
-- `ROD_PLANE_FORCE_SENSING_EXPERIMENT.md`
+A formal run requires Optimization Toolbox because the MAP subproblem is
+solved with `fmincon`:
 
-Main files:
+```matlab
+results = simu_rod_plane_displacement_force_sensing(false);
+```
 
-- `simu_rod_plane_force_sensing_copy.m`
-- `run_rod_plane_force_sensing_experiment.m`
+A shorter pipeline smoke test uses the approximate projected solver:
 
-This experiment uses Jia Shen's `LCP-Continuum` rod-plane model as a local
-dependency. The original files under `LCP-Continuum/` are not modified. The
-new script copies the rod-plane workflow into this repository and adds a local
-tip-load extension for the forward simulation.
+```matlab
+results = simu_rod_plane_displacement_force_sensing(true);
+```
 
-The forward pass generates:
+The quick mode is useful for checking data flow, figures, and video. Its force
+error is not a result of the strict formulation and should not be reported as
+one.
 
-- a rod shape trajectory,
-- the contact-force trajectory,
-- a known external tip load,
-- and the total external load.
+Forward-only validation:
 
-The inverse pass estimates the full formulation state
+```matlab
+report = validate_rod_plane_displacement_forward();
+```
+
+The low-level `run_rod_plane_force_sensing_experiment(false)` command now uses
+the same physical defaults as the formal displacement wrapper. It no longer
+runs the older 180 mm/nonzero-tip-load scenario shown in previous outputs.
+
+Senior-video geometry diagnostic:
+
+```matlab
+results = simu_rod_plane_senior_geometry_force_sensing(false);
+```
+
+That geometry retains contact at the rod tip and is kept as an
+identifiability diagnostic, not as the reportable body-contact result.
+
+## Current Scenario
+
+- Rod length: `150 mm`
+- Integrated intrinsic precurvature: `88.49 deg` (scaling disabled)
+- Plane point: `[20, 0, 0] mm`
+- Plane normal: `[-1, 0, 0]`
+- Push: `45 mm`, internal step at most `0.1 mm`, `mu = 0`
+- Lateral command: `1 mm`, internal step at most `0.02 mm`, `mu = 0.5`
+- True tip load: `[0, 0, 0] N`
+- Output frames: `18`
+- Sparse shape points: `24`
+- Injected sensing noise: none
+- Force upper bounds: disabled
+
+The lateral phase is a commanded base displacement. In this run the contact
+remains inside the friction cone and is classified as sticking by the inverse
+constraints; the phase name `slide` does not imply gross slip at every frame.
+
+## Latest Formal Result
+
+The values below were regenerated on 2026-07-23 with the command shown above.
+All validation assertions passed.
+
+```text
+Final true contact force:       [-33.9467,  0.0000, -8.0862] N
+Final estimated contact force:  [-33.8324, -0.0081, -8.1451] N
+
+Final true tip load:            [  0.0000,  0.0000,  0.0000] N
+Final estimated tip load:       [ -0.1238,  0.0069,  0.0668] N
+
+Final true total load:          [-33.9467,  0.0000, -8.0862] N
+Final estimated total load:     [-33.9563, -0.0011, -8.0783] N
+Final Aloi baseline load:       [-25.4481,  0.0000,  6.3671] N
+```
+
+```text
+Constrained EKF/MAP contact-force RMSE:      0.0893 N
+Constrained EKF/MAP tip-load RMSE:           0.0751 N
+Constrained EKF/MAP total-load RMSE:         0.0598 N
+Validation total-load trajectory RMSE:       0.0546 N
+Constrained EKF/MAP final total-load error:  0.0358 %
+Maximum reconstructed-shape RMSE:            0.0156 mm
+Maximum inverse complementarity residual:    1.15e-8
+
+Aloi baseline total-load RMSE:               11.0220 N
+Aloi baseline final total-load error:        48.0472 %
+Aloi final sparse-position RMSE:              0.3141 mm
+```
+
+The low EKF/MAP error is a same-model, noiseless consistency result. The
+forward data and inverse prediction use the same rod discretization, the plane
+and friction coefficient are exact, and 24 sparse shape samples are supplied.
+This result does not predict experimental accuracy. Sensor noise, calibration
+error, uncertain stiffness, plane error, friction uncertainty, and model
+mismatch still need separate tests.
+
+The small total-load error also should not hide the estimated nonzero tip
+load: contact and tip errors partially cancel in the total. The component RMSE
+values above are therefore reported with the total-load metric.
+
+## Formulation Implementation
+
+The inverse state is
 
 ```text
 x = [p1; eta1; s1; f1n; beta1; lambda1; fe]
 ```
 
-where `p1` and `eta1` describe the plane, `s1` is the contact arclength,
-`f1n` and `beta1` describe the contact/friction force, `lambda1` is the
-friction-cone slack variable, and `fe` is the unknown tip load. The current
-script implements the iterated constrained EKF/MAP update from
-`Formulation.pdf`: random-walk prior covariance, nonlinear Cosserat forward
-map `F(s1, f1, fe)`, measurement linearization `H = dh/dx`, posterior
-covariance update, and the normal/friction/cone complementarity constraints.
+where `p1` and `eta1` parameterize the plane, `s1` is contact arclength,
+`f1n` is normal force, `beta1` contains polyhedral friction coefficients,
+`lambda1` is the friction-cone complementarity variable, and `fe` is the
+unknown tip force.
 
-Formal runs use MATLAB `fmincon` to solve the constrained MAP subproblem in
-eq. (26), with the complementarity constraints from eqs. (20)-(23). The
-short `quickMode` smoke test uses `cfg.forceSensor.solver = 'projected'` only
-to check that the pipeline executes; that approximate path should not be used
-for final force-error claims.
+The formal path implements the random-walk prior, nonlinear Cosserat
+measurement map, finite-difference measurement Jacobian, iterated constrained
+MAP update, posterior covariance update, and the normal, tangential, and cone
+complementarity constraints in `Formulation.pdf` eqs. (13)-(29). The process
+covariance is scaled by the number of skipped internal forward steps between
+two output frames. Equation (7) uses the immediately preceding internal
+forward shape, not the previous sparsely sampled output shape.
 
-The default configuration does not impose artificial upper bounds on the
-unknown contact or tip forces, because those bounds are not part of
-`Formulation.pdf` eqs. (19)-(23). The optional
-`cfg.forceSensor.useForceBounds = true` path is kept only as a numerical
-diagnostic/regularized variant and should be reported separately.
+No force upper bound is active in the reported result. Optional bounds remain
+available only as a numerical diagnostic and are not part of the formal run.
 
-The Aloi-style method is used as a shape-only total-load baseline for the same
-rod-plane trajectory. It does not use the plane, contact, or friction
-constraints.
+## Aloi Baseline
 
-## Running the Code
+The current comparison no longer fits an internal bending-moment field. It
+fits one local transverse Gaussian load directly to sparse centerline
+positions by bounded nonlinear least squares. The load is transformed through
+the reference material frame and propagated through the rod shape model.
 
-Run the Aloi-style baseline:
+One Gaussian is used because the simulated truth has one body contact. The
+baseline does not receive the plane, contact location, contact normal,
+friction coefficient, or complementarity constraints. In the final frame it
+places the Gaussian at `142.23 mm` with `sigma = 3 mm`, while the true contact
+is at `125.88 mm`; the fitted width reaches its lower bound. The reported 48%
+error is therefore the result of this particular paper-inspired baseline on
+this trajectory, not a general performance claim about the Aloi paper.
 
-```matlab
-force()
-```
+`force.m` remains the separate historical reproduction used for its original
+test cases.
 
-Run the rod-plane tip-load experiment:
+## Outputs
 
-```matlab
-results = simu_rod_plane_force_sensing_copy(false);
-```
-
-The default rod-plane case is the separated-contact validation summarized
-below. It assumes the simulated shape/plane are known, while the MAP estimator
-still uses finite measurement covariance as a numerical weighting term.
-
-Run a shorter smoke test:
-
-```matlab
-results = simu_rod_plane_force_sensing_copy(true);
-```
-
-The smoke test writes to `force_outputs/rod_plane_force_sensing_smoke_tmp/`
-so it does not overwrite the formal validation outputs.
-
-## Latest Rod-Plane Result
-
-The values below are from `simu_rod_plane_force_sensing_copy(false)` after the
-full constrained EKF/MAP implementation was checked against `Formulation.pdf`.
-This is a separated-contact case chosen because the original high-friction
-180-degree setup put the contact too close to the tip and made the contact/tip
-split poorly identifiable.
-
-Scenario:
-
-- Rod length: `180 mm`
-- Integrated precurvature: `270 deg`
-- Plane: `z = 10 mm`
-- Friction coefficient: `mu = 0.8`
-- Base insertion: `0 mm` to `35 mm`
-- Forward tip load: `[0, 0, -3.5] N`
-- Frames: `16`
-- Force bounds: disabled
-- Artificial sensing noise: disabled
-
-Final-frame force estimates:
-
-```text
-True contact force:       [-8.1373, 0, -10.1716] N
-Estimated contact force:  [-8.4170, 0, -10.5234] N
-
-True tip load:            [0, 0, -3.5000] N
-Estimated tip load:       [0.2787, 0, -3.1418] N
-
-True total load:          [-8.1373, 0, -13.6716] N
-Estimated total load:     [-8.1383, 0, -13.6652] N
-Aloi-style total load:    [-20.2654, 0, -10.4372] N
-```
-
-Trajectory metrics:
-
-```text
-Shape + environment contact-force RMSE: 1.2748 N
-Shape + environment tip-load RMSE:      1.0604 N
-Shape + environment total-load RMSE:    1.2464 N
-Shape + environment final total error:  0.0406 %
-
-Aloi total-load RMSE:                   12.0957 N
-Aloi final total error:                 78.8943 %
-```
-
-The constrained method recovers the final total load very closely, but the
-contact/tip split is not exact. The remaining contact and tip errors are real
-and should be reported as part of the validation. The Aloi-style comparison is
-much worse here because it fits a shape-only Gaussian load distribution and
-does not receive the plane, contact, or friction constraints.
-
-The earlier 200 mm, 180-degree, high-friction setup was kept as a diagnostic
-case, but it should not be used as the main validation result. In that case the
-forward LCP contact and the strict single-contact complementarity formulation
-are not cleanly aligned, and the inverse can move force between a near-tip
-contact and the unknown tip load.
-
-## Output Files
-
-General Aloi/Cosserat outputs are written under `force_outputs/`.
-
-Rod-plane validation outputs are written under:
-
-```text
-force_outputs/rod_plane_force_sensing/
-```
-
-Key files:
+Formal outputs are under `force_outputs/rod_plane_displacement_force_sensing/`:
 
 - `rod_plane_force_sensing_results.mat`
 - `rod_plane_force_sensing_trajectory.csv`
 - `rod_plane_force_sensing_summary.txt`
 - `rod_plane_force_sensing_overview.png`
 - `rod_plane_final_force_comparison.png`
+- `rod_plane_aloi_error_analysis.png`
+- `rod_plane_displacement_force_prediction.mp4`
+- `rod_plane_displacement_aloi_prediction.mp4`
+
+Both MP4 files contain 60 rendered frames at 10 fps and last 6 seconds. The
+formulation video shows the true and estimated shape and force together with
+the force history. The Aloi video and error-analysis figure show its fitted
+shape, resultant force, contact center, width, and trajectory errors.
+
+The senior-video geometry writes the same eight output types under
+`force_outputs/rod_plane_senior_geometry_force_sensing/`. In that run the
+true contact is at the 150 mm tip. The formulation recovers the final total
+load to `0.6951%`, but its contact-force and tip-load RMSE values are
+`8.8814 N` and `8.9013 N`: the two estimated loads cancel in the total. This
+is an identifiability diagnostic, not evidence that the individual contact
+force was recovered. The Aloi final total-load error in this geometry is
+`130.7261%`.
 
 ## Requirements
 
 - MATLAB
-- Local `LCP-Continuum/` dependency for the rod-plane contact experiment
-- No changes to the upstream `LCP-Continuum` source files are required
+- Optimization Toolbox for formal `fmincon` runs
+- `LCP-Continuum/` dependency in the repository root
 
-## References
-
-1. Rucker and Webster, "Statics and Dynamics of Continuum Robots With General
-   Tendon Routing and External Loading", 2011.
-2. Aloi et al., Gaussian load parameterization for continuum robot force
-   estimation.
-3. Shen et al., frictional contact modeling of continuum robots with a linear
-   complementarity formulation.
+The current forward copy is based on the stateful contact update introduced in
+`Jia0Shen/LCP-Continuum@14806b3` and the push/lateral displacement sequence in
+the later `simu_rod_plane.m` on `origin/main@2f40feb`.
