@@ -99,8 +99,14 @@ fprintf('Full constrained EKF-MAP final total-load error: %.2f%%\n', ...
     results.metrics.ours.finalRelativeErrorPct);
 fprintf('Full constrained EKF-MAP total-load trajectory RMSE: %.3f N\n', ...
     results.metrics.ours.resultantRmse);
-fprintf('Aloi baseline final total-load error: %.2f%%\n', ...
+fprintf('Aloi raw final full-vector mismatch: %.2f%%\n', ...
     results.metrics.aloi.finalRelativeErrorPct);
+fprintf('Aloi load-direction check: true local axial fraction %.2f%%\n', ...
+    results.metrics.aloi.finalTrueAxialFractionPct);
+if ~results.metrics.aloi.finalWithinPaperTransverseLoadAssumption
+    fprintf(['  NOTE: this frame is outside Aloi et al.''s local-transverse ', ...
+        'load assumption; the raw mismatch is not a paper-performance comparison.\n']);
+end
 if results.metrics.ours.finalRelativeErrorPct > cfg.forceSensor.warningRelativeErrorPct || ...
         results.metrics.ours.finalMeasurementResidualNorm > cfg.forceSensor.warningMeasurementResidualNorm
     fprintf('WARNING: inverse estimate failed numerical sanity checks; inspect CSV/summary before using this run.\n');
@@ -219,6 +225,11 @@ cfg.aloi.amplitudeBoundN = 100;
 cfg.aloi.positionStdMm = 0.2;
 cfg.aloi.maxIterations = 35;
 cfg.aloi.maxFunctionEvaluations = 300;
+cfg.aloi.numOptimizationStarts = 3;
+cfg.aloi.maxEquilibriumIterations = 20;
+cfg.aloi.equilibriumToleranceMm = 1e-4;
+cfg.aloi.equilibriumRelaxation = 0.5;
+cfg.aloi.maxAxialFractionForComparison = 0.05;
 cfg.aloi.showProgress = true;
 
 if quickMode
@@ -235,6 +246,9 @@ if quickMode
     cfg.aloi.sigmaCandidatesMm = [6, 15, 30];
     cfg.aloi.maxIterations = 15;
     cfg.aloi.maxFunctionEvaluations = 120;
+    cfg.aloi.numOptimizationStarts = 1;
+    cfg.aloi.maxEquilibriumIterations = 10;
+    cfg.aloi.equilibriumToleranceMm = 1e-3;
 end
 end
 
@@ -2534,185 +2548,6 @@ t = t / norm(t);
 end
 
 
-function aloi = estimateForcesWithAloiBaseline(tube0, measurements, cfg)
-fprintf('\nEstimating Aloi Gaussian position-fit baseline...\n');
-
-nt = numel(measurements.betaMm);
-forceResultant = zeros(3, nt);
-centerMm = nan(1, nt);
-sigmaMm = nan(1, nt);
-cost = nan(1, nt);
-shapeRmseMm = nan(1, nt);
-parameters = nan(4, nt);
-componentResultants = zeros(3, 1, nt);
-nodalFinal = [];
-previousTheta = [];
-
-for it = 1:nt
-    tube = tube0;
-    tube.T_base = measurements.baseTraj(:, :, it);
-    fit = fitAloiGaussianToSparsePositions(tube, ...
-        measurements.pSparse(:, :, it), measurements.fbgIdx, cfg, previousTheta);
-    forceResultant(:, it) = fit.forceResultant;
-    centerMm(it) = fit.centerMm;
-    sigmaMm(it) = fit.sigmaMm;
-    shapeRmseMm(it) = fit.shapeRmseMm;
-    parameters(:, it) = fit.theta;
-    componentResultants(:, 1, it) = fit.forceResultant;
-    cost(it) = fit.cost;
-    previousTheta = fit.theta;
-    if it == nt
-        nodalFinal = fit.nodalForces;
-    end
-    if cfg.aloi.showProgress
-        fprintf(['  Aloi frame %3d/%3d: s=%.2f mm, sigma=%.2f mm, ', ...
-            'resultant=[%.3f %.3f %.3f] N, position RMSE=%.4f mm\n'], ...
-            it, nt, fit.centerMm, fit.sigmaMm, fit.forceResultant, fit.shapeRmseMm);
-    end
-end
-
-aloi = struct;
-aloi.forceResultant = forceResultant;
-aloi.totalForceResultant = forceResultant;
-aloi.centerMm = centerMm;
-aloi.sigmaMm = sigmaMm;
-aloi.tipSigmaMm = nan(1, nt);
-aloi.componentResultants = componentResultants;
-aloi.cost = cost;
-aloi.shapeRmseMm = shapeRmseMm;
-aloi.parameters = parameters;
-aloi.finalNodalForces = nodalFinal;
-aloi.methodDescription = ['Single-Gaussian local-transverse load fitted to sparse positions ', ...
-    'with the weighted nonlinear least-squares objective used by Aloi et al.; ', ...
-    'no plane or friction measurements are used.'];
-end
-
-
-function fit = fitAloiGaussianToSparsePositions(tube, targetPositions, measurementIdx, cfg, previousTheta)
-s = tube.s(:);
-[~, Rreference, preference] = solveShape(tube.T_base, tube.uhat, tube.s);
-Jreference = computeJacobian(Rreference, preference);
-model = struct;
-model.s = s;
-model.tube = tube;
-model.referenceP = preference;
-model.referenceR = Rreference;
-model.J = Jreference;
-model.invK = 1 ./ getTubeK(tube);
-model.integrationWeightsMm = trapezoidalIntegrationWeights(s);
-model.measurementIdx = measurementIdx(:)';
-model.targetPositions = targetPositions;
-model.positionStdMm = cfg.aloi.positionStdMm;
-
-amplitudeBound = cfg.aloi.amplitudeBoundN;
-sigmaMin = min(cfg.aloi.sigmaCandidatesMm);
-sigmaMax = max(cfg.aloi.sigmaCandidatesMm);
-lb = [-amplitudeBound; -amplitudeBound; s(1); sigmaMin];
-ub = [ amplitudeBound;  amplitudeBound; s(end); sigmaMax];
-centerCandidates = linspace(s(1), s(end), cfg.aloi.numCenterCandidates);
-targetDelta = targetPositions - preference(:, model.measurementIdx);
-targetDelta = targetDelta(:);
-theta0 = [0; 0; centerCandidates(1); cfg.aloi.sigmaCandidatesMm(1)];
-bestInitialCost = inf;
-
-for sigma = cfg.aloi.sigmaCandidatesMm
-    for center = centerCandidates
-        thetaBasis1 = [1; 0; center; sigma];
-        thetaBasis2 = [0; 1; center; sigma];
-        pBasis1 = predictAloiGaussianShape(thetaBasis1, model);
-        pBasis2 = predictAloiGaussianShape(thetaBasis2, model);
-        response1 = pBasis1(:, model.measurementIdx) - preference(:, model.measurementIdx);
-        response2 = pBasis2(:, model.measurementIdx) - preference(:, model.measurementIdx);
-        A = [response1(:), response2(:)];
-        amplitude = pinv(A) * targetDelta;
-        amplitude = min(max(amplitude, -amplitudeBound), amplitudeBound);
-        candidate = [amplitude; center; sigma];
-        residual = aloiPositionResidual(candidate, model);
-        currentCost = residual' * residual;
-        if currentCost < bestInitialCost
-            bestInitialCost = currentCost;
-            theta0 = candidate;
-        end
-    end
-end
-
-if nargin >= 5 && ~isempty(previousTheta)
-    previousTheta = min(max(previousTheta(:), lb), ub);
-    previousCost = sum(aloiPositionResidual(previousTheta, model) .^ 2);
-    if previousCost < bestInitialCost
-        theta0 = previousTheta;
-    end
-end
-
-residualFunction = @(theta) aloiPositionResidual(theta, model);
-if exist('lsqnonlin', 'file') == 2
-    options = optimoptions('lsqnonlin', 'Display', 'off', ...
-        'MaxIterations', cfg.aloi.maxIterations, ...
-        'MaxFunctionEvaluations', cfg.aloi.maxFunctionEvaluations, ...
-        'FunctionTolerance', 1e-9, 'StepTolerance', 1e-8);
-    theta = lsqnonlin(residualFunction, theta0, lb, ub, options);
-else
-    objective = @(theta) sum(residualFunction(theta) .^ 2);
-    options = optimoptions('fmincon', 'Display', 'off', ...
-        'MaxIterations', cfg.aloi.maxIterations, ...
-        'MaxFunctionEvaluations', cfg.aloi.maxFunctionEvaluations);
-    theta = fmincon(objective, theta0, [], [], [], [], lb, ub, [], options);
-end
-
-[predictedP, nodalForces] = predictAloiGaussianShape(theta, model);
-positionError = predictedP(:, model.measurementIdx) - targetPositions;
-fit = struct;
-fit.theta = theta(:);
-fit.centerMm = theta(3);
-fit.sigmaMm = theta(4);
-fit.forceResultant = sum(nodalForces, 2);
-fit.nodalForces = nodalForces;
-fit.shapeRmseMm = sqrt(mean(sum(positionError .^ 2, 1)));
-fit.cost = sum((positionError(:) / model.positionStdMm) .^ 2);
-end
-
-
-function residual = aloiPositionResidual(theta, model)
-p = predictAloiGaussianShape(theta, model);
-residual = p(:, model.measurementIdx) - model.targetPositions;
-residual = residual(:) / model.positionStdMm;
-end
-
-
-function [p, nodalForces] = predictAloiGaussianShape(theta, model)
-density = gaussianDensityOnArc(model.s, theta(3), theta(4));
-ns = numel(model.s);
-localLoad = [theta(1) * density'; theta(2) * density'; zeros(1, ns)];
-distributedLoad = zeros(3, ns);
-for i = 1:ns
-    distributedLoad(:, i) = model.referenceR(:, :, i) * localLoad(:, i);
-end
-nodalForces = distributedLoad .* reshape(model.integrationWeightsMm, 1, []);
-moment = model.J' * nodalForces(:);
-u = reshape(model.invK .* moment, 3, []) + model.tube.uhat;
-[~, ~, p] = solveShape(model.tube.T_base, u, model.tube.s);
-end
-
-
-function density = gaussianDensityOnArc(s, center, sigma)
-phi = exp(-0.5 * ((s - center) ./ sigma).^2);
-area = trapz(s, phi);
-if area <= eps
-    density = zeros(size(s));
-else
-    density = phi / area;
-end
-end
-
-
-function weights = trapezoidalIntegrationWeights(s)
-weights = zeros(size(s));
-weights(1) = 0.5 * (s(2) - s(1));
-weights(end) = 0.5 * (s(end) - s(end - 1));
-weights(2:end - 1) = 0.5 * (s(3:end) - s(1:end - 2));
-end
-
-
 function metrics = summarizeExperiment(results)
 trueContact = results.forward.contactForceResultant;
 trueTip = results.forward.tipLoad;
@@ -2721,7 +2556,6 @@ trueTotal = results.forward.totalForceResultant;
 oursContact = results.ours.contactForceResultant;
 oursTip = results.ours.tipForce;
 oursTotal = results.ours.totalForceResultant;
-aloiTotal = results.aloi.totalForceResultant;
 
 active = vecnorm(trueTotal, 2, 1) > 1e-8;
 if ~any(active)
@@ -2731,7 +2565,6 @@ end
 oursContactErr = oursContact - trueContact;
 oursTipErr = oursTip - trueTip;
 oursTotalErr = oursTotal - trueTotal;
-aloiTotalErr = aloiTotal - trueTotal;
 
 metrics = struct;
 metrics.ours.contactRmse = rmseByFrame(oursContactErr(:, active));
@@ -2758,25 +2591,8 @@ metrics.ours.maxConeComplementarity = max(results.ours.coneComplementarity(activ
 metrics.ours.finalMeasurementResidualNorm = results.ours.measurementResidualNorm(end);
 metrics.ours.maxMeasurementResidualNorm = max(results.ours.measurementResidualNorm(active));
 
-metrics.aloi.resultantRmse = rmseByFrame(aloiTotalErr(:, active));
-metrics.aloi.finalErrorNorm = norm(aloiTotalErr(:, end));
-metrics.aloi.finalRelativeErrorPct = 100 * metrics.aloi.finalErrorNorm / max(norm(trueTotal(:, end)), eps);
-metrics.aloi.finalEstimatedForce = aloiTotal(:, end);
-metrics.aloi.finalTrueForce = trueTotal(:, end);
-trueContactS = results.forward.contactArcLength;
-validContactLocation = active & isfinite(trueContactS) & isfinite(results.aloi.centerMm);
-locationErrorMm = abs(results.aloi.centerMm - trueContactS);
-metrics.aloi.contactLocationErrorMm = locationErrorMm;
-if any(validContactLocation)
-    metrics.aloi.contactLocationRmseMm = ...
-        sqrt(mean(locationErrorMm(validContactLocation) .^ 2));
-else
-    metrics.aloi.contactLocationRmseMm = nan;
-end
-metrics.aloi.finalContactLocationErrorMm = locationErrorMm(end);
-metrics.aloi.finalShapeRmseMm = results.aloi.shapeRmseMm(end);
-metrics.aloi.widthAtLowerBound = abs(results.aloi.sigmaMm - ...
-    min(results.config.aloi.sigmaCandidatesMm)) <= 1e-6;
+metrics.aloi = compute_aloi_comparison_metrics( ...
+    results.forward, results.aloi, results.config);
 
 n = unitVector(results.config.planeNormal, [0; 0; 1]);
 normalComponent = n' * trueContact;
@@ -2929,10 +2745,14 @@ plot(motion, forceError, 'Color', [0.80 0.15 0.10], 'LineWidth', 1.8);
 ylabel('Force error norm [N]');
 yyaxis right;
 plot(motion, relativeError, 'Color', [0.20 0.45 0.75], 'LineWidth', 1.4);
-ylabel('Relative force error [%]');
+hold on;
+plot(motion, results.metrics.aloi.trueAxialFractionPct, 'k:', 'LineWidth', 1.5);
+ylabel('Relative mismatch / axial fraction [%]');
 grid on; box on; axis tight;
 xlabel('Base motion [mm]');
-title('Aloi force error');
+title('Raw mismatch and load-assumption check');
+legend({'Error norm', 'Relative mismatch', 'True local axial fraction'}, ...
+    'Location', 'best');
 
 subplot(2, 2, 3);
 plot(motion, results.aloi.shapeRmseMm, 'Color', [0.10 0.55 0.35], 'LineWidth', 1.8);
@@ -3461,7 +3281,16 @@ T.aloi_total_Fz_N = results.aloi.totalForceResultant(3, :)';
 T.aloi_center_s_mm = results.aloi.centerMm(:);
 T.aloi_sigma_mm = results.aloi.sigmaMm(:);
 T.aloi_shape_rmse_mm = results.aloi.shapeRmseMm(:);
+T.aloi_equilibrium_residual_mm = results.aloi.equilibriumResidualMm(:);
+T.aloi_solver_exit_flag = results.aloi.solverExitFlag(:);
+T.aloi_solver_iterations = results.aloi.solverIterations(:);
 T.aloi_contact_location_error_mm = results.metrics.aloi.contactLocationErrorMm(:);
+T.true_contact_local_Fx_N = results.metrics.aloi.trueLocalContactForce(1, :)';
+T.true_contact_local_Fy_N = results.metrics.aloi.trueLocalContactForce(2, :)';
+T.true_contact_local_Fz_axial_N = results.metrics.aloi.trueLocalContactForce(3, :)';
+T.true_contact_local_axial_fraction_pct = results.metrics.aloi.trueAxialFractionPct(:);
+T.aloi_within_transverse_load_assumption = ...
+    results.metrics.aloi.withinPaperTransverseLoadAssumption(:);
 
 T.ours_contact_error_norm_N = vecnorm(results.ours.contactForceResultant - results.forward.contactForceResultant, 2, 1)';
 T.ours_tip_error_norm_N = vecnorm(results.ours.tipForce - results.forward.tipLoad, 2, 1)';
@@ -3543,6 +3372,13 @@ fprintf(fid, 'Final Aloi Gaussian center/sigma: %.3f / %.3f mm\n', ...
     results.aloi.centerMm(end), results.aloi.sigmaMm(end));
 fprintf(fid, 'Final Aloi sparse-position RMSE: %.6g mm\n', ...
     results.aloi.shapeRmseMm(end));
+fprintf(fid, 'Final Aloi nonlinear-equilibrium residual: %.6g mm\n', ...
+    results.aloi.equilibriumResidualMm(end));
+fprintf(fid, 'Final Aloi nonlinear-equilibrium iterations: %d\n', ...
+    results.aloi.equilibriumIterations(end));
+fprintf(fid, 'Final Aloi optimizer exit flag / iterations / starts: %d / %d / %d\n', ...
+    results.aloi.solverExitFlag(end), results.aloi.solverIterations(end), ...
+    results.aloi.optimizationStarts(end));
 fprintf(fid, 'Final Aloi normalized position-fit cost: %.6g\n\n', results.aloi.cost(end));
 
 fprintf(fid, 'Shape+environment contact-force RMSE: %.6g N\n', results.metrics.ours.contactRmse);
@@ -3560,11 +3396,25 @@ fprintf(fid, 'Final reduced-seed MAP merit: %.6g\n', results.ours.seedMerit(end)
 fprintf(fid, 'Final accepted MAP merit: %.6g\n', results.ours.finalMerit(end));
 fprintf(fid, 'Final initialization selected: %s\n', results.ours.initializationName{end});
 fprintf(fid, 'Aloi total-load RMSE: %.6g N\n', results.metrics.aloi.resultantRmse);
-fprintf(fid, 'Aloi final total-load relative error: %.4f %%\n', results.metrics.aloi.finalRelativeErrorPct);
+fprintf(fid, 'Aloi raw final full-vector mismatch: %.4f %%\n', results.metrics.aloi.finalRelativeErrorPct);
+fprintf(fid, 'Aloi final force-magnitude mismatch: %.4f %%\n', results.metrics.aloi.finalMagnitudeErrorPct);
+fprintf(fid, 'Aloi final force-direction mismatch: %.4f deg\n', results.metrics.aloi.finalDirectionErrorDeg);
+fprintf(fid, 'Final true contact force in material frame [Fx Fy Fz] N: [%.6g %.6g %.6g]\n', ...
+    results.metrics.aloi.finalTrueLocalContactForce);
+fprintf(fid, 'Final true local-axial force fraction: %.4f %%\n', ...
+    results.metrics.aloi.finalTrueAxialFractionPct);
+fprintf(fid, 'Within Aloi local-transverse load assumption: %d\n', ...
+    results.metrics.aloi.finalWithinPaperTransverseLoadAssumption);
 fprintf(fid, 'Aloi contact-location RMSE: %.6g mm\n', results.metrics.aloi.contactLocationRmseMm);
 fprintf(fid, 'Aloi final contact-location error: %.6g mm\n', results.metrics.aloi.finalContactLocationErrorMm);
 fprintf(fid, 'Aloi Gaussian width at configured lower bound in final frame: %d\n\n', ...
     results.metrics.aloi.widthAtLowerBound(end));
+
+if ~results.metrics.aloi.finalWithinPaperTransverseLoadAssumption
+    fprintf(fid, ['Aloi applicability note: Eq. (9) of Aloi et al. fixes the local axial ', ...
+        'load to zero. The raw full-vector mismatch above is retained as a scenario ', ...
+        'diagnostic, but it is not a valid estimate of the paper method''s in-domain accuracy.\n\n']);
+end
 
 if isfield(results, 'mapCandidateDiagnostics') && ...
         isfield(results.mapCandidateDiagnostics, 'merit') && ...

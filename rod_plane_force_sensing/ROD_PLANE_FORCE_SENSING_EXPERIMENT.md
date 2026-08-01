@@ -120,16 +120,31 @@ The comparison uses one Gaussian local transverse load because there is one
 true body contact. For each frame it:
 
 1. builds the unloaded precurved reference shape;
-2. transforms a two-component local Gaussian load through the material frame;
-3. maps the resulting nodal forces to rod moments and a predicted shape;
-4. fits amplitude, center, and width to the 24 sparse centerline positions by
-   bounded nonlinear least squares; and
-5. integrates the fitted distributed load to obtain the resultant force.
+2. parameterizes the local load as
+   `f_local(s) = [a1*g(s), a2*g(s), 0]`, matching Aloi et al. Eq. (9);
+3. transforms that load through the current loaded material frame;
+4. updates the geometric Jacobian, curvature, material frame, and centerline
+   to nonlinear fixed-point equilibrium for every candidate load;
+5. fits amplitude, center, and width to the 24 sparse centerline positions by
+   bounded, multi-start nonlinear least squares; and
+6. integrates the fitted distributed load to obtain the global resultant.
 
 This follows the Gaussian parameterization and sparse-position objective used
 by Aloi et al. and `force.m`. It is a paper-inspired comparison rather than a
 claim of exact reproduction of every estimator detail in that paper. It does
 not use the plane or friction model.
+
+The old implementation transformed the load with the unloaded material frame
+and applied only one `J'F -> curvature -> shape` update. That approximation
+has been removed. The unloaded linearization is now used only to rank initial
+guesses; every optimizer residual uses the loaded nonlinear equilibrium.
+
+Equation (9) also creates a hard applicability limit: local axial load is
+fixed to zero because it is difficult to identify from shape alone. The code
+therefore transforms the true contact force into the forward material frame,
+reports its axial fraction, and marks results outside a 5% diagnostic
+threshold. A full-vector mismatch is still saved, but it is not interpreted
+as paper accuracy when this flag is false.
 
 The earlier baseline directly fitted a bending-moment field derived from the
 known shape. That gave the baseline information unavailable in a real inverse
@@ -152,7 +167,7 @@ true tip load            [  0.0000,  0.0000,  0.0000] N
 estimated tip load       [ -0.1238,  0.0069,  0.0668] N
 true total load          [-33.9467,  0.0000, -8.0862] N
 estimated total load     [-33.9563, -0.0011, -8.0783] N
-Aloi baseline load       [-25.4481,  0.0000,  6.3671] N
+legacy one-pass Aloi     [-25.4481,  0.0000,  6.3671] N
 ```
 
 Trajectory metrics:
@@ -168,9 +183,9 @@ maximum inverse complementarity residual   1.15e-8
 maximum truth inequality violation         1.09e-3
 maximum truth equality residual            2.43e-2
 
-Aloi total-load RMSE                      11.0220 N
-Aloi final relative error                 48.0472 %
-Aloi final position RMSE                   0.3141 mm
+legacy Aloi total-load RMSE               11.0220 N
+legacy Aloi final mismatch                48.0472 %
+legacy Aloi final position RMSE            0.3141 mm
 ```
 
 All assertions in `validate_rod_plane_displacement_results.m` passed.
@@ -189,12 +204,11 @@ model. The nonzero estimated tip load and the larger contact/tip component
 errors show that the inverse split is not exact even when the total is nearly
 exact.
 
-The Aloi baseline has a 48% final error even though its sparse-position RMSE is
-0.314 mm. Its final center is `142.23 mm` and its width reaches the `3 mm`
-lower bound, while the true contact is at `125.88 mm`. This is evidence of
-model/identifiability mismatch for this baseline in this frictional contact
-scenario. It is not evidence that the original Aloi method generally has 48%
-error.
+The stored formal output predates the nonlinear Aloi correction. Its `48%`
+value is retained only as a legacy one-pass result. The true formal-scenario
+contact force is `24.59%` axial in the local material frame, so that scene is
+also outside the paper's zero-axial load model. Its value must not be used as
+a general Aloi accuracy claim.
 
 The next validation step should introduce controlled curvature noise,
 stiffness mismatch, plane error, and friction uncertainty one at a time, then
@@ -218,7 +232,8 @@ estimated contact force  [ 4.1008,  3.4422, -17.9580] N
 estimated tip load       [-8.1266, -3.4396,  10.0196] N
 true total load          [-3.9648,  0.0000, -7.9297] N
 estimated total load     [-4.0258,  0.0026, -7.9384] N
-Aloi baseline load       [ 7.6200,  0.0000, -8.2653] N
+legacy one-pass Aloi     [ 7.6200,  0.0000, -8.2653] N
+corrected nonlinear Aloi [ 4.6395,  0.0000, -9.2173] N
 ```
 
 ```text
@@ -226,8 +241,14 @@ formulation contact-force RMSE       8.8814 N
 formulation tip-load RMSE            8.9013 N
 formulation total-load RMSE          0.0411 N
 formulation final total-load error   0.6951 %
-Aloi total-load RMSE                 9.1250 N
-Aloi final total-load error        130.7261 %
+legacy Aloi final mismatch         130.7261 %
+corrected Aloi final mismatch       98.1337 %
+corrected active-frame RMSE           6.8736 N
+corrected magnitude mismatch        16.3946 %
+corrected direction mismatch        53.2834 deg
+true local axial fraction           99.6287 %
+corrected sparse-position RMSE       0.00494 mm
+nonlinear-equilibrium residual       3.59e-5 mm
 ```
 
 The formulation constraints are satisfied, but the individual contact and
@@ -238,9 +259,30 @@ become large and opposite while their total stays close to truth. The case is
 useful as an identifiability failure demonstration, not as a successful
 contact-force estimate.
 
-The Aloi baseline also receives no plane/contact information. It obtains a
-very small final sparse-position RMSE (`0.00163 mm`) while predicting the
-wrong force direction and a center of `129.79 mm`. This again shows that a
-close shape fit does not uniquely determine force distribution or location.
-Its `130.73%` error is specific to this implementation and trajectory, not a
-general error rate for the Aloi paper.
+The original `130.73%` was partly inflated by the old unloaded-frame,
+one-pass approximation. The corrected three-start nonlinear fit lowers it to
+`98.13%` and converges tightly, but the force direction remains wrong despite
+an excellent shape fit. At final contact the true material-frame force is
+`[0.7633, 0, -8.8327] N`; `99.63%` of its norm is axial. Aloi's load model
+cannot represent that component. The result therefore demonstrates an
+out-of-domain shape-only ambiguity, not a `98%` general error rate for the
+paper.
+
+The implementation itself is checked with:
+
+```matlab
+report = validate_aloi_gaussian_baseline();
+```
+
+This generates a known in-domain local-transverse Gaussian with parameters
+`[4, -8, 110, 12]`, then estimates it from 24 sparse positions. The recovered
+resultant mismatch is `6.05e-8%`, sparse-position RMSE is `5.60e-10 mm`, and
+equilibrium residual is `3.12e-8 mm`. This is a noiseless same-model code
+check, not an experimental performance result.
+
+The corrected senior trajectory can be regenerated from the saved MAT file
+without rerunning forward LCP or the formulation estimator:
+
+```matlab
+analysis = rerun_aloi_saved_result([], 'all');
+```

@@ -33,6 +33,12 @@ The main additions are:
   - Solves the constrained EKF/MAP inverse problem.
   - Fits the Aloi Gaussian position baseline.
   - Writes MAT, CSV, text, figures, and video.
+- `rod_plane_force_sensing/rerun_aloi_saved_result.m`
+  - Recomputes only the corrected Aloi baseline from an existing result MAT.
+  - Avoids rerunning the forward LCP and constrained formulation.
+- `rod_plane_force_sensing/validate_aloi_gaussian_baseline.m`
+  - Checks the Aloi implementation on a known in-domain transverse Gaussian
+    load before it is used as a contact-scenario comparison.
 - `rod_plane_force_sensing/validate_rod_plane_displacement_forward.m`
   - Checks the copied forward solve for finite shapes, body contact, friction,
     Coulomb-cone feasibility, and nonlinear formulation residuals.
@@ -84,6 +90,18 @@ results = simu_rod_plane_senior_geometry_force_sensing(false);
 That geometry retains contact at the rod tip and is kept as an
 identifiability diagnostic, not as the reportable body-contact result.
 
+To recompute the corrected Aloi comparison from the saved senior result:
+
+```matlab
+analysis = rerun_aloi_saved_result([], 'all');
+```
+
+To verify the baseline inside the load model assumed by Aloi et al.:
+
+```matlab
+report = validate_aloi_gaussian_baseline();
+```
+
 ## Current Scenario
 
 - Rod length: `150 mm`
@@ -116,7 +134,7 @@ Final estimated tip load:       [ -0.1238,  0.0069,  0.0668] N
 
 Final true total load:          [-33.9467,  0.0000, -8.0862] N
 Final estimated total load:     [-33.9563, -0.0011, -8.0783] N
-Final Aloi baseline load:       [-25.4481,  0.0000,  6.3671] N
+Legacy one-pass Aloi load:      [-25.4481,  0.0000,  6.3671] N
 ```
 
 ```text
@@ -128,10 +146,16 @@ Constrained EKF/MAP final total-load error:  0.0358 %
 Maximum reconstructed-shape RMSE:            0.0156 mm
 Maximum inverse complementarity residual:    1.15e-8
 
-Aloi baseline total-load RMSE:               11.0220 N
-Aloi baseline final total-load error:        48.0472 %
-Aloi final sparse-position RMSE:              0.3141 mm
+Legacy one-pass Aloi total-load RMSE:        11.0220 N
+Legacy one-pass Aloi final mismatch:         48.0472 %
+Legacy Aloi final sparse-position RMSE:       0.3141 mm
 ```
+
+The formal output above predates the nonlinear Aloi correction described
+below. Its formulation result remains valid, but its Aloi fields should be
+treated as a legacy implementation result. The true final contact load in
+this scenario is `24.59%` axial in the material frame, so it is also outside
+the paper's zero-local-axial load assumption.
 
 The low EKF/MAP error is a same-model, noiseless consistency result. The
 forward data and inverse prediction use the same rod discretization, the plane
@@ -172,16 +196,25 @@ available only as a numerical diagnostic and are not part of the formal run.
 
 The current comparison no longer fits an internal bending-moment field. It
 fits one local transverse Gaussian load directly to sparse centerline
-positions by bounded nonlinear least squares. The load is transformed through
-the reference material frame and propagated through the rod shape model.
+positions by bounded nonlinear least squares. For every candidate load, the
+loaded material frame, geometric Jacobian, curvature, and centerline are
+iterated to nonlinear equilibrium. Multiple optimizer starts are evaluated.
 
 One Gaussian is used because the simulated truth has one body contact. The
 baseline does not receive the plane, contact location, contact normal,
-friction coefficient, or complementarity constraints. In the final frame it
-places the Gaussian at `142.23 mm` with `sigma = 3 mm`, while the true contact
-is at `125.88 mm`; the fitted width reaches its lower bound. The reported 48%
-error is therefore the result of this particular paper-inspired baseline on
-this trajectory, not a general performance claim about the Aloi paper.
+friction coefficient, or complementarity constraints. Aloi et al. Eq. (9)
+sets the third, axial component of the local distributed load to zero. Every
+comparison now reports the true material-frame axial fraction and flags a
+frame when that assumption is violated. A full-vector mismatch from such a
+frame is a scenario diagnostic, not an in-domain accuracy result for the
+paper.
+
+The independent in-domain consistency test uses a known local-transverse
+Gaussian with parameters `[4, -8, 110, 12]`. The estimator recovered those
+parameters and the resultant force with `6.05e-8%` mismatch, a sparse-position
+RMSE of `5.60e-10 mm`, and a nonlinear-equilibrium residual of `3.12e-8 mm`.
+This is intentionally a noiseless same-model implementation check, not a
+claim about experimental accuracy.
 
 `force.m` remains the separate historical reproduction used for its original
 test cases.
@@ -204,14 +237,23 @@ formulation video shows the true and estimated shape and force together with
 the force history. The Aloi video and error-analysis figure show its fitted
 shape, resultant force, contact center, width, and trajectory errors.
 
-The senior-video geometry writes the same eight output types under
+The senior-video geometry writes the same eight primary output types under
 `force_outputs/rod_plane_senior_geometry_force_sensing/`. In that run the
 true contact is at the 150 mm tip. The formulation recovers the final total
 load to `0.6951%`, but its contact-force and tip-load RMSE values are
 `8.8814 N` and `8.9013 N`: the two estimated loads cancel in the total. This
 is an identifiability diagnostic, not evidence that the individual contact
-force was recovered. The Aloi final total-load error in this geometry is
-`130.7261%`.
+force was recovered.
+
+The original one-pass Aloi implementation reported `130.7261%`. After
+updating the load transformation and Jacobian to the loaded shape and solving
+nonlinear equilibrium with three optimizer starts, the raw mismatch is
+`98.1337%` and the active-frame force RMSE is `6.8736 N`. The fitted shape RMSE
+is only `0.00494 mm`, but the force direction error is `53.2834 deg`. The true final contact force is
+`[0.7633, 0, -8.8327] N` in the material frame, or `99.6287%` axial. This
+directly violates Aloi Eq. (9), so neither percentage is a fair in-domain
+paper-performance result. Four `rod_plane_aloi_reanalysis.*` files retain the
+corrected trajectory, summary, MAT data, and diagnostic figure.
 
 ## Requirements
 

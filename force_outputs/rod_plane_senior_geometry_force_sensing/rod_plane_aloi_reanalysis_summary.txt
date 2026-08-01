@@ -1,0 +1,21 @@
+Aloi Gaussian baseline reanalysis
+=================================
+
+Source: C:\Users\wty05\Desktop\gatech\force sensor\force_outputs\rod_plane_senior_geometry_force_sensing\rod_plane_force_sensing_results.mat
+Source frame IDs: [1 2 3 4 5 6 7 8 9 10]
+
+Final true force [Fx Fy Fz] N: [-3.96483644 0 -7.92967287]
+Final estimated force [Fx Fy Fz] N: [4.63953449 -2.94716211e-63 -9.21732592]
+Final true material-frame force [Fx Fy Fz] N: [0.763320133 -0 -8.83272224]
+Active-frame force RMSE: 6.8736253 N
+Raw final full-vector mismatch: 98.1337277 %
+Final magnitude mismatch: 16.3945565 %
+Final direction mismatch: 53.2834169 deg
+Final true local axial fraction: 99.6286615 %
+Within Aloi local-transverse assumption: 0
+Final center / sigma: 125.406627 / 15.8131741 mm
+Final sparse-position RMSE: 0.00494238953 mm
+Final nonlinear-equilibrium residual: 3.59102634e-05 mm
+Optimizer exit flag / iterations / starts: 3 / 5 / 3
+
+Interpretation: Aloi et al. Eq. (9) sets local axial load to zero. When the assumption flag is false, the raw vector mismatch is an out-of-domain scenario diagnostic, not an in-domain paper accuracy result.

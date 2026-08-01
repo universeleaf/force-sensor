@@ -1,21 +1,20 @@
 # Rod-Plane Force-Sensing Handoff
 
-Updated: 2026-07-23
+Updated: 2026-08-01
 
 ## Current Status
 
 The displacement-aware rod-plane forward simulation, constrained EKF/MAP
-inverse, Aloi Gaussian comparison, validation scripts, plots, and video all
-run end to end. The formal 18-frame run passed its numerical assertions.
-The senior-video horizontal-plane diagnostic also completed, including both
-videos, and exposed the expected contact-at-tip identifiability failure.
+inverse, corrected nonlinear Aloi Gaussian comparison, validation scripts,
+plots, and video run end to end. The formal 18-frame formulation run passed
+its numerical assertions. The senior-video horizontal-plane diagnostic also
+completed and exposed both contact-at-tip identifiability and an Aloi load-
+model applicability failure.
 
 The upstream `LCP-Continuum/` working tree was not modified. Its local `main`
 is at `56bfd08` and the fetched `origin/main` is at `2f40feb`. The copied
 contact update is based on `14806b3`; the later displacement trajectory is
 visible in `origin/main:simulations/simu_rod_plane.m`.
-
-No commit or push was made in this work session.
 
 ## Main Entry Point
 
@@ -111,6 +110,18 @@ The current baseline fits one Gaussian local transverse load directly to the
 center, and width. The plane and friction data are withheld. One Gaussian is
 used because the simulated truth has one contact.
 
+The previous implementation transformed the Gaussian through the unloaded
+reference material frame and used one `J'F -> curvature -> shape` update. It
+was a real approximation error. The corrected code updates the loaded frame,
+geometric Jacobian, curvature, and shape to nonlinear fixed-point equilibrium
+inside every residual evaluation and uses three optimization starts.
+
+Aloi et al. Eq. (9) fixes the third local, axial load component to zero. The
+comparison now transforms forward truth into the loaded material frame,
+reports the axial fraction, and flags frames outside a 5% diagnostic
+threshold. Raw vector mismatch is retained for transparency but is not called
+an in-domain accuracy result when that assumption fails.
+
 This is still a paper-inspired baseline, not a complete reproduction of every
 detail of Aloi et al.'s estimator. The README and experiment note state this
 explicitly.
@@ -175,10 +186,15 @@ max inverse complementarity         1.15e-8
 max forward truth inequality        1.09e-3
 max forward truth equality          2.43e-2
 
-Aloi trajectory RMSE               11.0220 N
-Aloi final relative error          48.0472 %
-Aloi final sparse-position RMSE     0.3141 mm
+legacy Aloi trajectory RMSE        11.0220 N
+legacy Aloi final mismatch         48.0472 %
+legacy Aloi final position RMSE     0.3141 mm
 ```
+
+The stored formal Aloi result predates the nonlinear correction. Its true
+final contact force has a `24.5859%` local axial fraction, so it is also
+outside the paper load assumption. The formulation numbers above are not
+affected.
 
 Both formal MP4 files were decoded end to end: 60 frames, 1770 x 930, 10 fps,
 6.0 seconds each.
@@ -201,7 +217,8 @@ estimated contact  [ 4.1008,  3.4422, -17.9580] N
 estimated tip      [-8.1266, -3.4396,  10.0196] N
 true total         [-3.9648,  0.0000, -7.9297] N
 estimated total    [-4.0258,  0.0026, -7.9384] N
-Aloi total         [ 7.6200,  0.0000, -8.2653] N
+legacy Aloi total  [ 7.6200,  0.0000, -8.2653] N
+corrected Aloi     [ 4.6395,  0.0000, -9.2173] N
 ```
 
 ```text
@@ -209,8 +226,14 @@ contact-force RMSE                 8.88143 N
 tip-load RMSE                      8.90126 N
 total-load RMSE                    0.04109 N
 final total relative error         0.69510 %
-Aloi total-load RMSE               9.12503 N
-Aloi final relative error        130.72610 %
+legacy Aloi final mismatch       130.72610 %
+corrected Aloi final mismatch     98.13373 %
+corrected active-frame RMSE        6.87363 N
+corrected magnitude mismatch      16.39456 %
+corrected direction mismatch      53.28342 deg
+true local axial fraction         99.62866 %
+corrected position RMSE            0.00494 mm
+equilibrium residual               3.59e-5 mm
 ```
 
 The small total error does not mean the contact force is correct. At
@@ -219,6 +242,12 @@ the same point. Their individual values can move in opposite directions with
 almost no change in predicted shape or total load. This case is retained to
 demonstrate the limitation and should not be used as the reportable
 body-contact validation.
+
+The corrected fit is numerically converged: all ten frames have sub-`0.008 mm`
+sparse-position RMSE and sub-`5e-5 mm` fixed-point residual. The remaining
+force mismatch is not an optimizer failure. The final true contact force in
+the material frame is `[0.7633, 0, -8.8327] N`, which is almost entirely the
+axial component excluded by Aloi Eq. (9).
 
 Both diagnostic videos were also decoded end to end: 60 frames,
 1770 x 930, 10 fps, 6.0 seconds each.
@@ -234,10 +263,15 @@ The estimated tip force is not exactly zero. Contact and tip errors partially
 cancel in the total, so contact RMSE and tip RMSE must always be reported with
 the total-load percentage.
 
-The Aloi width reaches its 3 mm lower bound and its final center is 142.23 mm,
-compared with the true contact at 125.88 mm. Its 48% result is specific to this
-baseline implementation and trajectory. Do not present it as the general
-error of the Aloi paper.
+Neither the legacy `48%` formal mismatch nor the legacy/corrected
+`130.73%`/`98.13%` senior mismatch is a valid general error claim for Aloi et
+al. Both contact scenes contain local axial load that the paper model excludes.
+
+An independent in-domain same-model check generates a known transverse
+Gaussian `[a1,a2,center,sigma] = [4,-8,110,12]`. The corrected estimator
+recovers it with `6.05e-8%` resultant mismatch, `5.60e-10 mm` position RMSE,
+and `3.12e-8 mm` equilibrium residual. This validates the implementation path
+but does not predict experimental accuracy.
 
 The current formal scenario follows the updated 150 mm displacement case and
 has 88.49 degrees of intrinsic bend. It is not the old 200 mm/180-degree/high-
@@ -252,8 +286,10 @@ force_outputs/rod_plane_displacement_force_sensing/
 force_outputs/rod_plane_senior_geometry_force_sensing/
 ```
 
-Each contains exactly eight files: MAT, CSV, text summary, three PNG figures,
-one formulation MP4, and one Aloi MP4.
+Each main run contains eight primary files: MAT, CSV, text summary, three PNG
+figures, one formulation MP4, and one Aloi MP4. The senior directory also
+contains four intentional `rod_plane_aloi_reanalysis.*` artifacts from the
+corrected saved-result reanalysis.
 
 ## Verification Commands
 
@@ -267,6 +303,11 @@ results = validate_rod_plane_displacement_inverse();
 
 ```matlab
 results = simu_rod_plane_displacement_force_sensing(false);
+```
+
+```matlab
+report = validate_aloi_gaussian_baseline();
+analysis = rerun_aloi_saved_result([], 'all');
 ```
 
 The strict six-frame smoke produced `0.0142%` final total-load error,
