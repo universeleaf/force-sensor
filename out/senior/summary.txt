@@ -1,0 +1,80 @@
+Rod-plane force sensing validation
+==================================
+
+Scenario: senior_horizontal_plane_tip_contact_mu05
+Forward model: displacement-aware local copy of Jia Shen's updated rod-plane LCP with a retained tip-load extension; original LCP-Continuum files are unchanged.
+Inverse input: sparse FBG-like curvature samples plus a measured plane point and plane normal.
+
+Rod length: 150.0 mm
+Precurvature scaling enabled: 0
+Actual integrated precurvature: 88.49 deg
+Plane point [x y z] mm: [0 0 50]
+Plane normal [nx ny nz]: [0 0 -1]
+Measured plane offset bias: 0.00 mm
+Friction coefficient schedule: [0 0 0 0 0 0.5 0.5 0.5 0.5 0.5]
+Force convention: force exerted by plane on rod, in world coordinates.
+Final contact mode: sliding-contact
+Min polyhedral cone slack: 0 N; min w: -5.86961e-13 mm
+Max positive work on observed sliding frames: 0 N mm
+IDENTIFIABILITY: contact is at tip; contact and independent tip load cannot be uniquely separated. Report component errors as well as total error.
+Push/slide friction coefficients: 0.00 / 0.50
+Applied tip load [Fx Fy Fz] N: [0 0 0]
+Motion mode: push-slide
+Forward source revision: Jia0Shen/LCP-Continuum@14806b3
+Frames: 10, commanded path length: 60.0 mm
+
+Final true contact force [Fx Fy Fz] N: [-3.96484 -4.85552e-16 -7.92967]
+Final estimated contact force [Fx Fy Fz] N: [-0.112699 -1.57212e-10 -0.225397]
+Final true tip load [Fx Fy Fz] N: [0 0 0]
+Final estimated tip load [Fx Fy Fz] N: [-3.85213 1.73881e-07 -7.70427]
+Final reduced-seed contact force [Fx Fy Fz] N: [-0.111603 -1.71351e-07 -0.224598]
+Final reduced-seed tip load [Fx Fy Fz] N: [-3.85215 1.73277e-07 -7.70426]
+Final true total load [Fx Fy Fz] N: [-3.96484 -4.85552e-16 -7.92967]
+Final estimated total load [Fx Fy Fz] N: [-3.96483 1.73724e-07 -7.92967]
+Final Aloi Gaussian position-fit total load [Fx Fy Fz] N: [4.63953 -8.83777e-16 -9.21733]
+Final Aloi Gaussian resultant [Fx Fy Fz] N: [4.63953 -8.83777e-16 -9.21733]
+Final Aloi Gaussian center/sigma: 125.407 / 15.813 mm
+Final Aloi sparse-position RMSE: 0.00494239 mm
+Final Aloi nonlinear-equilibrium residual: 3.59103e-05 mm
+Final Aloi nonlinear-equilibrium iterations: 20
+Final Aloi optimizer exit flag / iterations / starts: 2 / 8 / 3
+Final Aloi normalized position-fit cost: 0.0146563
+
+RMSE scope below: frames with nonzero true total load.
+Shape+environment total-load RMSE over ALL output frames: 0.00164122 N
+Shape+environment contact-force RMSE: 5.74246 N
+Shape+environment tip-load RMSE: 5.74186 N
+Shape+environment total-load RMSE: 0.00173 N
+Shape+environment final total-load relative error: 0.0001 %
+Final normal complementarity |g*f_n|: 4.08514e-17
+Final friction complementarity ||(D^T v + lambda e).*beta||: 0
+Final cone complementarity |(mu*f_n - e^T beta)*lambda|: 0
+Final normalized measurement residual norm: 0.000454063
+Max normalized measurement residual norm: 0.0221812
+Final reduced-seed normalized measurement residual norm: 0.00847462
+Final reduced-seed MAP merit: 155.413
+Final accepted MAP merit: 1.03087e-07
+Final initialization selected: prior
+Aloi total-load RMSE: 6.87363 N
+Aloi raw final full-vector mismatch: 98.1337 %
+Aloi final force-magnitude mismatch: 16.3946 %
+Aloi final force-direction mismatch: 53.2834 deg
+Final true contact force in material frame [Fx Fy Fz] N: [0.76332 7.56527e-16 -8.83272]
+Final true local-axial force fraction: 99.6287 %
+Within Aloi local-transverse load assumption: 0
+Aloi contact-location RMSE: 16.4451 mm
+Aloi final contact-location error: 24.5934 mm
+Aloi Gaussian width at configured lower bound in final frame: 0
+
+Aloi applicability note: Eq. (9) of Aloi et al. fixes the local axial load to zero. The raw full-vector mismatch above is retained as a scenario diagnostic, but it is not a valid estimate of the paper method's in-domain accuracy.
+
+Final MAP candidate diagnostics (diagnostic only; truth is not used by the estimator):
+  truth                        merit=       NaN, meas_res=       NaN, eq=       NaN, ineq=       NaN, minW=       NaN, fn=       NaN, s=       NaN mm
+  measurement_init_tip_only    merit=       NaN, meas_res=       NaN, eq=       NaN, ineq=       NaN, minW=       NaN, fn=       NaN, s=       NaN mm
+  reduced_seed                 merit=       NaN, meas_res=       NaN, eq=       NaN, ineq=       NaN, minW=       NaN, fn=       NaN, s=       NaN mm
+  reduced_seed_projected       merit=       NaN, meas_res=       NaN, eq=       NaN, ineq=       NaN, minW=       NaN, fn=       NaN, s=       NaN mm
+  zero_force                   merit=       NaN, meas_res=       NaN, eq=       NaN, ineq=       NaN, minW=       NaN, fn=       NaN, s=       NaN mm
+
+Implementation note:
+Solver: fmincon, friction directions m=16, force bounds enabled: 0.
+The inverse estimate does not use the forward solver contact force or contact index. It solves the iterated constrained EKF/MAP update in Formulation.pdf eqs. (19)-(29) with state x=[p1; eta1; s1; f1n; beta1; lambda1; fe], random-walk prior covariance, the nonlinear Cosserat forward map [p(s;x),u(s;x)]=F(s1,f1,fe), finite-difference linearization of h(x), posterior covariance update, and the normal/friction/cone complementarity constraints. The plane gap follows Formulation.pdf eqs. (5)-(6), pc=p(s1;x), which is also the centerline point used by the copied LCP rod-plane contact code. Aloi is used only as a shape-only Gaussian total-load baseline and does not receive the plane/friction constraints.

@@ -30,15 +30,15 @@ Thumbs.db
 
 # Archived outputs
 *.zip
+archive/
 
 # External repositories
 LCP-Continuum/
 
 # Test/development files
 force_test_single.m
-force_outputs/*_tmp/
-force_outputs/rod_plane_force_sensing_diagnostic_*/
+out/*_tmp/
 forcesensing.mp4
 
-# Images (keep only in force_outputs/)
+# Historical generated images
 aloifig6.png
