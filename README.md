@@ -19,8 +19,8 @@
 ## 公开视频与演示
 
 - [六个接触场景离线播放器](out/demos/index.html)：包含顶面弯钩、侧墙、斜面和滑动场景。
-- [90° 旋转后向上推的力图视频](out/upward/forces.mp4)。
-- [视频几何回放](out/video/forces.mp4)。
+- [90° 旋转后向上推的力图视频](out/upward/forces.mp4)：沿 `+z` 推 45 mm，随后沿 `-x` 滑 1 mm。
+- [视频几何回放](out/video/forces.mp4)：先沿 `+z` 推 20 mm，再沿 `-x` 滑 12 mm；这是 `fail.mp4` 的图像几何近似，不是原视频参数恢复。
 - [视频种子回放](out/stage1/video_seeded/forces.mp4)和[壁面种子回放](out/stage1/wall_tip_seeded/forces.mp4)。
 
 完整的算法、数据流、文件职责、实验结果和限制见[技术总说明](docs/TECHNICAL_OVERVIEW.md)，当前实验状态见[状态页](docs/STATUS.md)。
