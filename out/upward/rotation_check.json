@@ -1,0 +1,7 @@
+{
+  "forwardShapeMaxAbsMm": 5.1159076974727213E-13,
+  "forwardForceMaxAbsN": 1.9273471707492718E-12,
+  "inverseForceMaxVectorDifferenceN": 0.0094569270916353716,
+  "inverseContactMaxVectorDifferenceN": 0.087523700645384325,
+  "inverseShapeMaxAbsMm": 0.0046319226063644692
+}

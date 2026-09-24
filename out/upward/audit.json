@@ -1,0 +1,364 @@
+{
+  "scenario": "wall_rotated_90deg_upward",
+  "scope": "All independently solved output frames; inverse-only, no new Aloi comparison",
+  "limitations": "Oracle previous internal shape; noiseless default sensing; constraint checks do not certify force accuracy or optimizer convergence.",
+  "validation": {
+    "scope": "Shape consistency and contact/friction checks; not a force-accuracy or optimizer-convergence certificate.",
+    "friction": {
+      "slipToleranceMm": 0.005,
+      "observedSlipMm": [
+        0.0027478560907212568,
+        0.0027478560907212568,
+        0.0027478560907212568,
+        0.16807100303961553,
+        0.15591452239700376,
+        0.14099956153421725,
+        0.12766420390592284,
+        0.11641848977951556,
+        0.10583400872724891,
+        0.096715628486303357,
+        0.0022870716120828916,
+        0.00048879899396531417,
+        0.00059414284908768165,
+        0.00070651129161226347,
+        0.0007556292095182804,
+        0.0005183091631266179,
+        0.000375738674653793,
+        0.00022927533020041717
+      ],
+      "stepToleranceMm": [
+        0.005,
+        0.005,
+        0.005,
+        2.6431977318615527E-6,
+        3.3228339044881832E-7,
+        1.4737770184342823E-7,
+        4.1941343569846674E-8,
+        1.4071781858962237E-7,
+        8.0888365635788611E-8,
+        3.2543399256850559E-7,
+        0.0049999999998576565,
+        0.0049999999999499559,
+        0.0049999999999929042,
+        0.0049999999999988205,
+        0.0049999999999992984,
+        0.0049999999998611207,
+        0.0049999999998051308,
+        0.0049999999999606123
+      ],
+      "observedWorkNmm": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        -0,
+        0,
+        0,
+        0,
+        0,
+        0.00039948635619384916,
+        -0.00074693465417505884,
+        -0.0015488612553166718,
+        -0.0025914870342756621,
+        -0.0035616727615467125,
+        -0.002976637901147587,
+        -0.0025387012290230744,
+        -0.0018528417927649761
+      ],
+      "slidingFrames": [],
+      "maxSlidingWorkNmm": 0,
+      "maxModelWorkNmm": 5.2782319508987572E-11,
+      "minWmm": -6.1474752637373266E-10,
+      "minConeSlackN": 0
+    },
+    "totalForceRmseN": 0.014948483500722495,
+    "finalRelativeErrorPct": 0.02843407401302259,
+    "maxShapeRmseMm": 0.0028195952576633167,
+    "contactForceRmseN": 0.040873965967433548,
+    "tipForceRmseN": 0.052936172070696591,
+    "maxTrueShapeRmseMm": 0.002039594080724608,
+    "cachedShapeMetricMaxDifferenceMm": 0,
+    "maxFrictionlessTangentialForceN": 7.105427358457263E-15,
+    "maxConeViolationN": 7.105427358457263E-15,
+    "maxComplementarityResidual": 1.5261086946297733E-9,
+    "maxTruthInequalityViolation": 0.0010892518250358307,
+    "maxTruthEqualityResidual": 0.024288077546147462
+  },
+  "outputFrameCount": 18,
+  "internalFrameCount": 501,
+  "finalContactArcLengthMm": 125.8934368551684,
+  "finalTrueContactArcLengthMm": 125.87819548872181,
+  "finalTrueContactForceN": [
+    8.0862378356215014,
+    -1.5079802865868928E-15,
+    -33.946703877809178
+  ],
+  "finalEstimatedContactForceN": [
+    8.0811611635962528,
+    -7.5473690772386646E-6,
+    -33.950268204415359
+  ],
+  "finalTrueTipForceN": [
+    0,
+    0,
+    0
+  ],
+  "finalEstimatedTipForceN": [
+    0.0002988961174561211,
+    6.4831857448915259E-6,
+    0.012260809499385253
+  ],
+  "finalMode": "sticking-contact",
+  "maxPlaneShiftMm": 0.006288293899030589,
+  "phaseMetrics": {
+    "push": {
+      "frameCount": 10,
+      "contactForceRmseN": 0.054693282478367265,
+      "tipForceRmseN": 0.070651543306557374,
+      "totalForceRmseN": 0.019377064037787592
+    },
+    "slide": {
+      "frameCount": 8,
+      "contactForceRmseN": 0.0044540460221540578,
+      "tipForceRmseN": 0.00809231060164258,
+      "totalForceRmseN": 0.0057827626857705917
+    }
+  },
+  "config": {
+    "rootDir": "C:\\Users\\wty05\\Desktop\\gatech\\force sensor",
+    "outputDir": "C:\\Users\\wty05\\Desktop\\gatech\\force sensor\\out\\upward",
+    "randomSeed": 7,
+    "scenarioName": "wall_rotated_90deg_upward",
+    "exposedLengthMm": 150,
+    "targetBendDeg": 180,
+    "scalePrecurvature": false,
+    "wallDistanceMm": 140,
+    "planePointMm": [
+      0,
+      0,
+      140
+    ],
+    "planeNormal": [
+      0,
+      0,
+      -1
+    ],
+    "basePositionMm": [
+      0,
+      0,
+      0
+    ],
+    "baseRotation": [
+      [
+        -1,
+        0,
+        0
+      ],
+      [
+        0,
+        -1,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "frictionMu": 0.5,
+    "initialLowFrictionMu": 0,
+    "cornerRange": 0.5,
+    "frictionConeEdges": 16,
+    "betaMaxMm": 35,
+    "numTimeSteps": 18,
+    "tipLoadN": [
+      0,
+      0,
+      0
+    ],
+    "forward": {
+      "motionMode": "push-slide",
+      "pushDistanceMm": 45,
+      "slideDistanceMm": 1,
+      "pushFraction": 0.5,
+      "pushDirection": [
+        0,
+        0,
+        1
+      ],
+      "slideDirection": [
+        -1,
+        0,
+        0
+      ],
+      "maxPushStepMm": 0.1,
+      "maxSlideStepMm": 0.02,
+      "sourceRevision": "Jia0Shen/LCP-Continuum@14806b3"
+    },
+    "video": {
+      "enabled": true,
+      "frameRate": 10,
+      "durationSeconds": 6,
+      "renderFrameCount": 60,
+      "forceScaleMmPerN": 3,
+      "fileName": "forces.mp4",
+      "aloiFileName": "aloi.mp4"
+    },
+    "sensing": {
+      "numFbgPoints": 24,
+      "curvatureNoiseStd": 0,
+      "positionNoiseStdMm": 0,
+      "planeOffsetBiasMm": 0,
+      "planeOffsetNoiseStdMm": 0,
+      "shapeSmoothing": 0
+    },
+    "forceSensor": {
+      "numFrictionDirs": 16,
+      "contactSearchBandMm": 4,
+      "contactHistoryResetMm": 6,
+      "minContactDepthMm": -1,
+      "priorStd": {
+        "planePointMm": [
+          0.25,
+          8,
+          8
+        ],
+        "normalParam": [
+          0.04,
+          0.04
+        ],
+        "sMm": 8,
+        "normalForceN": 35,
+        "betaN": 35,
+        "lambda": 10,
+        "tipForceN": 4
+      },
+      "useForceBounds": false,
+      "forceBounds": {
+        "normalForceN": 200,
+        "betaN": 200,
+        "lambda": 200,
+        "tipForceN": 25
+      },
+      "processStd": {
+        "planePointMm": [
+          0.1,
+          0.25,
+          0.25
+        ],
+        "normalParam": [
+          0.01,
+          0.01
+        ],
+        "sMm": 2,
+        "normalForceN": 14,
+        "betaN": 18,
+        "lambda": 2,
+        "tipForceN": 0.75
+      },
+      "measurementStd": {
+        "curvature": 0.00015,
+        "planePointMm": [
+          0.13,
+          8,
+          8
+        ],
+        "normalVector": [
+          0.02,
+          0.02,
+          0.02
+        ]
+      },
+      "maxEkfIterations": 2,
+      "linearizedSolveMaxIter": 25,
+      "convergenceTol": 0.003,
+      "slipToleranceMm": 0.005,
+      "finiteDifferenceStep": [],
+      "penalty": {
+        "inequality": 100000,
+        "complementarity": 100000,
+        "lineSearch": [
+          1,
+          0.5,
+          0.25,
+          0.1,
+          0.03,
+          0.01
+        ]
+      },
+      "solver": "fmincon",
+      "complementaritySolver": "active-set",
+      "allowApproximateFallback": false,
+      "showProgress": true,
+      "fminconProgressInterval": 10,
+      "dampingScales": [
+        1,
+        0.5,
+        0.25,
+        0.1,
+        0.03,
+        0
+      ],
+      "useMultiStart": false,
+      "maxStartCandidates": 1,
+      "warningRelativeErrorPct": 100,
+      "warningMeasurementResidualNorm": 10000,
+      "normalReference": [
+        0,
+        0,
+        -1
+      ]
+    },
+    "diagnostics": {
+      "stopAfterTruthConsistency": false,
+      "stopAfterInverse": true,
+      "runMapCandidateCosts": false
+    },
+    "aloi": {
+      "numCenterCandidates": 21,
+      "sigmaCandidatesMm": [
+        3,
+        6,
+        12,
+        22,
+        35
+      ],
+      "amplitudeBoundN": 100,
+      "positionStdMm": 0.2,
+      "maxIterations": 35,
+      "maxFunctionEvaluations": 300,
+      "numOptimizationStarts": 3,
+      "maxEquilibriumIterations": 20,
+      "equilibriumToleranceMm": 0.0001,
+      "equilibriumRelaxation": 0.5,
+      "maxAxialFractionForComparison": 0.05,
+      "showProgress": true
+    },
+    "provenance": {
+      "rotationFromWall": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "translationFromWallMm": [
+        0,
+        0,
+        120
+      ],
+      "videoMatch": "qualitative upward-push geometry; video parameters unavailable"
+    }
+  }
+}

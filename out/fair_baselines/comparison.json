@@ -1,0 +1,682 @@
+{
+  "state": "complete",
+  "runRecord": {
+    "schemaVersion": 1,
+    "runId": "ba8b7a52-2bb1-4a30-9f7d-e5018170b020",
+    "state": "complete",
+    "startedAtUtc": "2026-09-23T17:31:25Z",
+    "matlabVersion": "24.1.0.2537033 (R2024a)",
+    "platform": "PCWIN64",
+    "source": [
+      {
+        "path": "rod/atomic_write_artifact.m",
+        "sha256": "f508197253174454159f43b52ac25801026e189d2125993f7cf2716ea8e73e0f"
+      },
+      {
+        "path": "rod/attach_depth_environment.m",
+        "sha256": "a034a3c834fc80dbadef9613928b060692a3d1874db3a8aea2a847dc30b0ed9e"
+      },
+      {
+        "path": "rod/audit_accuracy_run.m",
+        "sha256": "748f9b3abbf5ff633e63114b34a72493de830317b177ac259c9237eb40ede75c"
+      },
+      {
+        "path": "rod/audit_force_identifiability.m",
+        "sha256": "585b6b6889c1e5284e92fdba052399115fc6d426f7f63bbcd5f0a418d9dba758"
+      },
+      {
+        "path": "rod/audit_friction_quality.m",
+        "sha256": "600a3c2c49cdb1f90968909c1cd38e6edca16a0288319e84f26018b7f3817461"
+      },
+      {
+        "path": "rod/audit_history_uncertainty.m",
+        "sha256": "b04af503c854dede98b14759f27556814e8656b2f2d8f1c2732208bc32af340e"
+      },
+      {
+        "path": "rod/audit_independent_mesh.m",
+        "sha256": "643f49c4c7e80d9a3f021b03a1f50f75a51d2636319badda16e7352a0a1180e2"
+      },
+      {
+        "path": "rod/audit_noise_attribution.m",
+        "sha256": "87441ad61197c48de9d3e005b17b6e6996fa4cb1f19c38e22071c078f9cd49a8"
+      },
+      {
+        "path": "rod/audit_sensor_stage1.m",
+        "sha256": "6e91d61f04a81a7c0320460e55b2dc6ff2d8241c7f630e4d9bea68e4a2fe9956"
+      },
+      {
+        "path": "rod/begin_result_run.m",
+        "sha256": "b39940c20b04f87d0a812b5ab61f5d365d7b9bbd2c0756dc1c22e6600e4ef860"
+      },
+      {
+        "path": "rod/build_contact_demo_truth.m",
+        "sha256": "fb7fcfc2c198957ffb8da56d146a9b83d8a31a3cdc114d13cdc864e073e82e2a"
+      },
+      {
+        "path": "rod/build_multi_contact_truth.m",
+        "sha256": "22203300559df9bf7d659b5b963f63d82a86caf1fe8c385f41d1b7568a400722"
+      },
+      {
+        "path": "rod/calibrate_fbg_likelihood.m",
+        "sha256": "45cb241325ceafe0baa8c9d7f10a8c78471b82fb14671bf3d71ea7110d58e150"
+      },
+      {
+        "path": "rod/compute_aloi_comparison_metrics.m",
+        "sha256": "0bf6f7cfbd3f9e1a3c02a4dd4175ac4b902645475933d1b9afb2bf216bd957d8"
+      },
+      {
+        "path": "rod/contact_demo_scenes.m",
+        "sha256": "fe42318e6e6682aadf8693d79f94ebae3db35e512c3618c543b72da393239c4a"
+      },
+      {
+        "path": "rod/contact_tangent.m",
+        "sha256": "e5d270f2e62604d1122bbe6b5c65120b95259cd6dedaeaf7d2aba7cfbbc95953"
+      },
+      {
+        "path": "rod/estimate_aloi_gaussian_baseline.m",
+        "sha256": "b3f6f64d14569872178502ad8b556b92b573b20d1ed82cf1fcab77a5404747e5"
+      },
+      {
+        "path": "rod/estimate_formulation_forces.m",
+        "sha256": "24f9895f7e1ab923428c26fb455f2a6de7e66a8dc381ac50c18fd3be96475acc"
+      },
+      {
+        "path": "rod/estimate_sensor_forces.m",
+        "sha256": "40e7d353902dc1b0498041b1b4df942b0893d8cde51649299f0b0379f7971a77"
+      },
+      {
+        "path": "rod/estimate_shape_only_point_loads.m",
+        "sha256": "9652faabf4a3e9f67fa0ff338670af86627f84502e7d547761a8af3c7eccfce1"
+      },
+      {
+        "path": "rod/estimate_temporal_window_forces.m",
+        "sha256": "3f51f47a5cb1d478824c999047db7972dc1dd8a1195991dd05ddff38fcf04704"
+      },
+      {
+        "path": "rod/export_inverse_audit.m",
+        "sha256": "1a7c79df44fd06f90cb54e5e0f8fb5d65a99a4a3a6aaa5b43078742e3cbdf813"
+      },
+      {
+        "path": "rod/file_sha256.m",
+        "sha256": "70ad733aca3718b7a7b87da40d9343f7050b641c77e946c4427329ac9eba91c1"
+      },
+      {
+        "path": "rod/force_sensitivity_diagnostic.m",
+        "sha256": "4354d3bd8e971ed41c15f11f3c93f3be0d3fcfd1ae459a9ca2cd5e62e4448444"
+      },
+      {
+        "path": "rod/formulation_solver_config.m",
+        "sha256": "17c32756e46d4d5b24c8484b7a2da79a99654a96cfe555d4c342307f035e6a88"
+      },
+      {
+        "path": "rod/friction_direction_quality.m",
+        "sha256": "1a22dc52f08127422148b7cb3831361a2ba529a611d9fe20d0968441a44f5e83"
+      },
+      {
+        "path": "rod/friction_mode_resolution.m",
+        "sha256": "903b3b18b90f7ce098992d9b93e638a24c2c4c209125b5e13af0fa3140d99d02"
+      },
+      {
+        "path": "rod/integrate_curvature_field.m",
+        "sha256": "5d716b41031011b2a55c6274cc37e1e9dee03f98545dea3949b997f0be1b11ac"
+      },
+      {
+        "path": "rod/latent_fbg_history.m",
+        "sha256": "0196e694ab31d6262b56ce03bdf43708e165e893a6db4afe5305e4298cc03782"
+      },
+      {
+        "path": "rod/make_experiment_tube.m",
+        "sha256": "e5df55a8ae3ee36d0d6849a5171f3a6ca04c8e9d28c6b199ce5e2ce634f0622f"
+      },
+      {
+        "path": "rod/measurements_from_sensor_packet.m",
+        "sha256": "f8d2c109bfecfd361de4af3f78c333e4ce48dd3e423514497614e9b9bef200ff"
+      },
+      {
+        "path": "rod/new_run_record.m",
+        "sha256": "5d8fa66bcc30ebe74c8dee0b611f847533606381e57fe1eada3f344436df5830"
+      },
+      {
+        "path": "rod/nonlinear_force_sensitivity.m",
+        "sha256": "c444d01aa2936a4ea32621ffd81a9d5c9cbe77345839d6f5587a3c5196a2016c"
+      },
+      {
+        "path": "rod/paired_contact_uncertainty.m",
+        "sha256": "50ad150f7239b78cb22f21ccc92640c51b56029c3a9d8f4326570d10921919e8"
+      },
+      {
+        "path": "rod/plane_contact_constraints.m",
+        "sha256": "24cdf6fb246e8408fa0c60fb94cc40dde5d7ab2c9434d831d6f9e6d029a7c69f"
+      },
+      {
+        "path": "rod/plane_from_depth.m",
+        "sha256": "74418670be2b4e55b7f7975efe76f9070e61330517312067b5addc7b6d1ac8d9"
+      },
+      {
+        "path": "rod/plot_depth_observations.m",
+        "sha256": "eeb061ed89d3d71a09a30168b4fe5ca0c42299c4103f115e920d84bdf396245c"
+      },
+      {
+        "path": "rod/plot_friction.m",
+        "sha256": "3a5ff44d5fa4088ae02ef065216854dbe19c6ef36c773bd63dac89f4b9f8cca0"
+      },
+      {
+        "path": "rod/plot_sensor_stage1.m",
+        "sha256": "f8a47d4c4dd7ad4a303dd8099d6936479c0373c515f2677e247fcc01c071f75f"
+      },
+      {
+        "path": "rod/reconstruct_sensor_curvature.m",
+        "sha256": "8617e9d4a64b026acedf10f38af4070ac6f9a588b74fee13823759807a5eca41"
+      },
+      {
+        "path": "rod/refine_cosserat_shape_seed.m",
+        "sha256": "1a7684cc89a45426acce5414abb767f32893f2a2ecb5a730a684c2671787cf63"
+      },
+      {
+        "path": "rod/rerun_aloi_saved_result.m",
+        "sha256": "53e032ece2eb4e45bdd6b1587349194ca28104b8a8c4ed5f14ca779919ec7133"
+      },
+      {
+        "path": "rod/resolve_result_file.m",
+        "sha256": "8112d46f1a832017b97033029e1537e3d539f7ae710f85bccce198cffc3ec705"
+      },
+      {
+        "path": "rod/run_accuracy_benchmark.m",
+        "sha256": "aca4e59c6319df9d8903d400bb2233d8b6f93ca8f79d90d9918916514dbefd98"
+      },
+      {
+        "path": "rod/run_contact_demo_suite.m",
+        "sha256": "83886021c04b91fcf39a747d1f923cd3de4144b8edb08cef5b0f21a2473d600d"
+      },
+      {
+        "path": "rod/run_depth_protocol.m",
+        "sha256": "0c5b2199db1e33e47b0cc20c31f5c8a415f7a15bd60b84746c88177536d6151f"
+      },
+      {
+        "path": "rod/run_fair_baseline_protocol.m",
+        "sha256": "c321c06f281fd17d96c847e104d8f69dec3008ef6c2a1acad2f942bce754d23b"
+      },
+      {
+        "path": "rod/run_formulation_benchmark.m",
+        "sha256": "ebccc9272d447b8adee5a513b6c43fb2f2e263fa8934dcaabe6e57df9d026794"
+      },
+      {
+        "path": "rod/run_formulation_sliding.m",
+        "sha256": "93e558a620bb9389ab656750af58f8811deb75334e76937feedeb39a3b2bf29e"
+      },
+      {
+        "path": "rod/run_history_map_benchmark.m",
+        "sha256": "4756a91ac00042cd4dbd68291fdb671b8a02ee0aaf2d2dbd2a1579b3539ff124"
+      },
+      {
+        "path": "rod/run_independent_truth_benchmark.m",
+        "sha256": "c240a1919a640242c5c0e0834ae47d890bc5d561d0a2cfb9d6fb038e084bf66a"
+      },
+      {
+        "path": "rod/run_literature_strain_scenarios.m",
+        "sha256": "dae23a3dd4cc256bd342650c0ac016c7d483db72d78659e4ea2db549cc79850c"
+      },
+      {
+        "path": "rod/run_mesh_convergence.m",
+        "sha256": "34ea3984d441ec0f28dbc0c797737ce949ab29f5bddb65db72226603f4cccca4"
+      },
+      {
+        "path": "rod/run_model_mismatch_protocol.m",
+        "sha256": "71b297af96ef7f6b4899fd6d7aeb51f35025b0ee6c84de0d8e45aba43e4385a8"
+      },
+      {
+        "path": "rod/run_noise_attribution.m",
+        "sha256": "ae072af04b5a8229838acc56305972ccec9bf17efb599d0b25155bbd297e7c49"
+      },
+      {
+        "path": "rod/run_noise_aware_protocol.m",
+        "sha256": "6edb411095af544fb3d9dcdb90e57ed096779ee60bb348c95a00cbe6c6a9186c"
+      },
+      {
+        "path": "rod/run_plane_geometry_benchmark.m",
+        "sha256": "f29b053d933006387fa67d9de5725f913389c3f561dece19a7fc0673307962ff"
+      },
+      {
+        "path": "rod/run_project_checks.m",
+        "sha256": "94fefa13b50655411e6c177cb63a681e4698cb8f49422c9952d83125277d7dff"
+      },
+      {
+        "path": "rod/run_realtime_benchmark.m",
+        "sha256": "a6828048b125d1f9d33c244de99fa87555f7a8eeb3ec5782ec22db5307efe062"
+      },
+      {
+        "path": "rod/run_rod_plane_force_sensing_experiment.m",
+        "sha256": "591352278cf18848557442ba41f6bdabe832c74630681bd05a7fd7cab8d8ca7e"
+      },
+      {
+        "path": "rod/run_sensor_noise_protocol.m",
+        "sha256": "b960c24859ec5d0d17f3e938bcf3812aa16b2064436a64ee97c5297fd8201b28"
+      },
+      {
+        "path": "rod/run_sensor_seeded_replay.m",
+        "sha256": "5053fc6d37af76eaf18cb925b747cf7ed59ec5fe04c09caaf370054e18dcc51d"
+      },
+      {
+        "path": "rod/run_sensor_stage1.m",
+        "sha256": "30c856721db989011cc77a91cd8814dbe44cfa3dda5c0420cfddddb5d77598ee"
+      },
+      {
+        "path": "rod/run_submission_statistics.m",
+        "sha256": "6ac7e9dbcc5bcbef7a7b7b8f504b60bd3d9aea45d375262dbeb5939bef702955"
+      },
+      {
+        "path": "rod/sample_integrated_shape.m",
+        "sha256": "fc79e420717d0adb73674db04ba728e1b170225e1135cfa4a03d54e4ac1d52b0"
+      },
+      {
+        "path": "rod/save_result_checkpoint.m",
+        "sha256": "748e47cc83c44568c9a8176a33092f2b3c5559192f9c8c2cdf9fd01af1ccf1de"
+      },
+      {
+        "path": "rod/sensor_estimator_config.m",
+        "sha256": "3fd89d77cd7911f1f29a6ceeea871698d2bc3c0aa295a3c8d940342d21511d3a"
+      },
+      {
+        "path": "rod/simu_rod_plane_displacement_force_sensing.m",
+        "sha256": "78b778edbc62057a658a5cb8512bc8b203e4864e2304111ce89467bb3d1e364c"
+      },
+      {
+        "path": "rod/simu_rod_plane_senior_geometry_force_sensing.m",
+        "sha256": "bcb27f4f082c1e938d78bd47a68f4f25b07b4b16b9ad1cbe6fb0d726523a3433"
+      },
+      {
+        "path": "rod/simu_rod_plane_upward_force_sensing.m",
+        "sha256": "ea166b6d371da2a6eb81cd105c25390261155ae9c9c0d8a9d79bc5e759f4340a"
+      },
+      {
+        "path": "rod/simu_rod_plane_video_geometry_force_sensing.m",
+        "sha256": "f8cd8a9c287365561eff164f3aa09a1fb29628daadae86f6bd36be640d87833e"
+      },
+      {
+        "path": "rod/simulate_sensor_packet.m",
+        "sha256": "f29794d56739304700f4532d22f3204bccb0b4ebfb47afb5d9c07035a9428968"
+      },
+      {
+        "path": "rod/solve_contact_mode_map.m",
+        "sha256": "94cd0f4a0f7855eb0186202e8d3890091379ec9a28bff17b39d0137a7324e7fe"
+      },
+      {
+        "path": "rod/solve_contact_mpcc.m",
+        "sha256": "870ad7e4e41fb850633fd7a6bbade90a9fde551f2b842c53558e67fd21c13656"
+      },
+      {
+        "path": "rod/solve_cosserat_force_map.m",
+        "sha256": "b3a8e4b9b0d5fbbb402b6137a7a67786ebaa92c988f8d0e0afd0620b78062d19"
+      },
+      {
+        "path": "rod/solve_cosserat_multi_contact_map.m",
+        "sha256": "ac31a29a8660ccfa713170a62753cdf85d5043917e1e4bbf086fd52affd6787a"
+      },
+      {
+        "path": "rod/solve_planar_contact_shooting.m",
+        "sha256": "9ca777fde8d8c3a24adc861cf0c19ae1ea94404eb7835e4d7acb57aec5c54ee4"
+      },
+      {
+        "path": "rod/solve_planar_energy_rod.m",
+        "sha256": "c11751b2900df4798a83be8d510f7949a4e034501a14ad95a1ecf25025623152"
+      },
+      {
+        "path": "rod/subset_sensor_packet.m",
+        "sha256": "f30bc76c30062eeec1cd8a4e5ecddcd755418362ac50e964d2b2a4c0c914a73a"
+      },
+      {
+        "path": "rod/test_contact_separation_gate.m",
+        "sha256": "c1b18b4203b11bbe1b1120466201f6166597a7421dc67a5ab8a6c66821cb8ace"
+      },
+      {
+        "path": "rod/test_contact_shooting.m",
+        "sha256": "f9d5dad0f56f44fe91511d45c76ad6c5742573338d8b524367e9d03a270119ea"
+      },
+      {
+        "path": "rod/test_cosserat_collision_geometry.m",
+        "sha256": "75881ba33b39b870a2852664d3cb1103ef4c9ab62800525568dc8a1383c4daf4"
+      },
+      {
+        "path": "rod/test_cosserat_work_budget.m",
+        "sha256": "017b1aaf1faaaee45a44bdf78e4c0aa1b75dd11beeddeabffe8930c0f0a61504"
+      },
+      {
+        "path": "rod/test_depth_plane.m",
+        "sha256": "506585ea0d2d7c2293c7e96d6673dd8a03a6f30ca077bb9911f3fb708dc62492"
+      },
+      {
+        "path": "rod/test_environment_covariance.m",
+        "sha256": "1f15a1aa56879bd1e0f4fa2fe51572e01440097fced655632722bc675bba631a"
+      },
+      {
+        "path": "rod/test_fbg_likelihood_calibration.m",
+        "sha256": "6f21ba644a3c343d8411f4d22690220033ce431ee75289177d820e2462592ac5"
+      },
+      {
+        "path": "rod/test_force_sensitivity.m",
+        "sha256": "6a5d37f84d52fe0666403c2a29804d46b8fac4108380fe1d01000ff8a5b2c588"
+      },
+      {
+        "path": "rod/test_friction_basis.m",
+        "sha256": "7e91fffc45a18da4840d02cf7cc962990d1cd88d329d5d29d698eb08d179d0d1"
+      },
+      {
+        "path": "rod/test_friction_quality.m",
+        "sha256": "ad443dc29158cd0f80efa65f931312b0e30dc19a37ef1bc6ce690270aa707af8"
+      },
+      {
+        "path": "rod/test_friction_regression.m",
+        "sha256": "86496904e18fd6a8e7df0c85643f1167c0ac95e4b0d1bc9d419493b818d76aa1"
+      },
+      {
+        "path": "rod/test_history_resolution.m",
+        "sha256": "36721bb7f211d1e1956e353feea0cc3ce83bbff42436408e5a27460aaf7ac75d"
+      },
+      {
+        "path": "rod/test_integrated_history_point.m",
+        "sha256": "d1be424b1b9a951f4d5951bb73af5d236c8b5403703664e342791387210dfe93"
+      },
+      {
+        "path": "rod/test_intrinsic_curvature_reconstruction.m",
+        "sha256": "a56cab41a64f8a8a2e74754a24a7c02c028633b3c226f517f54aab54ab0628d1"
+      },
+      {
+        "path": "rod/test_latent_fbg_history.m",
+        "sha256": "711993de040b1ca3b35602ebf4f90c015a19327b2a03eaeb691842f8b154414e"
+      },
+      {
+        "path": "rod/test_lcp_dependency.m",
+        "sha256": "4d4a63eb977b18782851481f8c663b7493c50b40a333f0a21936b10f71a05b24"
+      },
+      {
+        "path": "rod/test_multi_contact_map.m",
+        "sha256": "30f9129aae57748a917e60134c230751c9159ac4086bd68447a8c295e38f1865"
+      },
+      {
+        "path": "rod/test_noise_aware_contact.m",
+        "sha256": "df9fc9ab51b78b7adbf60214d0a85c5f1e9255c7e1e8c29d8d9bef4181027722"
+      },
+      {
+        "path": "rod/test_nonlinear_shape_seed.m",
+        "sha256": "5ceb546aa3658fbf5f00b0653fd26c7808ddf332ba8f2ae7d35ab08b14e315b2"
+      },
+      {
+        "path": "rod/test_observation_scaled_map.m",
+        "sha256": "f7778a19cf990544e6d153bb45f6c86fc9f5710c46292283526754b99666d187"
+      },
+      {
+        "path": "rod/test_planar_energy_rod.m",
+        "sha256": "cf35d5cafc6d2c0089842cf8195961f1b531ed3916b1dd0bb795b52c4b017f22"
+      },
+      {
+        "path": "rod/test_plane_contact_geometry.m",
+        "sha256": "cfbef5a1847b6d5d66e16014a1cebe6d2e2cd74c95e01a657f8d896c76bcc051"
+      },
+      {
+        "path": "rod/test_reduced_mode_bounds.m",
+        "sha256": "4dd292320cb1b709ebe24a822a1b8c52ffff77fa89e34abb8adf6ed031aa735e"
+      },
+      {
+        "path": "rod/test_result_integrity.m",
+        "sha256": "1f93b68ae21fe3a285abe833899939302faf8598bc0edb7288cf9818f2593aa4"
+      },
+      {
+        "path": "rod/test_result_lifecycle.m",
+        "sha256": "34009c2bf7c6c0f8adbb145520d2a6c60040f1bf24944239bcdb8ceccc672173"
+      },
+      {
+        "path": "rod/test_reverse_slide.m",
+        "sha256": "2dbf0b6dfaf1c6f1921637da48d5633be259838103628e069403d8a02351f0e3"
+      },
+      {
+        "path": "rod/test_rotation_equivariance.m",
+        "sha256": "599cff45106ae537b1a61b42cee47fe35df06f9ef5e1a4468f8c337cb714096a"
+      },
+      {
+        "path": "rod/test_sensor_config.m",
+        "sha256": "dd467dde3ced1778c85b0ecde78482065496117ea6739f1d40227d5e0a957e5b"
+      },
+      {
+        "path": "rod/test_sensor_contracts.m",
+        "sha256": "431b212c0bbb789017f5b111ebbbc619df8a201d83b4624942e4caa921a8eadd"
+      },
+      {
+        "path": "rod/test_sensor_history_boundary.m",
+        "sha256": "39407e7c42bc72f74a41cb2681f8b81d72172b1e7df711e3021aac5bfcc07205"
+      },
+      {
+        "path": "rod/test_sensor_replay.m",
+        "sha256": "2a5c9d94a9177f03370659d0c96260f14e4d29eed49ca35298d9322077ab0a61"
+      },
+      {
+        "path": "rod/validate_aloi_gaussian_baseline.m",
+        "sha256": "a6f95b36aa2576d6c4b62d02e9184b0bb43898f45f49162f5b6596ce920f2edd"
+      },
+      {
+        "path": "rod/validate_friction.m",
+        "sha256": "159f9b42329a6f5a80941903f575ca99ace43464400b0ebbf65638da2db4be28"
+      },
+      {
+        "path": "rod/validate_lcp_dependency.m",
+        "sha256": "9e4e55be185ea92fa1c2ea3506b13902bdabc4fa73d2ee573d94b3272b9db1b9"
+      },
+      {
+        "path": "rod/validate_plane_geometry_run.m",
+        "sha256": "22b08bdf679fe83032d0fcd2a8037a63baa15db46141720c04a068574e2f5696"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_forward.m",
+        "sha256": "3ca08e902c838d20e3a550c2cd06b4ba0e1db3995ce2195eac0e7117dbd460b2"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_inverse.m",
+        "sha256": "fa8d06d185de218b3073eb4aaec5a771ff29b819394a83442f0dafa441c6e305"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_results.m",
+        "sha256": "10b9fc97a2c00f28dd385174dc93512a4f67b705793cd341faedff33cae2cfe6"
+      },
+      {
+        "path": "rod/validate_sensor_config.m",
+        "sha256": "b4f492a607ee0cd905572b98950c79aa5fe2f801b7402efa0d1271a51f557628"
+      },
+      {
+        "path": "force.m",
+        "sha256": "aa405e6a100ee28c628dd2639c800396f95762e34aebbe943d84f768fd893848"
+      }
+    ],
+    "sourceScope": "Code present when this operation started; historical input provenance is separate."
+  },
+  "cases": [
+    {
+      "id": "ceiling_hook",
+      "completed": true,
+      "methods": [
+        {
+          "name": "EnFiRCE",
+          "contactRmseN": 0.019046805605006416,
+          "tipRmseN": 0.030427964296793522,
+          "totalRmseN": 0.045618448625009828,
+          "meanFrameSeconds": 37.9387324,
+          "medianFrameSeconds": 39.5423605,
+          "reviewRate": 0.66666666666666663,
+          "contactForceN": [
+            [
+              0,
+              -2.5774838538456049E-5,
+              -1.3945796730551303E-5
+            ],
+            [
+              0,
+              4.7134454947557033E-12,
+              -4.1750997623312311E-9
+            ],
+            [
+              0,
+              -3.9950643127335539,
+              -7.8719079134180516
+            ]
+          ],
+          "tipForceN": [
+            [
+              0.99992165053616833,
+              1.0080424316181242,
+              1.0084098467921438
+            ],
+            [
+              -5.4171673493591346E-10,
+              -9.52372722042827E-11,
+              9.5391430627854565E-9
+            ],
+            [
+              -0.999172111654387,
+              -0.969957332951592,
+              -0.95829959924403108
+            ]
+          ],
+          "totalForceN": [
+            [
+              0.99992165053616833,
+              1.0080166567795859,
+              1.0083959009954133
+            ],
+            [
+              -5.4171673493591346E-10,
+              -9.0523826709526991E-11,
+              5.3640433004542254E-9
+            ],
+            [
+              -0.999172111654387,
+              -4.9650216456851464,
+              -8.8302075126620831
+            ]
+          ]
+        },
+        {
+          "name": "shape-only point-load",
+          "contactRmseN": 1.0686741782489424,
+          "tipRmseN": 1.0678810809216954,
+          "totalRmseN": 0.027133726530456127,
+          "meanFrameSeconds": 0.0081758333333333336,
+          "medianFrameSeconds": 0.0076967,
+          "reviewRate": 0,
+          "contactForceN": [
+            [
+              0.98710585955324126,
+              0.64358970121197534,
+              0.50851753909299824
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              -0.98709770163203447,
+              -4.6599179579036427,
+              -8.5132605787879214
+            ]
+          ],
+          "tipForceN": [
+            [
+              0.012892811226666084,
+              0.3693851510552828,
+              0.50043339088401639
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              -0.012892704674365681,
+              -0.32994298267489608,
+              -0.386705369957834
+            ]
+          ],
+          "totalForceN": [
+            [
+              0.99999867077990734,
+              1.0129748522672581,
+              1.0089509299770145
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              -0.99999040630640013,
+              -4.9898609405785388,
+              -8.8999659487457556
+            ]
+          ]
+        },
+        {
+          "name": "Aloi-style Gaussian shape fit",
+          "contactRmseN": 1.6889652597511957,
+          "tipRmseN": 1.4142135623730951,
+          "totalRmseN": 0.60246657099140111,
+          "meanFrameSeconds": null,
+          "medianFrameSeconds": null,
+          "reviewRate": 0,
+          "contactForceN": [
+            [
+              1.5722639410006194,
+              1.4963134000979839,
+              1.5169689536034214
+            ],
+            [
+              -2.4704999084830196E-60,
+              1.6874923226651705E-62,
+              -4.5208593544027538E-70
+            ],
+            [
+              -0.68073452554706892,
+              -4.8090813312698311,
+              -8.56369297700159
+            ]
+          ],
+          "tipForceN": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "totalForceN": [
+            [
+              1.5722639410006194,
+              1.4963134000979839,
+              1.5169689536034214
+            ],
+            [
+              -2.4704999084830196E-60,
+              1.6874923226651705E-62,
+              -4.5208593544027538E-70
+            ],
+            [
+              -0.68073452554706892,
+              -4.8090813312698311,
+              -8.56369297700159
+            ]
+          ]
+        }
+      ],
+      "seconds": 151.1525115
+    }
+  ],
+  "scope": "Identical saved sensor packets; shape-only and Gaussian baselines have no environment observations.",
+  "caseCount": 1,
+  "successCount": 1
+}

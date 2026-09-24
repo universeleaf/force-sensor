@@ -3,11 +3,11 @@ function results = run_rod_plane_force_sensing_experiment(quickMode, overrides)
 % Rod-plane validation for the full constrained EKF/MAP force formulation.
 %
 % The forward trajectory is generated with Jia Shen's LCP-Continuum
-% rod_plane contact model. The inverse part is intentionally separated from
-% that solver: it receives simulated sparse FBG curvature data and a plane
-% measurement, then solves the iterated constrained EKF/MAP problem
-% from Formulation.pdf with a nonlinear Cosserat forward model, unilateral
-% contact, and Coulomb friction complementarity constraints.
+% rod_plane contact model. The inverse receives sparse simulated curvature,
+% a plane measurement, and sparse reconstructed preceding sensor history.
+% Exact preceding forward shape is available only in explicit oracle mode.
+% The iterated constrained EKF/MAP uses a predecessor-linearized mechanical
+% map, nonlinear shape integration, and contact/friction complementarity.
 %
 % Usage:
 %   results = run_rod_plane_force_sensing_experiment();
@@ -21,13 +21,77 @@ if nargin < 2
     overrides = struct;
 end
 
-clc;
-close all;
-
 packageDir = fileparts(mfilename('fullpath'));
 rootDir = resolveRepositoryRoot(packageDir);
-lcpDir = fullfile(rootDir, 'LCP-Continuum');
-addpath(genpath(lcpDir));
+lcpDependency = validate_lcp_dependency(rootDir);
+
+if ischar(quickMode) && strcmpi(quickMode, 'sensor-config')
+    % Public calibrated-sensor defaults; no saved experiment or force labels.
+    results=sensor_estimator_config(defaultExperimentConfig(rootDir,false));
+    return;
+end
+
+if ischar(quickMode) && strcmpi(quickMode, 'replay-sensors')
+    % This entry takes no forward result. The packet and calibration are
+    % sufficient to reproduce every estimate, including its history.
+    cfg=defaultExperimentConfig(rootDir,false);
+    cfg=mergeStructRecursive(cfg,sensor_estimator_config(overrides.config));
+    cfg.lcpDependency = lcpDependency;
+    cfg.forward.sourceRevision = lcpDependency.sourceRevision;
+    validate_sensor_config(cfg);
+    measurements=measurements_from_sensor_packet(overrides.tube,overrides.packet,cfg);
+    cfg.forceSensor.normalReference=measurements.planeNormalMeasured(:,1);
+    cfg.forceSensor.fbgIdx=measurements.fbgIdx;
+    results.ours=estimateForcesWithShapeAndEnvironment(overrides.tube,measurements,cfg);
+    results.measurements=measurements;
+    results.config=sensor_estimator_config(cfg);
+    return;
+end
+
+if ischar(quickMode) && strcmpi(quickMode, 'jacobian-audit')
+    d=load(overrides,'results'); r=d.results;
+    % Archived results predate mechanicsModel/historyPointInterpolation and
+    % several other config fields.  Migrate them onto the current defaults
+    % while preserving every field explicitly saved with the fixture.
+    cfg=mergeStructRecursive(defaultExperimentConfig(rootDir,false),r.config);
+    cfg=normalizeExperimentConfig(cfg);
+    tube=make_experiment_tube(cfg);
+    it=size(r.ours.state,2); tube.T_base=r.measurements.baseTraj(:,:,it);
+    cfg=configForMeasurementFrame(cfg,r.measurements,it);
+    x=r.ours.state(:,it); prev=r.measurements.previousShape{it};
+    H=finiteDifferenceMeasurementJacobian(tube,x,cfg,prev);
+    cached=preparePreviousMechanics(tube,prev);
+    cachedH=finiteDifferenceMeasurementJacobian(tube,x,cfg,cached);
+    results.cachedJacobianMaxDifference=max(abs(H-cachedH),[],'all');
+    assert(results.cachedJacobianMaxDifference<1e-12,'Predecessor cache changed the mechanical map.');
+    ref=coordinateMeasurementJacobian(tube,x,cfg,prev);
+    results.relativeError=norm(H-ref,'fro')/max(norm(ref,'fro'),eps);
+    results.columnError=vecnorm(H-ref)./max(vecnorm(ref),eps);
+    [p0,R0]=rigidlyMovePreviousState(prev,tube.T_base);
+    J=computeJacobian(R0,p0); Jc=interpolateJacobianAtArc(J,tube.s,x(6));
+    n=etaToNormal(x(4:5),cfg); D=frictionDirections(n,cfg.forceSensor.numFrictionDirs);
+    A=[Jc'*n,Jc'*D,J(end-2:end,:)'];
+    G=bsxfun(@rdivide,A,getTubeK(tube));
+    rows=reshape(3*r.measurements.fbgIdx(:)'+(-2:0)',[],1);
+    cols=[7:7+cfg.forceSensor.numFrictionDirs,9+cfg.forceSensor.numFrictionDirs:numel(x)];
+    results.forceBlockRelativeError=norm(H(1:numel(rows),cols)-G(rows,:),'fro')/norm(G(rows,:),'fro');
+    disp(results);
+    assert(results.relativeError<1e-3 && results.forceBlockRelativeError<1e-6, ...
+        'Finite differences mix coordinates through cone projection.');
+    return;
+end
+
+if ischar(quickMode) && strcmpi(quickMode, 'render-inverse')
+    saved = load(overrides, 'results');
+    results = saved.results;
+    results.config.rootDir = rootDir;
+    results.config.outputDir = fileparts(char(overrides));
+    results.validation = validate_rod_plane_displacement_results(results);
+    export_inverse_audit(results);
+    plot_friction(results);
+    if results.config.video.enabled, createForceSensingVideo(results); end
+    return;
+end
 
 % Regenerate relocated/saved artifacts without repeating the inverse or Aloi
 % optimization. Validation is rerun and paths/metrics are refreshed.
@@ -40,14 +104,20 @@ if ischar(quickMode) && strcmpi(quickMode, 'render')
     if strcmpi(results.config.forceSensor.solver, 'fmincon')
         results.validation = validate_rod_plane_displacement_results(results);
     end
-    saveExperimentOutputs(results);
+    results=saveExperimentOutputs(results);
     return;
 end
 
 cfg = defaultExperimentConfig(rootDir, quickMode);
 cfg = mergeStructRecursive(cfg, overrides);
 cfg = normalizeExperimentConfig(cfg);
+validate_sensor_config(cfg);
+% Always record the dependency actually resolved on MATLAB's path.  A stale
+% hand-written revision string must not make a saved result irreproducible.
+cfg.lcpDependency = lcpDependency;
+cfg.forward.sourceRevision = lcpDependency.sourceRevision;
 ensureDir(cfg.outputDir);
+runRecord=begin_result_run(cfg.outputDir);
 
 rng(cfg.randomSeed, 'twister');
 
@@ -67,6 +137,13 @@ fprintf('Applied tip load: [%.3f %.3f %.3f] N\n', cfg.tipLoadN);
 
 forward = runForwardRodPlaneSimulation(tube0, obstaclesTruth, cfg);
 measurements = simulateSensingMeasurements(tube0, forward, cfg);
+if isfield(measurements,'sensorPacket')
+    cfg.forceSensor.normalReference=measurements.planeNormalMeasured(:,1);
+    cfg.forceSensor.fbgIdx=measurements.fbgIdx;
+    sensorInput=struct('tube',tube0,'packet',measurements.sensorPacket, ...
+        'config',sensor_estimator_config(cfg));
+    save(fullfile(cfg.outputDir,'sensor_input.mat'),'sensorInput','-v7.3');
+end
 truthConsistency = diagnoseForwardTruthConsistency(tube0, forward, measurements, cfg);
 mapCandidateDiagnostics = diagnoseMapCandidateCosts(tube0, forward, measurements, truthConsistency, cfg);
 
@@ -89,13 +166,21 @@ end
 ours = estimateForcesWithShapeAndEnvironment(tube0, measurements, cfg);
 results = struct('config',cfg,'setup',setupInfo,'forward',forward, ...
     'measurements',measurements,'truthConsistency',truthConsistency, ...
-    'mapCandidateDiagnostics',mapCandidateDiagnostics,'ours',ours);
+    'mapCandidateDiagnostics',mapCandidateDiagnostics,'ours',ours,'runRecord',runRecord);
 errorFinal = norm(ours.totalForceResultant(:,end)-forward.totalForceResultant(:,end));
 results.metrics.ours.finalRelativeErrorPct = ...
     100*errorFinal/max(norm(forward.totalForceResultant(:,end)),eps);
 % Validate the inverse before spending time on the independent baseline.
 if strcmpi(cfg.forceSensor.solver, 'fmincon')
-    results.validation = validate_rod_plane_displacement_results(results);
+    try
+        results.validation = validate_rod_plane_displacement_results(results);
+    catch validationError
+        results.validationFailure = struct('identifier',validationError.identifier, ...
+            'message',validationError.message);
+        results.validation=struct('passed',false,'error',validationError.message);
+        results=save_result_checkpoint(results,cfg.outputDir,'failed_results.mat');
+        rethrow(validationError);
+    end
 end
 if cfg.diagnostics.stopAfterInverse
     results.diagnosticOnly = true;
@@ -105,7 +190,7 @@ aloi = estimate_aloi_gaussian_baseline(tube0, measurements, cfg);
 results.aloi = aloi;
 results.metrics = summarizeExperiment(results);
 
-saveExperimentOutputs(results);
+results=saveExperimentOutputs(results);
 
 fprintf('\n=== Summary ===\n');
 fprintf('Full constrained EKF-MAP final total-load error: %.2f%%\n', ...
@@ -128,10 +213,10 @@ fprintf('Saved results to %s\n', cfg.outputDir);
 end
 
 
-function saveExperimentOutputs(results)
+function results = saveExperimentOutputs(results)
 cfg = results.config;
 ensureDir(cfg.outputDir);
-save(fullfile(cfg.outputDir, 'results.mat'), 'results', '-v7.3');
+results=save_result_checkpoint(results,cfg.outputDir,'results.mat');
 writeSummary(results);
 writeTrajectoryCsv(results);
 plotExperimentResults(results);
@@ -176,7 +261,7 @@ cfg.forward.pushDirection = [1; 0; 0];
 cfg.forward.slideDirection = [0; 0; 1];
 cfg.forward.maxPushStepMm = 0.1;
 cfg.forward.maxSlideStepMm = 0.02;
-cfg.forward.sourceRevision = 'Jia0Shen/LCP-Continuum@14806b3';
+cfg.forward.sourceRevision = 'Jia0Shen/LCP-Continuum@auto-detected';
 
 cfg.video.enabled = true;
 cfg.video.frameRate = 10;
@@ -195,11 +280,16 @@ cfg.sensing.positionNoiseStdMm = 0.0;
 cfg.sensing.planeOffsetBiasMm = 0.0;
 cfg.sensing.planeOffsetNoiseStdMm = 0.0;
 cfg.sensing.shapeSmoothing = 0.0;
+cfg.sensing.curvatureInterpolation = 'intrinsic-delta'; % calibrated unloaded profile
+cfg.sensing.historySource = 'sparse-paired';
+cfg.sensing.samplePeriodSeconds = 0.02; % explicit synthetic acquisition clock
+cfg.sensing.planeNormalNoiseStdDeg = 0;
 
 % Full constrained EKF/MAP parameters. State:
 % x = [p1(3); eta1(2); s1; f1n; beta1(m); lambda1; fe(3)].
 cfg.forceSensor.numFrictionDirs = cfg.frictionConeEdges;
 cfg.forceSensor.contactSearchBandMm = 4.0;
+cfg.forceSensor.contactSeparationGateMm = 0.5;
 cfg.forceSensor.contactHistoryResetMm = 6.0;
 cfg.forceSensor.minContactDepthMm = -1.0;
 cfg.forceSensor.priorStd.planePointMm = [8; 8; 0.25];
@@ -230,12 +320,33 @@ cfg.forceSensor.convergenceTol = 3e-3;
 % Above nonlinear stick drift (~0.001 mm), below the 0.02 mm sliding step.
 % This is a displacement tolerance, not a velocity or an output-frame step.
 cfg.forceSensor.slipToleranceMm = 0.005;
+% Calibrated bending-noise level, separate from the MAP residual weight.
+% Zero retains the legacy deterministic-history model.
+cfg.forceSensor.historyCurvatureStdPerMm = [];
+cfg.forceSensor.slipConfidenceSigma = 3;
+% Optional paired MAP: every observed predecessor FBG channel is latent.
+% Historical packets keep the conditional/fixed-history estimator.
+cfg.forceSensor.historyStateMode = 'fixed';
+cfg.forceSensor.historyPointInterpolation = 'linear'; % historical packet behavior
 cfg.forceSensor.finiteDifferenceStep = [];
 cfg.forceSensor.penalty.inequality = 1e5;
 cfg.forceSensor.penalty.complementarity = 1e5;
 cfg.forceSensor.penalty.lineSearch = [1.0, 0.5, 0.25, 0.1, 0.03, 0.01];
 cfg.forceSensor.solver = 'fmincon';
 cfg.forceSensor.complementaritySolver = 'active-set';
+cfg.forceSensor.mechanicsModel = 'predecessor-linearized';
+cfg.forceSensor.planeContactGeometry = 'point-only'; % archived packet behavior
+cfg.forceSensor.planeCollisionStepMm = 0.5;
+cfg.forceSensor.curvatureObservedAxes = [1 2 3]; % historical planar pseudo-observation
+cfg.forceSensor.mechanicsRelativeTolerance = 2e-7;
+cfg.forceSensor.mechanicsMomentToleranceNmm = 2e-4;
+cfg.forceSensor.mechanicsMaxRhsEvaluations = 50000;
+cfg.forceSensor.mpccRelaxations = [1e-2 1e-4 1e-6 1e-8];
+cfg.forceSensor.mpccLengthScaleMm = 1;
+cfg.forceSensor.mpccForceScaleN = 1;
+cfg.forceSensor.subproblemCoordinates = 'mode-reduced';
+cfg.forceSensor.useShapeOnlySeed = true;
+cfg.forceSensor.useNonlinearShapeSeed = false; % archived packet behavior
 cfg.forceSensor.allowApproximateFallback = false;
 cfg.forceSensor.showProgress = true;
 cfg.forceSensor.fminconProgressInterval = 10;
@@ -286,6 +397,12 @@ end
 
 
 function cfg = normalizeExperimentConfig(cfg)
+if isempty(cfg.forceSensor.historyCurvatureStdPerMm)
+    cfg.forceSensor.historyCurvatureStdPerMm=cfg.sensing.curvatureNoiseStd;
+end
+assert(isscalar(cfg.forceSensor.historyCurvatureStdPerMm) && ...
+    isfinite(cfg.forceSensor.historyCurvatureStdPerMm) && ...
+    cfg.forceSensor.historyCurvatureStdPerMm>=0,'Invalid history curvature standard deviation.');
 cfg.planeNormal = cfg.planeNormal(:) / max(norm(cfg.planeNormal), eps);
 if ~isfield(cfg, 'planePointMm') || isempty(cfg.planePointMm)
     cfg.planePointMm = [0; 0; cfg.wallDistanceMm];
@@ -308,7 +425,7 @@ end
 
 
 function [tube, obstacles, info] = makeRodPlaneScenario(cfg)
-tube = CreatTube(cfg.exposedLengthMm);
+tube = make_experiment_tube(cfg);
 
 baseBendRad = trapz(tube.s, sqrt(sum(tube.uhat(1:2, :).^2, 1)));
 if cfg.scalePrecurvature
@@ -825,6 +942,14 @@ end
 
 
 function measurements = simulateSensingMeasurements(tube0, forward, cfg)
+if strcmpi(cfg.sensing.historySource,'sparse-paired')
+    packet=simulate_sensor_packet(tube0,forward,cfg);
+    measurements=measurements_from_sensor_packet(tube0,packet,cfg);
+    measurements.sensorPacket=packet;
+    return;
+end
+assert(strcmpi(cfg.sensing.historySource,'oracle'), ...
+    'historySource must be sparse-paired or explicitly oracle.');
 fprintf('\nSimulating sparse FBG/environment measurements...\n');
 
 s = tube0.s(:);
@@ -855,7 +980,14 @@ for it = 1:nt
     sparseP = forward.p(:, fbgIdx, it);
     sparseP = sparseP + cfg.sensing.positionNoiseStdMm * randn(size(sparseP));
 
-    uInterp = interpolateCurvature(s, s(fbgIdx), sparseU, cfg.sensing.shapeSmoothing);
+    if strcmpi(cfg.sensing.curvatureInterpolation,'intrinsic-delta')
+        % A calibrated unloaded profile can contain detail between sensors.
+        % Interpolate only deformation; do not erase known intrinsic bends.
+        uInterp = tube0.uhat + interpolateCurvature(s, s(fbgIdx), ...
+            sparseU-tube0.uhat(:,fbgIdx), cfg.sensing.shapeSmoothing);
+    else
+        uInterp = interpolateCurvature(s, s(fbgIdx), sparseU, cfg.sensing.shapeSmoothing);
+    end
     tube = tube0;
     tube.T_base = forward.baseTraj(:, :, it);
     [~, ~, pInterp] = solveShape(tube.T_base, uInterp, tube.s);
@@ -882,11 +1014,14 @@ measurements.baseTraj = forward.baseTraj;
 measurements.betaMm = forward.betaMm;
 measurements.frictionMu = forward.frictionMu;
 measurements.previousShape = forward.previousState;
+measurements.historySource = 'oracle';
 measurements.processStepCount = [forward.internalSampleIndices(1), ...
     diff(forward.internalSampleIndices)];
+measurements.curvatureInterpolation = cfg.sensing.curvatureInterpolation;
 measurements.description = ['Sparse curvature/position samples plus a measured plane offset. ', ...
-    'The dense curvature field is interpolated only from the sparse FBG samples. ', ...
-    'Each frame retains the immediately preceding internal forward state for Eq. (7).'];
+    'Dense curvature reconstruction mode: ', cfg.sensing.curvatureInterpolation, '. ', ...
+    'intrinsic-delta additionally uses the calibrated unloaded curvature profile. ', ...
+    'Each frame receives the exact preceding internal forward shape (oracle history) for Eq. (7) and mechanical linearization.'];
 end
 
 
@@ -894,6 +1029,9 @@ function cfgFrame = configForMeasurementFrame(cfg, measurements, it)
 cfgFrame = cfg;
 if isfield(measurements, 'frictionMu') && numel(measurements.frictionMu) >= it
     cfgFrame.frictionMu = measurements.frictionMu(it);
+end
+if isfield(measurements,'environmentWhitening')
+    cfgFrame.environmentWhitening=measurements.environmentWhitening(:,:,it);
 end
 end
 
@@ -923,7 +1061,7 @@ for it = 1:nt
     prevShape = measurements.previousShape{it};
     contacts = forward.contacts{it};
     planePoint = measurements.planePointMeasured(:, it);
-    n = measurements.planeNormalMeasured(:) / norm(measurements.planeNormalMeasured);
+    n = measuredNormalForFrame(measurements,it);
     eta = normalToEta(n, cfgFrame);
 
     if isempty(contacts)
@@ -1190,7 +1328,7 @@ end
 
 
 function ours = estimateForcesWithShapeAndEnvironment(tube0, measurements, cfg)
-fprintf('\nEstimating contact/tip force with full constrained EKF-MAP formulation...\n');
+fprintf('\nEstimating contact/tip force with constrained EKF-MAP (mode diagnostics retained)...\n');
 
 nt = numel(measurements.betaMm);
 nx = formulationStateSize(cfg);
@@ -1233,6 +1371,19 @@ initializationMerit = nan(1, nt);
 initializationResidualNorm = nan(1, nt);
 priorMean = [];
 priorCovariance = [];
+solverTraces=cell(1,nt); frameSeconds=zeros(1,nt);
+modeResolution=cell(1,nt); activeConstraintResidual=zeros(1,nt);
+frictionKinematicsEnforced=true(1,nt);
+forceSensitivity=cell(1,nt);
+mechanicsDiagnostics=cell(1,nt);
+historyEstimates=cell(1,nt);
+nonlinearSeedInfo=cell(1,nt);
+preprocessingTimer=tic;
+shapeOnlyInitialization=[];
+if cfg.forceSensor.useShapeOnlySeed || cfg.forceSensor.useNonlinearShapeSeed
+    shapeOnlyInitialization=estimate_shape_only_point_loads(tube0,measurements,cfg);
+end
+preprocessingSeconds=toc(preprocessingTimer);
 inverseTimer = tic;
 showProgress = isfield(cfg.forceSensor, 'showProgress') && cfg.forceSensor.showProgress;
 
@@ -1248,7 +1399,34 @@ for it = 1:nt
     tube.T_base = measurements.baseTraj(:, :, it);
     z = measurementVectorForFrame(measurements, it);
     Rdiag = measurementStdVector(measurements, cfgFrame) .^ 2;
+    prevShape=preparePreviousMechanics(tube,prevShape);
     xInit = initializeMapState(tube, measurements, it, cfgFrame, priorMean);
+    if ~isempty(shapeOnlyInitialization)
+        proposal=xInit;
+        proposal(6)=shapeOnlyInitialization.contactArcLength(it);
+        [fnSeed,betaSeed,lambdaSeed]=decomposeContactForceForState( ...
+            shapeOnlyInitialization.contactForceResultant(:,it),measuredNormalForFrame(measurements,it),cfgFrame);
+        proposal(7)=fnSeed;
+        proposal(8:7+cfgFrame.forceSensor.numFrictionDirs)=betaSeed;
+        proposal(8+cfgFrame.forceSensor.numFrictionDirs)=lambdaSeed;
+        proposal(end-2:end)=shapeOnlyInitialization.tipForce(:,it);
+        if cfg.forceSensor.useShapeOnlySeed,cfgFrame.shapeOnlyInitialization=proposal;end
+        if cfg.forceSensor.useNonlinearShapeSeed
+            raw=[shapeOnlyInitialization.contactArcLength(it); ...
+                shapeOnlyInitialization.contactForceResultant(:,it);shapeOnlyInitialization.tipForce(:,it)];
+            [refined,nonlinearSeedInfo{it}]=refine_cosserat_shape_seed(tube, ...
+                measurements.uSparse(:,:,it),measurements.fbgIdx,raw,cfgFrame.forceSensor);
+            if nonlinearSeedInfo{it}.accepted
+                proposal(6)=refined(1);
+                [fnSeed,betaSeed,lambdaSeed]=decomposeContactForceForState( ...
+                    refined(2:4),measuredNormalForFrame(measurements,it),cfgFrame);
+                proposal(7)=fnSeed;proposal(8:7+cfgFrame.forceSensor.numFrictionDirs)=betaSeed;
+                proposal(8+cfgFrame.forceSensor.numFrictionDirs)=lambdaSeed;
+                proposal(end-2:end)=refined(5:7);
+                cfgFrame.nonlinearShapeInitialization=proposal;
+            end
+        end
+    end
     if isempty(priorMean)
         xPrior = initialMapPriorState(xInit, cfgFrame);
         Pminus = diag(stateStdVector(cfgFrame) .^ 2);
@@ -1261,17 +1439,23 @@ for it = 1:nt
 
     progress = struct('frame', it, 'numFrames', nt);
     est = solveConstrainedMapUpdate(tube, xInit, xPrior, Pminus, z, Rdiag, cfgFrame, prevShape, measurements.u(:, :, it), progress);
+    seedPrevious=prevShape;
+    if isfield(est,'historyEstimate')
+        historyEstimates{it}=est.historyEstimate;
+        prevShape=preparePreviousMechanics(tube,est.historyEstimate.shape);
+    end
+    solverTraces{it}=est.solverTrace;
     state(:, it) = est.x;
     posteriorCovariance(:, :, it) = est.Pplus;
     priorMean = est.x;
     priorCovariance = est.Pplus;
 
-    seedDecoded = decodeMapState(est.seed, tube, cfgFrame, prevShape);
+    seedDecoded = decodeMapState(est.seed, tube, cfgFrame, seedPrevious);
     seedContactForce(:, it) = seedDecoded.contactForce;
     seedTipForce(:, it) = seedDecoded.tipForce;
     seedTotalForce(:, it) = seedDecoded.totalForce;
     seedContactArcLength(it) = seedDecoded.s1;
-    seedMeasurementNorm(it) = norm((z - mapMeasurementModel(tube, est.seed, cfgFrame, prevShape)) ./ sqrt(Rdiag));
+    seedMeasurementNorm(it) = norm((z - mapMeasurementModel(tube, est.seed, cfgFrame, seedPrevious)) ./ sqrt(Rdiag));
     seedNormalComplementarity(it) = abs(seedDecoded.gap * seedDecoded.fn);
     seedFrictionComplementarity(it) = norm(seedDecoded.frictionW(:) .* seedDecoded.beta(:));
     seedConeComplementarity(it) = abs(seedDecoded.frictionConeSlack * seedDecoded.lambda);
@@ -1279,10 +1463,16 @@ for it = 1:nt
     finalMerit(it) = est.nonlinearMerit;
     initializationName{it} = est.initInfo.name;
     complementarityModeName{it} = est.complementarityMode.name;
+    modeResolution{it}=est.complementarityMode;
+    activeConstraintResidual(it)=est.activeConstraintResidual;
+    frictionKinematicsEnforced(it)=~strcmp(est.complementarityMode.name,'unresolved-contact');
     initializationMerit(it) = est.initInfo.cost;
     initializationResidualNorm(it) = est.initInfo.residualNorm;
 
     decoded = decodeMapState(est.x, tube, cfgFrame, prevShape);
+    mechanicsDiagnostics{it}=struct('model',decoded.mechanics.mechanics, ...
+        'tipMomentResidualNmm',decoded.mechanics.tipMomentResidualNmm);
+    [~,~,mechanicsDiagnostics{it}.planeGeometry]=plane_contact_constraints(decoded,cfgFrame.forceSensor);
     contactForce(:, it) = decoded.contactForce;
     normalForceVector(:, it) = decoded.n * decoded.fn;
     frictionForceVector(:, it) = decoded.D * decoded.beta;
@@ -1290,7 +1480,22 @@ for it = 1:nt
     frictionConeViolation(it) = max(0, -decoded.frictionConeSlack);
     tipForce(:, it) = decoded.tipForce;
     totalForce(:, it) = decoded.contactForce + decoded.tipForce;
-    contactArcLength(it) = tube.s(est.contactIdx);
+    contactArcLength(it) = decoded.s1;
+    % The force interval must use the effective curvature uncertainty that
+    % actually weights the current FBG likelihood. The history-only noise can
+    % be zero in a clean simulation while the declared model-error floor is
+    % still positive; using the former silently disables coverage reporting.
+    sigmaCurvature=cfgFrame.forceSensor.historyCurvatureStdPerMm;
+    if isfield(cfgFrame.forceSensor,'measurementStd') && ...
+            isfield(cfgFrame.forceSensor.measurementStd,'curvature')
+        sigmaCurvature=max(sigmaCurvature,cfgFrame.forceSensor.measurementStd.curvature);
+    end
+    forceSensitivity{it}=force_sensitivity_diagnostic(tube,prevShape.forceMapJacobian, ...
+        decoded.s1,measurements.fbgIdx,sigmaCurvature);
+    if strcmp(cfgFrame.forceSensor.mechanicsModel,'cosserat-shooting')
+        forceSensitivity{it}=nonlinear_force_sensitivity(tube,decoded,measurements.fbgIdx, ...
+            sigmaCurvature,cfgFrame.forceSensor);
+    end
     contactIndex(it) = est.contactIdx;
     contactPoint(:, it) = est.contactPoint;
     estimatedP(:, :, it) = decoded.p;
@@ -1305,6 +1510,15 @@ for it = 1:nt
     coneComplementarity(it) = abs(decoded.frictionConeSlack * decoded.lambda);
     measurementNorm(it) = norm(est.measurementResidual ./ sqrt(Rdiag));
     cost(it) = est.cost;
+    frameSeconds(it)=toc(frameTimer);
+    if isfield(cfg.forceSensor,'frameCheckpointDirectory')&&~isempty(cfg.forceSensor.frameCheckpointDirectory)
+        % A partial frame artifact is explicit; it is never advertised as a
+        % completed estimator output. Later failures cannot erase this work.
+        checkpoint=struct('state','frame-complete','frameIndex',it,'frameCount',nt, ...
+            'estimate',est,'mechanics',mechanicsDiagnostics{it},'seconds',frameSeconds(it));
+        atomic_write_artifact(fullfile(cfg.forceSensor.frameCheckpointDirectory, ...
+            sprintf('frame_%03d.mat',it)),'mat',checkpoint);
+    end
     if showProgress
         fprintf(['  inverse frame %3d/%3d done in %.1f s, s=%.2f mm, ', ...
             'contact=[%.3f %.3f %.3f] N, tip=[%.3f %.3f %.3f] N, ', ...
@@ -1321,6 +1535,10 @@ end
 
 ours = struct;
 ours.state = state;
+ours.solverTrace=solverTraces;
+ours.preprocessingSeconds=preprocessingSeconds;
+ours.frameSeconds=frameSeconds;
+ours.mechanicsDiagnostics=mechanicsDiagnostics;
 ours.posteriorCovariance = posteriorCovariance;
 ours.forceResultant = contactForce;
 ours.contactForceResultant = contactForce;
@@ -1349,6 +1567,22 @@ ours.seedMerit = seedMerit;
 ours.finalMerit = finalMerit;
 ours.initializationName = initializationName;
 ours.complementarityMode = complementarityModeName;
+ours.modeResolution=modeResolution;
+ours.activeConstraintResidual=activeConstraintResidual;
+ours.frictionKinematicsEnforced=frictionKinematicsEnforced;
+ours.forceSensitivity=forceSensitivity;
+ours.historyCurvatureStdPerMm=cfg.forceSensor.historyCurvatureStdPerMm;
+ours.historyEstimate=historyEstimates;
+ours.nonlinearSeedInfo=nonlinearSeedInfo;
+ours.historyStateMode=cfg.forceSensor.historyStateMode;
+ours.historyPointInterpolation=cfg.forceSensor.historyPointInterpolation;
+ours.historyUncertaintyModeled=any(~cellfun(@isempty,historyEstimates));
+ours.environmentCovarianceUsed=isfield(measurements,'environmentWhitening');
+ours.uncertaintyScope='First-order paired bending-noise propagation for mode resolution only; force covariance remains conditional on reconstructed history and selected branch.';
+if ours.historyUncertaintyModeled
+    ours.uncertaintyScope=['Predecessor sparse FBG values jointly optimized with a Gaussian observation likelihood and full contact complementarity. ', ...
+        'Reported state covariance is the current observation/prior information approximation; it does not include constraint curvature, history marginalization or mode mixtures.'];
+end
 ours.initializationMerit = initializationMerit;
 ours.initializationResidualNorm = initializationResidualNorm;
 ours.gap = gap;
@@ -1361,7 +1595,15 @@ ours.cost = cost;
 ours.frictionMu = measurements.frictionMu;
 ours.processStepCount = measurements.processStepCount;
 ours.stateDescription = '[p1(3); eta1(2); s1; f1n; beta1(m); lambda1; fe(3)]';
-ours.methodDescription = 'Full iterated constrained EKF/MAP from Formulation.pdf eqs. (19)-(29).';
+ours.methodDescription = ['Iterated constrained EKF/MAP from Formulation.pdf eqs. (19)-(29), ', ...
+    'using a predecessor-linearized force-to-curvature map and nonlinear shape integration.'];
+if strcmp(cfg.forceSensor.mechanicsModel,'cosserat-shooting')
+    ours.methodDescription=['Nonlinear 3-D Cosserat boundary-value mechanics with current-shape equilibrium; ', ...
+        'sensor/plane Gaussian MAP, random-walk temporal prior, solver ',cfg.forceSensor.complementaritySolver,'.'];
+end
+if ours.historyUncertaintyModeled
+    ours.methodDescription=[ours.methodDescription,' Paired latent-FBG MAP; all observed predecessor channels optimized.'];
+end
 end
 
 
@@ -1370,12 +1612,24 @@ nx = 3 + 2 + 1 + 1 + cfg.forceSensor.numFrictionDirs + 1 + 3;
 end
 
 
+function n = measuredNormalForFrame(measurements,it)
+n=measurements.planeNormalMeasured(:,min(it,size(measurements.planeNormalMeasured,2)));
+n=n/norm(n);
+end
+
+
 function z = measurementVectorForFrame(measurements, it)
-z = measurements.uSparse(:, :, it);
+axes=1:3;
+if isfield(measurements,'observedCurvatureAxes'),axes=measurements.observedCurvatureAxes;end
+z = measurements.uSparse(axes, :, it);
 z = z(:);
 planePoint = measurements.planePointMeasured(:, it);
-normalVector = measurements.planeNormalMeasured(:) / norm(measurements.planeNormalMeasured);
-z = [z; planePoint; normalVector];
+normalVector = measuredNormalForFrame(measurements,it);
+environment=[planePoint;normalVector];
+if isfield(measurements,'environmentWhitening')
+    environment=measurements.environmentWhitening(:,:,it)*environment;
+end
+z = [z; environment];
 end
 
 
@@ -1388,7 +1642,7 @@ end
 function x = initializeMapState(tube, measurements, it, cfg, priorMean)
 u = measurements.u(:, :, it);
 p = measurements.p(:, :, it);
-normal = measurements.planeNormalMeasured;
+normal = measuredNormalForFrame(measurements,it);
 eta = normalToEta(normal, cfg);
 
 planePoint = measurements.planePointMeasured(:, it);
@@ -1476,21 +1730,26 @@ end
 
 
 function est = solveConstrainedMapUpdate(tube, xInit, xPrior, Pminus, z, Rdiag, cfg, prevShape, measuredU, progress)
-% Full iterated constrained EKF/MAP update from Formulation.pdf eqs. (19)-(29).
+% Iterated constrained EKF/MAP based on Formulation.pdf eqs. (19)-(29).
 % Each iteration linearizes h(x), solves the constrained MAP subproblem with
-% unilateral contact and Coulomb-friction complementarity constraints, then
-% updates the posterior covariance from the final measurement Jacobian.
+% unilateral contact and mode-dependent Coulomb constraints, then updates
+% conditional covariance. Unresolved modes enforce only contact and the cone.
 if nargin < 10
     progress = struct('frame', nan, 'numFrames', nan);
 end
 showProgress = isfield(cfg.forceSensor, 'showProgress') && cfg.forceSensor.showProgress;
 seed = solveReducedShapeKnownMapUpdate(tube, xInit, xPrior, z, cfg, measuredU);
+if strcmp(cfg.forceSensor.complementaritySolver,'scholtes')
+    est=solveNonlinearFormulationMap(tube,xInit,xPrior,Pminus,z,Rdiag,cfg,prevShape,seed);
+    return;
+end
 modeReference = xPrior;
 if seed.x(7) > modeReference(7)
     modeReference = seed.x;
 end
 complementarityMode = selectComplementarityMode( ...
     tube, modeReference, cfg, prevShape, measuredU, xInit);
+cfg.contactModeUnresolved=strcmp(complementarityMode.name,'unresolved-contact');
 [x, initInfo] = chooseInitialMapLinearization(tube, xInit, xPrior, seed.x, ...
     xPrior, Pminus, z, Rdiag, cfg, prevShape, complementarityMode);
 startCandidates = mapStartCandidates(x, xInit, xPrior, seed.x, cfg, tube, prevShape);
@@ -1499,6 +1758,7 @@ if showProgress
         progress.frame, progress.numFrames, initInfo.name, initInfo.cost, initInfo.residualNorm);
 end
 
+solverTrace=cell(1,cfg.forceSensor.maxEkfIterations);
 for iter = 1:cfg.forceSensor.maxEkfIterations
     if showProgress
         fprintf('    frame %3d/%3d EKF iter %d/%d: linearizing h(x)\n', ...
@@ -1508,12 +1768,14 @@ for iter = 1:cfg.forceSensor.maxEkfIterations
     h0 = mapMeasurementModel(tube, xLinearization, cfg, prevShape);
     H = finiteDifferenceMeasurementJacobian(tube, xLinearization, cfg, prevShape);
     progress.ekfIter = iter;
-    xProposal = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, ...
+    [xProposal,solverInfo] = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, ...
         xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress, ...
         startCandidates, complementarityMode);
     [xNext, acceptedAlpha, acceptedCost] = acceptDampedMapStep(tube, ...
         xLinearization, xProposal, xPrior, Pminus, z, Rdiag, cfg, ...
         prevShape, complementarityMode);
+    solverInfo.acceptedAlpha=acceptedAlpha; solverInfo.acceptedCost=acceptedCost;
+    solverTrace{iter}=solverInfo;
     step = (xNext - xLinearization) ./ stateScaleVector(cfg);
     x = projectMapState(xNext, tube, cfg);
     if showProgress
@@ -1538,6 +1800,7 @@ est.x = x;
 est.Pplus = Pplus;
 est.cost = fullMapCost(x, xPrior, Pminus, z, Rdiag, hFinal);
 est.iterations = iter;
+est.solverTrace=solverTrace(1:iter);
 est.contactIdx = decoded.idx;
 est.contactPoint = decoded.pc;
 est.surfaceGap = decoded.gap;
@@ -1547,8 +1810,124 @@ est.seed = seed.x;
 est.seedInfo = seed;
 est.initInfo = initInfo;
 est.complementarityMode = complementarityMode;
+[activeC,activeEq]=activeSetMapConstraints(tube,x,cfg,prevShape,complementarityMode);
+est.activeConstraintResidual=max([0;activeC(:);abs(activeEq(:))]);
 est.nonlinearMerit = nonlinearMapMerit(tube, x, xPrior, Pminus, z, Rdiag, cfg, prevShape);
 est.seedMerit = nonlinearMapMerit(tube, seed.x, xPrior, Pminus, z, Rdiag, cfg, prevShape);
+end
+
+
+function est=solveNonlinearFormulationMap(tube,xInit,xPrior,Pminus,z,Rdiag,cfg,prevShape,seed)
+% Solve the nonlinear MAP itself (19), without fixing the active contact mode.
+mode=struct('name','product-mpcc','activeDirection',[]);
+cfg.contactModeUnresolved=false;
+[x0,initInfo]=chooseInitialMapLinearization(tube,xInit,xPrior,seed.x, ...
+    xPrior,Pminus,z,Rdiag,cfg,prevShape,mode);
+if cfg.forceSensor.showProgress
+    fprintf('    nonlinear MAP initial candidate: %s, residual %.4g\n',initInfo.name,initInfo.residualNorm);
+end
+[lb,ub]=stateBounds(tube,cfg);
+PInv=pinvSym(Pminus);
+if strcmp(cfg.forceSensor.historyStateMode,'latent-fbg')&&cfg.forceSensor.historyCurvatureStdPerMm>0
+    est=solveLatentHistoryMap(tube,x0,xPrior,Pminus,z,Rdiag,cfg,prevShape,seed,initInfo,lb,ub,PInv);
+    return;
+end
+objective=@(x)nonlinearObjective(x);
+solverCfg=cfg.forceSensor; solverCfg.currentMu=cfg.frictionMu;
+[solverScale,scalingInfo]=nonlinearSolverScale(tube,x0,PInv,Rdiag,cfg,prevShape);
+[x,info]=solve_contact_mpcc(x0,objective,@(v)decodeMapState(v,tube,cfg,prevShape), ...
+    {lb,ub},solverScale,solverCfg);
+info.stateScaling=scalingInfo;
+d=decodeMapState(x,tube,cfg,prevShape); h=mapMeasurementModel(tube,x,cfg,prevShape);
+H=finiteDifferenceMeasurementJacobian(tube,x,cfg,prevShape);
+[c,ceq]=fullMapConstraints(tube,x,cfg,prevShape);
+if d.fn<1e-4,mode.name='no-contact';
+elseif cfg.frictionMu==0,mode.name='frictionless-contact';
+elseif norm(d.vTangential)<1e-4,mode.name='sticking-contact';
+else,mode.name='sliding-contact';end
+mode.activeDirection=find(d.beta>1e-5)';
+mode.selection='Inferred after full nonlinear MPCC optimization, not prescribed.';
+est=struct('x',x,'Pplus',posteriorCovarianceFromLinearization(Pminus,Rdiag,H), ...
+    'cost',objective(x),'iterations',numel(info.homotopyTrace),'solverTrace',{{info}}, ...
+    'contactIdx',d.idx,'contactPoint',d.pc,'surfaceGap',d.gap,'measurementResidual',z-h, ...
+    'constraintResidual',complementarityResidual(d),'seed',seed.x,'seedInfo',seed, ...
+    'initInfo',initInfo,'complementarityMode',mode, ...
+    'activeConstraintResidual',max([0;c(:);abs(ceq(:))]), ...
+    'nonlinearMerit',nonlinearMapMerit(tube,x,xPrior,Pminus,z,Rdiag,cfg,prevShape), ...
+    'seedMerit',nonlinearMapMerit(tube,seed.x,xPrior,Pminus,z,Rdiag,cfg,prevShape));
+    function value=nonlinearObjective(v)
+        e=v-xPrior; residual=z-mapMeasurementModel(tube,v,cfg,prevShape);
+        value=0.5*(e'*PInv*e+sum(residual.^2./Rdiag));
+    end
+end
+
+
+function est=solveLatentHistoryMap(tube,x0,xPrior,Pminus,z,Rdiag,cfg,previous,seed,initInfo,lb,ub,PInv)
+% Joint (current physical state, predecessor sparse curvature) MAP. Current
+% shape obeys the full nonlinear Cosserat BVP; history enters exact friction
+% kinematics through its reconstructed world shape. No prescribed mode,
+% low-rank truncation or hard bound on standardized Gaussian corrections.
+nx=numel(x0); history=latent_fbg_history(tube,previous,cfg); nh=history.count;
+y0=[x0;zeros(nh,1)]; bounds={[lb;-inf(nh,1)],[ub;inf(nh,1)]};
+solverCfg=cfg.forceSensor;solverCfg.currentMu=cfg.frictionMu;
+[solverScale,scalingInfo]=nonlinearSolverScale(tube,x0,PInv,Rdiag,cfg,previous);
+[y,info]=solve_contact_mpcc(y0,@objective,@decode,bounds, ...
+    [solverScale;ones(nh,1)],solverCfg);
+info.stateScaling=scalingInfo;
+x=y(1:nx);q=y(nx+1:end);latent=history.shape(q);d=decode(y);
+h=mapMeasurementModel(tube,x,cfg,latent);
+H=finiteDifferenceMeasurementJacobian(tube,x,cfg,latent);
+[c,ceq]=fullMapConstraints(tube,x,cfg,latent);
+mode=struct('name','no-contact','activeDirection',find(d.beta>1e-5)', ...
+    'selection','Inferred after joint current-state/predecessor-FBG full MPCC optimization.');
+if d.fn>=1e-4
+    if cfg.frictionMu==0,mode.name='frictionless-contact';
+    elseif norm(d.vTangential)<1e-4,mode.name='sticking-contact';
+    else,mode.name='sliding-contact';end
+end
+correction=latent.sparseU-previous.sparseU;
+measuredHistoryDecoded=decodeMapState(x,tube,cfg,previous);
+historyEstimate=struct('shape',latent,'standardizedCorrection',q, ...
+    'correctionPerMm',correction,'observedAxes',history.observedAxes, ...
+    'negativeLogLikelihood',0.5*(q'*q),'rmsCorrectionSigma',sqrt(mean(q.^2)), ...
+    'maxCorrectionSigma',max(abs(q)),'latentDimension',nh, ...
+    'measuredTangentialStepMm',measuredHistoryDecoded.vTangential, ...
+    'estimatedTangentialStepMm',d.vTangential, ...
+    'scope','Paired kinematic history MAP; no predecessor force equilibrium or full trajectory smoothing.');
+value=objective(y);
+merit=value+cfg.forceSensor.penalty.inequality*sum(max(c,0).^2)+ ...
+    cfg.forceSensor.penalty.complementarity*sum(ceq.^2);
+est=struct('x',x,'Pplus',posteriorCovarianceFromLinearization(Pminus,Rdiag,H), ...
+    'cost',value,'iterations',numel(info.homotopyTrace),'solverTrace',{{info}}, ...
+    'contactIdx',d.idx,'contactPoint',d.pc,'surfaceGap',d.gap,'measurementResidual',z-h, ...
+    'constraintResidual',complementarityResidual(d),'seed',seed.x,'seedInfo',seed, ...
+    'initInfo',initInfo,'complementarityMode',mode,'historyEstimate',historyEstimate, ...
+    'activeConstraintResidual',max([0;c(:);abs(ceq(:))]),'nonlinearMerit',merit, ...
+    'seedMerit',nonlinearMapMerit(tube,seed.x,xPrior,Pminus,z,Rdiag,cfg,previous));
+    function value=objective(v)
+        e=v(1:nx)-xPrior;
+        % With nonlinear current equilibrium h is independent of history.
+        residual=z-mapMeasurementModel(tube,v(1:nx),cfg,previous);
+        value=0.5*(e'*PInv*e+sum(residual.^2./Rdiag)+sum(v(nx+1:end).^2));
+    end
+    function decoded=decode(v)
+        decoded=decodeMapState(v(1:nx),tube,cfg,history.shape(v(nx+1:end)));
+    end
+end
+
+
+function [scale,info]=nonlinearSolverScale(tube,x,PInv,Rdiag,cfg,previous)
+% Diagonal information scaling changes coordinates only, not the MAP model.
+% Prior scales alone can give very large objective curvature after tight FBG
+% calibration. Normalize each independent state's local information column.
+scale=stateScaleVector(cfg);
+enabled=isfield(cfg.forceSensor,'useObservationScaling')&&cfg.forceSensor.useObservationScaling;
+if enabled
+    H=finiteDifferenceMeasurementJacobian(tube,x,cfg,previous);
+    information=sum(H.^2./Rdiag(:),1)'+max(0,diag(PInv));
+    scale=min(scale,1./sqrt(max(information,realmin)));
+end
+info=struct('observationScaled',enabled,'scale',scale);
 end
 
 
@@ -1564,6 +1943,14 @@ xZeroForce(7:end) = 0;
 names = [names, {'zero_force'}];
 candidates = [xPriorCandidate(:), xInit(:), xSeed(:), xSeedProjected(:), ...
     0.5 * (xPriorCandidate(:) + xSeedProjected(:)), xZeroForce];
+if isfield(cfg,'shapeOnlyInitialization')
+    names{end+1}='shape_only_seed';
+    candidates(:,end+1)=cfg.shapeOnlyInitialization;
+end
+if isfield(cfg,'nonlinearShapeInitialization')
+    names{end+1}='nonlinear_shape_seed';
+    candidates(:,end+1)=cfg.nonlinearShapeInitialization;
+end
 
 bestValue = inf;
 xBest = projectMapState(candidates(:, 1), tube, cfg);
@@ -1575,8 +1962,13 @@ for j = 1:size(candidates, 2)
         xCandidate = projectToComplementarityMode( ...
             xCandidate, tube, cfg, prevShape, complementarityMode);
     end
-    h = mapMeasurementModel(tube, xCandidate, cfg, prevShape);
-    [c, ceq] = fullMapConstraints(tube, xCandidate, cfg, prevShape);
+    try
+        h = mapMeasurementModel(tube, xCandidate, cfg, prevShape);
+        [c, ceq] = fullMapConstraints(tube, xCandidate, cfg, prevShape);
+    catch err
+        if ~strcmp(err.identifier,'rod:CosseratEquilibrium'),rethrow(err);end
+        continue; % A bad mechanics proposal must not discard valid seeds.
+    end
     priorResidual = xCandidate - xPrior;
     measurementResidual = z - h;
     PInv = pinvSym(Pminus);
@@ -1675,7 +2067,7 @@ est.measurementResidual = z - mapMeasurementModel(tube, x, cfg);
 end
 
 
-function x = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress, startCandidates, complementarityMode)
+function [x, solverInfo] = solveLinearizedConstrainedMapSubproblem(tube, xLinearization, xPrior, Pminus, z, Rdiag, h0, H, cfg, prevShape, progress, startCandidates, complementarityMode)
 if nargin < 11
     progress = struct('frame', nan, 'numFrames', nan, 'ekfIter', nan);
 end
@@ -1698,6 +2090,19 @@ else
 end
 [lb, ub] = stateBounds(tube, cfg);
 solver = lower(char(cfg.forceSensor.solver));
+solverInfo=struct('coordinates','full','exitflag',NaN,'iterations',0,'constraintViolation',NaN);
+if strcmp(solver,'fmincon') && strcmp(cfg.forceSensor.subproblemCoordinates,'mode-reduced') && ...
+        ~strcmp(complementarityMode.name,'product-mpcc')
+    reducedCfg=cfg.forceSensor; reducedCfg.currentMu=cfg.frictionMu;
+    decode=@(v)decodeMapState(v,tube,cfg,prevShape);
+    [x,solverInfo]=solve_contact_mode_map(xLinearization,objective,decode, ...
+        {lb,ub},stateScaleVector(cfg),reducedCfg,complementarityMode);
+    if cfg.forceSensor.showProgress
+        fprintf('        reduced fmincon exit %d, iterations %d, constraint %.3g, variables %d\n', ...
+            solverInfo.exitflag,solverInfo.iterations,solverInfo.constraintViolation,solverInfo.independentVariables);
+    end
+    return;
+end
 
 if strcmp(solver, 'projected')
     x = solveProjectedLinearizedMap(tube, xLinearization, xPrior, PInv, z, Rdiag, h0, H, cfg, prevShape);
@@ -1759,6 +2164,8 @@ if useFmincon
                 bestValue = value;
                 bestX = xCandidate;
                 bestStart = istart;
+                solverInfo=struct('coordinates','full','exitflag',exitflag,'iterations',output.iterations, ...
+                    'constraintViolation',output.constrviolation);
             end
         end
         if isempty(bestX)
@@ -2050,10 +2457,18 @@ end
 
 function [c, ceq] = fullMapConstraints(tube, x, cfg, prevShape)
 decoded = decodeMapState(x, tube, cfg, prevShape);
+if isfield(cfg,'contactModeUnresolved') && cfg.contactModeUnresolved
+    % Preserve raw displacement diagnostics; do not penalize noise as exact slip.
+    c=[-decoded.gap;-decoded.frictionConeSlack];
+    ceq=decoded.gap*decoded.fn;
+    return;
+end
 c = [-decoded.gap; -decoded.frictionW(:); -decoded.frictionConeSlack];
 ceq = [decoded.gap * decoded.fn; ...
        decoded.frictionW(:) .* decoded.beta(:); ...
        decoded.frictionConeSlack * decoded.lambda];
+[geometryC,geometryEq]=plane_contact_constraints(decoded,cfg.forceSensor);
+c=[c;geometryC]; ceq=[ceq;geometryEq];
 end
 
 
@@ -2070,6 +2485,8 @@ if isstruct(prevShape) && isfield(prevShape, 'T_base')
 end
 vForMode = decoded.vTangential;
 DForMode = decoded.D;
+slipStdMm=0;
+covariance=zeros(3);
 
 % The force seed can reproduce the measured curvature poorly before the MAP
 % update. Determine stick/slip from the observed shape used by Eq. (7), while
@@ -2081,17 +2498,33 @@ if nargin >= 5 && ~isempty(measuredU) && ~isempty(prevShape)
     sObserved = min(max(geometryState(6), tube.s(1)), tube.s(end));
     nObserved = etaToNormal(geometryState(4:5), cfg);
     measuredShape = measuredShapeForFrame(tube, measuredU, sObserved);
+    if isfield(cfg.forceSensor,'contactSeparationGateMm') && ...
+            min(nObserved'*(measuredShape.p-geometryState(1:3))) > cfg.forceSensor.contactSeparationGateMm
+        % A force seed cannot establish contact with an observably distant
+        % plane. This gate is for clear separation, not noisy stick/slip.
+        mode=struct('name','no-contact','activeDirection',[]);
+        return;
+    end
     currentPoint = interpolateVectorByArc(tube.s, measuredShape.p, sObserved);
     previousPoint = interpolateVectorByArc(tube.s, prevShape.p, sObserved);
     vForMode = (eye(3) - nObserved * nObserved') * ...
         (currentPoint - previousPoint);
     DForMode = frictionDirections(nObserved, cfg.forceSensor.numFrictionDirs);
+    if cfg.frictionMu>eps && decoded.fn>forceTol && ...
+            cfg.forceSensor.historyCurvatureStdPerMm>0
+        covariance=paired_contact_uncertainty(tube,measuredU,tube.T_base, ...
+            prevShape,cfg,sObserved,nObserved);
+        slipStdMm=sqrt(max(0,max(eig(covariance))));
+    end
 end
 
+resolution=friction_mode_resolution(vForMode,DForMode,covariance,slipTolMm,cfg.forceSensor.slipConfidenceSigma);
 if decoded.fn <= forceTol
     mode = struct('name', 'no-contact', 'activeDirection', []);
 elseif cfg.frictionMu <= eps
     mode = struct('name', 'frictionless-contact', 'activeDirection', []);
+elseif slipStdMm>0 && ~resolution.slidingResolved
+    mode=struct('name','unresolved-contact','activeDirection',[]);
 elseif norm(vForMode) <= slipTolMm
     mode = struct('name', 'sticking-contact', 'activeDirection', []);
 else
@@ -2099,6 +2532,11 @@ else
     mode = struct('name', 'sliding-contact', ...
         'activeDirection', activeDirection);
 end
+mode.observedSlipMm=norm(vForMode);
+mode.pairedSlipStdMm=slipStdMm;
+mode.slipResolutionMm=slipTolMm+cfg.forceSensor.slipConfidenceSigma*slipStdMm;
+mode.directionResolved=resolution.directionResolved;
+mode.minimumDirectionMarginMm=resolution.minimumDirectionMarginMm;
 end
 
 
@@ -2117,6 +2555,10 @@ switch mode.name
     case 'frictionless-contact'
         x(1:3) = x(1:3) + decoded.n * decoded.gap;
         x(betaIdx) = 0;
+
+    case 'unresolved-contact'
+        x(1:3)=x(1:3)+decoded.n*decoded.gap;
+        x(lambdaIdx)=0; % Unused auxiliary variable; no slip inference.
 
     case 'sticking-contact'
         x(1:3) = x(1:3) + decoded.n * decoded.gap;
@@ -2194,6 +2636,10 @@ decoded = decodeMapState(x, tube, cfg, prevShape);
 m = cfg.forceSensor.numFrictionDirs;
 
 switch mode.name
+    case 'unresolved-contact'
+        c=-decoded.frictionConeSlack;
+        ceq=[decoded.gap;decoded.lambda];
+
     case 'no-contact'
         c = [-decoded.gap; -decoded.frictionW(:); -decoded.frictionConeSlack];
         ceq = [decoded.fn; decoded.beta(:)];
@@ -2226,6 +2672,7 @@ function H = finiteDifferenceMeasurementJacobian(tube, x, cfg, prevShape)
 hBase = mapMeasurementModel(tube, x, cfg, prevShape);
 nx = formulationStateSize(cfg);
 H = zeros(numel(hBase), nx);
+[lb,ub] = stateBounds(tube,cfg);
 
 step = cfg.forceSensor.finiteDifferenceStep(:);
 if numel(step) ~= nx
@@ -2235,10 +2682,10 @@ end
 for j = 1:nx
     xp = x;
     xm = x;
-    xp(j) = xp(j) + step(j);
-    xm(j) = xm(j) - step(j);
-    xp = projectMapState(xp, tube, cfg);
-    xm = projectMapState(xm, tube, cfg);
+    % A partial derivative must not project other force components onto
+    % the friction cone. Feasibility belongs to the constrained solve.
+    xp(j) = min(ub(j),xp(j) + step(j));
+    xm(j) = max(lb(j),xm(j) - step(j));
     denom = xp(j) - xm(j);
     if abs(denom) < eps
         continue;
@@ -2246,6 +2693,26 @@ for j = 1:nx
     hp = mapMeasurementModel(tube, xp, cfg, prevShape);
     hm = mapMeasurementModel(tube, xm, cfg, prevShape);
     H(:, j) = (hp - hm) / denom;
+end
+end
+
+
+function H = coordinateMeasurementJacobian(tube,x,cfg,prevShape)
+% Differentiate one box-bounded coordinate at a time. Cone feasibility is
+% handled by optimizer constraints, not by modifying other coordinates.
+nx=numel(x); h=mapMeasurementModel(tube,x,cfg,prevShape);
+H=zeros(numel(h),nx); [lb,ub]=stateBounds(tube,cfg);
+steps=max(stateScaleVector(cfg)*1e-4,1e-6*ones(nx,1));
+if numel(cfg.forceSensor.finiteDifferenceStep)==nx
+    steps=cfg.forceSensor.finiteDifferenceStep(:);
+end
+for j=1:nx
+    xp=x; xm=x;
+    xp(j)=min(ub(j),x(j)+steps(j)); xm(j)=max(lb(j),x(j)-steps(j));
+    if xp(j)>xm(j)
+        H(:,j)=(mapMeasurementModel(tube,xp,cfg,prevShape)- ...
+            mapMeasurementModel(tube,xm,cfg,prevShape))/(xp(j)-xm(j));
+    end
 end
 end
 
@@ -2333,9 +2800,11 @@ end
 
 function stdVec = measurementStdVector(measurements, cfg)
 numFbg = numel(measurements.fbgIdx);
-stdVec = [cfg.forceSensor.measurementStd.curvature * ones(3 * numFbg, 1); ...
-          cfg.forceSensor.measurementStd.planePointMm(:); ...
-          cfg.forceSensor.measurementStd.normalVector(:)];
+environmentStd=[cfg.forceSensor.measurementStd.planePointMm(:); ...
+    cfg.forceSensor.measurementStd.normalVector(:)];
+if isfield(cfg,'environmentWhitening'), environmentStd=ones(6,1); end
+stdVec = [cfg.forceSensor.measurementStd.curvature * ones(numel(cfg.forceSensor.curvatureObservedAxes) * numFbg, 1); ...
+          environmentStd];
 end
 
 
@@ -2420,9 +2889,13 @@ if nargin < 4
     prevShape = [];
 end
 decoded = decodeMapState(x, tube, cfg, prevShape);
-h = decoded.u(:, decoded.fbgIdx);
+h = decoded.u(cfg.forceSensor.curvatureObservedAxes, decoded.fbgIdx);
 h = h(:);
-h = [h; decoded.p1; decoded.n];
+environment=[decoded.p1;decoded.n];
+if isfield(cfg,'environmentWhitening')
+    environment=cfg.environmentWhitening*environment;
+end
+h = [h; environment];
 end
 
 
@@ -2444,12 +2917,24 @@ D = frictionDirections(n, m);
 contactForce = n * fn + D * beta;
 
 [~, idx] = min(abs(tube.s - s1));
-u = solveShapeFromStateForces(tube, s1, contactForce, fe, prevShape);
-[~, R, p] = solveShape(tube.T_base, u, tube.s);
-pcCenter = interpolateVectorByArc(tube.s, p, s1);
+mechanics=struct('mechanics','predecessor-linearized','tipMomentResidualNmm',NaN);
+if strcmp(cfg.forceSensor.mechanicsModel,'cosserat-shooting')
+    opts=struct('relativeTolerance',cfg.forceSensor.mechanicsRelativeTolerance, ...
+        'momentToleranceNmm',cfg.forceSensor.mechanicsMomentToleranceNmm, ...
+        'maxRhsEvaluations',cfg.forceSensor.mechanicsMaxRhsEvaluations, ...
+        'collisionStepMm',cfg.forceSensor.planeCollisionStepMm);
+    mechanics=solve_cosserat_force_map(tube,s1,contactForce,fe,opts);
+    u=mechanics.u; R=mechanics.R; p=mechanics.p; pcCenter=mechanics.pc;
+else
+    u = solveShapeFromStateForces(tube, s1, contactForce, fe, prevShape);
+    [~, R, p] = solveShape(tube.T_base, u, tube.s);
+    pcCenter = interpolateVectorByArc(tube.s, p, s1);
+end
 pc = pcCenter;
 
-if isempty(cfg) || ~isfield(cfg, 'sensing')
+if isfield(cfg.forceSensor,'fbgIdx')
+    fbgIdx=cfg.forceSensor.fbgIdx;
+elseif isempty(cfg) || ~isfield(cfg, 'sensing')
     fbgIdx = 1:length(tube.s);
 else
     fbgIdx = unique(round(linspace(1, length(tube.s), cfg.sensing.numFbgPoints)));
@@ -2462,7 +2947,11 @@ prevShapeForDisplacement = prevShape;
 if isempty(prevShapeForDisplacement)
     prevPcCenter = pcCenter;
 elseif isstruct(prevShapeForDisplacement) && isfield(prevShapeForDisplacement, 'p')
-    prevPcCenter = interpolateVectorByArc(tube.s, prevShapeForDisplacement.p, s1);
+    if isfield(cfg.forceSensor,'historyPointInterpolation')&&strcmp(cfg.forceSensor.historyPointInterpolation,'integrated')
+        prevPcCenter=sample_integrated_shape(tube,prevShapeForDisplacement,s1);
+    else
+        prevPcCenter = interpolateVectorByArc(tube.s, prevShapeForDisplacement.p, s1);
+    end
 elseif isstruct(prevShapeForDisplacement)
     prevPcCenter = pcCenter;
 else
@@ -2496,6 +2985,7 @@ decoded.vTangential = v;
 decoded.frictionW = wFriction;
 decoded.frictionConeSlack = coneSlack;
 decoded.fbgIdx = fbgIdx;
+decoded.mechanics = mechanics;
 end
 
 
@@ -2503,23 +2993,41 @@ function u = solveShapeFromStateForces(tube, contactS, contactForce, tipForce, p
 K = getTubeK(tube);
 invK = 1 ./ K;
 
-if nargin >= 5 && isstruct(prevShape) && isfield(prevShape, 'R') && isfield(prevShape, 'p')
+if nargin >= 5 && isstruct(prevShape) && isfield(prevShape,'forceMapJacobian') && ...
+        isequal(prevShape.forceMapBasePose,tube.T_base)
+    J=prevShape.forceMapJacobian;
+elseif nargin >= 5 && isstruct(prevShape) && isfield(prevShape, 'R') && isfield(prevShape, 'p')
     if isfield(prevShape, 'T_base')
         [plin, Rlin] = rigidlyMovePreviousState(prevShape, tube.T_base);
     else
         Rlin = prevShape.R;
         plin = prevShape.p;
     end
+    J=computeJacobian(Rlin,plin);
 else
     [~, Rlin, plin] = solveShape(tube.T_base, tube.uhat, tube.s);
+    J=computeJacobian(Rlin,plin);
 end
 
-
-J = computeJacobian(Rlin, plin);
 Jcontact = interpolateJacobianAtArc(J, tube.s, contactS);
 tipRows = 3 * length(tube.s) - (2:-1:0);
 m = Jcontact' * contactForce(:) + J(tipRows, :)' * tipForce(:);
 u = reshape(invK .* m, 3, []) + tube.uhat;
+end
+
+
+function previous = preparePreviousMechanics(tube,previous)
+% Local per-frame cache: predecessor and commanded base stay fixed while
+% fmincon perturbs the unknown forces/plane/contact arclength.
+if isstruct(previous) && isfield(previous,'R') && isfield(previous,'p')
+    if isfield(previous,'T_base')
+        [p,R]=rigidlyMovePreviousState(previous,tube.T_base);
+    else
+        p=previous.p; R=previous.R;
+    end
+    previous.forceMapJacobian=computeJacobian(R,p);
+    previous.forceMapBasePose=tube.T_base;
+end
 end
 
 
@@ -2559,7 +3067,10 @@ end
 function x = projectMapState(x, tube, cfg)
 m = cfg.forceSensor.numFrictionDirs;
 x = real(x(:));
-x(~isfinite(x)) = 0;
+if any(~isfinite(x))
+    error('rod:NonFiniteMapState', ...
+        'The MAP solver produced a non-finite state; rejecting the trial instead of replacing it with zero.');
+end
 x(4:5) = min(max(x(4:5), -pi / 2 + 1e-4), pi / 2 - 1e-4);
 x(6) = min(max(x(6), tube.s(1)), tube.s(end));
 x(7) = max(0, x(7));
@@ -2731,7 +3242,7 @@ end
 axis tight;
 plotPlaneSectionXZ(cfg.planePointMm, cfg.planeNormal, 'k--', 'LineWidth', 1.1);
 plotPlaneSectionXZ(mean(results.measurements.planePointMeasured, 2), ...
-    results.measurements.planeNormalMeasured, ':', 'Color', [0.5 0.5 0.5], 'LineWidth', 1.1);
+    mean(results.measurements.planeNormalMeasured,2), ':', 'Color', [0.5 0.5 0.5], 'LineWidth', 1.1);
 xlabel('x [mm]');
 ylabel('z [mm]');
 title('Forward shape trajectory');
@@ -2787,7 +3298,7 @@ hEstimatedShape = plot(pEstimated(1, :), pEstimated(3, :), '--', ...
 axis tight;
 hTruePlane = plotPlaneSectionXZ(cfg.planePointMm, cfg.planeNormal, 'k--', 'LineWidth', 1.1);
 hMeasuredPlane = plotPlaneSectionXZ(results.measurements.planePointMeasured(:, end), ...
-    results.measurements.planeNormalMeasured, ':', 'Color', [0.5 0.5 0.5], 'LineWidth', 1.1);
+    mean(results.measurements.planeNormalMeasured,2), ':', 'Color', [0.5 0.5 0.5], 'LineWidth', 1.1);
 
 scale = 1.6;
 trueContact = results.forward.contactForceResultant(:, end);
@@ -2998,6 +3509,9 @@ try
             'Location', 'best');
 
         writeFigureVideoFrame(writer, fig, tempFramePath);
+        if frameIdx == nVideoFrames
+            exportgraphics(fig, fullfile(cfg.outputDir,'forces.png'),'Resolution',160);
+        end
         printVideoProgress(frameIdx, nVideoFrames, 'formulation');
     end
     close(writer);
@@ -3497,6 +4011,8 @@ if isfield(results, 'validation') && isfield(results.validation, 'friction')
     fprintf(fid, 'Min polyhedral cone slack: %.6g N; min w: %.6g mm\n',audit.minConeSlackN,audit.minWmm);
     fprintf(fid, 'Max positive work on observed sliding frames: %.6g N mm\n',audit.maxSlidingWorkNmm);
 end
+
+
 if results.forward.contactArcLength(end)>results.forward.s(end)-1
     fprintf(fid, 'IDENTIFIABILITY: contact is at tip; contact and independent tip load cannot be uniquely separated. Report component errors as well as total error.\n');
 end
@@ -3609,14 +4125,21 @@ fprintf(fid, 'Solver: %s, friction directions m=%d, force bounds enabled: %d.\n'
     results.config.forceSensor.solver, results.config.forceSensor.numFrictionDirs, ...
     forceBoundsEnabled(results.config));
 fprintf(fid, 'The inverse estimate does not use the forward solver contact force or contact index. ');
-fprintf(fid, 'It solves the iterated constrained EKF/MAP update in Formulation.pdf eqs. (19)-(29) ');
+fprintf(fid, 'It implements an iterated constrained EKF/MAP update based on Formulation.pdf eqs. (19)-(29) ');
 fprintf(fid, 'with state x=[p1; eta1; s1; f1n; beta1; lambda1; fe], random-walk prior covariance, ');
-fprintf(fid, 'the nonlinear Cosserat forward map [p(s;x),u(s;x)]=F(s1,f1,fe), finite-difference ');
-fprintf(fid, 'linearization of h(x), posterior covariance update, and the normal/friction/cone ');
-fprintf(fid, 'complementarity constraints. The plane gap follows Formulation.pdf eqs. (5)-(6), ');
+fprintf(fid, 'a predecessor-linearized force-to-curvature map followed by nonlinear shape integration, finite-difference ');
+fprintf(fid, 'linearization of h(x), conditional posterior covariance update, and mode-dependent contact/friction constraints. ');
+fprintf(fid, 'Unresolved modes retain contact and the cone but do not enforce exact tangential complementarity. ');
+fprintf(fid, 'The plane gap follows Formulation.pdf eqs. (5)-(6), ');
 fprintf(fid, 'pc=p(s1;x), which is also the centerline point used by the copied LCP rod-plane contact code. ');
 fprintf(fid, 'Aloi is used only as a shape-only Gaussian total-load baseline and does not ');
 fprintf(fid, 'receive the plane/friction constraints.\n');
+if isfield(results.measurements,'historySource') && strcmp(results.measurements.historySource,'sparse-paired')
+    fprintf(fid, 'History is reconstructed from paired sparse sensor samples; dense forward shape and force labels are excluded.\n');
+    fprintf(fid, 'The paired-sample timing is synthetic; this is an offline planar simulation with calibrated torsion, stiffness and intrinsic shape.\n');
+else
+    fprintf(fid, 'The inverse receives the exact preceding internal forward shape (oracle history); this is not a sensor-only validation.\n');
+end
 end
 
 

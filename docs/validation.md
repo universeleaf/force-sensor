@@ -1,6 +1,6 @@
 # 修复验收记录（2026-09-11）
 
-本次使用 MATLAB 严格 `fmincon` 求解。没有给逆求解输入真实接触力，也没有固定逆状态中的末端力为零。完整背景、坐标约定和局限见 [MEMORY.md](../MEMORY.md)。
+本次使用 MATLAB 严格 `fmincon` 求解。没有给逆求解输入真实接触力，也没有固定逆状态中的末端力为零。完整背景、坐标约定和局限见 [TECHNICAL_OVERVIEW.md](TECHNICAL_OVERVIEW.md)。
 
 ## 数值验收
 

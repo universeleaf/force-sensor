@@ -50,8 +50,8 @@ nexttile(tl); hold on; grid on;
 plot(k,1e3*work,'o-','Color',[0.7 0.2 0.65],'LineWidth',1.5);
 yline(0,'k:'); xlabel('Simulation frame'); ylabel('F_t dot observed tangential step [mN mm]');
 title('Sliding: work <= 0 (small stick drift tolerated)');
-scenarioLabel='Wall / body contact';
-if r.forward.contactArcLength(end)>r.forward.s(end)-1, scenarioLabel='Horizontal plane / tip contact'; end
+scenarioLabel='Plane / body contact';
+if r.forward.contactArcLength(end)>r.forward.s(end)-1, scenarioLabel='Plane / tip contact'; end
 caption=sprintf('%s | final mode: %s',scenarioLabel,r.ours.complementarityMode{end});
 if r.forward.contactArcLength(end)>r.forward.s(end)-1
     caption={caption,'Contact at tip: contact / independent tip-load split is not identifiable'};

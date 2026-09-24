@@ -22,9 +22,6 @@ tmp/
 .DS_Store
 Thumbs.db
 
-# Claude Code files
-.claude/
-
 # PDF papers and references
 *.pdf
 
@@ -34,11 +31,35 @@ archive/
 
 # External repositories
 LCP-Continuum/
+EnFiRCE_overleaf/
 
 # Test/development files
+__pycache__/
+*.py[cod]
 force_test_single.m
 out/*_tmp/
 forcesensing.mp4
+output/playwright/
+.playwright-cli/
+
+# Local working reports (intentionally excluded from GitHub)
+docs/PROJECT_GUIDE_LOCAL.md
+docs/PROJECT_GUIDE_LOCAL.html
+docs/RAL_audit_and_plan_*.md
+docs/RAL_audit_and_plan_*.html
+docs/code_completion_*.md
+docs/code_completion_*.html
+docs/implementation_stage1_*.md
+docs/implementation_stage1_*.html
+docs/stage1_assets/
+docs/audit_assets/
+**/logs/
+fail.mp4
+
+# Generated experiment outputs are kept locally; selected summary JSON files
+# are added explicitly when they are part of a public result record.
+out/*/
+out/*
 
 # Historical generated images
 aloifig6.png

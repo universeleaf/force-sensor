@@ -29,9 +29,9 @@ else
         'frameSelection must contain valid integer frame indices.');
 end
 
-addpath(genpath(fullfile(rootDir, 'LCP-Continuum')));
+validate_lcp_dependency(rootDir);
 cfg = addCurrentAloiDefaults(results.config);
-tube = CreatTube(cfg.exposedLengthMm);
+tube = make_experiment_tube(cfg);
 if cfg.scalePrecurvature
     baseBendRad = trapz(tube.s, sqrt(sum(tube.uhat(1:2, :) .^ 2, 1)));
     tube.uhat = tube.uhat * deg2rad(cfg.targetBendDeg) / max(baseBendRad, eps);

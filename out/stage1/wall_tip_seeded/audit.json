@@ -1,0 +1,413 @@
+{
+  "scenario": "sensor_stage1_wall_tip_seeded",
+  "scope": "All independently solved output frames; inverse-only, no new Aloi comparison",
+  "historySource": "sparse-paired",
+  "limitations": "Simulation; calibrated material/intrinsic profile; checks do not certify force accuracy or optimizer convergence.",
+  "historyIntervalSeconds": [
+    0.02,
+    0.020000000000000018,
+    0.020000000000000018,
+    0.020000000000000018,
+    0.020000000000000018,
+    0.019999999999999574,
+    0.019999999999999574,
+    0.019999999999999574,
+    0.019999999999999574,
+    0.019999999999999574,
+    0.019999999999999574,
+    0.019999999999999574,
+    0.02000000000000135,
+    0.019999999999999574,
+    0.019999999999999574,
+    0.019999999999999574,
+    0.019999999999999574,
+    0.019999999999999574
+  ],
+  "predictionIntervalSeconds": [
+    0.02,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0.019999999999999574,
+    0.14000000000000057,
+    0.14000000000000057,
+    0.13999999999999879,
+    0.14000000000000057,
+    0.14000000000000057,
+    0.13999999999999879,
+    0.14000000000000057
+  ],
+  "validation": {
+    "scope": "Shape consistency and contact/friction checks; not a force-accuracy or optimizer-convergence certificate.",
+    "oracleHistory": false,
+    "friction": {
+      "slipToleranceMm": 0.005,
+      "observedSlipMm": [
+        7.2978765226571456,
+        5.6090602426794038E-7,
+        0.18255684348720178,
+        0.16703461137869541,
+        0.15486175313657538,
+        0.14037946614025684,
+        0.12800835826197307,
+        0.11742287356417418,
+        0.10677078403479424,
+        0.097460118031335072,
+        0.00047958994669551537,
+        0.0021084525987854113,
+        0.0010689117694217079,
+        0.0010999880104360774,
+        0.0010984846915869069,
+        0.0010101639561965901,
+        0.0010095413629360541,
+        0.0024525166659795437
+      ],
+      "stepToleranceMm": [
+        0.005,
+        1.402265060669851E-7,
+        3.8903093381163765E-9,
+        1.8709734294432185E-7,
+        8.81252933967446E-8,
+        4.8431462513210854E-9,
+        7.2566465369930028E-8,
+        1.3112412322402698E-7,
+        1.2883277610618583E-7,
+        1.9912474295142629E-7,
+        0.0049999999999115769,
+        0.0049999999701828123,
+        0.0049999999969036375,
+        0.0049999999995524857,
+        0.0049999999999973824,
+        0.0049999999999955237,
+        0.0049999999989835276,
+        0.0049999999996943861
+      ],
+      "observedWorkNmm": [
+        -0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8.2857428327486391E-5,
+        0.0036015337477764303,
+        0.002938945293772725,
+        0.0041550284157385684,
+        0.0052667349332840606,
+        0.0058588268358525054,
+        0.0068317211597520491,
+        0.019854406832877557
+      ],
+      "slidingFrames": [],
+      "maxSlidingWorkNmm": 0,
+      "maxModelWorkNmm": 3.6506288507982015E-7,
+      "minWmm": -5.3945101212580712E-8,
+      "minConeSlackN": 0
+    },
+    "totalForceRmseN": 0.014204997962525967,
+    "finalRelativeErrorPct": 0.025302028946207485,
+    "maxShapeRmseMm": 0.0054121787215914976,
+    "contactForceRmseN": 0.15884349329465858,
+    "tipForceRmseN": 0.16807876574985506,
+    "maxTrueShapeRmseMm": 0.00541260555892385,
+    "cachedShapeMetricMaxDifferenceMm": 0,
+    "maxFrictionlessTangentialForceN": 3.5527136789038985E-15,
+    "maxConeViolationN": 3.5527136789038985E-15,
+    "maxComplementarityResidual": 4.16715279068208E-7,
+    "maxTruthInequalityViolation": 0.0023873017127907683,
+    "maxTruthEqualityResidual": 0.058878801437890621
+  },
+  "outputFrameCount": 18,
+  "internalFrameCount": 501,
+  "finalContactArcLengthMm": 125.88710147583686,
+  "finalTrueContactArcLengthMm": 125.87819548872181,
+  "finalTrueContactForceN": [
+    -37.579008090915636,
+    -2.9744113680175861E-15,
+    -8.0536065373534882
+  ],
+  "finalEstimatedContactForceN": [
+    -37.55891881595894,
+    0.00021255687839960672,
+    -8.0951084479767577
+  ],
+  "finalTrueTipForceN": [
+    2,
+    0,
+    -1
+  ],
+  "finalEstimatedTipForceN": [
+    1.9875909694825225,
+    -0.00018252996415910172,
+    -0.95327312399864628
+  ],
+  "finalMode": "sticking-contact",
+  "maxPlaneShiftMm": 0.03543277633015076,
+  "phaseMetrics": {
+    "push": {
+      "frameCount": 10,
+      "contactForceRmseN": 0.18858271708210306,
+      "tipForceRmseN": 0.20210825515410524,
+      "totalForceRmseN": 0.018516658945606307
+    },
+    "slide": {
+      "frameCount": 8,
+      "contactForceRmseN": 0.11097757920871848,
+      "tipForceRmseN": 0.11182073763033322,
+      "totalForceRmseN": 0.0050424302548184429
+    }
+  },
+  "config": {
+    "rootDir": "C:\\Users\\wty05\\Desktop\\gatech\\force sensor",
+    "outputDir": "C:\\Users\\wty05\\Desktop\\gatech\\force sensor\\out\\stage1\\wall_tip_seeded",
+    "randomSeed": 7,
+    "scenarioName": "sensor_stage1_wall_tip_seeded",
+    "exposedLengthMm": 150,
+    "targetBendDeg": 180,
+    "scalePrecurvature": false,
+    "wallDistanceMm": 0,
+    "planePointMm": [
+      20,
+      0,
+      0
+    ],
+    "planeNormal": [
+      -1,
+      0,
+      0
+    ],
+    "basePositionMm": [
+      -120,
+      0,
+      0
+    ],
+    "baseRotation": [
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        -1,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ]
+    ],
+    "frictionMu": 0.5,
+    "initialLowFrictionMu": 0,
+    "cornerRange": 0.5,
+    "frictionConeEdges": 16,
+    "betaMaxMm": 35,
+    "numTimeSteps": 18,
+    "tipLoadN": [
+      2,
+      0,
+      -1
+    ],
+    "forward": {
+      "motionMode": "push-slide",
+      "pushDistanceMm": 45,
+      "slideDistanceMm": 1,
+      "pushFraction": 0.5,
+      "pushDirection": [
+        1,
+        0,
+        0
+      ],
+      "slideDirection": [
+        0,
+        0,
+        1
+      ],
+      "maxPushStepMm": 0.1,
+      "maxSlideStepMm": 0.02,
+      "sourceRevision": "Jia0Shen/LCP-Continuum@14806b3"
+    },
+    "video": {
+      "enabled": true,
+      "frameRate": 10,
+      "durationSeconds": 6,
+      "renderFrameCount": [],
+      "forceScaleMmPerN": 3,
+      "fileName": "forces.mp4",
+      "aloiFileName": "aloi.mp4"
+    },
+    "sensing": {
+      "numFbgPoints": 24,
+      "curvatureNoiseStd": 0,
+      "positionNoiseStdMm": 0,
+      "planeOffsetBiasMm": 0,
+      "planeOffsetNoiseStdMm": 0,
+      "shapeSmoothing": 0,
+      "curvatureInterpolation": "intrinsic-delta",
+      "historySource": "sparse-paired",
+      "samplePeriodSeconds": 0.02,
+      "planeNormalNoiseStdDeg": 0
+    },
+    "forceSensor": {
+      "numFrictionDirs": 16,
+      "contactSearchBandMm": 4,
+      "contactHistoryResetMm": 6,
+      "minContactDepthMm": -1,
+      "priorStd": {
+        "planePointMm": [
+          8,
+          8,
+          0.25
+        ],
+        "normalParam": [
+          0.04,
+          0.04
+        ],
+        "sMm": 8,
+        "normalForceN": 35,
+        "betaN": 35,
+        "lambda": 10,
+        "tipForceN": 4
+      },
+      "useForceBounds": false,
+      "forceBounds": {
+        "normalForceN": 200,
+        "betaN": 200,
+        "lambda": 200,
+        "tipForceN": 25
+      },
+      "processStd": {
+        "planePointMm": [
+          0.25,
+          0.25,
+          0.1
+        ],
+        "normalParam": [
+          0.01,
+          0.01
+        ],
+        "sMm": 2,
+        "normalForceN": 14,
+        "betaN": 18,
+        "lambda": 2,
+        "tipForceN": 0.75
+      },
+      "measurementStd": {
+        "curvature": 0.00015,
+        "planePointMm": [
+          8,
+          8,
+          0.13
+        ],
+        "normalVector": [
+          0.02,
+          0.02,
+          0.02
+        ]
+      },
+      "maxEkfIterations": 2,
+      "linearizedSolveMaxIter": 25,
+      "convergenceTol": 0.003,
+      "slipToleranceMm": 0.005,
+      "finiteDifferenceStep": [],
+      "penalty": {
+        "inequality": 100000,
+        "complementarity": 100000,
+        "lineSearch": [
+          1,
+          0.5,
+          0.25,
+          0.1,
+          0.03,
+          0.01
+        ]
+      },
+      "solver": "fmincon",
+      "complementaritySolver": "active-set",
+      "subproblemCoordinates": "mode-reduced",
+      "allowApproximateFallback": false,
+      "showProgress": true,
+      "fminconProgressInterval": 10,
+      "dampingScales": [
+        1,
+        0.5,
+        0.25,
+        0.1,
+        0.03,
+        0
+      ],
+      "useMultiStart": false,
+      "maxStartCandidates": 1,
+      "warningRelativeErrorPct": 100,
+      "warningMeasurementResidualNorm": 10000,
+      "normalReference": [
+        -1,
+        0,
+        0
+      ],
+      "fbgIdx": [
+        1,
+        13,
+        25,
+        37,
+        50,
+        62,
+        74,
+        86,
+        98,
+        110,
+        122,
+        134,
+        147,
+        159,
+        171,
+        183,
+        195,
+        207,
+        219,
+        231,
+        244,
+        256,
+        268,
+        280
+      ],
+      "useShapeOnlySeed": true
+    },
+    "diagnostics": {
+      "stopAfterTruthConsistency": false,
+      "stopAfterInverse": true,
+      "runMapCandidateCosts": false
+    },
+    "aloi": {
+      "numCenterCandidates": 21,
+      "sigmaCandidatesMm": [
+        3,
+        6,
+        12,
+        22,
+        35
+      ],
+      "amplitudeBoundN": 100,
+      "positionStdMm": 0.2,
+      "maxIterations": 35,
+      "maxFunctionEvaluations": 300,
+      "numOptimizationStarts": 3,
+      "maxEquilibriumIterations": 20,
+      "equilibriumToleranceMm": 0.0001,
+      "equilibriumRelaxation": 0.5,
+      "maxAxialFractionForComparison": 0.05,
+      "showProgress": true
+    }
+  }
+}

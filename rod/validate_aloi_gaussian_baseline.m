@@ -7,7 +7,7 @@ function report = validate_aloi_gaussian_baseline()
 
 packageDir = fileparts(mfilename('fullpath'));
 rootDir = fileparts(packageDir);
-addpath(genpath(fullfile(rootDir, 'LCP-Continuum')));
+validate_lcp_dependency(rootDir);
 
 tube = CreatTube(150);
 thetaTrue = [4.0; -8.0; 110.0; 12.0];

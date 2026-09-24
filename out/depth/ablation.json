@@ -1,0 +1,589 @@
+{
+  "scope": "One fixed six-frame noisy input. Only plane covariance off-diagonal entries removed; marginal variances, observations, model and solver settings unchanged.",
+  "state": "complete",
+  "runRecord": {
+    "schemaVersion": 1,
+    "runId": "74f31ebb-7aac-4c62-9fc6-58d52faa0cd2",
+    "state": "complete",
+    "startedAtUtc": "2026-09-19T09:18:47Z",
+    "matlabVersion": "24.1.0.2537033 (R2024a)",
+    "platform": "PCWIN64",
+    "source": [
+      {
+        "path": "rod/atomic_write_artifact.m",
+        "sha256": "f508197253174454159f43b52ac25801026e189d2125993f7cf2716ea8e73e0f"
+      },
+      {
+        "path": "rod/attach_depth_environment.m",
+        "sha256": "a034a3c834fc80dbadef9613928b060692a3d1874db3a8aea2a847dc30b0ed9e"
+      },
+      {
+        "path": "rod/audit_force_identifiability.m",
+        "sha256": "652d67a53067d6a6817d6db8440d363040bcfe31c999367ff98e240130b9f3a8"
+      },
+      {
+        "path": "rod/audit_history_uncertainty.m",
+        "sha256": "d7c727188651430ebd871b13d8d9050afdf92bca8316b4820c2766f04576b6e6"
+      },
+      {
+        "path": "rod/audit_independent_mesh.m",
+        "sha256": "643f49c4c7e80d9a3f021b03a1f50f75a51d2636319badda16e7352a0a1180e2"
+      },
+      {
+        "path": "rod/audit_sensor_stage1.m",
+        "sha256": "1caf31b02a3ad00fcc365fb92ce8ad670a88afbfd714c3c937e90327e350bb99"
+      },
+      {
+        "path": "rod/begin_result_run.m",
+        "sha256": "b39940c20b04f87d0a812b5ab61f5d365d7b9bbd2c0756dc1c22e6600e4ef860"
+      },
+      {
+        "path": "rod/compute_aloi_comparison_metrics.m",
+        "sha256": "0bf6f7cfbd3f9e1a3c02a4dd4175ac4b902645475933d1b9afb2bf216bd957d8"
+      },
+      {
+        "path": "rod/contact_tangent.m",
+        "sha256": "e5d270f2e62604d1122bbe6b5c65120b95259cd6dedaeaf7d2aba7cfbbc95953"
+      },
+      {
+        "path": "rod/estimate_aloi_gaussian_baseline.m",
+        "sha256": "b3f6f64d14569872178502ad8b556b92b573b20d1ed82cf1fcab77a5404747e5"
+      },
+      {
+        "path": "rod/estimate_sensor_forces.m",
+        "sha256": "d49513b12ee2ea91d1c36f1b2e5cca60966662c931293f43871ef82e9ac44121"
+      },
+      {
+        "path": "rod/estimate_shape_only_point_loads.m",
+        "sha256": "5e8422b1573b2e53497bb09d1bfbe781fa5c71a52dbf3dc90447adb310bd4194"
+      },
+      {
+        "path": "rod/export_inverse_audit.m",
+        "sha256": "1a7c79df44fd06f90cb54e5e0f8fb5d65a99a4a3a6aaa5b43078742e3cbdf813"
+      },
+      {
+        "path": "rod/file_sha256.m",
+        "sha256": "70ad733aca3718b7a7b87da40d9343f7050b641c77e946c4427329ac9eba91c1"
+      },
+      {
+        "path": "rod/force_sensitivity_diagnostic.m",
+        "sha256": "4354d3bd8e971ed41c15f11f3c93f3be0d3fcfd1ae459a9ca2cd5e62e4448444"
+      },
+      {
+        "path": "rod/friction_mode_resolution.m",
+        "sha256": "903b3b18b90f7ce098992d9b93e638a24c2c4c209125b5e13af0fa3140d99d02"
+      },
+      {
+        "path": "rod/make_experiment_tube.m",
+        "sha256": "e5df55a8ae3ee36d0d6849a5171f3a6ca04c8e9d28c6b199ce5e2ce634f0622f"
+      },
+      {
+        "path": "rod/measurements_from_sensor_packet.m",
+        "sha256": "ecf3fff7648d53baa8b532e75647f20b20dabbc533006a3fa23db0ba5995033d"
+      },
+      {
+        "path": "rod/new_run_record.m",
+        "sha256": "5d8fa66bcc30ebe74c8dee0b611f847533606381e57fe1eada3f344436df5830"
+      },
+      {
+        "path": "rod/paired_contact_uncertainty.m",
+        "sha256": "50ad150f7239b78cb22f21ccc92640c51b56029c3a9d8f4326570d10921919e8"
+      },
+      {
+        "path": "rod/plane_from_depth.m",
+        "sha256": "74418670be2b4e55b7f7975efe76f9070e61330517312067b5addc7b6d1ac8d9"
+      },
+      {
+        "path": "rod/plot_depth_observations.m",
+        "sha256": "eeb061ed89d3d71a09a30168b4fe5ca0c42299c4103f115e920d84bdf396245c"
+      },
+      {
+        "path": "rod/plot_friction.m",
+        "sha256": "3a5ff44d5fa4088ae02ef065216854dbe19c6ef36c773bd63dac89f4b9f8cca0"
+      },
+      {
+        "path": "rod/plot_sensor_stage1.m",
+        "sha256": "f8a47d4c4dd7ad4a303dd8099d6936479c0373c515f2677e247fcc01c071f75f"
+      },
+      {
+        "path": "rod/rerun_aloi_saved_result.m",
+        "sha256": "e73625d57463422b94aa7a08cf18525c1466127ef7303f99eb90cdebb03d98f0"
+      },
+      {
+        "path": "rod/resolve_result_file.m",
+        "sha256": "8112d46f1a832017b97033029e1537e3d539f7ae710f85bccce198cffc3ec705"
+      },
+      {
+        "path": "rod/run_depth_protocol.m",
+        "sha256": "0c5b2199db1e33e47b0cc20c31f5c8a415f7a15bd60b84746c88177536d6151f"
+      },
+      {
+        "path": "rod/run_independent_truth_benchmark.m",
+        "sha256": "2fb4760a5e6a394e31513569b6c3d4fd3d1e5d796f250671740c117704e3b3dd"
+      },
+      {
+        "path": "rod/run_mesh_convergence.m",
+        "sha256": "34ea3984d441ec0f28dbc0c797737ce949ab29f5bddb65db72226603f4cccca4"
+      },
+      {
+        "path": "rod/run_noise_aware_protocol.m",
+        "sha256": "6edb411095af544fb3d9dcdb90e57ed096779ee60bb348c95a00cbe6c6a9186c"
+      },
+      {
+        "path": "rod/run_project_checks.m",
+        "sha256": "5d2a36f5e26ed8613027ff8a4318eadd6cdf12211a9233e0015e3833674962a0"
+      },
+      {
+        "path": "rod/run_rod_plane_force_sensing_experiment.m",
+        "sha256": "75e1531d9114856cb3d950e7ce866c04dd31b98ea36f2bdaa0762182fdc848c5"
+      },
+      {
+        "path": "rod/run_sensor_noise_protocol.m",
+        "sha256": "3e32d96a5fffdbf2eae8da5c1692a2f7e9265aec1e2bb9a23a682f41a335eb1d"
+      },
+      {
+        "path": "rod/run_sensor_seeded_replay.m",
+        "sha256": "79c3c2db31f544e4cb0477e748b3f9f97e18b5b1a9fb190f9644e0d3625e646c"
+      },
+      {
+        "path": "rod/run_sensor_stage1.m",
+        "sha256": "30c856721db989011cc77a91cd8814dbe44cfa3dda5c0420cfddddb5d77598ee"
+      },
+      {
+        "path": "rod/save_result_checkpoint.m",
+        "sha256": "748e47cc83c44568c9a8176a33092f2b3c5559192f9c8c2cdf9fd01af1ccf1de"
+      },
+      {
+        "path": "rod/sensor_estimator_config.m",
+        "sha256": "0a00b05f0d005d45848e586bd1c77ba6744412cff5d8c31333fe4f5216c94660"
+      },
+      {
+        "path": "rod/simu_rod_plane_displacement_force_sensing.m",
+        "sha256": "78b778edbc62057a658a5cb8512bc8b203e4864e2304111ce89467bb3d1e364c"
+      },
+      {
+        "path": "rod/simu_rod_plane_senior_geometry_force_sensing.m",
+        "sha256": "bcb27f4f082c1e938d78bd47a68f4f25b07b4b16b9ad1cbe6fb0d726523a3433"
+      },
+      {
+        "path": "rod/simu_rod_plane_upward_force_sensing.m",
+        "sha256": "cdc4e4e01f7570cf070fa1e5ea48f42dad1c9da85a6a7a784ddf2f22f5e8bf52"
+      },
+      {
+        "path": "rod/simu_rod_plane_video_geometry_force_sensing.m",
+        "sha256": "201d06bc2e61442d724d8d3f15f0046cf008ffb977ce9fce82365fdc72a3842d"
+      },
+      {
+        "path": "rod/simulate_sensor_packet.m",
+        "sha256": "f29794d56739304700f4532d22f3204bccb0b4ebfb47afb5d9c07035a9428968"
+      },
+      {
+        "path": "rod/solve_contact_mode_map.m",
+        "sha256": "bb36b2b128c62b6dfb8668a75f0c8534ff011810b43519bc4e22b77c40467918"
+      },
+      {
+        "path": "rod/solve_planar_contact_shooting.m",
+        "sha256": "c55e3c8773e326a7ec87223c7589e3e7a1ce0e23b4577ab81dce992ac2244e3f"
+      },
+      {
+        "path": "rod/solve_planar_energy_rod.m",
+        "sha256": "c11751b2900df4798a83be8d510f7949a4e034501a14ad95a1ecf25025623152"
+      },
+      {
+        "path": "rod/test_contact_separation_gate.m",
+        "sha256": "c1b18b4203b11bbe1b1120466201f6166597a7421dc67a5ab8a6c66821cb8ace"
+      },
+      {
+        "path": "rod/test_contact_shooting.m",
+        "sha256": "f9d5dad0f56f44fe91511d45c76ad6c5742573338d8b524367e9d03a270119ea"
+      },
+      {
+        "path": "rod/test_depth_plane.m",
+        "sha256": "506585ea0d2d7c2293c7e96d6673dd8a03a6f30ca077bb9911f3fb708dc62492"
+      },
+      {
+        "path": "rod/test_environment_covariance.m",
+        "sha256": "6adfbb21754b40550187562692573da3c27c48960c5a8787a9368306eb12cebf"
+      },
+      {
+        "path": "rod/test_force_sensitivity.m",
+        "sha256": "5664a92a5d9ec77237f840e666024639f5149e577ff7f2cb4e0f37e210ed8e7c"
+      },
+      {
+        "path": "rod/test_friction_basis.m",
+        "sha256": "7e91fffc45a18da4840d02cf7cc962990d1cd88d329d5d29d698eb08d179d0d1"
+      },
+      {
+        "path": "rod/test_friction_regression.m",
+        "sha256": "86496904e18fd6a8e7df0c85643f1167c0ac95e4b0d1bc9d419493b818d76aa1"
+      },
+      {
+        "path": "rod/test_history_resolution.m",
+        "sha256": "17e1de7eb86c90d1b0f15ad49b7504b28cf0a317c0680394a9b6006c828de125"
+      },
+      {
+        "path": "rod/test_intrinsic_curvature_reconstruction.m",
+        "sha256": "a56cab41a64f8a8a2e74754a24a7c02c028633b3c226f517f54aab54ab0628d1"
+      },
+      {
+        "path": "rod/test_lcp_dependency.m",
+        "sha256": "4d4a63eb977b18782851481f8c663b7493c50b40a333f0a21936b10f71a05b24"
+      },
+      {
+        "path": "rod/test_noise_aware_contact.m",
+        "sha256": "df9fc9ab51b78b7adbf60214d0a85c5f1e9255c7e1e8c29d8d9bef4181027722"
+      },
+      {
+        "path": "rod/test_planar_energy_rod.m",
+        "sha256": "cf35d5cafc6d2c0089842cf8195961f1b531ed3916b1dd0bb795b52c4b017f22"
+      },
+      {
+        "path": "rod/test_reduced_mode_bounds.m",
+        "sha256": "857e47c334de42fc1da5ab54fba84441fbb1667f7125b8715b41a776b1662926"
+      },
+      {
+        "path": "rod/test_result_integrity.m",
+        "sha256": "1f93b68ae21fe3a285abe833899939302faf8598bc0edb7288cf9818f2593aa4"
+      },
+      {
+        "path": "rod/test_result_lifecycle.m",
+        "sha256": "34009c2bf7c6c0f8adbb145520d2a6c60040f1bf24944239bcdb8ceccc672173"
+      },
+      {
+        "path": "rod/test_reverse_slide.m",
+        "sha256": "2dbf0b6dfaf1c6f1921637da48d5633be259838103628e069403d8a02351f0e3"
+      },
+      {
+        "path": "rod/test_rotation_equivariance.m",
+        "sha256": "599cff45106ae537b1a61b42cee47fe35df06f9ef5e1a4468f8c337cb714096a"
+      },
+      {
+        "path": "rod/test_sensor_config.m",
+        "sha256": "5a5a7b1cbfab1a29f81e2faedc8c0f45d8fe10b7c0130cd314da8faca2e3ef83"
+      },
+      {
+        "path": "rod/test_sensor_contracts.m",
+        "sha256": "7853f5f6d4819b7f09f270fac4cb5d9a6867986c6f7e5a4caa9569f38c25ed44"
+      },
+      {
+        "path": "rod/test_sensor_history_boundary.m",
+        "sha256": "ddee8f1636a84308e13137addb4951dbfba9ce60419015a34f0cf290cc1636f4"
+      },
+      {
+        "path": "rod/test_sensor_replay.m",
+        "sha256": "2a5c9d94a9177f03370659d0c96260f14e4d29eed49ca35298d9322077ab0a61"
+      },
+      {
+        "path": "rod/validate_aloi_gaussian_baseline.m",
+        "sha256": "3c5359a13e142bcc0185c6f6f702a5313d2afb6815726dde4c6dae3dc19d0669"
+      },
+      {
+        "path": "rod/validate_friction.m",
+        "sha256": "159f9b42329a6f5a80941903f575ca99ace43464400b0ebbf65638da2db4be28"
+      },
+      {
+        "path": "rod/validate_lcp_dependency.m",
+        "sha256": "9e4e55be185ea92fa1c2ea3506b13902bdabc4fa73d2ee573d94b3272b9db1b9"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_forward.m",
+        "sha256": "3ca08e902c838d20e3a550c2cd06b4ba0e1db3995ce2195eac0e7117dbd460b2"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_inverse.m",
+        "sha256": "fa8d06d185de218b3073eb4aaec5a771ff29b819394a83442f0dafa441c6e305"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_results.m",
+        "sha256": "10b9fc97a2c00f28dd385174dc93512a4f67b705793cd341faedff33cae2cfe6"
+      },
+      {
+        "path": "rod/validate_sensor_config.m",
+        "sha256": "b554b1638a83a795ef31a14330f628806aa82650d05bb703577049685c19d8d5"
+      },
+      {
+        "path": "force.m",
+        "sha256": "7b8318a4108e269fbc7301265090d5bb0d1626ece13d636bc364a5454c0c0349"
+      }
+    ],
+    "sourceScope": "Code present when this operation started; historical input provenance is separate."
+  },
+  "source": "out/depth/noisy.mat",
+  "sourceSha256": "7e953f478ec5a2f2e398667a3bbd81f7a90cc6a9ca8dd1f9bcb0130621a5d24b",
+  "passed": true,
+  "error": "",
+  "fullCovariance": {
+    "contactRmseN": 0.38451551592474531,
+    "tipRmseN": 0.27335746913235343,
+    "totalRmseN": 0.25186197077042038,
+    "maxShapeRmseMm": 0.18672445511273972,
+    "modes": [
+      "no-contact",
+      "frictionless-contact",
+      "frictionless-contact",
+      "unresolved-contact",
+      "unresolved-contact",
+      "unresolved-contact"
+    ],
+    "unresolvedFrames": [
+      4,
+      5,
+      6
+    ],
+    "maxRawFrictionComplementarity": 0.38781174645177457,
+    "minRawFrictionWmm": -0.19926145096866463,
+    "quality": {
+      "scope": "Numerical and observation consistency only; force accuracy and calibrated uncertainty are not certified.",
+      "hasOptimizationWarning": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "shapeConsistencyMm": [
+        0.024698983318159406,
+        0.11401964765345422,
+        0.026705544427119782,
+        0.18672445511273972,
+        0.047163034019045667,
+        0.060532768030814005
+      ],
+      "complementarityResidual": [
+        0,
+        1.2193036019310536E-14,
+        5.3775213211142934E-14,
+        0.0088730825741997477,
+        0.14551544629594917,
+        0.38781174645177457
+      ],
+      "shapeConsistent": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "finite": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "frictionKinematicsEnforced": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "frictionDirectionResolved": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "activeConstraintResidual": [
+        0,
+        1.0907290695638672E-14,
+        4.7722242824121963E-15,
+        1.2077144839750531E-14,
+        1.3231603313013096E-15,
+        7.07940650546135E-15
+      ],
+      "numericalChecksPassed": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "forceComponentsLocallySeparable": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "forceSeparationApplicable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "hasForceSeparationWarning": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiresReview": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "forceUncertaintyCoverageValidated": false,
+      "forceAccuracyCertified": false,
+      "historyUncertaintyModeled": false,
+      "historyModeResolutionModeled": true,
+      "environmentCovarianceUsed": true,
+      "environmentCalibrationUncertaintyModeled": false,
+      "uncertaintyScope": "First-order paired bending-noise propagation for mode resolution only; force covariance remains conditional on reconstructed history and selected branch."
+    }
+  },
+  "diagonalCovariance": {
+    "contactRmseN": 0.38441426317849431,
+    "tipRmseN": 0.27358200291387075,
+    "totalRmseN": 0.25002335321788632,
+    "maxShapeRmseMm": 0.18653644051413373,
+    "modes": [
+      "no-contact",
+      "frictionless-contact",
+      "frictionless-contact",
+      "unresolved-contact",
+      "unresolved-contact",
+      "unresolved-contact"
+    ],
+    "unresolvedFrames": [
+      4,
+      5,
+      6
+    ],
+    "maxRawFrictionComplementarity": 0.39205818895177935,
+    "minRawFrictionWmm": -0.19995933248731582,
+    "quality": {
+      "scope": "Numerical and observation consistency only; force accuracy and calibrated uncertainty are not certified.",
+      "hasOptimizationWarning": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "shapeConsistencyMm": [
+        0.024698979985282459,
+        0.11401965475423638,
+        0.026690793784825549,
+        0.18653644051413373,
+        0.046398140550548632,
+        0.058631268328970539
+      ],
+      "complementarityResidual": [
+        0,
+        5.8295169349493037E-15,
+        1.1569199114765178E-13,
+        0.036684143356462064,
+        0.14642175141770797,
+        0.39205818895177935
+      ],
+      "shapeConsistent": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "finite": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "frictionKinematicsEnforced": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "frictionDirectionResolved": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "activeConstraintResidual": [
+        0,
+        5.2147956092207792E-15,
+        1.0266960892568733E-14,
+        1.3685233501981031E-14,
+        5.0241928672978275E-15,
+        8.1358531023312253E-16
+      ],
+      "numericalChecksPassed": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "forceComponentsLocallySeparable": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "forceSeparationApplicable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "hasForceSeparationWarning": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiresReview": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "forceUncertaintyCoverageValidated": false,
+      "forceAccuracyCertified": false,
+      "historyUncertaintyModeled": false,
+      "historyModeResolutionModeled": true,
+      "environmentCovarianceUsed": true,
+      "environmentCalibrationUncertaintyModeled": false,
+      "uncertaintyScope": "First-order paired bending-noise propagation for mode resolution only; force covariance remains conditional on reconstructed history and selected branch."
+    }
+  },
+  "maxMarginalVarianceChange": 0,
+  "maxAbsoluteCorrelation": 0.030752702548481503,
+  "likelihoodCheckError": 6.6613381477509392E-15,
+  "minConeSlackN": 0
+}
