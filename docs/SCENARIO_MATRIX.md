@@ -32,7 +32,7 @@ n = [0, 0, -1]
 | [`out/stage1/video_seeded/forces.mp4`](../out/stage1/video_seeded/forces.mp4) | 视频几何的固定种子回放 | 用于复现实验输入和随机扰动。 |
 | [`out/stage1/wall_tip_seeded/forces.mp4`](../out/stage1/wall_tip_seeded/forces.mp4) | wall + 非零末端载荷 | 检查杆身接触力与末端力同时存在时的分解。 |
 
-六个独立连续体场景的 GIF 汇总在 [`out/demos/index.html`](../out/demos/index.html)。
+六个独立连续体场景的 MP4/GIF 汇总在 [`out/demos/index.html`](../out/demos/index.html)。
 
 ## 3. 已用现有代码跑过的场景
 
