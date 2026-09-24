@@ -46,7 +46,11 @@ def clip_obstacle(box, origin, normal):
 
 
 def render_animation(data, folder):
-    """Portable GIF + last-state PNG, real computed frames only."""
+    """Portable GIF/MP4 + last-state PNG, real computed frames only.
+
+    The MP4 is a presentation export of the saved solved states.  Each state
+    is held for 1.4 s; no force, shape, or motion samples are interpolated.
+    """
     font_path = Path('C:/Windows/Fonts/msyh.ttc')
     def font(size):
         return ImageFont.truetype(str(font_path), size) if font_path.exists() else ImageFont.load_default(size=size)
@@ -102,6 +106,38 @@ def render_animation(data, folder):
         frames.append(im)
     frames[-1].save(folder/'preview.png')
     frames[0].save(folder/'demo.gif', save_all=True, append_images=frames[1:], duration=1400, loop=0, optimize=False)
+    write_mp4(frames, folder/'demo.mp4')
+
+
+def write_mp4(frames, destination):
+    """Write the same discrete frames to MP4 when OpenCV's encoder exists.
+
+    OpenCV is used only for packaging the already rendered Pillow frames.  A
+    missing encoder is reported as a skipped optional artifact, while the GIF
+    remains the required portable output.
+    """
+    try:
+        import cv2
+        import numpy as np
+    except ImportError:
+        return False
+    if not frames:
+        return False
+    width, height = frames[0].size
+    # 10 fps and 14 repeats gives the same 1.4 s/state timing as the GIF.
+    writer = cv2.VideoWriter(
+        str(destination), cv2.VideoWriter_fourcc(*'mp4v'), 10.0, (width, height)
+    )
+    if not writer.isOpened():
+        return False
+    try:
+        for frame in frames:
+            bgr = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2BGR)
+            for _ in range(14):
+                writer.write(bgr)
+    finally:
+        writer.release()
+    return destination.exists() and destination.stat().st_size > 0
 
 
 def load_cases(folder, report):
@@ -128,7 +164,11 @@ def load_cases(folder, report):
 def write_report(report, cases):
     """Keep the technical note tied to the same run as the viewer."""
     def n(value, digits=4):
-        return '—' if value is None else f'{value:.{digits}f}'
+        if value is None:
+            return '—'
+        if abs(value) > 0 and abs(value) < 10**(-digits):
+            return f'{value:.3e}'
+        return f'{value:.{digits}f}'
     rows, last_rows, diagnostics, assets = [], [], [], []
     for case in cases:
         e, d = case['entry'], case['data']
@@ -141,14 +181,14 @@ def write_report(report, cases):
         last_rows.append(f"| {e['title']} | {f['pushMm']:g} | {n(norm(f['fcTrue']))} | {n(norm(f['fcEstimated']))} | {n(f['contactErrorN'])} |")
         diagnostics.append(f"| {e['title']} | {n(e['trueShapeRmseMm'])} | {n(e['contactLocationRmseMm'])} | {e['truthMaxPenetrationMm']:.2e} | {e['estimatedMaxPenetrationMm']:.4f} | {min(e['frameSeconds']):.1f}–{max(e['frameSeconds']):.1f} |")
         base = '../out/demos/'+e['artifactFolder']
-        assets.append(f"- **{e['title']}**：[GIF]({base}/demo.gif) · [末帧图]({base}/preview.png) · [逐帧力 CSV]({base}/forces.csv) · [几何与力 JSON]({base}/data.json) · [完整结果 MAT]({base}/results.mat)。")
+        assets.append(f"- **{e['title']}**：[MP4]({base}/demo.mp4) · [GIF]({base}/demo.gif) · [末帧图]({base}/preview.png) · [逐帧力 CSV]({base}/forces.csv) · [几何与力 JSON]({base}/data.json) · [完整结果 MAT]({base}/results.mat)。")
     by_id = {c['entry']['id']:c['data'] for c in cases if c['data'] is not None}
     conclusion = ''
     frictionless = [d for d in by_id.values() if d['scene']['frictionMu'] == 0]
     if frictionless:
         errors = [d['summary']['contactRmseN'] for d in frictionless]
         conclusion = (f"本次已完成的 {len(frictionless)} 组无摩擦场景，接触力向量 RMSE 为 "
-                      f"**{min(errors):.4f}–{max(errors):.4f} N**。这支持当前算法在这些已标定、无注入噪声的单接触场景中取得较小误差。")
+                      f"**{n(min(errors))}–{n(max(errors))} N**。这支持当前算法在这些已标定、无注入噪声的单接触场景中取得较小误差。")
     paired = ''
     if 'sliding_clean' in by_id and 'sliding_noisy' in by_id:
         clean, noisy = by_id['sliding_clean'], by_id['sliding_noisy']
@@ -165,11 +205,12 @@ def write_report(report, cases):
                        f"**{norm(last['fcTrue']):.4f} / {norm(last['fcEstimated']):.4f} N**，"
                        f"向量相对误差 **{relative:.1f}%**；该场景的分力精度仍不足。"
                        "其数值检查仍全部通过，直接说明当前数值质量标志不能筛出所有力估计错误。")
+    run_date = report.get('runRecord', {}).get('startedAtUtc', '')[:10] or 'unknown-date'
     content = f'''# 六组连续体杆—环境接触 demo：真值、估计力与误差
 
-更新：2026-09-19。本次运行状态：`{report['state']}`；运行编号：`{report['runRecord']['runId']}`。本页数字由 `scripts/render_contact_demos.py` 从本次保存的 JSON 生成，未把旧输出混入新结果。
+更新：{run_date}。本次运行状态：`{report['state']}`；运行编号：`{report['runRecord']['runId']}`。本页数字由 `scripts/render_contact_demos.py` 从本次保存的 JSON 生成，未把旧输出混入新结果。
 
-**先打开[可播放的离线演示](../out/demos/index.html)**，切换六个场景，用滑块查看三帧真实杆形、估计杆形、接触位置、真实／估计的接触力、末端力和合力。每组还提供 GIF、PNG、CSV 与 MAT。播放只重复已算出的离散状态，没有添加插值估计帧。
+**先打开[可播放的离线演示](../out/demos/index.html)**，切换六个场景，用滑块查看三帧真实杆形、估计杆形、接触位置、真实／估计的接触力、末端力和合力。每组提供由同一批已保存状态导出的 MP4、GIF、PNG、CSV 与 MAT。播放只重复已算出的离散状态，没有添加插值估计帧；MP4/GIF 都是仿真结果的可视化，不是硬件录像。
 
 {conclusion}
 

@@ -1,10 +1,10 @@
 # 六组连续体杆—环境接触 demo：真值、估计力与误差
 
-更新：2026-09-19。本次运行状态：`complete`；运行编号：`496dc953-eb47-499d-9e38-bd83a92dd98b`。本页数字由 `scripts/render_contact_demos.py` 从本次保存的 JSON 生成，未把旧输出混入新结果。
+更新：2026-09-24。本次运行状态：`complete`；运行编号：`a3244666-2bd8-4d80-ae95-5f6ac5e00d42`。本页数字由 `scripts/render_contact_demos.py` 从本次保存的 JSON 生成，未把旧输出混入新结果。
 
-**先打开[可播放的离线演示](../out/demos/index.html)**，切换六个场景，用滑块查看三帧真实杆形、估计杆形、接触位置、真实／估计的接触力、末端力和合力。每组还提供 GIF、PNG、CSV 与 MAT。播放只重复已算出的离散状态，没有添加插值估计帧。
+**先打开[可播放的离线演示](../out/demos/index.html)**，切换六个场景，用滑块查看三帧真实杆形、估计杆形、接触位置、真实／估计的接触力、末端力和合力。每组提供由同一批已保存状态导出的 MP4、GIF、PNG、CSV 与 MAT。播放只重复已算出的离散状态，没有添加插值估计帧；MP4/GIF 都是仿真结果的可视化，不是硬件录像。
 
-本次已完成的 4 组无摩擦场景，接触力向量 RMSE 为 **0.0121–0.0606 N**。这支持当前算法在这些已标定、无注入噪声的单接触场景中取得较小误差。 含噪声滑动的最后一帧真实／估计接触力大小为 **6.2409 / 7.8446 N**，向量相对误差 **25.7%**；该场景的分力精度仍不足。其数值检查仍全部通过，直接说明当前数值质量标志不能筛出所有力估计错误。
+本次已完成的 4 组无摩擦场景，接触力向量 RMSE 为 **5.598e-07–7.171e-06 N**。这支持当前算法在这些已标定、无注入噪声的单接触场景中取得较小误差。 含噪声滑动的最后一帧真实／估计接触力大小为 **6.2409 / 7.7667 N**，向量相对误差 **25.2%**；该场景的分力精度仍不足。其数值检查仍全部通过，直接说明当前数值质量标志不能筛出所有力估计错误。
 
 ## 项目仍在解决什么
 
@@ -43,36 +43,36 @@
 
 | 场景 | 帧数 | 接触力 RMSE N | 末端力 RMSE N | 合力 RMSE N | 数值诊断 |
 |---|---:|---:|---:|---:|---|
-| 弯钩杆向上顶面 | 3 | 0.0190 | 0.0304 | 0.0456 | 0/3 帧需复核 |
-| 侧向墙面接触 | 3 | 0.0318 | 0.0380 | 0.0488 | 0/3 帧需复核 |
-| 倾斜环境接触 | 3 | 0.0606 | 0.0449 | 0.0308 | 0/3 帧需复核 |
-| 较长较软弯杆 | 3 | 0.0121 | 0.0238 | 0.0273 | 0/3 帧需复核 |
-| 沿顶面滑动 | 3 | 0.2046 | 0.1535 | 0.0784 | 0/3 帧需复核 |
-| 相同滑动＋测量噪声 | 3 | 1.0053 | 0.7638 | 0.3511 | 0/3 帧需复核 |
+| 弯钩杆向上顶面 | 3 | 5.598e-07 | 5.108e-07 | 6.622e-08 | 0/3 帧需复核 |
+| 侧向墙面接触 | 3 | 1.614e-06 | 9.744e-07 | 8.152e-07 | 0/3 帧需复核 |
+| 倾斜环境接触 | 3 | 7.171e-06 | 4.002e-06 | 3.950e-06 | 0/3 帧需复核 |
+| 较长较软弯杆 | 3 | 5.806e-07 | 3.258e-07 | 2.918e-07 | 0/3 帧需复核 |
+| 沿顶面滑动 | 3 | 1.018e-05 | 6.930e-06 | 4.151e-06 | 0/3 帧需复核 |
+| 相同滑动＋测量噪声 | 3 | 1.0280 | 0.5968 | 0.4987 | 3/3 帧需复核 |
 
 ### 各场景最后一帧的接触力大小
 
 | 场景 | 推进 mm | 真实大小 N | 估计大小 N | 向量误差 N |
 |---|---:|---:|---:|---:|
-| 弯钩杆向上顶面 | 20 | 7.8769 | 7.8719 | 0.0050 |
-| 侧向墙面接触 | 21 | 10.2593 | 10.2650 | 0.0057 |
-| 倾斜环境接触 | 21 | 10.7532 | 10.7643 | 0.0111 |
-| 较长较软弯杆 | 26 | 4.3319 | 4.3425 | 0.0106 |
-| 沿顶面滑动 | 22 | 6.2409 | 6.2864 | 0.0455 |
-| 相同滑动＋测量噪声 | 22 | 6.2409 | 7.8446 | 1.6037 |
+| 弯钩杆向上顶面 | 20 | 7.8769 | 7.8769 | 8.219e-07 |
+| 侧向墙面接触 | 21 | 10.2593 | 10.2593 | 7.886e-07 |
+| 倾斜环境接触 | 21 | 10.7532 | 10.7532 | 4.455e-06 |
+| 较长较软弯杆 | 26 | 4.3319 | 4.3319 | 8.920e-07 |
+| 沿顶面滑动 | 22 | 6.2409 | 6.2409 | 1.948e-06 |
+| 相同滑动＋测量噪声 | 22 | 6.2409 | 7.7667 | 1.5704 |
 
-同一滑动真值下，无噪声／含噪的接触力向量 RMSE 为 **0.2046 / 1.0053 N**，末端力为 **0.1535 / 0.7638 N**。这只是一组固定随机种子的配对比较，不是噪声鲁棒性的统计结论。
+同一滑动真值下，无噪声／含噪的接触力向量 RMSE 为 **1.018e-05 / 1.0280 N**，末端力为 **6.930e-06 / 0.5968 N**。这只是一组固定随机种子的配对比较，不是噪声鲁棒性的统计结论。
 
 ### 形状、接触位置、穿透与耗时
 
 | 场景 | 真实形状 RMSE mm | 接触弧长 RMSE mm | 真值最大穿透 mm | 估计形状相对真实平面最大穿透 mm | 单帧耗时 s |
 |---|---:|---:|---:|---:|---:|
-| 弯钩杆向上顶面 | 0.0053 | 0.4816 | 8.53e-14 | 0.0024 | 26.7–51.5 |
-| 侧向墙面接触 | 0.0032 | 0.2973 | 4.83e-13 | 0.0011 | 31.8–189.1 |
-| 倾斜环境接触 | 0.0016 | 0.1574 | 0.00e+00 | 0.0000 | 55.3–71.9 |
-| 较长较软弯杆 | 0.0092 | 0.6961 | 0.00e+00 | 0.0099 | 27.0–62.0 |
-| 沿顶面滑动 | 0.0061 | 0.4072 | 0.00e+00 | 0.0030 | 90.3–122.3 |
-| 相同滑动＋测量噪声 | 0.2007 | 1.9937 | 0.00e+00 | 0.1270 | 73.8–102.0 |
+| 弯钩杆向上顶面 | 3.341e-07 | 3.252e-06 | 8.53e-14 | 0.0000 | 9.7–20.5 |
+| 侧向墙面接触 | 3.143e-07 | 3.055e-06 | 4.83e-13 | 0.0000 | 15.7–25.6 |
+| 倾斜环境接触 | 2.494e-07 | 1.788e-06 | 0.00e+00 | 0.0000 | 16.4–22.9 |
+| 较长较软弯杆 | 4.038e-07 | 3.730e-06 | 0.00e+00 | 0.0000 | 5.1–26.1 |
+| 沿顶面滑动 | 3.374e-07 | 3.747e-06 | 0.00e+00 | 0.0000 | 81.6–193.9 |
+| 相同滑动＋测量噪声 | 0.2284 | 0.0534 | 0.00e+00 | 0.1323 | 100.9–325.2 |
 
 弧长误差只统计真实接触力 >0.05 N 的帧；无接触时接触弧长没有物理定义。估计穿透按输出杆节点相对**真实平面**计算；噪声下估计平面可能偏移，所以该值不能单独解释为违反估计器内部约束。逆问题目前只对一个候选接触点施加接触约束，未对整杆加入连续碰撞约束。真值的密集非穿透检查和逆结果的采样穿透诊断是两件事。
 
@@ -109,12 +109,12 @@ python scripts/render_notes.py docs/contact_demos_2026-09-19.md
 
 ## 原始数据和动画
 
-- **弯钩杆向上顶面**：[GIF](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/ceiling_hook/demo.gif) · [末帧图](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/ceiling_hook/preview.png) · [逐帧力 CSV](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/ceiling_hook/forces.csv) · [几何与力 JSON](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/ceiling_hook/data.json) · [完整结果 MAT](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/ceiling_hook/results.mat)。
-- **侧向墙面接触**：[GIF](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/side_wall/demo.gif) · [末帧图](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/side_wall/preview.png) · [逐帧力 CSV](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/side_wall/forces.csv) · [几何与力 JSON](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/side_wall/data.json) · [完整结果 MAT](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/side_wall/results.mat)。
-- **倾斜环境接触**：[GIF](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/inclined_plane/demo.gif) · [末帧图](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/inclined_plane/preview.png) · [逐帧力 CSV](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/inclined_plane/forces.csv) · [几何与力 JSON](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/inclined_plane/data.json) · [完整结果 MAT](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/inclined_plane/results.mat)。
-- **较长较软弯杆**：[GIF](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/long_soft_rod/demo.gif) · [末帧图](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/long_soft_rod/preview.png) · [逐帧力 CSV](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/long_soft_rod/forces.csv) · [几何与力 JSON](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/long_soft_rod/data.json) · [完整结果 MAT](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/long_soft_rod/results.mat)。
-- **沿顶面滑动**：[GIF](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/sliding_clean/demo.gif) · [末帧图](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/sliding_clean/preview.png) · [逐帧力 CSV](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/sliding_clean/forces.csv) · [几何与力 JSON](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/sliding_clean/data.json) · [完整结果 MAT](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/sliding_clean/results.mat)。
-- **相同滑动＋测量噪声**：[GIF](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/sliding_noisy/demo.gif) · [末帧图](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/sliding_noisy/preview.png) · [逐帧力 CSV](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/sliding_noisy/forces.csv) · [几何与力 JSON](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/sliding_noisy/data.json) · [完整结果 MAT](../out/demos/496dc953-eb47-499d-9e38-bd83a92dd98b/sliding_noisy/results.mat)。
+- **弯钩杆向上顶面**：[MP4](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/ceiling_hook/demo.mp4) · [GIF](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/ceiling_hook/demo.gif) · [末帧图](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/ceiling_hook/preview.png) · [逐帧力 CSV](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/ceiling_hook/forces.csv) · [几何与力 JSON](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/ceiling_hook/data.json) · [完整结果 MAT](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/ceiling_hook/results.mat)。
+- **侧向墙面接触**：[MP4](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/side_wall/demo.mp4) · [GIF](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/side_wall/demo.gif) · [末帧图](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/side_wall/preview.png) · [逐帧力 CSV](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/side_wall/forces.csv) · [几何与力 JSON](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/side_wall/data.json) · [完整结果 MAT](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/side_wall/results.mat)。
+- **倾斜环境接触**：[MP4](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/inclined_plane/demo.mp4) · [GIF](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/inclined_plane/demo.gif) · [末帧图](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/inclined_plane/preview.png) · [逐帧力 CSV](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/inclined_plane/forces.csv) · [几何与力 JSON](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/inclined_plane/data.json) · [完整结果 MAT](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/inclined_plane/results.mat)。
+- **较长较软弯杆**：[MP4](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/long_soft_rod/demo.mp4) · [GIF](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/long_soft_rod/demo.gif) · [末帧图](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/long_soft_rod/preview.png) · [逐帧力 CSV](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/long_soft_rod/forces.csv) · [几何与力 JSON](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/long_soft_rod/data.json) · [完整结果 MAT](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/long_soft_rod/results.mat)。
+- **沿顶面滑动**：[MP4](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_clean/demo.mp4) · [GIF](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_clean/demo.gif) · [末帧图](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_clean/preview.png) · [逐帧力 CSV](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_clean/forces.csv) · [几何与力 JSON](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_clean/data.json) · [完整结果 MAT](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_clean/results.mat)。
+- **相同滑动＋测量噪声**：[MP4](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_noisy/demo.mp4) · [GIF](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_noisy/demo.gif) · [末帧图](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_noisy/preview.png) · [逐帧力 CSV](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_noisy/forces.csv) · [几何与力 JSON](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_noisy/data.json) · [完整结果 MAT](../out/demos/a3244666-2bd8-4d80-ae95-5f6ac5e00d42/sliding_noisy/results.mat)。
 
 ## 接下来要补的算法能力
 
