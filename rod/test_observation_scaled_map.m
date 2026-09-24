@@ -2,7 +2,13 @@ function test_observation_scaled_map()
 % Regression: near-exact force estimates still failed complementarity with
 % prior-only coordinates after tightening the FBG likelihood. No truth seed.
 root=fileparts(fileparts(mfilename('fullpath')));
-source=fullfile(root,'out','demos','496dc953-eb47-499d-9e38-bd83a92dd98b','inclined_plane','results.mat');
+comparisonPath=fullfile(root,'out','demos','comparison.json');
+assert(isfile(comparisonPath),'Missing current contact-demo comparison; run force(''demos'') first.');
+comparison=jsondecode(fileread(comparisonPath));
+entry=find(strcmp({comparison.cases.id},'inclined_plane') & [comparison.cases.completed],1);
+assert(~isempty(entry),'Current contact-demo comparison has no completed inclined_plane case.');
+source=fullfile(root,'out','demos',comparison.cases(entry).artifactFolder,'results.mat');
+assert(isfile(source),'Missing current inclined-plane results: %s',source);
 d=load(source,'sensorInput','truth');input=d.sensorInput;
 input.packet=subset_sensor_packet(input.packet,1);
 input.config=formulation_solver_config(input.config);

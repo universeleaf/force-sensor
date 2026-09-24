@@ -4,9 +4,9 @@
   "state": "complete",
   "runRecord": {
     "schemaVersion": 1,
-    "runId": "bb398052-ac28-4076-b845-af8ca5493adc",
+    "runId": "ad3fb5c9-acf9-4cab-aaee-9de11c6d0216",
     "state": "complete",
-    "startedAtUtc": "2026-09-24T08:10:39Z",
+    "startedAtUtc": "2026-09-24T15:00:55Z",
     "matlabVersion": "24.1.0.2537033 (R2024a)",
     "platform": "PCWIN64",
     "source": [
@@ -100,7 +100,7 @@
       },
       {
         "path": "rod/file_sha256.m",
-        "sha256": "70ad733aca3718b7a7b87da40d9343f7050b641c77e946c4427329ac9eba91c1"
+        "sha256": "bc5e12daca5fb3b2b36301adf4d0c841638ed1435e38dc24d4c4e183471354de"
       },
       {
         "path": "rod/force_sensitivity_diagnostic.m",
@@ -404,7 +404,7 @@
       },
       {
         "path": "rod/test_observation_scaled_map.m",
-        "sha256": "f7778a19cf990544e6d153bb45f6c86fc9f5710c46292283526754b99666d187"
+        "sha256": "4b742ceb7e735e4dccc7a7a2b74cec6cabed1d24d1e0e2e7c15d307cbecd1c22"
       },
       {
         "path": "rod/test_planar_energy_rod.m",
@@ -494,187 +494,187 @@
     {
       "name": "test_lcp_dependency",
       "passed": true,
-      "seconds": 0.5545091,
+      "seconds": 1.2292537,
       "error": ""
     },
     {
       "name": "test_sensor_history_boundary",
       "passed": true,
-      "seconds": 1.7376189,
+      "seconds": 1.8321755,
       "error": ""
     },
     {
       "name": "test_sensor_contracts",
       "passed": true,
-      "seconds": 0.4292805,
+      "seconds": 0.3943366,
       "error": ""
     },
     {
       "name": "test_sensor_config",
       "passed": true,
-      "seconds": 0.0633736,
+      "seconds": 0.0537994,
       "error": ""
     },
     {
       "name": "test_fbg_likelihood_calibration",
       "passed": true,
-      "seconds": 0.0226539,
+      "seconds": 0.0172844,
       "error": ""
     },
     {
       "name": "test_result_lifecycle",
       "passed": true,
-      "seconds": 1.1213785,
+      "seconds": 0.9462418,
       "error": ""
     },
     {
       "name": "test_force_sensitivity",
       "passed": true,
-      "seconds": 0.7148164,
+      "seconds": 0.6738781,
       "error": ""
     },
     {
       "name": "test_environment_covariance",
       "passed": true,
-      "seconds": 0.6554203,
+      "seconds": 0.641586,
       "error": ""
     },
     {
       "name": "test_depth_plane",
       "passed": true,
-      "seconds": 0.5034709,
+      "seconds": 0.6018358,
       "error": ""
     },
     {
       "name": "test_reduced_mode_bounds",
       "passed": true,
-      "seconds": 1.5217089,
+      "seconds": 1.910818,
       "error": ""
     },
     {
       "name": "test_plane_contact_geometry",
       "passed": true,
-      "seconds": 0.5331846,
+      "seconds": 0.5383725,
       "error": ""
     },
     {
       "name": "test_cosserat_collision_geometry",
       "passed": true,
-      "seconds": 0.9869986,
+      "seconds": 0.9181383,
       "error": ""
     },
     {
       "name": "test_cosserat_work_budget",
       "passed": true,
-      "seconds": 0.6101566,
+      "seconds": 0.6956239,
       "error": ""
     },
     {
       "name": "test_nonlinear_shape_seed",
       "passed": true,
-      "seconds": 2.8813887,
+      "seconds": 3.6150523,
       "error": ""
     },
     {
       "name": "test_observation_scaled_map",
       "passed": true,
-      "seconds": 31.850675,
+      "seconds": 40.2102485,
       "error": ""
     },
     {
       "name": "test_latent_fbg_history",
       "passed": true,
-      "seconds": 0.8531556,
+      "seconds": 0.7425996,
       "error": ""
     },
     {
       "name": "test_integrated_history_point",
       "passed": true,
-      "seconds": 0.3758393,
+      "seconds": 0.3726405,
       "error": ""
     },
     {
       "name": "test_history_resolution",
       "passed": true,
-      "seconds": 2.1489594,
+      "seconds": 2.4122877,
       "error": ""
     },
     {
       "name": "test_result_integrity",
       "passed": true,
-      "seconds": 0.1383915,
+      "seconds": 0.136677,
       "error": ""
     },
     {
       "name": "test_friction_regression",
       "passed": true,
-      "seconds": 0.1987927,
+      "seconds": 0.1981313,
       "error": ""
     },
     {
       "name": "test_friction_quality",
       "passed": true,
-      "seconds": 0.0155989,
+      "seconds": 0.020047,
       "error": ""
     },
     {
       "name": "test_planar_energy_rod",
       "passed": true,
-      "seconds": 1.0865207,
+      "seconds": 1.2274537,
       "error": ""
     },
     {
       "name": "test_contact_shooting",
       "passed": true,
-      "seconds": 1.33745,
+      "seconds": 1.6244527,
       "error": ""
     },
     {
       "name": "test_contact_separation_gate",
       "passed": true,
-      "seconds": 5.4457043,
+      "seconds": 6.3509653,
       "error": ""
     },
     {
       "name": "test_intrinsic_curvature_reconstruction",
       "passed": true,
-      "seconds": 1.7302567,
+      "seconds": 1.7596391,
       "error": ""
     },
     {
       "name": "test_rotation_equivariance",
       "passed": true,
-      "seconds": 0.1321333,
+      "seconds": 0.1452278,
       "error": ""
     },
     {
       "name": "test_multi_contact_map",
       "passed": true,
-      "seconds": 0.5052836,
+      "seconds": 0.6940906,
       "error": ""
     },
     {
       "name": "@()run_rod_plane_force_sensing_experiment('jacobian-audit',fullfile(root,'out','video','inverse_results.mat'))",
       "passed": true,
-      "seconds": 2.9533523,
+      "seconds": 3.3443183,
       "error": ""
     },
     {
       "name": "run_project_checks/checkSyntax",
       "passed": true,
-      "seconds": 1.7807856,
+      "seconds": 2.4555884,
       "error": ""
     },
     {
       "name": "@()test_sensor_replay(fullfile(root,'out','stage1','video_seeded'))",
       "passed": true,
-      "seconds": 128.0886026,
+      "seconds": 149.2515232,
       "error": ""
     },
     {
       "name": "@()test_sensor_replay(fullfile(root,'out','stage1','wall_tip_seeded'))",
       "passed": true,
-      "seconds": 174.572592,
+      "seconds": 210.9846108,
       "error": ""
     }
   ]
