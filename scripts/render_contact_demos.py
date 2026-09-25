@@ -1,8 +1,9 @@
-"""Package actual MATLAB demo outputs into an offline viewer and animations.
+"""Package saved MATLAB demo outputs into an offline viewer.
 
-No force estimates or motion interpolation are computed here. Each animation
-holds the three solved states; the sensor-pair interval is not playback time.
-Run with the workspace's Python after force('demos'). Requires Pillow for GIFs.
+The force-sensing MP4 is produced by MATLAB's VideoWriter inside
+``run_contact_demo_suite`` after every state has been solved.  This script is
+only a portable viewer/GIF exporter; it must never replace that MP4 with a
+different renderer or manufacture force estimates.
 """
 from __future__ import annotations
 
@@ -46,11 +47,7 @@ def clip_obstacle(box, origin, normal):
 
 
 def render_animation(data, folder):
-    """Portable GIF/MP4 + last-state PNG, real computed frames only.
-
-    The MP4 is a presentation export of the saved solved states.  Each state
-    is held for 1.4 s; no force, shape, or motion samples are interpolated.
-    """
+    """Portable GIF + last-state PNG; MP4 remains the MATLAB artifact."""
     font_path = Path('C:/Windows/Fonts/msyh.ttc')
     def font(size):
         return ImageFont.truetype(str(font_path), size) if font_path.exists() else ImageFont.load_default(size=size)
@@ -68,7 +65,7 @@ def render_animation(data, folder):
         im = Image.new('RGB', (1100, 760), '#f5f6f2')
         d = ImageDraw.Draw(im)
         d.text((36, 22), data['scene']['title'], font=font(28), fill='#162a35')
-        d.text((36, 65), f"离散求解状态 {f['index']} / {len(data['frames'])} · 推进 {f['pushMm']:g} mm", font=font(17), fill='#52656c')
+        d.text((36, 65), f"求解状态 {f['index']} / {len(data['frames'])} · 推进 {f['pushMm']:g} mm", font=font(17), fill='#52656c')
         poly = clip_obstacle(box, data['planePoint'], data['planeNormal'])
         if len(poly) >= 3:
             d.polygon([point2(p) for p in poly], fill='#dce1de')
@@ -102,42 +99,18 @@ def render_animation(data, folder):
             y += 38
             d.text((x,y), f"向量误差 {f[err]:.4f} N", font=font(17), fill='#52656c')
         d.text((652, 621), '数值诊断：'+('需复核' if f['requiresReview'] else '当前检查通过'), font=font(18), fill='#9b501e' if f['requiresReview'] else '#177c69')
-        d.text((36, 711), '独立平面仿真 / 三维逆估计 · 每帧停留 1.4 秒 · 无插值 · 力箭头 4 mm/N', font=font(17), fill='#52656c')
+        d.text((36, 711), '独立平面仿真 / 三维逆估计 · MATLAB MP4 为完整求解帧 · 力箭头 4 mm/N', font=font(17), fill='#52656c')
         frames.append(im)
     frames[-1].save(folder/'preview.png')
     frames[0].save(folder/'demo.gif', save_all=True, append_images=frames[1:], duration=1400, loop=0, optimize=False)
-    write_mp4(frames, folder/'demo.mp4')
-
-
-def write_mp4(frames, destination):
-    """Write the same discrete frames to MP4 when OpenCV's encoder exists.
-
-    OpenCV is used only for packaging the already rendered Pillow frames.  A
-    missing encoder is reported as a skipped optional artifact, while the GIF
-    remains the required portable output.
-    """
-    try:
-        import cv2
-        import numpy as np
-    except ImportError:
-        return False
-    if not frames:
-        return False
-    width, height = frames[0].size
-    # 10 fps and 14 repeats gives the same 1.4 s/state timing as the GIF.
-    writer = cv2.VideoWriter(
-        str(destination), cv2.VideoWriter_fourcc(*'mp4v'), 10.0, (width, height)
-    )
-    if not writer.isOpened():
-        return False
-    try:
-        for frame in frames:
-            bgr = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2BGR)
-            for _ in range(14):
-                writer.write(bgr)
-    finally:
-        writer.release()
-    return destination.exists() and destination.stat().st_size > 0
+    # ``forces.mp4`` is the canonical continuous MATLAB movie.  Do not call
+    # the old Pillow/OpenCV writer here: doing so silently produced the
+    # three-state videos that prompted this repair.  Keep an old ``demo.mp4``
+    # only when a legacy folder has no MATLAB movie at all.
+    if not (folder/'forces.mp4').exists() and not (folder/'demo.mp4').exists():
+        (folder/'demo_mp4_missing.txt').write_text(
+            'Run force(''demos'') in MATLAB to create the canonical forces.mp4.\n',
+            encoding='utf-8')
 
 
 def load_cases(folder, report):
@@ -181,7 +154,8 @@ def write_report(report, cases):
         last_rows.append(f"| {e['title']} | {f['pushMm']:g} | {n(norm(f['fcTrue']))} | {n(norm(f['fcEstimated']))} | {n(f['contactErrorN'])} |")
         diagnostics.append(f"| {e['title']} | {n(e['trueShapeRmseMm'])} | {n(e['contactLocationRmseMm'])} | {e['truthMaxPenetrationMm']:.2e} | {e['estimatedMaxPenetrationMm']:.4f} | {min(e['frameSeconds']):.1f}–{max(e['frameSeconds']):.1f} |")
         base = '../out/demos/'+e['artifactFolder']
-        assets.append(f"- **{e['title']}**：[MP4]({base}/demo.mp4) · [GIF]({base}/demo.gif) · [末帧图]({base}/preview.png) · [逐帧力 CSV]({base}/forces.csv) · [几何与力 JSON]({base}/data.json) · [完整结果 MAT]({base}/results.mat)。")
+        video = e.get('videoFile', 'forces.mp4')
+        assets.append(f"- **{e['title']}**：[MP4]({base}/{video}) · [GIF]({base}/demo.gif) · [末帧图]({base}/preview.png) · [逐帧力 CSV]({base}/forces.csv) · [几何与力 JSON]({base}/data.json) · [完整结果 MAT]({base}/results.mat)。")
     by_id = {c['entry']['id']:c['data'] for c in cases if c['data'] is not None}
     conclusion = ''
     frictionless = [d for d in by_id.values() if d['scene']['frictionMu'] == 0]
@@ -210,7 +184,7 @@ def write_report(report, cases):
 
 更新：{run_date}。本次运行状态：`{report['state']}`；运行编号：`{report['runRecord']['runId']}`。本页数字由 `scripts/render_contact_demos.py` 从本次保存的 JSON 生成，未把旧输出混入新结果。
 
-**先打开[可播放的离线演示](../out/demos/index.html)**，切换六个场景，用滑块查看三帧真实杆形、估计杆形、接触位置、真实／估计的接触力、末端力和合力。每组提供由同一批已保存状态导出的 MP4、GIF、PNG、CSV 与 MAT。播放只重复已算出的离散状态，没有添加插值估计帧；MP4/GIF 都是仿真结果的可视化，不是硬件录像。
+**先打开[可播放的离线演示](../out/demos/index.html)**，切换六个场景，用滑块查看每个真实求解状态的杆形、估计杆形、接触位置、真实／估计的接触力、末端力和合力。MP4 是 MATLAB `VideoWriter` 在完整求解后生成的连续播放；GIF/PNG 是本脚本生成的便携预览。所有文件都是仿真结果的可视化，不是硬件录像。
 
 {conclusion}
 
@@ -224,16 +198,16 @@ def write_report(report, cases):
 
 | 场景 ID | 环境和杆 | 推进量 mm | 真值生成器的末端力（局部 XZ，N） | 噪声／摩擦 |
 |---|---|---|---|---|
-| ceiling_hook | 200 mm 弯钩杆，直段 120 mm，弯段半径 30 mm；向上顶 z=160 平面 | 10, 16, 20 | [1, −1] | 无摩擦，无注入噪声 |
-| side_wall | 上述几何整体绕 y 旋转 90°，侧向压墙；另换末端载荷 | 12, 17, 21 | [0.4, −0.6] | 无摩擦，无注入噪声 |
-| inclined_plane | 基座不旋转，平面经过局部 [0,145] mm，法向倾斜 12° | 12, 17, 21 | [0.5, −0.6] | 无摩擦，无注入噪声 |
-| long_soft_rod | 240 mm 杆，直段 144 mm，半径 36 mm，刚度为参考 65%；旋转 180°向下压面 | 12, 20, 26 | [0.4, −0.4] | 无摩擦，无注入噪声 |
-| sliding_clean | 参考弯杆沿顶面滑动，配对样本沿 −x 相差 0.02 mm | 18, 20, 22 | [1, −1] | μ=0.3，无注入噪声 |
-| sliding_noisy | 与上组相同几何、真值和滑移 | 18, 20, 22 | [1, −1] | μ=0.3，曲率 σ=5×10⁻⁵/mm，平面偏移 σ=0.1 mm |
+| ceiling_hook | 200 mm 弯钩杆，直段 120 mm，弯段半径 30 mm；向上顶 z=160 平面 | 10→20（12 个状态） | [1, −1] | 无摩擦，无注入噪声 |
+| side_wall | 上述几何整体绕 y 旋转 90°，侧向压墙；另换末端载荷 | 12→21（12 个状态） | [0.4, −0.6] | 无摩擦，无注入噪声 |
+| inclined_plane | 基座不旋转，平面经过局部 [0,145] mm，法向倾斜 12° | 12→21（12 个状态） | [0.5, −0.6] | 无摩擦，无注入噪声 |
+| long_soft_rod | 240 mm 杆，直段 144 mm，半径 36 mm，刚度为参考 65%；旋转 180°向下压面 | 12→26（12 个状态） | [0.4, −0.4] | 无摩擦，无注入噪声 |
+| sliding_clean | 参考弯杆沿顶面滑动，配对样本沿 −x 相差 0.02 mm | 18→22（12 个状态） | [1, −1] | μ=0.3，无注入噪声 |
+| sliding_noisy | 与上组相同几何、真值和滑移 | 18→22（12 个状态） | [1, −1] | μ=0.3，曲率 σ=5×10⁻⁵/mm，平面偏移 σ=0.1 mm |
 
 参考弯曲刚度为 200700 N·mm²，扭转刚度为弯曲刚度/1.3；长软杆二者均乘 0.65。视频场景只近似杆形，视频没有提供可用于毫米标定和材料辨识的全部信息，不能称为视频实验的精确数字孪生。
 
-传感器为 24 个位置的两个弯曲曲率通道；固有曲率、基座姿态和刚度作为已知标定。第三个曲率为标定扭转假设，不是实测通道。采用 `intrinsic-delta` 重建，当前与前驱样本间隔 20 ms；三帧推进量是抽样工况，并不代表只相隔 20 ms 的连续运动。随机种子固定为 93。
+传感器为 24 个位置的两个弯曲曲率通道；固有曲率、基座姿态和刚度作为已知标定。第三个曲率为标定扭转假设，不是实测通道。采用 `intrinsic-delta` 重建，当前与前驱样本间隔 20 ms；12 个推进状态是真实独立求解点，视频只对这些已求解点做播放采样。随机种子固定为 93。
 
 环境输入为模拟平面观测，本轮没有走合成深度图前端。平面点的各向同性似然标准差为 max(0.03 mm, 注入平面噪声)，法向分量标准差为 0.001；后者是建模下限，没有注入法向噪声。当前传感器噪声与 MAP 的似然权重并非全部逐项匹配，估计器其余权重沿用公开默认配置，完整配置保存在 MAT。
 
@@ -245,7 +219,7 @@ def write_report(report, cases):
 
 `simulate_sensor_packet` 只输出曲率样点、基座位姿、环境观测、摩擦系数和时间戳。`estimate_sensor_forces` 接收 `tube + packet + config`，不接收力真值、接触弧长或稠密真实杆形。真值仅在生成传感器观测和事后评分时使用。二维真值与三维逆模型共享物理假设和标定参数，因此仍是理想参数下的独立实现验证，不是材料失配验证。
 
-## 准不准：三帧整体误差
+## 准不准：完整求解状态的整体误差
 
 下表是三维**向量** RMSE，即 √mean(‖估计 − 真值‖²)，不是只比较幅值。无接触帧同样计入力误差；优化或诊断警告不会被删掉。
 
@@ -276,7 +250,7 @@ def write_report(report, cases):
 1. **撤回旧 demo 的接触真值资格。** 旧 `out/formulation/demo_suite/` 先给任意点载荷求杆形，再把平面放在该点，没有保证整杆非穿透或接触相切。几何审计发现 floor_midbody / inclined_sticking / tip_contact_degenerate / nonplanar_contact_stress 最大穿透分别为 65.3992 / 11.6615 / 20.6475 / 16.3294 mm；旧侧墙生成还因基座落入障碍物失败。原文件保留并[标记无效](../out/formulation/demo_suite/INVALID_GEOMETRY.md)，未当作新结果使用。
 2. **重建场景生成和输出。** `contact_demo_scenes` 定义明确参数，`build_contact_demo_truth` 先解独立合法平衡，再生成传感器数据。`run_contact_demo_suite` 每次使用独立运行目录，逐场景保存结果和失败阶段，输出评分、原始向量和杆形。新接口 `sensor-config` 从当前默认标定配置建立输入，不再读取旧实验模板或负载标签。
 3. **纠正历史不确定性标志。** 有历史曲率噪声标定不代表 MAP 已对历史隐状态建模。`historyUncertaintyModeled=false`；单独报告 `historyNoiseCalibrationAvailable`。旧 active-set 路径的噪声模式分辨与完整 MPCC 的模式优化分开标记；完整 MPCC 仍以重建的历史形状为条件，没有把历史噪声纳入联合似然。
-4. **交付可复查的演示。** 离线 HTML 嵌入本次真实 JSON；GIF 每帧与真实保存结果一一对应，末帧 PNG 可直接用于组会。所有场景保留，未通过数值检查的帧也显示，未用动画插值增加“实验帧数”。
+4. **交付可复查的演示。** MATLAB `VideoWriter` 在每个场景的完整逆解结束后写出 `forces.mp4`，离线 HTML 嵌入本次真实 JSON；GIF 每帧与真实保存结果一一对应，末帧 PNG 可直接用于组会。所有场景保留，未通过数值检查的帧也显示，MP4 不由 Python 重新编码。
 
 ## 如何运行和重放
 

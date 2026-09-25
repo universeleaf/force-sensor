@@ -1,4 +1,4 @@
-# EnFiRCE: environment- and shape-informed force estimation
+# EnFiRCE: Environment- and Friction-informed Rod Contact Estimation
 
 本项目研究连续体机器人与环境接触时的力分解问题：利用稀疏形状观测和环境几何，同时估计杆身接触力与独立末端载荷，并在力分量不可可靠分离时输出质量标志。
 
@@ -18,12 +18,12 @@
 
 ## 公开视频与演示
 
-- [六个接触场景离线播放器](out/demos/index.html)：包含顶面弯钩、侧墙、斜面和滑动场景。
+- [六个接触场景离线播放器](out/demos/index.html)：包含顶面弯钩、侧墙、斜面和滑动场景；每个场景现在用 12 个完整求解状态生成 MATLAB `forces.mp4`。
 - [90° 旋转后向上推的力图视频](out/upward/forces.mp4)：沿 `+z` 推 45 mm，随后沿 `-x` 滑 1 mm。
 - [视频几何回放](out/video/forces.mp4)：先沿 `+z` 推 20 mm，再沿 `-x` 滑 12 mm；这是 `fail.mp4` 的图像几何近似，不是原视频参数恢复。
 - [视频种子回放](out/stage1/video_seeded/forces.mp4)和[壁面种子回放](out/stage1/wall_tip_seeded/forces.mp4)。
 
-完整的算法、数据流、文件职责、实验结果和限制见[技术总说明](docs/TECHNICAL_OVERVIEW.md)；滑动阶段、视频说明、文献场景和实验矩阵见[场景矩阵](docs/SCENARIO_MATRIX.md)；当前实验状态见[状态页](docs/STATUS.md)。
+完整的算法、数据流、文件职责、实验结果和限制见[技术总说明](docs/TECHNICAL_OVERVIEW.md)；滑动阶段、视频说明、文献场景和实验矩阵见[场景矩阵](docs/SCENARIO_MATRIX.md)；旧视频与经典文献问题的对应关系见[文献场景视频对照](docs/LITERATURE_SCENARIO_MAP.md)；当前单接触边界和双接触扩展路径见[多接触扩展说明](docs/MULTI_CONTACT_EXTENSION.md)；当前实验状态见[状态页](docs/STATUS.md)。
 
 ## 快速运行
 
@@ -51,6 +51,7 @@ force('check');           % 工程回归与传感器重放
 - `rod/estimate_formulation_forces.m`：论文主路径的配置入口。
 - `rod/solve_cosserat_force_map.m`、`rod/solve_contact_mpcc.m`：单接触三维平衡和互补优化。
 - `rod/solve_cosserat_multi_contact_map.m`：独立多接触正向压力真值。
+- `rod/multi_contact_state_spec.m`、`decode_multi_contact_state.m`、`evaluate_multi_contact_state.m`：多接触状态布局、解码和 Cosserat 候选评估层；双接触 MAP 优化仍在扩展中。
 - `rod/estimate_temporal_window_forces.m`：前一时刻平衡和过程先验的短窗口 MAP。
 - `rod/run_submission_statistics.m`、`run_model_mismatch_protocol.m`、`run_fair_baseline_protocol.m`、`run_realtime_benchmark.m`：投稿评估协议。
 - `rod/test_*.m`、`rod/validate_*.m`：输入契约、物理约束、摩擦和结果完整性检查。

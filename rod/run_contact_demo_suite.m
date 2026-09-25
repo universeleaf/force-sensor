@@ -49,10 +49,25 @@ for j=1:numel(scenes)
         entry.forceMagnitudeEstimateN=vecnorm(o.contactForceResultant);
         entry.frames=size(o.state,2);
         entry.seconds=toc(timer);
-        data=portableData(scene,truth,output,entry);
-        atomic_write_artifact(fullfile(caseFolder,'data.json'),'json',data);
+        % Persist the solved states before rendering so the movie is a
+        % reproducible view of the same MAT artifact.  The renderer uses the
+        % legacy MATLAB VideoWriter layout (shape/plane/force history).
         atomic_write_artifact(fullfile(caseFolder,'results.mat'),'mat', ...
             struct('sensorInput',sensorInput,'truth',truth,'output',output,'scene',scene,'report',entry));
+        stage='video';
+        video=render_contact_demo_video(fullfile(caseFolder,'results.mat'), ...
+            fullfile(caseFolder,'forces.mp4'),struct('frameRate',10, ...
+            'durationSeconds',6,'paperTag','EnFiRCE / continuous contact')); %#ok<NASGU>
+        % Keep the historical demo.mp4 filename as an exact copy of the new
+        % MATLAB movie so old links do not silently open the PIL renderer.
+        copyfile(fullfile(caseFolder,'forces.mp4'),fullfile(caseFolder,'demo.mp4'),'f');
+        entry.videoFile='forces.mp4';
+        entry.videoFrameCount=video.frameCount;
+        entry.videoSourceStateCount=video.sourceStateCount;
+        atomic_write_artifact(fullfile(caseFolder,'results.mat'),'mat', ...
+            struct('sensorInput',sensorInput,'truth',truth,'output',output,'scene',scene,'report',entry));
+        data=portableData(scene,truth,output,entry);
+        atomic_write_artifact(fullfile(caseFolder,'data.json'),'json',data);
         writeCsv(caseFolder,data);
         fprintf('DEMO_RESULT %s: contact/tip/total RMSE %.6f / %.6f / %.6f N; truth penetration %.3g mm\n', ...
             scene.id,entry.contactRmseN,entry.tipRmseN,entry.totalRmseN,entry.truthMaxPenetrationMm);

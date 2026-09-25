@@ -1,4 +1,4 @@
-# EnFiRCE：代码级技术总说明
+# EnFiRCE：Environment- and Friction-informed Rod Contact Estimation 技术总说明
 
 这份文档是当前仓库的实现手册，按“研究问题 → 数据边界 → 正向真值 → 逆问题 → 数值求解 → 结果审计”的顺序解释代码。每一节给出相应函数，便于直接跳到实现。场景和视频另见[场景矩阵](SCENARIO_MATRIX.md)，实验状态另见[状态页](STATUS.md)。若历史文字与代码冲突，以当前代码及相应运行目录中的 comparison.json 为准。
 
@@ -18,7 +18,7 @@
 | 接触优化 | [solve_contact_mpcc.m](../rod/solve_contact_mpcc.m)、[solve_contact_mode_map.m](../rod/solve_contact_mode_map.m) | MAP 目标 + 接触约束 → 可行解和同伦轨迹 |
 | 全杆几何 | [plane_contact_constraints.m](../rod/plane_contact_constraints.m) | 连续力学采样形状 → 非穿透与切触残差 |
 | 时间历史 | [latent_fbg_history.m](../rod/latent_fbg_history.m)、[estimate_temporal_window_forces.m](../rod/estimate_temporal_window_forces.m) | 前一帧观测或 W 帧 → 联合估计 |
-| 独立真值/demo | [build_contact_demo_truth.m](../rod/build_contact_demo_truth.m)、[contact_demo_scenes.m](../rod/contact_demo_scenes.m)、[run_contact_demo_suite.m](../rod/run_contact_demo_suite.m) | 场景 → 独立平衡真值、模拟传感器包、评分 |
+| 独立真值/demo | [build_contact_demo_truth.m](../rod/build_contact_demo_truth.m)、[contact_demo_scenes.m](../rod/contact_demo_scenes.m)、[run_contact_demo_suite.m](../rod/run_contact_demo_suite.m)、[render_contact_demo_video.m](../rod/render_contact_demo_video.m) | 场景 → 独立平衡真值、模拟传感器包、逐状态 MAP/MPCC 评分和 MATLAB 连续视频 |
 | 压力与基线 | [run_model_mismatch_protocol.m](../rod/run_model_mismatch_protocol.m)、[run_fair_baseline_protocol.m](../rod/run_fair_baseline_protocol.m) | 相同或模型外输入 → 对照结果 |
 | 工程回归 | [run_project_checks.m](../rod/run_project_checks.m) | 31 项检查 → project_checks.json |
 
@@ -356,6 +356,7 @@ out/demos/
       results.mat
       data.json
       forces.csv
+      forces.mp4
       demo.mp4
 ~~~
 
@@ -365,24 +366,24 @@ runRecord 保存 schemaVersion、UUID、UTC 时间、MATLAB 版本、平台和 s
 
 ### 13.2 MP4 的来源
 
-旧 out/wall、out/upward、out/video、out/stage1 下的 forces.mp4 是 MATLAB 正向/逆向实验内部的 VideoWriter 输出。新六场景 demo.mp4 是从同一批 MATLAB 求解出的三个状态离线渲染：每个状态重复 14 帧，10 fps，每状态约 1.4 s；没有插值、没有重新估计、不是硬件录像。它们适合展示几何和力箭头，不应被当成连续时间传感器录像。
+旧 out/wall、out/upward、out/video、out/stage1 下的 forces.mp4 是 MATLAB 正向/逆向实验内部的 VideoWriter 输出。新六场景的 forces.mp4 也由 MATLAB VideoWriter 生成：每个场景先完成 12 个独立推进状态的真值、稀疏传感器包和三维 MAP/MPCC 逆解，再连续采样这些已保存状态写入视频。demo.mp4 是同一文件的兼容副本；Python 只生成 GIF/PNG/HTML，不再覆盖 MP4。视频不是硬件录像，也不把播放帧当成新增估计结果。
 
 ## 14. 当前运行结果与正确解读
 
-当前六 demo 运行 ID 为 a3244666-2bd8-4d80-ae95-5f6ac5e00d42，MATLAB R2024a。JSON 中的逐场景指标：
+当前六 demo 运行 ID 为 `5140876c-8e87-4da6-ac4d-c28113e12b88`，使用 MATLAB R2024a。每个场景完成 12 个独立求解状态；每个 `forces.mp4` 有 60 个播放帧，来源状态数仍为 12。JSON 中的逐场景指标：
 
 | 场景 | 接触 RMSE (N) | 末端 RMSE (N) | 合力 RMSE (N) | 接触弧长 RMSE (mm) |
 |---|---:|---:|---:|---:|
-| ceiling_hook | 5.60e-7 | 5.11e-7 | 6.62e-8 | 3.25e-6 |
-| side_wall | 1.61e-6 | 9.74e-7 | 8.15e-7 | 3.06e-6 |
-| inclined_plane | 7.17e-6 | 4.00e-6 | 3.95e-6 | 1.79e-6 |
-| long_soft_rod | 5.81e-7 | 3.26e-7 | 2.92e-7 | 3.73e-6 |
-| sliding_clean | 1.02e-5 | 6.93e-6 | 4.15e-6 | 3.75e-6 |
-| sliding_noisy | 1.028 | 0.597 | 0.499 | 0.0534 |
+| ceiling_hook | 7.547e-7 | 6.509e-7 | 2.709e-7 | 5.144e-6 |
+| side_wall | 1.320e-6 | 9.700e-7 | 6.107e-7 | 5.375e-6 |
+| inclined_plane | 4.261e-6 | 2.345e-6 | 2.353e-6 | 1.487e-6 |
+| long_soft_rod | 3.870e-7 | 3.356e-7 | 1.319e-7 | 5.654e-6 |
+| sliding_clean | 5.212e-6 | 3.567e-6 | 2.109e-6 | 4.507e-6 |
+| sliding_noisy | 8.793e-1 | 7.019e-1 | 2.992e-1 | 4.610e-2 |
 
-前五个 case 使用与真值一致的近乎无噪声模型，主要说明数值实现能复原独立平衡；不能外推为真实传感器误差。sliding_noisy 仍可能满足优化约束，但 frictionDirectionResolved=false、hasFrictionObservationWarning=true，估计最大平面穿透约 0.132 mm，必须当作需要复核的噪声压力结果。
+前五个 case 使用与真值一致的近乎无噪声模型，主要说明数值实现能复原独立平衡；不能外推为真实传感器误差。`sliding_noisy` 的 12/12 帧都触发 `requiresReview` 和摩擦方向观测警告，虽然最终互补和整杆非穿透检查通过；其估计平面参考下的最大穿透约 0.122 mm。这是当前方法边界，不应写成噪声下成功。
 
-模型外三项压力测试的合力 RMSE 约为 two-contact 1.584 N、curved-surface 1.649 N、friction-mismatch 1.630 N。它们的共同原因是公开逆解的状态只表达一接触平面和一个摩擦先验。
+模型外三项压力测试的合力 RMSE 约为 two-contact 1.584 N、curved-surface 1.649 N、friction-mismatch 1.630 N。它们的共同原因是公开逆解的状态只表达一接触平面和一个摩擦先验；真正的双接触扩展见[多接触扩展说明](MULTI_CONTACT_EXTENSION.md)。
 
 ### 14.1 多种子、多噪声
 
@@ -565,6 +566,10 @@ FBG 只能告诉我们杆在各处弯了多少，不能单独告诉我们弯曲�
 | [paired_contact_uncertainty.m](../rod/paired_contact_uncertainty.m) | 将 current/previous 形状、基座和曲率误差传播为同一接触弧长位移协方差 |
 | [friction_direction_quality.m](../rod/friction_direction_quality.m) | 把摩擦运动学是否满足、方向是否分辨和观测警告压缩为质量字段 |
 | [solve_cosserat_multi_contact_map.m](../rod/solve_cosserat_multi_contact_map.m) | 仅用于独立多接触 forward stress truth；公共单接触逆解不调用它 |
+| [multi_contact_state_spec.m](../rod/multi_contact_state_spec.m) | K 接触状态布局；K=1 保持 27 维旧 API，K=2 独立平面为 51 维 |
+| [decode_multi_contact_state.m](../rod/decode_multi_contact_state.m) | 将 K 个接触的平面、弧长、法向/摩擦变量解码为 `contactForce(3,K)` |
+| [evaluate_multi_contact_state.m](../rod/evaluate_multi_contact_state.m) | 调用多接触 Cosserat forward map 并返回候选曲率、接触点和约束审计；不执行逆向优化 |
+| [multi_contact_constraints.m](../rod/multi_contact_constraints.m) | 多接触 gap、整杆 sampled collision、摩擦锥互补和弧长有序检查 |
 | [solve_planar_contact_shooting.m](../rod/solve_planar_contact_shooting.m) | 六 demo 的独立二维单接触真值 shooting；将平衡、切触、单边力和端部力矩作为验收条件 |
 | [solve_planar_energy_rod.m](../rod/solve_planar_energy_rod.m) | 旧二维能量杆基线；用于历史协议和与 Cosserat shooting 的交叉检查 |
 
@@ -609,6 +614,7 @@ estimate_sensor_forces
 | [contact_demo_scenes.m](../rod/contact_demo_scenes.m) | 返回六个 scene struct：几何、刚度、旋转、平面、mu、噪声和 push/sliding 设置 | 场景定义，不运行优化 |
 | [build_contact_demo_truth.m](../rod/build_contact_demo_truth.m) | 调独立 planar shooting，旋转为 3-D，再生成 packet | 防止 truth 从逆解泄漏 |
 | [run_contact_demo_suite.m](../rod/run_contact_demo_suite.m) | 按 UUID 保存每个 case 的 MAT/JSON/CSV/MP4，并更新 comparison.json | 公共 demo 与 provenance |
+| [render_contact_demo_video.m](../rod/render_contact_demo_video.m) | 读取已保存的 truth/output，用 MATLAB VideoWriter 绘制旧视频同款的杆形、环境、力箭头和力历史 | 连续求解结果的视频导出，不参与估计 |
 | [build_multi_contact_truth.m](../rod/build_multi_contact_truth.m) | 生成双接触、曲面和 friction mismatch 的 forward truth | 只做模型边界压力测试 |
 | [run_model_mismatch_protocol.m](../rod/run_model_mismatch_protocol.m) | 对上述 out-of-model 输入评分，并标 review | 不能解读成多接触成功 |
 | [run_fair_baseline_protocol.m](../rod/run_fair_baseline_protocol.m) | 同一 `sensorInput` 运行 EnFiRCE、shape-only、Gaussian | 公平输入基线 |

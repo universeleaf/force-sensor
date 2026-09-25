@@ -1608,7 +1608,11 @@ end
 
 
 function nx = formulationStateSize(cfg)
-nx = 3 + 2 + 1 + 1 + cfg.forceSensor.numFrictionDirs + 1 + 3;
+% Keep the public K=1 state on the same canonical layout used by the
+% multi-contact extension. This prevents future K>1 index changes from
+% silently drifting away from the published single-contact API.
+spec = multi_contact_state_spec(cfg, 1, 'independent');
+nx = spec.stateLength;
 end
 
 
