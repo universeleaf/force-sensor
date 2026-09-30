@@ -1,0 +1,227 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>杆接触力估计技术记录</title><style>
+body{font:16px/1.8 'Microsoft YaHei',Arial,sans-serif;color:#20303b;background:#eef3f6;margin:0}
+main{max-width:1100px;margin:28px auto;background:white;padding:32px 40px;border-top:5px solid #17698b}
+h1{font-size:28px}h2{margin-top:30px}a{color:#096989}img{max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #cddbe5;padding:8px;text-align:left}
+th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
+@media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
+</style></head><body><main><h1>EnFiRCE：Environment- and Friction-informed Rod Contact Estimation 场景矩阵与滑动阶段说明</h1>
+<p>本文档回答两个问题：为什么 <code>forces.mp4</code> 后半段会沿 x 方向移动，以及当前代码已经覆盖了哪些接触场景。这里的“结果”均来自仓库内已经完成的仿真输出；它们验证的是算法和数值流程，不代表真实硬件精度。</p>
+<h2>1. 为什么要设置滑动阶段</h2>
+<p><code>out/video/forces.mp4</code> 的环境是顶面，法向为</p>
+<pre><code class="language-text">n = [0, 0, -1]
+</code></pre>
+<p>杆先沿 <code>+z</code> 方向推进，再沿平面内的 <code>-x</code> 方向移动。因为 <code>x</code> 与顶面法向正交，所以它是该场景的切向方向；沿 <code>x</code> 移动不会改变理想的法向间隙，主要激励切向摩擦。</p>
+<p>代码在 <code>rod/run_rod_plane_force_sensing_experiment.m</code> 中显式构造了两个阶段：</p>
+<ol>
+<li><strong>push</strong>：接近平面。视频场景把初始摩擦设为 <code>mu=0</code>，先隔离法向接触和杆身形状变化。</li>
+<li><strong>slide</strong>：保持接触并沿切向移动。摩擦切换为 <code>mu=0.5</code>，用于检查摩擦方向、摩擦锥、粘着/滑动模式和接触力分解。</li>
+</ol>
+<p>如果只有法向推进，算法可以测试“是否接触”和法向反力，却不能充分检验 Coulomb 摩擦约束。滑动阶段因此是一个诊断性实验，而不是为了让视频看起来更复杂。当前视频中向左的视觉效果来自 <code>x-z</code> 投影：世界坐标 <code>-x</code> 在绘图中就是向左。</p>
+<p><code>x</code> 没有普适物理意义。对任意平面，只需选择满足 <code>n' * t = 0</code> 的切向量 <code>t</code>；代码会在配置校验时把 <code>slideDirection</code> 投影到平面切空间。若要只看“向上推”，可以把视频场景的 <code>slideDistanceMm</code> 设为 0，或使用 <code>motionMode='push-only'</code>。</p>
+<h2>2. 当前仓库中的视频</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>场景</th>
+<th>运动和用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../out/wall/forces.mp4"><code>out/wall/forces.mp4</code></a></td>
+<td>名义 wall 场景</td>
+<td>杆向侧墙推进，测试单平面接触和接触力分解。</td>
+</tr>
+<tr>
+<td><a href="../out/senior/forces.mp4"><code>out/senior/forces.mp4</code></a></td>
+<td>学长几何</td>
+<td>按学长给的杆形和接触位置回放，用于检查几何和力图。</td>
+</tr>
+<tr>
+<td><a href="../out/upward/forces.mp4"><code>out/upward/forces.mp4</code></a></td>
+<td>wall 场景整体旋转 90°</td>
+<td>沿 <code>+z</code> 推 45 mm，再沿 <code>-x</code> 滑 1 mm；用于检查旋转等价性。</td>
+</tr>
+<tr>
+<td><a href="../out/video/forces.mp4"><code>out/video/forces.mp4</code></a></td>
+<td><code>fail.mp4</code> 的图像几何近似</td>
+<td>沿 <code>+z</code> 推 20 mm，再沿 <code>-x</code> 滑 12 mm；参数是近似重建，不是原视频标定结果。</td>
+</tr>
+<tr>
+<td><a href="../out/stage1/video_seeded/forces.mp4"><code>out/stage1/video_seeded/forces.mp4</code></a></td>
+<td>视频几何的固定种子回放</td>
+<td>用于复现实验输入和随机扰动。</td>
+</tr>
+<tr>
+<td><a href="../out/stage1/wall_tip_seeded/forces.mp4"><code>out/stage1/wall_tip_seeded/forces.mp4</code></a></td>
+<td>wall + 非零末端载荷</td>
+<td>检查杆身接触力与末端力同时存在时的分解。</td>
+</tr>
+</tbody>
+</table>
+<p>六个独立连续体场景的 MP4/GIF 汇总在 <a href="../out/demos/index.html"><code>out/demos/index.html</code></a>。</p>
+<p>旧 MATLAB 视频与 Rucker、Aloi、Ferguson、Xiao 等文献问题的对应关系，以及“适配”与“精确复现”的边界，见<a href="LITERATURE_SCENARIO_MAP.md">文献场景视频对照</a>。</p>
+<h2>3. 已用现有代码跑过的场景</h2>
+<p>当前 <code>out/demos/comparison.json</code> 的运行 ID 为 <code>5140876c-8e87-4da6-ac4d-c28113e12b88</code>，使用 MATLAB R2024a。该运行记录保存了当时参与计算的源码 SHA-256；结果目录和 MAT 文件可用于复核。每个 case 都是独立的单接触 Cosserat 真值、稀疏形状观测和同一套 MAP 估计器。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>物理设置</th>
+<th style="text-align: right;">接触力 RMSE (N)</th>
+<th style="text-align: right;">末端力 RMSE (N)</th>
+<th style="text-align: right;">合力 RMSE (N)</th>
+<th style="text-align: right;">接触位置 RMSE (mm)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ceiling_hook</code></td>
+<td>视频近似弯钩，顶面，独立末端载荷</td>
+<td style="text-align: right;">7.547e-7</td>
+<td style="text-align: right;">6.509e-7</td>
+<td style="text-align: right;">2.709e-7</td>
+<td style="text-align: right;">5.144e-6</td>
+</tr>
+<tr>
+<td><code>side_wall</code></td>
+<td>几何整体绕 y 轴旋转 90°，侧墙接触</td>
+<td style="text-align: right;">1.320e-6</td>
+<td style="text-align: right;">9.700e-7</td>
+<td style="text-align: right;">6.107e-7</td>
+<td style="text-align: right;">5.375e-6</td>
+</tr>
+<tr>
+<td><code>inclined_plane</code></td>
+<td>平面法向相对杆倾斜 12°</td>
+<td style="text-align: right;">4.261e-6</td>
+<td style="text-align: right;">2.345e-6</td>
+<td style="text-align: right;">2.353e-6</td>
+<td style="text-align: right;">1.487e-6</td>
+</tr>
+<tr>
+<td><code>long_soft_rod</code></td>
+<td>240 mm 杆，弯曲刚度为参考值的 65%</td>
+<td style="text-align: right;">3.870e-7</td>
+<td style="text-align: right;">3.356e-7</td>
+<td style="text-align: right;">1.319e-7</td>
+<td style="text-align: right;">5.654e-6</td>
+</tr>
+<tr>
+<td><code>sliding_clean</code></td>
+<td><code>mu=0.3</code>，指定滑动分支，无观测噪声</td>
+<td style="text-align: right;">5.212e-6</td>
+<td style="text-align: right;">3.567e-6</td>
+<td style="text-align: right;">2.109e-6</td>
+<td style="text-align: right;">4.507e-6</td>
+</tr>
+<tr>
+<td><code>sliding_noisy</code></td>
+<td>同上，曲率噪声 <code>5e-5</code>/mm，平面偏移噪声 0.1 mm</td>
+<td style="text-align: right;">0.8793</td>
+<td style="text-align: right;">0.7019</td>
+<td style="text-align: right;">0.2992</td>
+<td style="text-align: right;">0.0461</td>
+</tr>
+</tbody>
+</table>
+<p>这些结果来自当前 HEAD 的新运行。前五个场景使用与真值一致的近乎无噪声观测模型，误差接近数值求解精度；这不能外推到真实传感器。带噪声滑动的接触力 RMSE 为 0.8793 N，12/12 帧触发 review，仍然是未解决的分力问题。滑动结果不应与无噪声场景混为一谈。</p>
+<p>六个新场景现在同时提供<a href="../out/demos/latest/">稳定命名的 MP4 文件夹</a>和 GIF。<code>latest</code> 是当前运行的可读发布别名；对应的 UUID 运行目录仍然保留，用于复核原始产物和追溯运行来源。MP4 是 MATLAB 在完整逆解结束后从 12 个真实求解状态生成的离线仿真可视化（60 个播放帧）；播放采样不会重新估计力，也不是硬件录像。</p>
+<p>另有三组明确的模型外压力测试，结果写在 <a href="../out/model_mismatch/comparison.json"><code>out/model_mismatch/comparison.json</code></a>：</p>
+<table>
+<thead>
+<tr>
+<th>压力测试</th>
+<th>真值</th>
+<th>当前估计器的含义</th>
+<th style="text-align: right;">合力 RMSE (N)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>two-contact</code></td>
+<td>固定 S 通道独立双接触平衡</td>
+<td>只观测一个面；候选遗漏另一接触</td>
+<td style="text-align: right;">17.8341</td>
+</tr>
+<tr>
+<td><code>curved-surface</code>（旧命令别名）</td>
+<td>固定非平行双平面接触平衡</td>
+<td>只观测一个面；不是光滑曲面</td>
+<td style="text-align: right;">15.9639</td>
+</tr>
+<tr>
+<td><code>friction-mismatch</code></td>
+<td>独立空间滑动双接触平衡</td>
+<td>真实 mu=0.03，估计 mu=0.01</td>
+<td style="text-align: right;">1.64746</td>
+</tr>
+</tbody>
+</table>
+<p>旧规定载荷的压力分数已撤回。上表是本轮重新求解的真实接触平衡仿真；<a href="../out/model_mismatch/summary.md">失配摘要</a>区分原始复核与新增观测拟合诊断。它们是模型失配结果，正常多接触另见<a href="../out/formulation_window/summary.md">完整窗口实验</a>。</p>
+<h2>4. 类似工作的实验场景</h2>
+<p>连续体机器人力估计的实验并不只包含一个 wall。已有工作通常按“点接触、多点接触、分布载荷”和“仅形状、形状加环境几何、带时间先验”组织实验：</p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>常见场景</th>
+<th>对 EnFiRCE 的直接启发</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://doi.org/10.1109/LRA.2022.3188905">Aloi et al., IEEE RA-L 2022, DOI:10.1109/LRA.2022.3188905</a></td>
+<td>腱驱动连续体机器人上的多个三维加载位置，比较点状和高斯分布载荷</td>
+<td>应加入同一观测输入下的点载荷、分布载荷和三维位置对比。</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1109/TRO.2024.3360950">Ferguson, Rucker &amp; Webster, IEEE T-RO 2024, DOI:10.1109/TRO.2024.3360950</a></td>
+<td>分布载荷、集中点载荷、不同稀疏传感器组合和真实腱驱机器人</td>
+<td>应把环境接触力与外部点载荷分开报告，并做传感器密度消融。</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2109.12469">Xiao &amp; Chen, Efficient Force Estimation for Continuum Robot, 2021</a></td>
+<td>单接触和多接触，使用 FBG 局部曲率，强调实时性</td>
+<td>应单独报告单接触、多接触和帧耗时，不能只给离线精度。</td>
+</tr>
+<tr>
+<td><a href="https://ieeexplore.ieee.org/document/6094526">Rucker &amp; Webster, IROS 2011</a></td>
+<td>基于形状和末端位姿的点载荷概率估计</td>
+<td>可作为不使用环境平面的 shape-only 点载荷基线。</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1002/aisy.202500786">Hu &amp; Sun, Advanced Intelligent Systems 2026, DOI:10.1002/aisy.202500786</a></td>
+<td>综述点、多个和分布接触，以及基于环境的非穿透、摩擦和准静力模型</td>
+<td>说明“单 wall”只能覆盖问题的一小部分；环境信息应在多个几何和接触模式下验证。</td>
+</tr>
+</tbody>
+</table>
+<h2>5. 下一批场景与当前代码边界</h2>
+<p>按照上述文献和现有求解器，下一批实验应按下面顺序补齐：</p>
+<ol>
+<li><strong>无接触</strong>：已新增独立末端载荷的两个自由空间状态，自动候选数为 0；后续扩大噪声和轨迹以统计误报率。</li>
+<li><strong>末端点接触</strong>：把杆身接触和末端点载荷分开，验证接触位置在端点附近的退化情况。</li>
+<li><strong>倾斜和三维斜平面</strong>：让平面法向含有 <code>y</code> 分量，避免所有实验都落在同一个 <code>x-z</code> 平面。</li>
+<li><strong>双平面/多接触</strong>：完整窗口已输出两个/三个接触的力、弧长和摩擦；继续研究同弧长角点、接触模式切换和大范围迁移。</li>
+<li><strong>圆柱或窄通道</strong>：用多段局部平面近似曲面，并把环境观测不确定性传入 MAP。</li>
+<li><strong>分布载荷</strong>：增加沿弧长的 Gaussian 或分段常值载荷，与 Aloi 和 Ferguson 的报告方式一致。</li>
+<li><strong>历史窗口</strong>：完整窗口已联合所有帧的 Cosserat 平衡和相同材料点的摩擦位移；下一步扩大轨迹和模式切换统计。</li>
+</ol>
+<p>目前可以直接运行的入口是：</p>
+<pre><code class="language-matlab">addpath(genpath(pwd));
+force('demos');            % 六个单接触场景
+force('multi-demos');      % 已知接触顺序的双接触/三接触平面逆解
+force('multi-formulation'); % 自动候选、三维多接触、完整摩擦时间窗口
+force('model-mismatch');  % 遗漏环境面、非平行通道、摩擦参数失配
+force('fair-baselines');  % 同一观测输入下的 shape-only/Gaussian 基线
+force('temporal-window'); % 短时间窗口 MAP
+</code></pre>
+<p>如果只想重复某几个 GIF 场景，可以调用：</p>
+<pre><code class="language-matlab">run_contact_demo_suite({'ceiling_hook','side_wall','inclined_plane'});
+</code></pre>
+<p>该函数会重新写入 <code>out/demos/comparison.json</code>，完整六场景运行时间较长；提交论文前应保留运行 ID、MATLAB 版本和输入包校验值。</p>
+<h2>6. 对 RA-L 实验矩阵的判断</h2>
+<p>一个 wall 场景可以说明基本机制，但不足以支撑完整的 RA-L 实验。当前代码已经有单接触几何变化、摩擦滑动、噪声、多种子、深度平面、已知顺序的平面双/三接触逆解和模型失配测试，足以形成更完整的仿真基线；要把结论提升为完整论文，还需要未知接触模式、摩擦和三维斜平面逆解、分布载荷以及至少一种真实传感器或公开数据验证。当前多接触 demo 的范围必须写成“已知顺序、无摩擦、平面原型”，不能把它误写成通用多接触已经解决。</p></main></body></html>

@@ -1,0 +1,299 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>杆接触力估计技术记录</title><style>
+body{font:16px/1.8 'Microsoft YaHei',Arial,sans-serif;color:#20303b;background:#eef3f6;margin:0}
+main{max-width:1100px;margin:28px auto;background:white;padding:32px 40px;border-top:5px solid #17698b}
+h1{font-size:28px}h2{margin-top:30px}a{color:#096989}img{max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #cddbe5;padding:8px;text-align:left}
+th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
+@media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
+</style></head><body><main><h1>EnFiRCE：三维多接触与完整时间窗口实现</h1>
+<p>更新：2026-10-01。本文说明本轮新增的完整软件流程，以及其与 <code>papers/Formulation.pdf</code> 的关系。它补充<a href="TECHNICAL_OVERVIEW.html">技术总说明</a>，没有把软件完成度等同于投稿或硬件验证完成度。实际数值以 <code>out/formulation_window/comparison.json</code> 为准；逐接触真值与估计见<a href="../out/formulation_window/summary.md">实际窗口结果</a>。</p>
+<h2>1. 这条路径实际解决什么问题</h2>
+<p>输入是已标定的杆模型、稀疏弯曲测量、基座位姿、环境平面观测与协方差。算法从观测重建的形状中产生接触候选，然后联合优化窗口内各帧的环境参数、身体接触位置、法向力、摩擦力、末端力和基座力矩。每帧均满足当前载荷下的三维 Cosserat 平衡；相邻帧的真实形状共同决定摩擦位移。</p>
+<p>二维多接触原型 <code>estimate_planar_multi_contact</code> 继续用于历史 benchmark 与独立对照。新的逆解没有读取它的接触数、接触顺序、接触位置或力标签。候选数由形状和环境决定，优化中的法向互补允许某个候选变成零反力。这里的“未知接触”是有上限的候选搜索，并非对任意接触拓扑进行全局枚举。</p>
+<h2>2. 从输入到输出的代码地图</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>实现文件</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对外入口</td>
+<td><a href="../rod/estimate_formulation_forces.m">estimate_formulation_forces.m</a></td>
+<td>schema 2 自动进入新路径；schema 1 传第二个 options 参数也进入新路径</td>
+</tr>
+<tr>
+<td>完整文件工作流</td>
+<td><a href="../rod/run_formulation_workflow.m">run_formulation_workflow.m</a></td>
+<td>保存输入，运行全部给定时刻，保存估计、CSV、质量、源码和数据校验和；保留失败记录</td>
+</tr>
+<tr>
+<td>输入验证和迁移</td>
+<td><a href="../rod/formulation_window_observations.m">formulation_window_observations.m</a></td>
+<td>验证时间、测量维度、位姿和协方差；schema 1 当前/前驱时间合并，同一观测只加入一次</td>
+</tr>
+<tr>
+<td>接触候选</td>
+<td><a href="../rod/formulation_contact_candidates.m">formulation_contact_candidates.m</a></td>
+<td>稀疏形状重建、各平面的间隙局部极小值、跨帧合并、排序、数量限制和搜索审计</td>
+</tr>
+<tr>
+<td>状态布局</td>
+<td><a href="../rod/formulation_window_spec.m">formulation_window_spec.m</a></td>
+<td>每个独立观测平面保存一份几何，多个接触共享它；末端力属于物理状态和过程先验</td>
+</tr>
+<tr>
+<td>法向与摩擦方向</td>
+<td><a href="../rod/formulation_contact_frame.m">formulation_contact_frame.m</a></td>
+<td>球面指数参数化，切向基随法向连续转动，生成多面体摩擦方向</td>
+</tr>
+<tr>
+<td>联合 MAP/MPCC</td>
+<td><a href="../rod/estimate_formulation_window.m">estimate_formulation_window.m</a></td>
+<td>初始拟合、原始似然、一次初始先验、过程因子、完整互补、同伦、逐帧质量及局部协方差</td>
+</tr>
+<tr>
+<td>当前三维力学</td>
+<td><a href="../rod/integrate_cosserat_load_state.m">integrate_cosserat_load_state.m</a></td>
+<td>连续接触位置处分段；直接积分当前形状与载荷；返回末端力矩作为硬约束</td>
+</tr>
+<tr>
+<td>任意材料点查询</td>
+<td><a href="../rod/cosserat_state_at_arc.m">cosserat_state_at_arc.m</a></td>
+<td>连续 ODE 插值查询当前/前驱的同一弧长位置</td>
+</tr>
+<tr>
+<td>时间窗口兼容入口</td>
+<td><a href="../rod/estimate_temporal_window_forces.m">estimate_temporal_window_forces.m</a></td>
+<td>替代旧 penalty smoother，筛选连续时间后调用同一完整逆解</td>
+</tr>
+<tr>
+<td>数据子集</td>
+<td><a href="../rod/subset_formulation_packet.m">subset_formulation_packet.m</a></td>
+<td>同步选择曲率、基座、环境、摩擦系数和协方差</td>
+</tr>
+<tr>
+<td>独立二维真值输入</td>
+<td><a href="../rod/build_formulation_multi_packet.m">build_formulation_multi_packet.m</a></td>
+<td>将独立二维平衡嵌入三维坐标；只导出稀疏传感器信息给逆解</td>
+</tr>
+<tr>
+<td>空间滑动真值</td>
+<td><a href="../rod/build_spatial_friction_packet.m">build_spatial_friction_packet.m</a></td>
+<td>独立嵌套射击与接触根求解，生成面外摩擦的三维双接触平衡及平移历史</td>
+</tr>
+<tr>
+<td>无杆身接触真值</td>
+<td><a href="../rod/build_formulation_free_packet.m">build_formulation_free_packet.m</a></td>
+<td>独立射击，仅有未知末端载荷，观测平面远离杆形，逆解须自动产生零接触候选</td>
+</tr>
+<tr>
+<td>独立前向射击</td>
+<td><a href="../rod/solve_cosserat_multi_contact_map.m">solve_cosserat_multi_contact_map.m</a></td>
+<td>不使用逆解的 lifted state；求基座力矩使末端力矩为零</td>
+</tr>
+<tr>
+<td>实验和评分</td>
+<td><a href="../rod/run_formulation_window_protocol.m">run_formulation_window_protocol.m</a>、<a href="../rod/score_formulation_window.m">score_formulation_window.m</a></td>
+<td>输入、真值、估计分别存储；真值仅进入评分；失败和 review 均保留</td>
+</tr>
+<tr>
+<td>通用力表</td>
+<td><a href="../rod/write_formulation_window_csv.m">write_formulation_window_csv.m</a></td>
+<td>每个时刻/接触一行，报告世界坐标力分量、大小、位置和 review</td>
+</tr>
+<tr>
+<td>噪声尺度的拟合诊断</td>
+<td><a href="../rod/audit_formulation_window_fit.m">audit_formulation_window_fit.m</a></td>
+<td>只使用观测与预测，检查噪声不能解释的模型/观测张力</td>
+</tr>
+<tr>
+<td>既有结果复核</td>
+<td><a href="../rod/review_formulation_artifacts.m">review_formulation_artifacts.m</a></td>
+<td>保留原始力、质量和源码记录，另外导出带源码记录与估计文件校验和的派生诊断</td>
+</tr>
+</tbody>
+</table>
+<h2>3. 状态与 formulation 的对应关系</h2>
+<p>设有 P 个观测平面、K 个接触候选、m 个摩擦生成方向。每帧状态为：</p>
+<pre><code class="language-text">x_k = [所有平面的 p_j(3), eta_j(2);
+       所有候选的 s_i, fn_i, beta_i(m), lambda_i;
+       fe_k(3); m0_k(3)]
+维度 = 5P + (m+3)K + 6
+</code></pre>
+<p><code>m0</code> 是计算隐式力学映射而增加的辅助变量，末端力矩等式会约束它；它不属于 formulation 的外力状态，默认不施加随机游走先验。P=2、K=2、m=4 时每帧 30 维；三接触为 37 维。多个接触作用于同一面墙时，只使用该墙的一份观测似然，避免把同一份环境测量重复当成独立证据。</p>
+<p>每个接触仍使用 formulation 式 (1)–(3)：</p>
+<pre><code class="language-text">fc_i = n_plane(i) fn_i + D_plane(i) beta_i
+beta_i &gt;= 0, fn_i &gt;= 0
+</code></pre>
+<p>法向采用相对于首帧观测法向的固定球面参数图。参考方向在窗口内保持不变，因此相邻帧 eta 的差有一致含义。切向基沿指数转动平滑传输，避免优化过程中切换参考轴造成摩擦方向跳变。m=4 是默认的多面体近似；可以配置更多方向。这沿用 formulation 的多面体摩擦设定。</p>
+<h2>4. 三维非线性平衡与符号</h2>
+<p>单位为 mm、N、N mm，刚度为 N mm²，曲率为 /mm：</p>
+<pre><code class="language-text">p' = R e3
+R' = R hat(u)
+u = u_hat + K^-1 R^T m
+m' = -p' × F_downstream
+F_downstream(s) = fe + sum_{s_i &gt; s} fc_i
+p(0), R(0) = 已观测基座位姿
+m(L) = 0
+</code></pre>
+<p>下游外力的世界坐标力矩为 <code>sum((p_i-p(s)) × f_i)</code>，对 s 求导得到负号。原多接触射击函数写成正号，本轮已修正。旧单接触函数的符号正确。以前只检查多接触函数自己求得的末端残差，无法发现这一错误；现在还检查独立二维平衡及单接触退化情形。</p>
+<p>本轮同时修正了多接触函数的固有曲率读取方式：每个标定区间使用左端样本，并在真实的曲率/刚度突变和接触弧长处分段，避免最近节点把突变位置移到邻近区间。不再在每个恒定参数采样点重启积分，减少了计算量；保留非线性三维弯曲和扭转。</p>
+<p>新逆解直接积分待求的 <code>m0</code>，在 MPCC 中施加三条 <code>m(L)=0</code> 硬等式。它实现与射击法相同的边界问题，减少目标函数评估里的嵌套根求解。FBG 预测值在实际传感器弧长处连续查询，使用实际观测通道。未测扭转仍由力学决定，不加入“扭转为零”的测量似然。</p>
+<h2>5. 完整窗口目标，避免重复计算信息</h2>
+<p>窗口目标为原始观测似然、一次初始先验和相邻物理状态的随机游走因子之和：</p>
+<pre><code class="language-text">J = 1/2 sum_k ||hu(x_k)-zu_k||^2_Ru^-1
+  + 1/2 sum_{k,j} ||[p_j;n_j]-[pMeasured_j;nMeasured_j]||^2_Renv^-1
+  + 1/2 ||xPhysical_0-priorMean||^2_P0^-1
+  + 1/2 sum_{k&gt;0} ||xPhysical_k-xPhysical_{k-1}||^2_Qk^-1
+Qk = Qreference * (t_k-t_{k-1}) / referencePeriod
+</code></pre>
+<p>环境协方差支持每个平面的完整 6×6 矩阵；弯曲协方差可以是逐通道标准差，也可以是实际观测向量的完整矩阵。均通过 Cholesky 白化，拒绝不对称或非正定矩阵，不悄悄改成对角矩阵。默认初始几何先验非常宽；相机观测只是初值，不再充当第二份几何似然。默认位置先验是依接触槽数均匀排列的宽 Gaussian，候选间隙极小值只是初值。法向、摩擦、lambda 和末端力的默认初始/过程标准差来自 estimator config，均须正且有限。可通过 <code>options.initialPrior.mean/covariance</code> 输入独立的完整初始物理状态先验，或通过 <code>options.processCovariance</code> 提供每个参考时间周期的完整物理状态过程协方差，二者均按 <code>stateSpec.physicalState</code> 排列，排除辅助基座力矩。完整过程矩阵保留跨几何、位置、力与末端载荷的相关性，不强制对角化。</p>
+<p>旧窗口先运行逐帧估计，再把那些后验及同一批原始测量一起放入目标函数，会重复使用观测。新窗口不再这样做。候选搜索仍使用观测来选择有限模型，当前后验以该模型为条件，尚未对候选选择进行概率边缘化。</p>
+<h2>6. 历史材料点与摩擦互补</h2>
+<p>严格使用 formulation 式 (7)：</p>
+<pre><code class="language-text">v_{i,k} = (I-n n^T) [p_k(s_{i,k}) - p_{k-1}(s_{i,k})]
+</code></pre>
+<p>注意两项都取当前待估的同一弧长 <code>s_{i,k}</code>。不能用 <code>p_{k-1}(s_{i,k-1})</code>，否则接触位置在杆上迁移时会混入错误位移。前驱形状也来自窗口里的非线性平衡状态，不是真值或直接差分的含噪重建。</p>
+<p>完整互补关系为：</p>
+<pre><code class="language-text">0 &lt;= g_i = n^T(pc_i-pPlane)  ⟂ fn_i &gt;= 0
+0 &lt;= w_i = D^T v_i + lambda_i 1  ⟂ beta_i &gt;= 0
+0 &lt;= cone_i = mu_i fn_i - sum(beta_i)  ⟂ lambda_i &gt;= 0
+</code></pre>
+<p>无摩擦时固定 beta=0，但后续帧的 lambda 仍保留，以允许接触点切向移动。固定 lambda=0 会错误地要求 <code>D^T v&gt;=0</code>，在成对摩擦方向下强迫 v=0。</p>
+<p>schema 2 的第一帧没有前驱，因而只进行静态摩擦锥审计；存在非零摩擦接触时明确标为需要复核，不能称为已验证的黏着。schema 1 保存的输出时刻可能隔了多个传感器周期，迁移时合并所有当前与前驱时刻，而非只添加第一个历史样本。<code>observations.predecessorIndex(k)</code> 明确指出当前样本应使用哪个平衡状态，不能盲目使用时间数组中的上一项。</p>
+<p>例如旧 <code>sliding_clean</code> 第 10/11 个视频状态的时间是 4.26/4.32 s，前驱实际为 4.24/4.30 s。新窗口求解 <code>[4.24,4.26,4.30,4.32]</code> 四个平衡状态，返回第 2/4 个；它不会用 4.26 s 的视频帧替代 4.30 s 的真实前驱。原始曲率与基座按时间去重，共享时间的数据冲突会被拒绝。历史时刻没有独立相机观测时，复制几何只作为初值，<code>environmentLikelihood=false</code>；仅当前时刻贡献环境似然。历史缺少的摩擦系数沿用配对当前值，因此参数在未观测的一采样周期内不变仍是适配假设。</p>
+<h2>7. 全杆几何、候选与数值求解</h2>
+<p>每个环境平面都定义自由空间半空间。算法采样连续积分形状进行全部半空间的非穿透检查，默认间隔 1 mm；接触点间隙另外连续查询。内点光滑接触还施加力门控切触 <code>fn * n^T tangent=0</code>。默认检查中心线，不包含机器人外径；有限面片、曲面或角点需单独几何模型，不能直接套全局半空间。</p>
+<p>候选来源是稀疏重建形状对各面的间隙局部极小值。默认允许距墙 5 mm 的候选，同面 10 mm 内的候选合并，最多四个；超限和相同弧长的角点歧义都会记录并触发 review。候选按弧长排序，相邻候选中点形成搜索分区，接触不跨越该分区。这是保证接触顺序及连续积分数值稳定的有限搜索范围，不能声称已经处理任意出生/消失或大范围接触迁移。</p>
+<p>初始化使用重建形状的力矩关系，只拟合实际测得的弯曲分量，同时拟合法向力、非负摩擦生成系数和未知末端力；线性拟合已考虑摩擦锥。它只产生初值，最终目标和约束均重新积分当前三维力学。</p>
+<p>无摩擦的后续帧中，初始化另将 lambda 设置为 <code>max(0,max(-D^T v))+1e-4 mm</code>（不超过配置边界）。这样 <code>w</code> 初始可行，避免数值最小二乘停在几微米以下的负松弛边界。lambda 仍是后续 MAP 的优化变量，完整互补关系没有删除或变成速度为零的约束。</p>
+<p>初始化还按每个平面的当前非零反力候选平均间隙，沿法向修正一次平面点初值。这减少极小间隙乘以较大法向力时的互补残差；平面仍是带原始相机似然和过程先验的待估变量，求解阶段不会固定在该初值。可用 <code>options.initialState</code> 传入相同候选坐标和时间布局的既有估计作为重启初值，维度和边界必须一致；它不会变成另一份后验先验，正式七场景协议未使用真值或既有结果来初始化。</p>
+<p>重启入口允许优化器自身产生的边界舍入误差：每个状态分量最多 <code>1e-9*max(1,abs(x))</code>，超过这一范围仍拒绝。仅将这个范围内的数值投回原始边界，并记录 <code>solver.warmStateBoundCorrection</code>，不会改变实质上不满足边界的输入。这修复了已保存估计的 beta 为极小负数、反而不能作为下一次初值的问题。候选布局必须由调用者确认一致；仅有相同矩阵尺寸不足以证明两个不同场景的接触槽对应。</p>
+<p>初值经过非线性最小二乘后进入 SQP/Scholtes 连续化。初始化先增加 <code>1e-4 /mm</code>、<code>1e-5 /mm</code> 的数值曲率方差，最后回到原始观测协方差；这只改善初始求解，不修改最终 MAP 的观测噪声。目标梯度先求残差雅可比再计算 <code>J^T r</code>，减少直接差分大数平方和的消减误差。默认无量纲 tau 为 <code>1e-2,1e-4,1e-6,1e-8</code>。SQP 无可接受退出且此前无原约束可行解时，允许对同一目标/约束尝试一次内点法；失败码与重试退出全部保留，不换成简化力学。</p>
+<p>每级都保存退出码、原始与松弛约束残差、目标值、迭代和耗时。若后一级破坏可行解，保留此前原始完整约束在 <code>complementarityTolerance</code> 内的更低目标状态，记录其实际来源级数，不把失败退出改成成功。正退出且所有原始约束残差已小于 <code>exactContinuationTolerance=1e-8</code> 时结束连续化，不重复求解已满足的更紧松弛。该终止准则检查未松弛的约束，不是只看当前 tau 可行。最终逐帧审计仍分别检查物理单位的平衡与几何阈值，不以一次优化正退出代替所有检查。</p>
+<p>当前默认长度/力尺度为 1 mm/1 N；末端力矩按 EI/L 缩放。数值优化器默认约束容差 <code>constraintTolerance=1e-5</code>，与互补审计的数量级一致；原数学约束保持为零互补。最终质量仍另外检查 N mm、mm 及原始互补量：默认末端力矩阈值 2e-4 N mm，全杆间隙允许数值误差 2e-4 mm，互补/力门控切触残差阈值 1e-5。无量纲优化器容差不会覆盖更严格的物理平衡检查，二者不相互替代，也不是传感器力精度指标。</p>
+<h2>8. 质量、不确定度与可辨识性</h2>
+<p>逐帧输出有限性、末端力矩残差、最小全杆间隙、完整互补残差、切触残差、白化弯曲残差 RMS、历史是否可用，以及 <code>requiresReview</code>。优化失败、候选被截断、角点歧义、物理残差超标或缺少摩擦历史都保留，不会因为得到有限力值而改判为成功。</p>
+<p><code>computeCovariance=true</code> 时，在推断的活跃分支上，对窗口目标和活跃约束（包括触及的状态上下界）求数值雅可比，用约束零空间计算局部协方差。平面、位置和基座力矩留在状态中，因此力的协方差包含这些扰动变量在局部线性模型中的耦合。另用“只含测量”的信息矩阵检查：有限后验是否仅由先验撑起来。观测零空间仍能改变力时输出 <code>forceUnresolvedByData</code> 并触发复核。</p>
+<p>该结果以候选集合、活跃模式及已知刚度/固有曲率为条件。它没有接触模式混合、刚度不确定度或实物标定的覆盖保证；弱活跃互补点尤其可能产生多个分支。不写成全局置信区间已校准，更不宣称安全认证。</p>
+<p>信息求逆直接对约束切空间中的白化雅可比 <code>H=J*N</code> 做 SVD，不对 <code>H^T*H</code> 取伪逆，避免把高精度曲率下的条件数再次平方。无法解析的方向单独通过零空间标志报告，力标准差设为 Inf；测量与含先验的信息秩阈值也随结果保存。有限局部方差不等于测量已经足够确定分力。</p>
+<p>另有噪声尺度的观测拟合诊断。设一个输出时刻有 nu 个实际曲率观测，白化残差为 e，则参考量是 <code>E=e'*e</code>。使用完整观测维数 nu 的 chi-square 上界；默认窗口总尾概率为 0.001，按输出时刻数作 Bonferroni 分配，阈值计算为 <code>2*gammaincinv(1-0.001/T,nu/2)</code>，不需要 Statistics Toolbox。48 维观测、两个输出时刻时，等效 RMS 阈值约 1.3455。原固定 RMS 阈值为 4，可能漏掉已严重失配但仍满足局部模型的结果。</p>
+<p>这只是观测/模型张力诊断，没有宣称拟合后的自由度、候选选择及先验影响已经校准；它不能断定失配的唯一原因，也不能证明每个遗漏障碍物都会被发现。复核既有文件时另写 <code>observation_fit.json</code>，其中保存原始复核标志、新拟合诊断及二者合并值；原始估计和原始 quality 不被追改。</p>
+<p>当前新求解会自动保存 <code>result.observationFit</code>，将其布尔结果写入 <code>quality.hasObservationFitWarning</code> 并合并到 <code>requiresReview</code>。七组正式窗口及三个失配实验在这次集成之前已完成，因此原始复核标志仍照实保留，报告分列原始与派生合并值。无接触工作流是在集成之后运行的，结果直接包含新字段。</p>
+<h2>9. 使用与可复现文件</h2>
+<pre><code class="language-matlab">addpath('rod');
+
+% 新传感器包：全部给定时刻一起求解并导出文件
+[estimate, manifest] = run_formulation_workflow(sensorInput, ...
+    fullfile(pwd,'out','my_experiment'),struct('computeCovariance',true));
+
+% 对旧 schema-1 包求解连续三帧及首个前驱
+estimate = estimate_temporal_window_forces(sensorInput,3);
+
+% 七组软件实验：双接触、收窄双壁、三接触、旋转、含噪、空间滑动及其含噪版本
+report = force('multi-formulation');
+% 独立 smoke 目录，避免覆盖正式结果
+report = force('multi-formulation',true);
+
+% 已完成文件的拟合诊断，不重复优化、不改动原始力
+fitReport = review_formulation_artifacts(fullfile(pwd,'out','formulation_window'));
+
+% 无杆身接触、仅末端载荷：独立生成传感器包，然后按同一工作流求解
+[sensorInput, truth] = build_formulation_free_packet();
+[estimate, manifest] = run_formulation_workflow(sensorInput, ...
+    fullfile(pwd,'out','free_space_replay'),struct('computeCovariance',true));
+
+% Python 生成逐接触结果表；该 Git 版本对应本轮七场景的求解代码
+% python scripts/summarize_formulation_window.py --source-revision 813cdfb
+</code></pre>
+<p>schema 2 的主要字段为 <code>sFbgMm</code>、<code>observedCurvatureAxes</code>、<code>curvaturePerMm(channels×sensors×T)</code>、<code>curvatureStdPerMm</code> 或 <code>curvatureCovariance</code>、<code>basePose(4×4×T)</code>、<code>timeSeconds</code>、<code>planePointMm/planeNormal(3×P×T)</code>、<code>planeCovariance(6×6×P×T)</code>、<code>frictionMu(P×T)</code>。完整曲率协方差的维度为 <code>(channels*sensors)²×T</code>，与 MATLAB <code>curvaturePerMm(:,:,k)(:)</code> 的按传感器展开顺序一致；提供该矩阵时不要求重复给出标准差。二维观测不会自动变成三维传感器。生成接口例子见 <code>build_formulation_multi_packet</code>。</p>
+<p>通用工作流导出 <code>input.mat</code>、<code>estimate.mat</code>、<code>forces.csv</code>、<code>manifest.json</code>。实验协议另导出独立的 <code>truth.mat</code> 和 <code>comparison.json</code>。CSV 给出每个接触的世界坐标力分量、大小、位置、独立末端力和合力大小，质量标志一起导出。MAT 中保留连续 ODE 结果用于追踪历史材料点；CSV/JSON 用于直接阅读，不应把这些仿真输出当作真实录像或实物实验。</p>
+<p>七组协议各取两个相邻平衡状态；双/三接触通道的独立真值生成器先求完原 12 个状态，再选择第 3/4 个形成窗口。它们是窗口级算法实验，不是新生成的 12 帧全轨迹视频。旧连续视频保持其原有求解记录，不用短窗口结果替换或伪造 MP4。</p>
+<p>旧压力测试生成器也已替换：<a href="../rod/build_multi_contact_truth.m">build_multi_contact_truth.m</a> 现在先求固定表面的独立接触平衡，然后只对逆解隐藏一侧环境面或将摩擦系数从 0.03 改为 0.01。<code>curved-surface</code> 是保留的命令别名，对应非平行平面通道，明确不是光滑曲面的真实接触。旧规定载荷的分数标注撤回，不与新协议拼接。</p>
+<h2>10. 仍待优化的具体范围</h2>
+<p>完整离线逆解已经连接，但还不是任意场景都准确的成品。后续应扩大独立轨迹统计，研究候选分区失效、模式切换和材料参数失配；把有限平面/曲面几何和机器人半径明确加入碰撞模型；实现可控延迟的递归/边缘化窗口。空间真值目前采用预设连续滑动分支，没有独立黏滑转换。已有论文基线的正式复现、全局覆盖率、实物传感器和实时性也不能由本轮代码推出。</p>
+<p>本轮修改没有偏离项目宗旨：环境信息和稀疏形状信息仍是估计力的观测来源。新增窗口和候选集合用于完善这一逆问题；求解技术与常规不确定度计算不单独当作新颖性声明。</p>
+<h2>11. 本轮场景与参数的具体含义</h2>
+<p>双接触的杆长 140 mm，由两个 70 mm 的固有曲率区段组成，曲率幅值为 0.02 /mm，基座初始角为 -0.7 rad；两壁位于 x=-10 和 x=10 mm。三接触的杆长为 210 mm，增加一个固有曲率区段，形成“左壁—右壁—左壁”的蛇形接触。收窄通道的两面法向为归一化后的 <code>[1,0,-0.05]</code> 和 <code>[-1,0,-0.05]</code>，是两个不平行的平面，不是光滑曲面。</p>
+<p>参数来自 <a href="../rod/multi_contact_demo_scenes.m">multi_contact_demo_scenes.m</a>。12 个原始状态的基座 x 平移为 -0.6 到 +0.6 mm；新窗口取其中第 3/4 个，时间间隔 0.02 s。每个时刻有 24 个位置的两个实际弯曲通道；含噪条件各通道的 Gaussian 标准差为 2.5e-5 /mm，无噪声条件仍保留 1e-7 /mm 的数值协方差。平面观测的默认位置标准差为 0.05 mm、法向分量标准差为 0.001。</p>
+<p>默认杆标定沿用外部依赖 <code>CreatTube</code>：弯曲刚度 EI=200700 N mm²（0.2007 N m²），泊松比 0.3、扭转刚度 EI/1.3，内外半径分别为 0.455/0.66 mm。逆解适配器断言真值与逆解的 EI 相同；目前半径不参与半空间碰撞约束。这些力数值对应该仿真刚度和形变，不是对硬件机器人量程的实测声明。若更换刚度、长度或固有曲率，接触反力也应由独立接触平衡重新生成，而非只缩放现有视频标签。</p>
+<p>“整体旋转”使用两个旋转组成的刚体变换，基座、环境点、法向和所有世界坐标真值力一起变换；杆的局部曲率保持不变。它检查三维坐标处理，不冒充本来在二维平面中的真值具有面外变形。</p>
+<p>真正面外加载的场景由 <a href="../rod/build_spatial_friction_packet.m">build_spatial_friction_packet.m</a> 生成：mu=0.03，末端力 <code>[0.1,0.3,-0.08]</code> N，两个接触的摩擦沿 -y，独立求解法向反力与接触弧长。两个状态的基座与形状沿 +y 平移 0.5 mm，产生明确的切向相对位移；逆解不知道该滑动模式、接触数或真值力。第一状态没有更早的平衡，只验证静态锥；第二状态才拥有完整历史摩擦条件。尚未生成独立的黏着转滑动事件真值。</p>
+<h2>12. 为什么离线完整求解仍然慢</h2>
+<p>每个优化状态评估都积分窗口里的各帧三维 Cosserat 方程。目标雅可比采用中心差分，维数随平面数、候选数和窗口长度增长；约束的数值微分也要反复积分。初值有三档曲率尺度，每档最多 50 次迭代；正式同伦每级最多 100 次迭代，必要时另外尝试一次 40 次内点法。局部协方差还会计算目标、约束和力的雅可比。</p>
+<p>因此，保存一个已接近可行的初值只减少初始化困难，不能保证整条流程立即结束。<code>optimizationSeconds</code> 计入初始化和 MAP/MPCC 优化，在局部协方差计算之前取值；它不包含 MATLAB 启动、独立真值生成、输出文件和协方差耗时。这与现有 <code>realtime</code> 的端到端墙钟时间不是同一指标。本轮这些运行与其他本地任务并行，时间不能用于严格的算法速度排名。</p>
+<p>可按需要选择短窗口、关闭协方差，或复用相同坐标布局的初值；这些是公开 options，并须在结果中说明。论文级性能改进应进一步实现力学与约束的灵敏度、稀疏雅可比、递归窗口和合理的边缘化，而不是把完整模型偷偷替换成小挠度公式。</p>
+<h2>13. 已完成的实际结果与版本</h2>
+<p>七场景运行 ID 为 <code>2530e6e5-741c-4337-8a23-221aaefb496b</code>，全部完成，无运行失败。求解时源码内容经逐文件核对对应 Git <code>813cdfb</code>；之后新增入口舍入处理、拟合诊断、空接触真值与依赖记录。因此，原始记录与最新工作区的 SHA 不同是有解释的版本差异，不覆盖或伪造原始源码记录。</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th style="text-align: right;">逐接触力向量 RMSE / N</th>
+<th style="text-align: right;">接触位置 RMSE / mm</th>
+<th style="text-align: right;">总合力 RMSE / N</th>
+<th style="text-align: right;">原始复核 / 两状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S 通道双接触</td>
+<td style="text-align: right;">5.3812e-7</td>
+<td style="text-align: right;">2.4901e-8</td>
+<td style="text-align: right;">6.6962e-7</td>
+<td style="text-align: right;">0/2</td>
+</tr>
+<tr>
+<td>收窄通道双接触</td>
+<td style="text-align: right;">1.6372e-6</td>
+<td style="text-align: right;">1.1975e-7</td>
+<td style="text-align: right;">1.2846e-6</td>
+<td style="text-align: right;">0/2</td>
+</tr>
+<tr>
+<td>蛇形三接触</td>
+<td style="text-align: right;">9.2954e-7</td>
+<td style="text-align: right;">1.1540e-8</td>
+<td style="text-align: right;">1.1084e-6</td>
+<td style="text-align: right;">0/2</td>
+</tr>
+<tr>
+<td>刚体旋转双接触</td>
+<td style="text-align: right;">5.5931e-7</td>
+<td style="text-align: right;">2.6901e-8</td>
+<td style="text-align: right;">6.8652e-7</td>
+<td style="text-align: right;">0/2</td>
+</tr>
+<tr>
+<td>三接触，曲率噪声 2.5e-5 /mm</td>
+<td style="text-align: right;">0.600524</td>
+<td style="text-align: right;">0.0235349</td>
+<td style="text-align: right;">0.819888</td>
+<td style="text-align: right;">0/2</td>
+</tr>
+<tr>
+<td>空间摩擦双接触</td>
+<td style="text-align: right;">7.5473e-7</td>
+<td style="text-align: right;">4.4227e-8</td>
+<td style="text-align: right;">1.2330e-6</td>
+<td style="text-align: right;">1/2</td>
+</tr>
+<tr>
+<td>空间摩擦双接触，相同噪声</td>
+<td style="text-align: right;">0.330189</td>
+<td style="text-align: right;">0.0321973</td>
+<td style="text-align: right;">0.479752</td>
+<td style="text-align: right;">1/2</td>
+</tr>
+</tbody>
+</table>
+<p>例如含噪三接触的第一状态，三个力的真值分别为 134.477452、44.760219、13.072686 N，估计为 135.384216、45.439857、13.823778 N。含噪空间双接触第一状态的真值为 107.975766、16.252634 N，估计为 107.762958、16.076764 N。完整两时刻、每个接触的力大小、向量误差、末端力误差、位置和逐场景 CSV 链接均见<a href="../out/formulation_window/summary.md">窗口结果表</a>。第一空间状态仍因历史缺失复核，不因数值接近真值而改判。</p>
+<p>无杆身接触在最终集成代码下完成两个状态，候选数为 0，真实末端力为 <code>[0.12,0.08,-0.06]</code> N，大小 0.156205 N；末端力 RMSE 为 6.7844e-10 N，无复核标志。<a href="../out/formulation_window/free_space/forces.csv">原始力表</a>、<a href="../out/formulation_window/free_space/metrics.json">指标</a>和<a href="../out/formulation_window/free_space/manifest.json">运行记录</a>保留。CSV 仍需显示末端力，因此输出一条 <code>active=0, planeIndex=NaN, arcMm=NaN</code> 的零接触占位行，不表示推断了一个接触；逐接触误差和位置指标不适用，JSON 中为 null。</p>
+<p>旧单接触 <code>sliding_clean</code> 的第 10/11 个输出时刻，经新工作流求解四个平衡状态，接触力 RMSE 为 2.0774e-6 N、末端力 RMSE 2.2817e-6 N、总合力 RMSE 3.0188e-7 N。它复用了前一次纯观测求解的状态作初值，本次优化耗时 1239.01 s，不能作为冷启动速度。边界舍入修正量为 3.5995e-24。<a href="../out/formulation_window/schema1_sliding_replay/validation.json">评分记录</a>和<a href="../out/formulation_window/schema1_sliding_replay/forces.csv">输出力表</a>均保留。</p>
+<p>修正后的三组失配运行 ID 为 <code>7f9e8ef0-e13e-4530-b4b6-87a0ca2236ac</code>，总合力 RMSE 分别为 17.8341、15.9639、1.64746 N。前两组的单接触候选无法表达未观测墙面的反力；这不能靠优化器退出成功证明正确。新增拟合诊断均在两时刻触发。详见<a href="../out/model_mismatch/summary.md">失配原始与派生诊断</a>。所有这些结果来自 MATLAB 实际求解，没有由视频外观或预设估计力标签生成。</p>
+<p>本轮新结果仅证明这些窗口的实现与有限条件下的性能；它们没有替代原 396 次二维消融统计，也没有完成全局三维多种子覆盖率或原论文方法比较。基本工程检查、场景精度、版本/数据完整性和投稿证据是不同维度，均按各自文件记录。</p>
+<p>最终代码集成之后，工程检查及归档重放共 33/33 项通过（31 项基础、2 项重放）。记录见<a href="../out/completion/project_checks.json">工程检查账本</a>。检查不等于所有力估计都准确；高失配误差仍如实保留。</p></main></body></html>

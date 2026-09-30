@@ -55,6 +55,13 @@ def main() -> None:
             if not recorded_matches:
                 raise RuntimeError(f"Recorded source cannot be verified at {args.source_revision}: {item['path']}")
         revision_note = f"源码内容已核对 Git 版本 `{args.source_revision}`（允许文本换行符差异），可恢复本次求解代码。"
+    fit_cases = {}
+    fit_path = FOLDER / 'observation_fit.json'
+    if fit_path.is_file():
+        diagnostic = json.loads(fit_path.read_text(encoding='utf-8'))
+        if diagnostic['state'] != 'complete' or diagnostic['originalRunId'] != report['runRecord']['runId']:
+            raise RuntimeError('Derived fit diagnostic belongs to a different or incomplete run.')
+        fit_cases = {case['id']: case for case in diagnostic['cases']}
     lines = [
         "# 完整三维多接触窗口：实际运行结果",
         "",
@@ -64,19 +71,25 @@ def main() -> None:
         "真值独立求解接触平衡，仅进入评分；逆解通过观测生成候选，不读取接触数量/位置/力标签。",
         "review 是算法复核标志，不是用力真值作出的正确性判定。",
         "",
-        "| 场景 | 候选/真接触数 | 接触力向量 RMSE / N | 接触力大小 MAE / N | 位置 RMSE / mm | 末端力 RMSE / N | 合力 RMSE / N | 复核帧数 | 优化时间 / s |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| 场景 | 候选/真接触数 | 接触力向量 RMSE / N | 接触力大小 MAE / N | 位置 RMSE / mm | 末端力 RMSE / N | 合力 RMSE / N | 原始复核帧数 | 合并拟合诊断后 | 优化时间 / s |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for case in report["cases"]:
         title = TITLES.get(case["id"], case["id"])
         if not case["completed"]:
-            lines.append(f"| {title} | 运行失败 | — | — | — | — | — | — | — |")
+            lines.append(f"| {title} | 运行失败 | — | — | — | — | — | — | — | — |")
             continue
         folder = FOLDER / case["artifactFolder"]
         for name, filename in (("input", "input.mat"), ("truth", "truth.mat"), ("estimate", "estimate.mat")):
             if digest(folder / filename) != case["artifactSha256"][name]:
                 raise RuntimeError(f"Recorded artifact checksum differs: {case['id']}/{filename}")
         m = case["metrics"]
+        combined = '未另评估'
+        fit = fit_cases.get(case['id'])
+        if fit and fit['completed']:
+            if fit['estimateSha256'] != case['artifactSha256']['estimate']:
+                raise RuntimeError(f"Derived fit diagnosis is stale: {case['id']}")
+            combined = f"{sum(fit['combinedRequiresReview'])}/{m['frameCount']}"
         values = [
             m["contactForceRmseN"], m["contactMagnitudeMaeN"], m["contactArcRmseMm"],
             m["tipForceRmseN"], m["totalForceRmseN"],
@@ -84,7 +97,7 @@ def main() -> None:
         lines.append(
             f"| {title} | {m['candidateCount']}/{m['trueContactCount']} | "
             + " | ".join(number(v) for v in values)
-            + f" | {m['reviewCount']}/{m['frameCount']} | {m['optimizationSeconds']:.2f} |"
+            + f" | {m['reviewCount']}/{m['frameCount']} | {combined} | {m['optimizationSeconds']:.2f} |"
         )
     lines += [
         "", "模型一致的无噪声结果接近数值闭合精度，不能解释为实物传感器精度。",

@@ -1,0 +1,64 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>杆接触力估计技术记录</title><style>
+body{font:16px/1.8 'Microsoft YaHei',Arial,sans-serif;color:#20303b;background:#eef3f6;margin:0}
+main{max-width:1100px;margin:28px auto;background:white;padding:32px 40px;border-top:5px solid #17698b}
+h1{font-size:28px}h2{margin-top:30px}a{color:#096989}img{max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #cddbe5;padding:8px;text-align:left}
+th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
+@media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
+</style></head><body><main><h1>固定环境真值下的模型失配实验</h1>
+<p>运行 ID：<code>7f9e8ef0-e13e-4530-b4b6-87a0ca2236ac</code>。状态：complete。</p>
+<p>真值先独立求解接触闭合与切触；随后只对逆解遗漏环境面或改变摩擦参数。
+这是故意违反模型假设的压力测试，不能作为正常精度或 SOTA 证据。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th style="text-align: right;">真接触/估计候选</th>
+<th style="text-align: right;">杆身合力 RMSE / N</th>
+<th style="text-align: right;">末端力 RMSE / N</th>
+<th style="text-align: right;">总合力 RMSE / N</th>
+<th style="text-align: right;">原始复核比例</th>
+<th style="text-align: right;">合并拟合诊断复核</th>
+<th style="text-align: right;">平均优化时间 / s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S 通道遗漏一面墙</td>
+<td style="text-align: right;">2/1</td>
+<td style="text-align: right;">2.91867</td>
+<td style="text-align: right;">18.545</td>
+<td style="text-align: right;">17.8341</td>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">49.30</td>
+</tr>
+<tr>
+<td>收窄通道遗漏一面墙（两个平面）</td>
+<td style="text-align: right;">2/1</td>
+<td style="text-align: right;">3.5975</td>
+<td style="text-align: right;">16.1549</td>
+<td style="text-align: right;">15.9639</td>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">120.25</td>
+</tr>
+<tr>
+<td>空间滑动：真实 mu=0.03，估计 mu=0.01</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">1.60613</td>
+<td style="text-align: right;">1.05922</td>
+<td style="text-align: right;">1.64746</td>
+<td style="text-align: right;">50%</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">322.33</td>
+</tr>
+</tbody>
+</table>
+<p>“杆身合力”是所有接触力的向量和，不是逐接触力 RMSE；候选数量不同不能逐槽对比。
+原始质量来自求解时版本，新增诊断另存于 observation_fit.json；没有改写原始力或追改原始 quality。
+高拟合残差提示模型与观测有张力，不能自动确定是遗漏墙面、标定误差或噪声模型错误。
+旧 prescribed-load 压力结果已撤回；本报告不复用其数值。</p>
+<p>逐接触估计：<a href="7f9e8ef0-e13e-4530-b4b6-87a0ca2236ac/two-contact_forces.csv">two contact forces.csv</a>。
+逐接触估计：<a href="7f9e8ef0-e13e-4530-b4b6-87a0ca2236ac/curved-surface_forces.csv">curved surface forces.csv</a>。
+逐接触估计：<a href="7f9e8ef0-e13e-4530-b4b6-87a0ca2236ac/friction-mismatch_forces.csv">friction mismatch forces.csv</a>。</p></main></body></html>

@@ -1,0 +1,40 @@
+{
+  "trueContactCount": 0,
+  "candidateCount": 0,
+  "countMatches": true,
+  "totalForceRmseN": 6.7843766042651346E-10,
+  "tipForceRmseN": 6.7843766042651346E-10,
+  "contactForceRmseN": null,
+  "contactMagnitudeMaeN": null,
+  "contactArcRmseMm": null,
+  "shapeRmseMm": 1.3305676522880451E-8,
+  "reviewCount": 0,
+  "frameCount": 2,
+  "optimizationSeconds": 6.178064,
+  "perFrame": [
+    {
+      "frame": 1,
+      "trueForceN": [],
+      "estimatedForceN": [],
+      "contactVectorErrorN": [],
+      "trueArcMm": [],
+      "estimatedArcMm": [],
+      "tipErrorN": 9.5657585427551248E-10,
+      "totalErrorN": 9.5657585427551248E-10,
+      "shapeRmseMm": 8.1920873817147719E-11,
+      "requiresReview": false
+    },
+    {
+      "frame": 2,
+      "trueForceN": [],
+      "estimatedForceN": [],
+      "contactVectorErrorN": [],
+      "trueArcMm": [],
+      "estimatedArcMm": [],
+      "tipErrorN": 7.4282926618947E-11,
+      "totalErrorN": 7.4282926618947E-11,
+      "shapeRmseMm": 1.881688987142926E-8,
+      "requiresReview": false
+    }
+  ]
+}

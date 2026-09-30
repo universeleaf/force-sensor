@@ -1,0 +1,486 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>杆接触力估计技术记录</title><style>
+body{font:16px/1.8 'Microsoft YaHei',Arial,sans-serif;color:#20303b;background:#eef3f6;margin:0}
+main{max-width:1100px;margin:28px auto;background:white;padding:32px 40px;border-top:5px solid #17698b}
+h1{font-size:28px}h2{margin-top:30px}a{color:#096989}img{max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #cddbe5;padding:8px;text-align:left}
+th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
+@media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
+</style></head><body><main><h1>完整三维多接触窗口：实际运行结果</h1>
+<p>运行 ID：<code>2530e6e5-741c-4337-8a23-221aaefb496b</code>。源码 SHA-256 与当前工作区一致：False。源码内容已核对 Git 版本 <code>813cdfb</code>（允许文本换行符差异），可恢复本次求解代码。</p>
+<p>每组使用两个状态，24 个稀疏弯曲采样位置、两个实际观测通道；无噪声条件保留显式数值方差。
+真值独立求解接触平衡，仅进入评分；逆解通过观测生成候选，不读取接触数量/位置/力标签。
+review 是算法复核标志，不是用力真值作出的正确性判定。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th style="text-align: right;">候选/真接触数</th>
+<th style="text-align: right;">接触力向量 RMSE / N</th>
+<th style="text-align: right;">接触力大小 MAE / N</th>
+<th style="text-align: right;">位置 RMSE / mm</th>
+<th style="text-align: right;">末端力 RMSE / N</th>
+<th style="text-align: right;">合力 RMSE / N</th>
+<th style="text-align: right;">原始复核帧数</th>
+<th style="text-align: right;">合并拟合诊断后</th>
+<th style="text-align: right;">优化时间 / s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S 通道双接触</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">5.3812e-07</td>
+<td style="text-align: right;">4.65084e-07</td>
+<td style="text-align: right;">2.49009e-08</td>
+<td style="text-align: right;">6.81388e-07</td>
+<td style="text-align: right;">6.69622e-07</td>
+<td style="text-align: right;">0/2</td>
+<td style="text-align: right;">0/2</td>
+<td style="text-align: right;">249.31</td>
+</tr>
+<tr>
+<td>非平行双壁收窄通道</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">1.63717e-06</td>
+<td style="text-align: right;">1.28634e-06</td>
+<td style="text-align: right;">1.19748e-07</td>
+<td style="text-align: right;">1.8294e-06</td>
+<td style="text-align: right;">1.28458e-06</td>
+<td style="text-align: right;">0/2</td>
+<td style="text-align: right;">0/2</td>
+<td style="text-align: right;">131.48</td>
+</tr>
+<tr>
+<td>蛇形三接触</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">9.29541e-07</td>
+<td style="text-align: right;">7.26754e-07</td>
+<td style="text-align: right;">1.15401e-08</td>
+<td style="text-align: right;">1.19449e-06</td>
+<td style="text-align: right;">1.10841e-06</td>
+<td style="text-align: right;">0/2</td>
+<td style="text-align: right;">0/2</td>
+<td style="text-align: right;">238.78</td>
+</tr>
+<tr>
+<td>整体旋转后的双接触</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">5.59311e-07</td>
+<td style="text-align: right;">4.72679e-07</td>
+<td style="text-align: right;">2.69012e-08</td>
+<td style="text-align: right;">7.0137e-07</td>
+<td style="text-align: right;">6.86519e-07</td>
+<td style="text-align: right;">0/2</td>
+<td style="text-align: right;">0/2</td>
+<td style="text-align: right;">155.95</td>
+</tr>
+<tr>
+<td>含噪三接触</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.600524</td>
+<td style="text-align: right;">0.538018</td>
+<td style="text-align: right;">0.0235349</td>
+<td style="text-align: right;">0.780736</td>
+<td style="text-align: right;">0.819888</td>
+<td style="text-align: right;">0/2</td>
+<td style="text-align: right;">0/2</td>
+<td style="text-align: right;">1313.15</td>
+</tr>
+<tr>
+<td>面外摩擦双接触</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">7.54728e-07</td>
+<td style="text-align: right;">4.2755e-07</td>
+<td style="text-align: right;">4.42274e-08</td>
+<td style="text-align: right;">2.38168e-07</td>
+<td style="text-align: right;">1.23301e-06</td>
+<td style="text-align: right;">1/2</td>
+<td style="text-align: right;">1/2</td>
+<td style="text-align: right;">337.80</td>
+</tr>
+<tr>
+<td>含噪面外摩擦双接触</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">0.330189</td>
+<td style="text-align: right;">0.293602</td>
+<td style="text-align: right;">0.0321973</td>
+<td style="text-align: right;">0.35183</td>
+<td style="text-align: right;">0.479752</td>
+<td style="text-align: right;">1/2</td>
+<td style="text-align: right;">1/2</td>
+<td style="text-align: right;">580.75</td>
+</tr>
+</tbody>
+</table>
+<p>模型一致的无噪声结果接近数值闭合精度，不能解释为实物传感器精度。
+空间滑动的第一状态缺少更早历史，其非零摩擦按静态锥处理并复核；第二状态使用前驱平衡与完整摩擦互补。
+优化时间不含 MATLAB 启动、真值生成和文件输出；本次并行运行了其他本地任务，不能与独立实时基准直接排序。
+局部协方差未经过全局覆盖率校准，且候选覆盖、模式混合、材料误差及原论文方法比较未由这些窗口验证。</p>
+<h2>S 通道双接触：每个接触的力大小</h2>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th style="text-align: right;">接触</th>
+<th style="text-align: right;">真值 / N</th>
+<th style="text-align: right;">估计 / N</th>
+<th style="text-align: right;">向量误差 / N</th>
+<th>复核</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">107.933767</td>
+<td style="text-align: right;">107.933767</td>
+<td style="text-align: right;">6.45467e-07</td>
+<td>否</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16.246864</td>
+<td style="text-align: right;">16.246863</td>
+<td style="text-align: right;">8.1172e-07</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">102.715400</td>
+<td style="text-align: right;">102.715400</td>
+<td style="text-align: right;">2.2297e-07</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">15.749394</td>
+<td style="text-align: right;">15.749394</td>
+<td style="text-align: right;">1.81827e-07</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>逐时刻世界坐标力分量：<a href="two_contact/forces.csv">forces.csv</a>。</p>
+<h2>非平行双壁收窄通道：每个接触的力大小</h2>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th style="text-align: right;">接触</th>
+<th style="text-align: right;">真值 / N</th>
+<th style="text-align: right;">估计 / N</th>
+<th style="text-align: right;">向量误差 / N</th>
+<th>复核</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">87.302917</td>
+<td style="text-align: right;">87.302917</td>
+<td style="text-align: right;">1.6065e-06</td>
+<td>否</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">14.638704</td>
+<td style="text-align: right;">14.638706</td>
+<td style="text-align: right;">1.32979e-06</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">83.147006</td>
+<td style="text-align: right;">83.147007</td>
+<td style="text-align: right;">1.51164e-06</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">14.165557</td>
+<td style="text-align: right;">14.165559</td>
+<td style="text-align: right;">2.02164e-06</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>逐时刻世界坐标力分量：<a href="tapered_two_contact/forces.csv">forces.csv</a>。</p>
+<h2>蛇形三接触：每个接触的力大小</h2>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th style="text-align: right;">接触</th>
+<th style="text-align: right;">真值 / N</th>
+<th style="text-align: right;">估计 / N</th>
+<th style="text-align: right;">向量误差 / N</th>
+<th>复核</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">134.477452</td>
+<td style="text-align: right;">134.477451</td>
+<td style="text-align: right;">1.23179e-06</td>
+<td>否</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">44.760219</td>
+<td style="text-align: right;">44.760218</td>
+<td style="text-align: right;">1.25251e-06</td>
+<td>否</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">13.072686</td>
+<td style="text-align: right;">13.072684</td>
+<td style="text-align: right;">1.42369e-06</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">129.117831</td>
+<td style="text-align: right;">129.117831</td>
+<td style="text-align: right;">1.85426e-07</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">44.061809</td>
+<td style="text-align: right;">44.061810</td>
+<td style="text-align: right;">1.44581e-07</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">12.957514</td>
+<td style="text-align: right;">12.957514</td>
+<td style="text-align: right;">1.26503e-07</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>逐时刻世界坐标力分量：<a href="three_contact/forces.csv">forces.csv</a>。</p>
+<h2>整体旋转后的双接触：每个接触的力大小</h2>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th style="text-align: right;">接触</th>
+<th style="text-align: right;">真值 / N</th>
+<th style="text-align: right;">估计 / N</th>
+<th style="text-align: right;">向量误差 / N</th>
+<th>复核</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">107.933767</td>
+<td style="text-align: right;">107.933767</td>
+<td style="text-align: right;">6.90149e-07</td>
+<td>否</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16.246864</td>
+<td style="text-align: right;">16.246863</td>
+<td style="text-align: right;">8.43e-07</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">102.715400</td>
+<td style="text-align: right;">102.715400</td>
+<td style="text-align: right;">1.88129e-07</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">15.749394</td>
+<td style="text-align: right;">15.749394</td>
+<td style="text-align: right;">1.70204e-07</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>逐时刻世界坐标力分量：<a href="rotated_two_contact/forces.csv">forces.csv</a>。</p>
+<h2>含噪三接触：每个接触的力大小</h2>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th style="text-align: right;">接触</th>
+<th style="text-align: right;">真值 / N</th>
+<th style="text-align: right;">估计 / N</th>
+<th style="text-align: right;">向量误差 / N</th>
+<th>复核</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">134.477452</td>
+<td style="text-align: right;">135.384216</td>
+<td style="text-align: right;">0.908355</td>
+<td>否</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">44.760219</td>
+<td style="text-align: right;">45.439857</td>
+<td style="text-align: right;">0.679644</td>
+<td>否</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">13.072686</td>
+<td style="text-align: right;">13.823778</td>
+<td style="text-align: right;">0.751111</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">129.117831</td>
+<td style="text-align: right;">129.269089</td>
+<td style="text-align: right;">0.176803</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">44.061809</td>
+<td style="text-align: right;">44.374361</td>
+<td style="text-align: right;">0.314757</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">12.957514</td>
+<td style="text-align: right;">13.384319</td>
+<td style="text-align: right;">0.426907</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>逐时刻世界坐标力分量：<a href="three_contact_noisy/forces.csv">forces.csv</a>。</p>
+<h2>面外摩擦双接触：每个接触的力大小</h2>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th style="text-align: right;">接触</th>
+<th style="text-align: right;">真值 / N</th>
+<th style="text-align: right;">估计 / N</th>
+<th style="text-align: right;">向量误差 / N</th>
+<th>复核</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">107.975766</td>
+<td style="text-align: right;">107.975765</td>
+<td style="text-align: right;">1.17617e-06</td>
+<td>是</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16.252634</td>
+<td style="text-align: right;">16.252634</td>
+<td style="text-align: right;">9.40915e-07</td>
+<td>是</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">107.975766</td>
+<td style="text-align: right;">107.975767</td>
+<td style="text-align: right;">9.36411e-08</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16.252634</td>
+<td style="text-align: right;">16.252634</td>
+<td style="text-align: right;">3.14622e-08</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>逐时刻世界坐标力分量：<a href="spatial_sliding/forces.csv">forces.csv</a>。</p>
+<h2>含噪面外摩擦双接触：每个接触的力大小</h2>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th style="text-align: right;">接触</th>
+<th style="text-align: right;">真值 / N</th>
+<th style="text-align: right;">估计 / N</th>
+<th style="text-align: right;">向量误差 / N</th>
+<th>复核</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">107.975766</td>
+<td style="text-align: right;">107.762958</td>
+<td style="text-align: right;">0.228244</td>
+<td>是</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16.252634</td>
+<td style="text-align: right;">16.076764</td>
+<td style="text-align: right;">0.186771</td>
+<td>是</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">107.975766</td>
+<td style="text-align: right;">108.477258</td>
+<td style="text-align: right;">0.517969</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16.252634</td>
+<td style="text-align: right;">16.536872</td>
+<td style="text-align: right;">0.284305</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>逐时刻世界坐标力分量：<a href="spatial_sliding_noisy/forces.csv">forces.csv</a>。</p></main></body></html>

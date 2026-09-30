@@ -1,0 +1,168 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>杆接触力估计技术记录</title><style>
+body{font:16px/1.8 'Microsoft YaHei',Arial,sans-serif;color:#20303b;background:#eef3f6;margin:0}
+main{max-width:1100px;margin:28px auto;background:white;padding:32px 40px;border-top:5px solid #17698b}
+h1{font-size:28px}h2{margin-top:30px}a{color:#096989}img{max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #cddbe5;padding:8px;text-align:left}
+th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
+@media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
+</style></head><body><main><h1>EnFiRCE 软件实验与基线（2026-09-30）</h1>
+<p>本页记录目前可以由代码重跑、逐帧核对的多接触实验。它回答两个问题：环境几何能否帮助从稀疏杆形分离多个接触力；平面标定错误、曲率噪声和传感器数量会怎样改变结果。数据全是仿真，尚不能据此宣称达到 SOTA 或具备 RA-L 投稿所需的实验充分性。</p>
+<p>本页数值来自已知接触顺序的独立二维原型，不是新三维窗口的分数。完整三维多接触、形状驱动候选、前驱平衡和摩擦 MPCC 现已连接，新的范围与独立结果另见<a href="FORMULATION_WORKFLOW.html">完整工作流</a>。本页二维力学与 benchmark 不使用有符号错误的旧三维多接触前向函数，因此不受该修复影响。</p>
+<h2>实验对象与输入边界</h2>
+<p><code>rod/multi_contact_demo_scenes.m</code> 定义三个固定环境：平行双侧 S 通道、收窄双侧通道、蛇形三接触通道。<code>rod/build_multi_contact_demo_truth.m</code> 对每个基座位置求解平面 Cosserat 杆静力平衡，再生成曲率观测；真值力和位置不传给逆解。三个场景分别有 2、2、3 个接触，均为点接触、无摩擦、平面内弯曲。另一个带噪声三接触视频使用相同力学场景，仅供逐帧可视化；正式 benchmark 的噪声在统一协议中重新生成。</p>
+<p>主评估使用 3 个噪声种子（11、22、33）、3 个曲率噪声标准差（0、<code>2.5e-5</code>、<code>5e-5 /mm</code>）、3 个采样密度（8、16、24 个弧长位置）和每个场景的第 3、10 个基座状态。噪声先在 121 个杆节点上用固定种子生成，再对不同采样密度取同一噪声场的子集。每个方法收到完全相同的曲率值、采样弧长、基座位姿、材料刚度和本征曲率。两种方法都知道接触数量与顺序；只有环境方法读取平面位置与法向。总计 396 次估计，全部得到有限数值结果；“完成”不等于通过物理审计。</p>
+<p><code>rod/estimate_planar_multi_contact.m</code> 优化基座弯矩、各接触法向力与弧长、独立末端二维力。每次候选都调用 <code>rod/integrate_planar_multi_contact.m</code> 计算连续杆形和预测曲率，目标函数将曲率残差按观测标准差白化，并加入自由端弯矩、接触闭合与切触残差。力非负、接触弧长有序；解后由 <code>rod/audit_planar_multi_contact.m</code> 检查整杆穿透、端部力矩、闭合、切触及数值秩。这是完整三维摩擦 MAP 的<strong>平面多接触原型</strong>，不能把两者等同。</p>
+<p><code>rod/estimate_planar_shape_only_point_loads.m</code> 是同输入的简化基线：先从稀疏曲率积分出杆形，再用弯矩曲线拟合各接触位置的二维点力及末端力。它只使用接触数量，不读平面位置、法向、接触间隙或切触条件。<code>rod/test_multi_contact_benchmark_protocol.m</code> 将平面位置和法向大幅改变后验证基线输出不变。基线是本项目实现的“形状加点力”对照，<strong>不是</strong> Xiao、Aloi、Ferguson 或 Prakash 算法的官方复现。</p>
+<p>接触力误差是每个接触二维力向量的欧氏误差，再对接触和帧求 RMSE；总力包括全部接触力和独立末端力。下表括号是按 3 个随机种子为簇重采样的描述性 95% bootstrap 区间。每种子只有两个相关状态，区间不应解释为可靠的群体置信区间。
+不同方法的 <code>review</code> 来自各自的数值/物理检查，不能当成跨方法一致的准确性分类器；误差仍须由离线真值单独计算。</p>
+<h2>主要结果</h2>
+<p>标称设置（24 个曲率观测，噪声标准差 <code>2.5e-5 /mm</code>）共 18 个配对帧：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th style="text-align: right;">接触力 RMSE</th>
+<th style="text-align: right;">接触弧长 RMSE</th>
+<th style="text-align: right;">总力 RMSE</th>
+<th style="text-align: right;">平均求解时间</th>
+<th style="text-align: right;">review</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>环境 + 形状</td>
+<td style="text-align: right;">0.490 N [0.424, 0.539]</td>
+<td style="text-align: right;">0.006 mm</td>
+<td style="text-align: right;">0.620 N</td>
+<td style="text-align: right;">1.281 s</td>
+<td style="text-align: right;">0/18</td>
+</tr>
+<tr>
+<td>仅形状点力</td>
+<td style="text-align: right;">2.967 N [2.431, 3.518]</td>
+<td style="text-align: right;">0.521 mm</td>
+<td style="text-align: right;">3.764 N</td>
+<td style="text-align: right;">0.028 s</td>
+<td style="text-align: right;">0/18</td>
+</tr>
+</tbody>
+</table>
+<p>环境方法在 17/18 个配对帧上的接触力向量误差更小，但单帧例外确实存在。三个场景分别为：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th style="text-align: right;">环境方法接触力 RMSE</th>
+<th style="text-align: right;">仅形状基线接触力 RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S 通道双接触</td>
+<td style="text-align: right;">0.529 N</td>
+<td style="text-align: right;">2.505 N</td>
+</tr>
+<tr>
+<td>收窄通道双接触</td>
+<td style="text-align: right;">0.573 N</td>
+<td style="text-align: right;">1.986 N</td>
+</tr>
+<tr>
+<td>蛇形三接触</td>
+<td style="text-align: right;">0.336 N</td>
+<td style="text-align: right;">4.023 N</td>
+</tr>
+</tbody>
+</table>
+<p>传感器变少会暴露明显的可辨识性问题：标称噪声下，环境方法在 8、16、24 个观测时的接触力 RMSE 分别为 <strong>13.576、0.837、0.490 N</strong>，对应 review 分别为 6/18、0/18、0/18。高噪声 <code>5e-5 /mm</code> 下，这三个数为 <strong>15.904、1.813、1.730 N</strong>。8 个观测的结果不适合作为“多接触精确估计”示例。无噪声时接近机器精度的误差只表示真值与逆解共用理想力学模型的数值闭合，不能外推到真实传感器。</p>
+<h2>消融与平面误差</h2>
+<p>标称设置下，去掉接触闭合惩罚时接触力 RMSE 为 1.169 N；去掉切触惩罚为 1.525 N；两者都去掉为 1.499 N。这些消融仍保留环境法向和基于环境的初值，因此应称为“去掉几何惩罚”，不能称为完全无环境方法。三组消融的 18/18 个结果都触发物理复核标志，说明数值拟合和有效接触解必须分开判断。</p>
+<p>把逆解读到的第一个平面沿法向错放 <strong>+1 mm</strong>，而真值和曲率不变时，固定平面模型的接触力 RMSE 从 0.490 N 升到 <strong>31.092 N</strong>，18/18 个结果触发 review。这是项目目前最严重的软件敏感性之一。为此，<code>rod/estimate_planar_multi_contact.m</code> 新增 <code>planePointStdMm</code>：对每个被使用的平面引入一个共享法向偏移，加入零均值高斯先验，而重复接触同一平面的状态共用一个偏移。该参数没有使用真值，也不会在默认值 0 时改变旧解。</p>
+<p>在相同的 18 个错位平面输入上，用预先指定的先验标准差重跑得到：</p>
+<table>
+<thead>
+<tr>
+<th>平面处理</th>
+<th style="text-align: right;">接触力 RMSE</th>
+<th style="text-align: right;">总力 RMSE</th>
+<th style="text-align: right;">第一平面的平均估计修正</th>
+<th style="text-align: right;">review</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>视错位平面为精确</td>
+<td style="text-align: right;">31.092 N</td>
+<td style="text-align: right;">44.259 N</td>
+<td style="text-align: right;">0 mm</td>
+<td style="text-align: right;">18/18</td>
+</tr>
+<tr>
+<td>平面偏移先验 SD 0.1 mm</td>
+<td style="text-align: right;">21.163 N</td>
+<td style="text-align: right;">29.445 N</td>
+<td style="text-align: right;">−0.283 mm</td>
+<td style="text-align: right;">18/18</td>
+</tr>
+<tr>
+<td>平面偏移先验 SD 1 mm</td>
+<td style="text-align: right;">1.341 N</td>
+<td style="text-align: right;">1.625 N</td>
+<td style="text-align: right;">−1.003 mm</td>
+<td style="text-align: right;">2/18</td>
+</tr>
+</tbody>
+</table>
+<p>实际所需的修正为 −1 mm。1 mm 标定先验明显缓解错位，但未恢复到正确几何的 0.490 N，且还有两帧复核标志。先验 SD 是实验设定而非从这些真值帧调出的最佳参数；将来应由独立的相机/平面标定试验确定。</p>
+<p>运行时间仅计 MATLAB 逆解函数，不含真值生成、启动、绘图或文件 I/O。环境方法在标称设置下平均约 1.28 s/帧，比仅形状基线慢约 46 倍，也没有达到 20 ms 传感周期。不能称为实时方法。</p>
+<h2>与已发表工作的对应关系</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2109.12469">Xiao 与 Chen 的局部 FBG 曲率多接触力估计</a>使用简化 Cosserat 关系和最小二乘，报告接触力大小及位置误差。这里的 shape-only 点力基线只测试相近的信息边界，并未复制其求解器、机器人或数据。</li>
+<li><a href="https://doi.org/10.1109/LRA.2022.3188905">Aloi 等的分布载荷估计</a>以沿杆位置观测拟合高斯载荷，在两台腱驱动机器人上做了三维硬件实验。当前通道场景为平面点接触，不具备其分布载荷或硬件条件。</li>
+<li><a href="https://ieeexplore.ieee.org/document/10418521/">Ferguson、Rucker 与 Webster 的连续弧长形状及载荷估计</a>包含分布载荷仿真和点载荷硬件验证。仓库 <code>rod/run_literature_strain_scenarios.m</code> 仅借用了其杆长、材料及应变噪声等参数测试本项目自己的单接触场景，不是论文实验复现。</li>
+<li><a href="https://arxiv.org/abs/2606.29165">Prakash、Vela 与 Tsiotras 2026 年的多接触因子图预印本</a>联合使用应变、腱张力与位姿，并处理未知接触位置和多接触。本页二维 benchmark 假设接触数与顺序已知；新增三维窗口采用形状/环境候选，但观测、模型和候选边界仍不同。</li>
+</ul>
+<p>另外按当前代码重跑了 <code>force('literature-strain')</code>：它把 Ferguson 文中选用的 1 m、1.5 mm 直径、207 GPa 及 10 微应变等<strong>参数</strong>应用于本项目自己的弯曲杆单接触加末端载荷场景。每个密度只有一个噪声种子、一个状态，结果如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">曲率点数</th>
+<th style="text-align: right;">环境方法接触力误差</th>
+<th style="text-align: right;">本项目 shape-only 误差</th>
+<th>环境方法 review</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.0311 N</td>
+<td style="text-align: right;">0.0346 N</td>
+<td>是，形状一致性未通过</td>
+</tr>
+<tr>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0.0100 N</td>
+<td style="text-align: right;">0.0155 N</td>
+<td>是，形状一致性未通过</td>
+</tr>
+<tr>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">0.00781 N</td>
+<td style="text-align: right;">0.0783 N</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>该协议的<a href="../out/formulation/literature_strain/comparison.json">逐条件结果</a>和 N5/N15/N50 原始 MAT 位于 <code>out/formulation/literature_strain/</code>，不能与多接触表合并，也不能写成对 Ferguson 方法的优势证明。5/15 点结果即便力误差较小，也已经被代码标为需要复核。</p>
+<p>因此，当前证据支持“在这三个内部生成、模型一致的平面通道里，环境信息改善了稀疏曲率的多接触力分解”，<strong>不支持 SOTA 结论</strong>。要作公开可比较的 SOTA 主张，必须在相同观测输入、相同真值、相同接触模式定义和相同硬件或公开数据集上运行可验证的原方法实现，并统计失败率、误差分布与速度。现有数据与相关论文中的硬件误差数字不能直接排序。</p>
+<h2>软件实验全局状态与重跑</h2>
+<p>本页多接触 benchmark 包含 396 次逆解和 54 次平面标定敏感性回放。另有单接触多种子噪声、同观测基线、Ferguson 参数适配与墙钟性能回放。本轮新增<a href="../out/formulation_window/summary.md">完整三维窗口实验</a>，并用独立固定环境接触平衡重新运行了<a href="../out/model_mismatch/summary.md">三组失配实验</a>；后者使用新完整窗口，故意遗漏一个面或给错摩擦参数。各协议的观测、状态与真值范围不同，不合并成一个精度数字。</p>
+<p>在仓库根目录运行：</p>
+<pre><code class="language-matlab">report = force('multi-benchmark');    % 重建三场景真值、配对噪声和 396 次估计
+geometry = force('multi-geometry');   % 重放已保存的标称输入，54 次平面误差估计
+smoke = force('multi-benchmark', true); % 少量冒烟输入，写入独立的 smoke/ 目录
+</code></pre>
+<pre><code class="language-text">python scripts/summarize_multi_contact_benchmark.py
+</code></pre>
+<p><code>rod/run_multi_contact_benchmark.m</code> 写<a href="../out/benchmarks/multi_contact/comparison.json">逐次比较 JSON</a>、每场景的 <code>truth.mat</code> 与 <code>trials.mat</code>；<code>rod/run_multi_contact_plane_uncertainty.m</code> 写<a href="../out/benchmarks/multi_contact/plane_uncertainty.json">平面误差回放 JSON</a>；Python 脚本从这些原始数据生成<a href="../out/benchmarks/multi_contact/summary.md">完整结果表</a>。JSON 中逐次保留场景、种子、状态、噪声、采样密度、方法、误差、运行时间和 review 标志；MAT 保留每个观测包及解的诊断。这组 benchmark 的上述文件作为精选结果纳入版本库；其他 <code>out/</code> 运行目录仍默认忽略。实验依赖 MATLAB R2024a、Optimization Toolbox 和项目已有的本地杆模型依赖。</p>
+<p>新增代码已包含三维摩擦多接触逆解和有限的形状驱动候选搜索；尚需扩大该路径的多轨迹/多种子统计、候选覆盖与接触模式切换验证。分布载荷、独立环境与材料标定误差、原论文方法的同输入复现，以及真实硬件力真值仍未完成，不能由本页二维统计推断其表现。</p></main></body></html>

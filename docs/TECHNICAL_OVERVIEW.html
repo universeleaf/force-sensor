@@ -1,0 +1,1173 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>杆接触力估计技术记录</title><style>
+body{font:16px/1.8 'Microsoft YaHei',Arial,sans-serif;color:#20303b;background:#eef3f6;margin:0}
+main{max-width:1100px;margin:28px auto;background:white;padding:32px 40px;border-top:5px solid #17698b}
+h1{font-size:28px}h2{margin-top:30px}a{color:#096989}img{max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #cddbe5;padding:8px;text-align:left}
+th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
+@media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
+</style></head><body><main><h1>EnFiRCE：Environment- and Friction-informed Rod Contact Estimation 技术总说明</h1>
+<p>这份文档是当前仓库的实现手册，按“研究问题 → 数据边界 → 正向真值 → 逆问题 → 数值求解 → 结果审计”的顺序解释代码。每一节给出相应函数，便于直接跳到实现。最新的完整三维多接触/时间窗口路径及其全部代码对应见<a href="FORMULATION_WORKFLOW.html">完整 formulation 工作流</a>。场景和视频另见<a href="SCENARIO_MATRIX.html">场景矩阵</a>，多接触配对实验见<a href="SOFTWARE_BENCHMARK_2026-09-30.html">软件实验报告</a>，实验状态另见<a href="STATUS.html">状态页</a>。若历史文字与代码冲突，以当前代码及相应运行目录中的 comparison.json 为准。</p>
+<p><strong>2026-09-30 实现更正：</strong> 本轮修复三维多接触射击的力矩符号及固有曲率分段，移除重复计入观测的旧窗口 penalty smoother，接通完整三维多接触/时间窗口，并重新运行三组失配实验。新结果见<a href="../out/formulation_window/summary.md">窗口实验</a>和<a href="../out/model_mismatch/summary.md">失配实验</a>。独立二维 demo/396 次 benchmark 和既有单接触射击不受这两处前向错误影响；旧失配分数撤回，新失配不沿用旧真值。代码与新窗口的逐项对应见<a href="FORMULATION_WORKFLOW.html">完整工作流</a>。</p>
+<p><strong>研究目标</strong>：利用连续体机器人的稀疏形状信息和环境几何信息，估计杆身接触位置、接触力与独立末端外力，并识别观测不足或模型失配。当前是 MATLAB 仿真研究原型；真实 FBG、相机、力传感器和同步系统尚未接入，数值结果不能解释为实物精度。</p>
+<h2>1. 阅读地图与职责边界</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>主要代码</th>
+<th>输入 → 输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>场景调度</td>
+<td><a href="../force.m">force.m</a></td>
+<td>场景名 → 对应实验协议</td>
+</tr>
+<tr>
+<td>公共逆解 API</td>
+<td><a href="../rod/estimate_sensor_forces.m">estimate_sensor_forces.m</a></td>
+<td>sensorInput → 力估计与质量标志</td>
+</tr>
+<tr>
+<td>论文主路径配置</td>
+<td><a href="../rod/estimate_formulation_forces.m">estimate_formulation_forces.m</a>、<a href="../rod/formulation_solver_config.m">formulation_solver_config.m</a></td>
+<td>同一 sensorInput → 非线性 Cosserat + 完整 MPCC</td>
+</tr>
+<tr>
+<td>数据边界</td>
+<td><a href="../rod/measurements_from_sensor_packet.m">measurements_from_sensor_packet.m</a></td>
+<td>稀疏传感器包 → 重建形状、环境观测、历史</td>
+</tr>
+<tr>
+<td>运动学重建</td>
+<td><a href="../rod/reconstruct_sensor_curvature.m">reconstruct_sensor_curvature.m</a>、<a href="../rod/integrate_curvature_field.m">integrate_curvature_field.m</a></td>
+<td>稀疏曲率 + 本征曲率 + 基座 → 中心线</td>
+</tr>
+<tr>
+<td>当前力学</td>
+<td><a href="../rod/solve_cosserat_force_map.m">solve_cosserat_force_map.m</a></td>
+<td>接触位置、接触力、末端力 → 平衡杆形</td>
+</tr>
+<tr>
+<td>单帧 MAP</td>
+<td><a href="../rod/run_rod_plane_force_sensing_experiment.m">run_rod_plane_force_sensing_experiment.m</a> 中的 estimateForcesWithShapeAndEnvironment、solveNonlinearFormulationMap</td>
+<td>观测和先验 → 状态向量</td>
+</tr>
+<tr>
+<td>接触优化</td>
+<td><a href="../rod/solve_contact_mpcc.m">solve_contact_mpcc.m</a>、<a href="../rod/solve_contact_mode_map.m">solve_contact_mode_map.m</a></td>
+<td>MAP 目标 + 接触约束 → 可行解和同伦轨迹</td>
+</tr>
+<tr>
+<td>全杆几何</td>
+<td><a href="../rod/plane_contact_constraints.m">plane_contact_constraints.m</a></td>
+<td>连续力学采样形状 → 非穿透与切触残差</td>
+</tr>
+<tr>
+<td>时间历史</td>
+<td><a href="../rod/latent_fbg_history.m">latent_fbg_history.m</a>、<a href="../rod/estimate_temporal_window_forces.m">estimate_temporal_window_forces.m</a></td>
+<td>前一帧观测或 W 帧 → 联合估计</td>
+</tr>
+<tr>
+<td>完整三维多接触/窗口</td>
+<td><a href="../rod/estimate_formulation_window.m">estimate_formulation_window.m</a>、<a href="../rod/run_formulation_workflow.m">run_formulation_workflow.m</a></td>
+<td>稀疏形状、多平面、协方差 → 自动候选、全窗口物理约束、逐接触力、质量和可追踪文件</td>
+</tr>
+<tr>
+<td>独立真值/demo</td>
+<td><a href="../rod/build_contact_demo_truth.m">build_contact_demo_truth.m</a>、<a href="../rod/contact_demo_scenes.m">contact_demo_scenes.m</a>、<a href="../rod/run_contact_demo_suite.m">run_contact_demo_suite.m</a>、<a href="../rod/render_contact_demo_video.m">render_contact_demo_video.m</a></td>
+<td>场景 → 独立平衡真值、模拟传感器包、逐状态 MAP/MPCC 评分和 MATLAB 连续视频</td>
+</tr>
+<tr>
+<td>压力与基线</td>
+<td><a href="../rod/run_model_mismatch_protocol.m">run_model_mismatch_protocol.m</a>、<a href="../rod/run_fair_baseline_protocol.m">run_fair_baseline_protocol.m</a></td>
+<td>相同或模型外输入 → 对照结果</td>
+</tr>
+<tr>
+<td>多接触配对实验</td>
+<td><a href="../rod/run_multi_contact_benchmark.m">run_multi_contact_benchmark.m</a>、<a href="../rod/run_multi_contact_plane_uncertainty.m">run_multi_contact_plane_uncertainty.m</a></td>
+<td>同一曲率包 → 环境/形状基线、几何消融和标定误差</td>
+</tr>
+<tr>
+<td>工程回归</td>
+<td><a href="../rod/run_project_checks.m">run_project_checks.m</a></td>
+<td>当前 31 项基础检查、可选 2 项归档重放 → project_checks.json</td>
+</tr>
+</tbody>
+</table>
+<p>主数据流：</p>
+<pre><code class="language-text">场景/真实设备（目前只有仿真）
+  → 稀疏 FBG + 当前/历史基座位姿 + 环境平面及协方差
+  → sensorInput.tube / packet / config
+  → measurements_from_sensor_packet
+  → 曲率重建与接触/末端力初值
+  → 对候选状态反复求解三维 Cosserat 平衡
+  → 观测 MAP + 杆身非穿透 + 摩擦互补的 MPCC
+  → 接触力、末端力、合力、接触位置、残差和 review 标志
+  → 只在离线评分阶段与独立真值比较
+</code></pre>
+<p>公共入口明确拒绝 sensorInput 中的 forward、truth、results 字段；评分文件可以同时保存 sensorInput 与 truth，但传给估计器的只能是 sensorInput。这个边界由 estimate_sensor_forces.m 的入口断言及 <a href="../rod/test_sensor_contracts.m">test_sensor_contracts.m</a> 检查。</p>
+<h2>2. 坐标、单位与模型假设</h2>
+<p>所有长度用 <strong>mm</strong>，曲率用 <strong>1/mm</strong>，力用 <strong>N</strong>，力矩用 <strong>N·mm</strong>，弯曲/扭转刚度用 <strong>N·mm²</strong>，时间用 <strong>s</strong>。世界坐标是三维右手坐标；基座 T_base 是 4×4 齐次位姿，左上 3×3 是旋转，右上 3×1 是位置。杆弧长 s 从 0 到 L，p(s) 为中心线，R(s) 为截面姿态，u(s) 为局部曲率，uhat(s) 为卸载本征曲率。</p>
+<p>环境由平面点 p1 和单位法向 n 描述。带符号间隙定义为 g=n'·(p_contact−p1)。g&gt;0 是可行侧，g=0 是接触，g&lt;0 是穿透；世界坐标的 x/z 方向本身没有固定的“接触法向”意义，取决于场景配置。</p>
+<p>历史单接触逆解使用一个无限平面和一个零半径点接触；新完整窗口使用多个观测半空间和形状驱动的多个接触槽。共同假设是静态/准静态、不可伸长不可剪切杆，没有惯性、阻尼、分布载荷、有限杆半径和动态黏滑转换。原六个连续 demo 的真值来自二维 XZ 平衡再刚体旋转；新空间滑动输入另外由三维射击与接触根求解生成面外载荷，详见<a href="FORMULATION_WORKFLOW.html">新工作流</a>。</p>
+<h2>3. 输入数据的逐字段契约</h2>
+<p>公共输入必须是一个结构体，包含 tube、packet、config，入口见 <a href="../rod/estimate_sensor_forces.m">estimate_sensor_forces.m</a>。<a href="../rod/sensor_estimator_config.m">sensor_estimator_config.m</a> 从场景配置中只复制估计器和传感器参数，不把仿真载荷复制到公共输入。</p>
+<h3>3.1 校准杆 tube</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>维度及检查</th>
+<th>物理作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tube.s</td>
+<td>1×N，首点为 0，严格递增、有限</td>
+<td>弧长网格</td>
+</tr>
+<tr>
+<td>tube.uhat</td>
+<td>3×N，有限</td>
+<td>卸载曲率和扭转</td>
+</tr>
+<tr>
+<td>tube.T_base</td>
+<td>4×4 位姿</td>
+<td>默认基座姿态；逐帧由 packet.basePose 更新</td>
+</tr>
+<tr>
+<td>tube.kb、tube.kt 或 getTubeK 所支持的刚度</td>
+<td>转为 3×N，严格为正</td>
+<td>本构 K(s)</td>
+</tr>
+</tbody>
+</table>
+<p><a href="../rod/make_experiment_tube.m">make_experiment_tube.m</a> 优先读取自定义 cfg.rod.sMm 和 cfg.rod.intrinsicCurvaturePerMm；否则通过 CreatTube 构造默认杆。这里的 uhat/K 是标定模型，不是估计过程偷看的真值力。</p>
+<h3>3.2 传感器包 packet</h3>
+<p>验证和转换均集中在 <a href="../rod/measurements_from_sensor_packet.m">measurements_from_sensor_packet.m</a>。必需字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>尺寸或范围</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>schemaVersion</td>
+<td>标量，当前必须为 1</td>
+<td>数据协议版本</td>
+</tr>
+<tr>
+<td>fbgIdx</td>
+<td>有序整数，至少两点，必须含杆首尾节点</td>
+<td>采样节点</td>
+</tr>
+<tr>
+<td>sFbgMm</td>
+<td>与 fbgIdx 等长，必须匹配 tube.s(fbgIdx)</td>
+<td>FBG 弧长标定</td>
+</tr>
+<tr>
+<td>curvaturePerMm</td>
+<td>3×nFBG×nt</td>
+<td>当前稀疏曲率</td>
+</tr>
+<tr>
+<td>previousCurvaturePerMm</td>
+<td>同尺寸</td>
+<td>前一采样时刻稀疏曲率</td>
+</tr>
+<tr>
+<td>basePose、previousBasePose</td>
+<td>4×4×nt</td>
+<td>当前和历史基座位姿</td>
+</tr>
+<tr>
+<td>timeSeconds、previousTimeSeconds</td>
+<td>各 nt 个，当前时间递增且大于对应历史时间</td>
+<td>观测时钟</td>
+</tr>
+<tr>
+<td>processReferencePeriodSeconds</td>
+<td>正标量</td>
+<td>过程先验参考周期</td>
+</tr>
+<tr>
+<td>frictionMu</td>
+<td>nt 个非负值</td>
+<td>每帧摩擦系数</td>
+</tr>
+<tr>
+<td>actuationMm</td>
+<td>nt 个</td>
+<td>执行器/推进位移</td>
+</tr>
+<tr>
+<td>planePointMm、planeNormal</td>
+<td>各 3×nt，法向为单位向量</td>
+<td>环境观测</td>
+</tr>
+</tbody>
+</table>
+<p>可选 planeCovariance 为 6×6×nt，对应 [平面点 3 维；法向 3 维]，必须对称正定。代码以 Cholesky 分解得到 environmentWhitening；正定的模型误差底噪应由生成包或标定环节显式提供。可选 environmentTimeSeconds 要在声明的最大偏差内与当前 FBG 时间同步，默认上限是 5 ms。若相同时间戳的曲率或基座位姿互相冲突，函数报 rod:ConflictingSensorSample，不会把它们当成两次独立观测。</p>
+<h3>3.3 转换后 measurements 的具体内容</h3>
+<p>每帧分别重建当前与历史曲率和中心线，并输出 m.uSparse、m.u、m.p、m.pSparse、m.previousShape、m.planePointMeasured、m.planeNormalMeasured、m.baseTraj、m.frictionMu、m.timeSeconds、m.historyIntervalSeconds、m.processStepCount。存在环境协方差时另有 m.environmentWhitening。pSparse 只提取同一 FBG 子集对应的位置，供 shape-only/Gaussian 基线公平使用。m.previousShape 来自前一时刻的<strong>稀疏观测重建</strong>，不是密集仿真形状。</p>
+<p>合成 packet 的具体生成见 <a href="../rod/simulate_sensor_packet.m">simulate_sensor_packet.m</a>：默认抽 24 个 FBG 节点，采用固定随机种子向前后观测加曲率噪声，抽取当前/历史基座及平面观测；密集 p/R 和真实载荷均不跨越传感器边界。当前合成 FBG 实际测量前两个弯曲分量，第三曲率分量被置为本征扭转，这是平面真值上的建模假设，不能说成有第三个真实测量通道。</p>
+<h2>4. 从稀疏曲率到可用杆形</h2>
+<p><a href="../rod/reconstruct_sensor_curvature.m">reconstruct_sensor_curvature.m</a> 先验证基座旋转正交、行列式为 1。主路径使用 intrinsic-delta：在每个 FBG 点计算 delta_u=u_measured−uhat，用 PCHIP 按弧长插值 delta_u 的三个分量，再把完整网格上的 uhat 加回。这样保留弯钩的已校准本征形状，不把它解释成外力。可选 shapeSmoothing&gt;0 时使用 movmean，默认 0。历史 absolute 模式直接插值绝对曲率。</p>
+<p>当 mechanicsModel='cosserat-shooting' 时，<a href="../rod/integrate_curvature_field.m">integrate_curvature_field.m</a> 用 SE(3) 指数中点积分：</p>
+<pre><code class="language-text">elastic = u−uhat
+omega_j = [uhat_j + (elastic_j+elastic_(j+1))/2] · ds
+W = hat(omega_j), a = ||omega_j||
+R_(j+1) = R_j [I + A W + B W²]
+p_(j+1) = p_j + R_j [I + B W + C W²] [0,0,ds]'
+A=sin(a)/a, B=(1−cos(a))/a², C=(a−sin(a))/a³
+</code></pre>
+<p>小角度时用泰勒展开；本征曲率的分段突变保持原样，只对弹性曲率取中点。输出 shape.u/R/p/T_base/sparseU/fbgIdx。这是观测的<strong>运动学重建</strong>，本身尚未施加该帧的 Cosserat 力平衡。旧 mechanicsModel 则使用 solveShape，保留历史比较。</p>
+<h2>5. 当前三维 Cosserat 力学映射</h2>
+<p>实现：<a href="../rod/solve_cosserat_force_map.m">solve_cosserat_force_map.m</a>。给定 contactS、三维接触力 fc、三维末端力 fe 和 tube，它对<strong>当前候选状态</strong>求静态平衡杆形：</p>
+<pre><code class="language-text">p'(s) = R(s)e3
+R'(s) = R(s)hat(u(s))
+m'(s) = −p'(s) × n(s)
+u(s)  = uhat(s) + K(s)⁻¹ R(s)'m(s)
+n(s)  = fe+fc (接触之前)，fe (接触之后)
+末端自由边界：m(L)=0
+</code></pre>
+<p>力在精确 contactS 处跳变；代码同时在本征曲率或刚度的断点分段积分。未知的三个基座力矩分量由 fsolve 射击，使末端力矩满足默认 2e-4 N·mm 容限；每一段用 ode45，默认相对容限 2e-7。初值来自卸载杆形上的两个外力力臂。射击收敛是<strong>一个局部平衡根</strong>，不证明唯一或稳定。</p>
+<p>输入边界会拒绝非有限/非递增弧长、错误尺寸或非正刚度、越界接触弧长、非有限三维力。一次力学调用的 RHS 工作量上限默认 50000；超限抛 rod:CosseratEquilibrium，优化器拒绝该试探，不返回截断形状。</p>
+<p>输出包括连续杆形 u/R/p、精确接触点 pc、接触切向 contactTangent、沿杆力矩 momentNmm、碰撞检查网格 collisionS/collisionP、末端力矩残差、基座射击力矩、RHS 调用数。固定碰撞网格还含原杆节点；间隔配置默认 0.5 mm。持久缓存使用完整 tube/基座/选项和精确 [contactS;fc;fe] 作为键，不用近似键或评分真值。</p>
+<h2>6. 逆解状态向量：每个变量对应什么</h2>
+<p>主循环在 <a href="../rod/run_rod_plane_force_sensing_experiment.m">run_rod_plane_force_sensing_experiment.m</a> 的 estimateForcesWithShapeAndEnvironment；状态大小由 formulationStateSize 决定，解码在 decodeMapState。设 m 为摩擦锥生成方向数，默认 m=16，总维度 11+m=27：</p>
+<pre><code class="language-text">x = [p1(3); eta1(2); s1; fn; beta1(m); lambda1; fe(3)]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>MATLAB 索引</th>
+<th>符号</th>
+<th style="text-align: right;">单位</th>
+<th>作用及约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1:3</td>
+<td>p1</td>
+<td style="text-align: right;">mm</td>
+<td>平面参考点；被环境观测和先验约束</td>
+</tr>
+<tr>
+<td>4:5</td>
+<td>eta1</td>
+<td style="text-align: right;">rad</td>
+<td>相对测量法向的两个局部参数；etaToNormal 保持法向单位化</td>
+</tr>
+<tr>
+<td>6</td>
+<td>s1</td>
+<td style="text-align: right;">mm</td>
+<td>单一接触弧长，限在 tube.s 首末之间</td>
+</tr>
+<tr>
+<td>7</td>
+<td>fn</td>
+<td style="text-align: right;">N</td>
+<td>非负法向接触反力</td>
+</tr>
+<tr>
+<td>8:7+m</td>
+<td>beta</td>
+<td style="text-align: right;">N</td>
+<td>m 个非负切向摩擦生成元</td>
+</tr>
+<tr>
+<td>8+m</td>
+<td>lambda1</td>
+<td style="text-align: right;">mm</td>
+<td>摩擦运动学互补辅助变量，非负</td>
+</tr>
+<tr>
+<td>9+m:11+m</td>
+<td>fe</td>
+<td style="text-align: right;">N</td>
+<td>独立三维末端外力</td>
+</tr>
+</tbody>
+</table>
+<p>etaToNormal 使用测量法向附近的稳定切平面基将二维参数映射到单位球；frictionDirections 则在该法向切平面上生成 m 条方向 D。当前接触合力 fc=n·fn+D·beta；总外力为 fc+fe。若 mu=0，MPCC 把 beta 固定为零。stateBounds 限制 eta、s、非负变量；useForceBounds 默认为 false，研究主路径依赖观测/先验而非硬力上界，若显式开启才应用配置的力上界。</p>
+<p>接触位置 pc 并不是 p1：它来自当前 Cosserat 形状在 s1 处的中心线点。p1 定义环境平面，pc 是机器人上的候选接触点，两者的法向差才是 gap。</p>
+<h2>7. 几何、摩擦与互补约束的确切形式</h2>
+<h3>7.1 点接触与整杆非穿透</h3>
+<p>decodeMapState 计算 gap=n'·(pc−p1)。<a href="../rod/plane_contact_constraints.m">plane_contact_constraints.m</a> 在 planeContactGeometry='rod' 时还对力学输出的 collisionP 逐点计算 gap_j=n'·(collisionP_j−p1)，要求 gap_j≥0。对内部接触点加入加权切触：</p>
+<pre><code class="language-text">a=(s1−s_min)/(s_max−s_min)
+fn · 4a(1−a) · n'·contactTangent = 0
+</code></pre>
+<p>力为零或接触位于端点时该等式不限制切向；内部有正反力的光滑接触要求中心线切向与平面相切。约束来自<strong>连续 ODE 插值后的固定离散采样点</strong>，不是整条曲线无穿透的解析证明，也没有杆半径补偿。</p>
+<h3>7.2 多面体 Coulomb 摩擦锥</h3>
+<p>frictionDirections 用稳定的平面切向基 B，按 2π/m 在切平面布置生成方向 D_i。令 beta_i≥0，则</p>
+<pre><code class="language-text">fc = n·fn + Σ D_i·beta_i
+fn ≥ 0, beta_i ≥ 0
+coneSlack = mu·fn−Σ beta_i ≥ 0.
+</code></pre>
+<p>当前/历史接触位置按同一接触弧长比较，切向位移 v_t=(I−nn')·(pc_current−pc_previous)。历史点可使用线性插值或 integrated 选项；Formulation 配置 integrated。每个摩擦生成方向的运动学变量 w_i=D_i'v_t+lambda。完整互补对为：</p>
+<pre><code class="language-text">0 ≤ gap       ⟂ fn        ≥ 0
+0 ≤ w_i       ⟂ beta_i    ≥ 0  (每个 i)
+0 ≤ lambda    ⟂ coneSlack ≥ 0
+</code></pre>
+<p>其中 a⟂b 意味着 a·b=0。对应代码：fullMapConstraints 形成不等式和乘积等式；solve_contact_mpcc 使用有物理单位缩放的 [gap;w;lambda] 与 [fn;beta;coneSlack]。摩擦运动学描述的是成对样本的<strong>位移</strong>，不是连续时间速度模型。</p>
+<h3>7.3 模式诊断而非模式真值输入</h3>
+<p>历史 active-set 路径的 selectComplementarityMode 根据可观察的接触间隙、前后切向位移、配对噪声和摩擦方向分辨率选择 no-contact、frictionless、sticking、sliding 或 unresolved。模式噪声协方差由 <a href="../rod/paired_contact_uncertainty.m">paired_contact_uncertainty.m</a> 与 <a href="../rod/friction_mode_resolution.m">friction_mode_resolution.m</a> 处理；后者要求候选方向的最小工作量优势超过噪声椭球的三倍标准差边界。</p>
+<p>主路径的 Scholtes MPCC <strong>不预先指定接触模式</strong>。先优化全部互补变量，再根据解读出 no-contact/sticking/sliding 等标签，并允许 <a href="../rod/solve_contact_mode_map.m">solve_contact_mode_map.m</a> 做有验收条件的局部 polishing。标签是结果诊断，不是真值输入。</p>
+<h2>8. 观测模型、MAP 目标与先验</h2>
+<h3>8.1 观测向量和白化</h3>
+<p>measurementVectorForFrame 从 m.uSparse 选择 cfg.forceSensor.curvatureObservedAxes，按 MATLAB 列主序展平，随后拼接测量平面点和测量法向。Formulation 配置为 [1 2]，24 个 FBG 产生 48 个曲率观测，再加 6 个环境观测，共 54 维。第三曲率分量仍可用于形状重建，但不作为主路径观测似然通道。若包携带 planeCovariance，环境 6 维先通过 Cholesky 的 L⁻¹ 白化；mapMeasurementModel 对预测环境量使用相同变换，避免只白化观测。</p>
+<p>预测 h(x) 来自当前解码状态：先调用当前三维 Cosserat 射击，抽取 FBG 节点预测曲率，再拼接状态的 p1 和 n。详细入口是 run_rod_plane_force_sensing_experiment.m 内的 mapMeasurementModel、decodeMapState、measurementVectorForFrame、measurementStdVector。曲率噪声/模型底噪由 <a href="../rod/calibrate_fbg_likelihood.m">calibrate_fbg_likelihood.m</a> 与配置的 measurementStd 控制；仿真可注入零噪声，但 MAP 方差不能随意当作零。</p>
+<h3>8.2 完整非线性目标</h3>
+<p>内部 fullMapCost 与 solveNonlinearFormulationMap 的 nonlinearObjective 实现：</p>
+<pre><code class="language-text">J(x) = 1/2 (x−x_prior)' P_minus⁻¹ (x−x_prior)
+     + 1/2 Σ_i [z_i−h_i(x)]² / Rdiag_i.
+</code></pre>
+<p>x_prior 为上一帧状态和随机游走过程先验；第一帧由 measured plane、测量形状的最近间隙、零接触力先验及 tip-only 力种子初始化。P_minus 来自 priorStd 和 processStd；不同帧的过程协方差按实际采样间隔相对 processReferencePeriodSeconds 缩放。先验不是“真实接触力”。默认标准差逐字段列在同文件的 defaultExperimentConfig：例如初始末端力 4 N、接触弧长 8 mm；过程末端力 0.75 N、接触弧长 2 mm；配置修改会改变 MAP 的定量结果，复现必须保存配置。</p>
+<p>initializeMapState 先用测量杆形对平面求 signed gap，在 contactSearchBandMm 内寻找最近接触弧长；seedTipOnlyForceFromMeasuredCurvature 用 K·(u−uhat) 与 tip Jacobian 解带小 ridge 的最小二乘末端力种子。solveReducedShapeKnownMapUpdate 和 refine_cosserat_shape_seed 提供额外初值；它们只决定从何处开始优化，不替代最终完整 MAP。</p>
+<h3>8.3 历史线性化路径与当前主路径</h3>
+<p>默认历史配置为 predecessor-linearized、point-only、active-set、mode-reduced。solveConstrainedMapUpdate 在每轮用 finiteDifferenceMeasurementJacobian 计算 H，将 h(x) 线性化为 h0+H(x−x_lin)，调用 solveLinearizedConstrainedMapSubproblem，再通过 acceptDampedMapStep 验收非线性代价。该路径保留旧结果可复现性，但不是当前完整三维主张。</p>
+<p><a href="../rod/formulation_solver_config.m">formulation_solver_config.m</a> 将主路径切换为：</p>
+<pre><code class="language-text">mechanicsModel='cosserat-shooting'
+planeContactGeometry='rod', planeCollisionStepMm=0.5
+historyPointInterpolation='integrated'
+curvatureObservedAxes=[1 2]
+complementaritySolver='scholtes'
+subproblemCoordinates='full', solver='fmincon'
+useNonlinearShapeSeed=true, useObservationScaling=true
+allowApproximateFallback=false, useMultiStart=false
+mpccRelaxations=[1e-2 1e-4 1e-6 1e-8]
+mechanicsRelativeTolerance=2e-7
+mechanicsMomentToleranceNmm=2e-4
+</code></pre>
+<p>主路径 solveNonlinearFormulationMap 直接优化上述非线性 J(x)。nonlinearSolverScale 用每个状态坐标的局部信息列 H'R⁻¹H 与先验精度设置对角坐标尺度；这<strong>只改变求解坐标</strong>，不改变物理目标。finiteDifferenceMeasurementJacobian 对一个坐标单独扰动，不顺便把其他力变量投影到锥上，避免求导方向被投影污染。</p>
+<h2>9. Scholtes MPCC 的数值执行细节</h2>
+<p><a href="../rod/solve_contact_mpcc.m">solve_contact_mpcc.m</a> 定义物理量缩放后的互补配对 a=[gap/lengthScale; w/lengthScale; lambda/lengthScale]、b=[fn/forceScale; beta/forceScale; coneSlack/forceScale]。每一级 tau 解：</p>
+<pre><code class="language-text">min J(x)
+subject to a≥0, b≥0, a_i b_i≤tau
+           整杆采样非穿透
+           |内部切触残差|≤tau
+           状态边界
+</code></pre>
+<p>默认 tau 从 1e-2、1e-4、1e-6 到 1e-8；每一级都用 MATLAB fmincon 的 SQP 求解并把上一阶段解传给下一阶段。有限 tau 是数值松弛，<strong>不等于精确互补</strong>。最终记录每级退出码、迭代数、目标、约束违反、耗时和被拒绝的力学试探次数。随后根据完整 MPCC 解推断活跃摩擦方向，调用 solve_contact_mode_map polishing；只有最终约束和代价符合验收条件才采用 polishing 结果，否则保留同伦解。</p>
+<p>如果一次 ODE/射击试探抛 rod:CosseratEquilibrium，优化器把该试探记为不可行或无限目标；其他异常继续抛出，避免程序 bug 被误认为正常力学不可行。代码默认禁用近似 fallback 和多初值搜索；因此一个收敛解既不证明全局最优，也不证明全局可辨识。</p>
+<h2>10. 历史信息与时间窗口</h2>
+<p>固定历史模式：当前 packet 的 previousCurvaturePerMm 经 reconstruct_sensor_curvature 生成 previousShape；当前解的接触点相对上一形状的位移用于摩擦运动学，但上一形状本身不随当前优化变量变化。该条件化近似没有把历史观测误差完整传进当前力协方差。</p>
+<p>latent-FBG 模式：<a href="../rod/latent_fbg_history.m">latent_fbg_history.m</a> 把所有已观测的前一时刻 FBG 通道写成 q=(u_previous_latent−u_previous_measured)/sigma_history，并在目标中加 q'q/2；当前状态与 q 一起进入完整 MPCC。第三个未观测扭转仍由本征扭转假设给出。该模式只联立一对时刻的历史运动学，不是前一时刻力平衡的完整联合后验。</p>
+<p>短时间窗口：<a href="../rod/estimate_temporal_window_forces.m">estimate_temporal_window_forces.m</a> 现在直接调用完整联合逆解。每个实际观测时刻有独立三维平衡状态，原始 FBG/环境观测只计入一次，物理状态带时间缩放的随机游走先验；末端力矩和完整摩擦 MPCC 是非线性约束。schema 1 中输出可能跳过采样时刻，适配器会合并所有当前/前驱时间，并使用每个当前样本明确记录的前驱，不以“上一视频帧”替代它。旧逐帧后验加原始观测的 penalty smoother 已移除，避免重复计算信息。详细状态、约束和输出见<a href="FORMULATION_WORKFLOW.html">完整工作流</a>。</p>
+<h2>11. 逐帧主循环：从观测到 output.ours</h2>
+<p>estimateForcesWithShapeAndEnvironment 是 run_rod_plane_force_sensing_experiment 的核心内部函数。每帧执行以下顺序：</p>
+<ol>
+<li>读取当前 measurements、上一帧的状态先验和当前基座位姿。</li>
+<li>通过 configForMeasurementFrame 选择当前摩擦系数、环境协方差、历史间隔和当前观测通道。</li>
+<li>生成 z、观测方差 Rdiag、过程先验 Pminus。</li>
+<li>调用 initializeMapState；必要时调用 shape-only seed 或 nonlinear shape seed。</li>
+<li>选择历史 active-set 路径或 formulation Scholtes 路径。</li>
+<li>由 decodeMapState 重新求 Cosserat 形状，写入 state、p、u、contactPoint、contactArcLength、contactForce、normalForce、frictionForce、tipForce 和 totalForce。</li>
+<li>计算 measurementResidual、shapeRmseMm、gap、frictionConeSlack、三类互补残差、activeConstraintResidual、力敏感度和 solverTrace。</li>
+<li>计算 posteriorCovariance；若启用了 checkpoint directory，按帧原子写入 frame_XXX.mat。</li>
+<li>保存 frameSeconds 和 showProgress 日志。</li>
+</ol>
+<p>最终 output.ours 的重要字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>state</td>
+<td>每帧 27 维状态</td>
+</tr>
+<tr>
+<td>p、u</td>
+<td>估计中心线和曲率</td>
+</tr>
+<tr>
+<td>contactForceResultant、normalForceResultant、frictionForceResultant</td>
+<td>接触合力及法/切分量</td>
+</tr>
+<tr>
+<td>tipForce、totalForceResultant</td>
+<td>末端力和合力</td>
+</tr>
+<tr>
+<td>contactArcLength、contactPoint</td>
+<td>接触位置</td>
+</tr>
+<tr>
+<td>complementarityMode、modeResolution</td>
+<td>模式标签和摩擦方向诊断</td>
+</tr>
+<tr>
+<td>shapeRmseMm、measurementResidualNorm</td>
+<td>形状/观测误差</td>
+</tr>
+<tr>
+<td>gap、frictionConeSlack、normalComplementarity、frictionComplementarity、coneComplementarity</td>
+<td>物理可行性诊断</td>
+</tr>
+<tr>
+<td>solverTrace、frameSeconds</td>
+<td>每轮求解信息和耗时</td>
+</tr>
+<tr>
+<td>posteriorCovariance</td>
+<td>当前分支局部线性协方差</td>
+</tr>
+<tr>
+<td>mechanicsDiagnostics</td>
+<td>射击、碰撞采样、力矩残差、RHS 次数</td>
+</tr>
+<tr>
+<td>forceSensitivity</td>
+<td>接触与末端力局部可分离性</td>
+</tr>
+<tr>
+<td>historyEstimate</td>
+<td>latent-FBG 历史（如启用）</td>
+</tr>
+<tr>
+<td>uncertaintyScope</td>
+<td>协方差适用范围的文字说明</td>
+</tr>
+</tbody>
+</table>
+<p>output.quality 再把这些字段压缩成机器可读的 review 判断：</p>
+<pre><code class="language-text">numericalChecksPassed
+frictionKinematicsEnforced
+frictionKinematicsConsistent
+frictionDirectionResolutionAssessed
+frictionDirectionResolved
+hasFrictionObservationWarning
+rodGeometryEnforced
+hasRodPenetration
+forceComponentsLocallySeparable
+hasForceSeparationWarning
+hasOptimizationWarning
+requiresReview
+forceUncertaintyCoverageValidated=false
+forceAccuracyCertified=false
+</code></pre>
+<p>requiresReview 是数值/可辨识性警告的合取，不是“这个力一定错”。相反，requiresReview=false 也只表示当前输入、模型和局部求解检查通过，不能替代独立力传感器真值。</p>
+<h2>12. 正向场景、独立真值和传感器边界</h2>
+<h3>12.1 旧 wall/video 流程</h3>
+<p>run_rod_plane_force_sensing_experiment 的 defaultExperimentConfig 设置默认 150 mm 杆、基座、平面、mu、push-slide、24 个 FBG、0.02 s 采样周期和 MAP 标准差。normalizeExperimentConfig 会单位化平面法向，把 slideDirection 投影到平面切空间，并填充 historyCurvatureStdPerMm 等字段。makeRodPlaneScenario 生成 tube/obstacle，runForwardRodPlaneSimulation 逐步推进并保存正向 p/u/R、接触、摩擦和时间相位。buildForwardBaseTrajectory 明确构造 push 阶段的法向推进和 slide 阶段的切向移动；simulateSensingMeasurements 只抽取稀疏传感器字段；estimateForcesWithShapeAndEnvironment 运行逆解。</p>
+<p>createForceSensingVideo 使用 MATLAB VideoWriter('MPEG-4') 写旧式 forces.mp4。因此 out/video/forces.mp4 后半段向左移动不是相机漂移：该场景的顶面法向是 [0,0,-1]，先 +z 推进，再沿平面内 -x 滑动，以便激励摩擦方向和滑动互补。out/upward/forces.mp4 是 wall 场景整体旋转 90° 后的 +z 推进/短切向滑动；参数是代码定义的场景，不能宣称恢复了 fail.mp4 的真实标定。</p>
+<h3>12.2 六个独立 demo</h3>
+<p><a href="../rod/contact_demo_scenes.m">contact_demo_scenes.m</a> 的六个 ID 和参数：</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>几何/环境</th>
+<th>关键设置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ceiling_hook</td>
+<td>200 mm、120 mm 直段、半径 30 mm 的弯钩顶面</td>
+<td>tipForceXZ=[1;-1]，mu=0，push=[10,16,20]</td>
+</tr>
+<tr>
+<td>side_wall</td>
+<td>ceiling_hook 绕 y 轴 90°</td>
+<td>push=[12,17,21]，tipForceXZ=[0.4;-0.6]</td>
+</tr>
+<tr>
+<td>inclined_plane</td>
+<td>法向相对杆倾斜 12°</td>
+<td>平面点和法向改变，push=[12,17,21]</td>
+</tr>
+<tr>
+<td>long_soft_rod</td>
+<td>240 mm、直段 144 mm、半径 36 mm</td>
+<td>刚度 0.65，绕 y 轴 180°</td>
+</tr>
+<tr>
+<td>sliding_clean</td>
+<td>与弯钩同类几何的平面滑动</td>
+<td>mu=0.3，指定每对历史样本 0.02 mm 切向位移</td>
+</tr>
+<tr>
+<td>sliding_noisy</td>
+<td>sliding_clean 的同一真值</td>
+<td>曲率噪声 5e-5 /mm，平面点噪声 0.1 mm</td>
+</tr>
+</tbody>
+</table>
+<p><a href="../rod/build_contact_demo_truth.m">build_contact_demo_truth.m</a> 不调用逆解来制造真值：它先用独立的 solve_planar_contact_shooting 在 XZ 平面求单接触平衡，检查自由端力矩、杆身非穿透、切触和单边力，再把二维 p/u/力通过世界旋转 Q 变换到三维。它生成当前状态和前一状态的平衡对，调用 simulate_sensor_packet 生成 packet，最后才调用 estimate_sensor_forces。这样 scoring 中的 truth 不会从逆解回流。</p>
+<p>滑动 demo 是指定的静态滑动分支：无限平面上平行平移不改变准静态平衡，因此用一对平衡形状构造历史位移；它不是解决动态 stick-to-slip、惯性或速度摩擦。</p>
+<h3>12.3 多接触和非平面压力测试</h3>
+<p><a href="../rod/build_multi_contact_truth.m">build_multi_contact_truth.m</a> 先在固定环境中独立求解接触闭合、切触和反力，再只对逆解遗漏一个平面或更改摩擦系数。使用新完整窗口，输入没有真值接触标签：</p>
+<ul>
+<li>two-contact：S 通道真实两个接触，只观测一面墙，形状/环境候选生成器给出一个候选；</li>
+<li>curved-surface：兼容旧命令名，实际为法向夹角 5.7248° 的收窄双平面通道，只观测一侧，不能称为光滑曲面；</li>
+<li>friction-mismatch：空间双接触真值 mu=0.03，两个平面均被观测，逆解使用 mu=0.01。</li>
+</ul>
+<p><a href="../rod/run_model_mismatch_protocol.m">run_model_mismatch_protocol.m</a> 保存独立输入/真值、估计、逐接触 CSV、源码与文件校验和，失败也保留。三组总合力 RMSE 为 17.8341、15.9639、1.64746 N。前两组原固定 RMS 阈值为 4，未触发原复核标志；新增 <a href="../rod/audit_formulation_window_fit.m">audit_formulation_window_fit.m</a> 在三组全部两个时刻均触发观测拟合复核。新诊断以独立的 <code>observation_fit.json</code> 保存，不追改原始力或质量。详见<a href="../out/model_mismatch/summary.md">失配报告</a>。</p>
+<h3>12.4 固定环境多接触 demo</h3>
+<p>为了区分“多接触力学是否能成立”和“通用三维摩擦 MAP 是否已经完成”，仓库另外提供了<a href="MULTI_CONTACT_DEMOS.html">固定环境多接触 demo</a>。<code>solve_planar_multi_contact.m</code> 在固定平面上同时优化每个接触的弧长、法向力和基座弯矩；<code>integrate_planar_multi_contact.m</code> 按接触弧长把力跳变带入连续 Cosserat 平衡；<code>estimate_planar_multi_contact.m</code> 只读取杆参数、固定环境和 24 个稀疏曲率观测，估计每个接触的法向力/弧长及末端力；<code>audit_planar_multi_contact.m</code> 对每个平面闭合、整杆采样间隙、切触、力矩残差和接触顺序做统一检查。四个场景的目录名是 <code>s_channel_two_contact</code>、<code>tapered_channel_two_contact</code>、<code>serpentine_three_contact</code> 和 <code>serpentine_three_contact_noisy</code>，结果放在 <code>out/demos/multi_contact/&lt;scene-id&gt;/</code>。</p>
+<p>这条路径是已知接触数量/顺序的平面无摩擦稀疏曲率逆解。前三个无噪声场景的接触力 RMSE 为 <code>9.668e-11</code>、<code>7.598e-11</code> 和 <code>1.267e-10 N</code>；带曲率噪声的三接触场景合力 RMSE 为 <code>0.6202 N</code>，12 帧中 1 帧被标记为 review。视频显示的是已保存状态，不会从视频重新估计力。该路径已经不是“只有 forward mechanics”，但仍不能替代三维摩擦锥 MPCC、未知接触模式边缘化或真实传感器验证。</p>
+<p>新配对协议把上述前三种几何扩展为 3 个随机种子、3 个噪声等级、8/16/24 个曲率观测和两个基座状态。<code>estimate_planar_shape_only_point_loads.m</code> 对同一观测包拟合点力，不读环境；<code>run_multi_contact_benchmark.m</code> 记录两种方法、接触间隙/切触消融和 1 mm 平面错位，共 396 次估计。正确几何、标称噪声、24 个观测时接触力 RMSE 为 0.490 N，对照为 2.967 N；仅 8 个观测时环境方法升到 13.576 N。<code>run_multi_contact_plane_uncertainty.m</code> 用相同观测包检验标定误差，把错位平面视为精确时 RMSE 31.092 N，允许标准差 1 mm 的潜在平面偏移时为 1.341 N。完整定义和逐条件结果见<a href="SOFTWARE_BENCHMARK_2026-09-30.html">软件实验报告</a>。</p>
+<h2>13. 结果文件、视频和 provenance</h2>
+<h3>13.1 六 demo 的目录结构</h3>
+<p>run_contact_demo_suite 每次生成新的 UUID，并逐 case 原子更新比较文件：</p>
+<pre><code class="language-text">out/demos/
+  comparison.json
+  latest/                    # 稳定的人类可读发布别名
+    &lt;sceneId&gt;/
+      forces.mp4
+  &lt;runId&gt;/
+    comparison.json
+    &lt;sceneId&gt;/
+      input_and_truth.mat
+      results.mat
+      data.json
+      forces.csv
+      forces.mp4
+      demo.mp4
+</code></pre>
+<p><code>latest/&lt;sceneId&gt;</code> 是便于分享和查找的稳定路径；<code>&lt;runId&gt;/&lt;sceneId&gt;</code> 是不可变的运行归档。两者内容相同，comparison JSON 同时记录 <code>artifactFolder</code> 和 <code>sourceArtifactFolder</code>，因此改进目录命名不会牺牲结果 provenance。</p>
+<p>input_and_truth.mat 只适合离线评分；results.mat 保存输入、truth、output、scene 和 report；data.json 是 viewer 可读的逐帧摘要；forces.csv 包含真值/估计接触力、末端力、合力、接触弧长、互补残差和 review。顶层 comparison.json 只指向最新完整运行，旧目录不会被估计器自动重用。</p>
+<p>runRecord 保存 schemaVersion、UUID、UTC 时间、MATLAB 版本、平台和 source 文件 SHA-256。test_observation_scaled_map 现在也从当前 comparison.json 动态找到 inclined_plane artifact，不再硬编码旧 UUID。</p>
+<h3>13.2 MP4 的来源</h3>
+<p>旧 out/wall、out/upward、out/video、out/stage1 下的 forces.mp4 是 MATLAB 正向/逆向实验内部的 VideoWriter 输出。新六场景的 forces.mp4 也由 MATLAB VideoWriter 生成：每个场景先完成 12 个独立推进状态的真值、稀疏传感器包和三维 MAP/MPCC 逆解，再连续采样这些已保存状态写入视频。demo.mp4 是同一文件的兼容副本；Python 只生成 GIF/PNG/HTML，不再覆盖 MP4。视频不是硬件录像，也不把播放帧当成新增估计结果。</p>
+<h2>14. 当前运行结果与正确解读</h2>
+<p>当前六 demo 运行 ID 为 <code>5140876c-8e87-4da6-ac4d-c28113e12b88</code>，使用 MATLAB R2024a。每个场景完成 12 个独立求解状态；每个 <code>forces.mp4</code> 有 60 个播放帧，来源状态数仍为 12。JSON 中的逐场景指标：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th style="text-align: right;">接触 RMSE (N)</th>
+<th style="text-align: right;">末端 RMSE (N)</th>
+<th style="text-align: right;">合力 RMSE (N)</th>
+<th style="text-align: right;">接触弧长 RMSE (mm)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ceiling_hook</td>
+<td style="text-align: right;">7.547e-7</td>
+<td style="text-align: right;">6.509e-7</td>
+<td style="text-align: right;">2.709e-7</td>
+<td style="text-align: right;">5.144e-6</td>
+</tr>
+<tr>
+<td>side_wall</td>
+<td style="text-align: right;">1.320e-6</td>
+<td style="text-align: right;">9.700e-7</td>
+<td style="text-align: right;">6.107e-7</td>
+<td style="text-align: right;">5.375e-6</td>
+</tr>
+<tr>
+<td>inclined_plane</td>
+<td style="text-align: right;">4.261e-6</td>
+<td style="text-align: right;">2.345e-6</td>
+<td style="text-align: right;">2.353e-6</td>
+<td style="text-align: right;">1.487e-6</td>
+</tr>
+<tr>
+<td>long_soft_rod</td>
+<td style="text-align: right;">3.870e-7</td>
+<td style="text-align: right;">3.356e-7</td>
+<td style="text-align: right;">1.319e-7</td>
+<td style="text-align: right;">5.654e-6</td>
+</tr>
+<tr>
+<td>sliding_clean</td>
+<td style="text-align: right;">5.212e-6</td>
+<td style="text-align: right;">3.567e-6</td>
+<td style="text-align: right;">2.109e-6</td>
+<td style="text-align: right;">4.507e-6</td>
+</tr>
+<tr>
+<td>sliding_noisy</td>
+<td style="text-align: right;">8.793e-1</td>
+<td style="text-align: right;">7.019e-1</td>
+<td style="text-align: right;">2.992e-1</td>
+<td style="text-align: right;">4.610e-2</td>
+</tr>
+</tbody>
+</table>
+<p>前五个 case 使用与真值一致的近乎无噪声模型，主要说明数值实现能复原独立平衡；不能外推为真实传感器误差。<code>sliding_noisy</code> 的 12/12 帧都触发 <code>requiresReview</code> 和摩擦方向观测警告，虽然最终互补和整杆非穿透检查通过；其估计平面参考下的最大穿透约 0.122 mm。这是当前方法边界，不应写成噪声下成功。</p>
+<p>旧三项 <code>model_mismatch</code> 分数撤出有效物理证据：其前向函数存在本轮已修复的力矩符号和曲率分段问题，而且原生成器只规定点载荷，没有求解所有固定表面的接触闭合与摩擦。因此不能把它称为完整双接触/曲面真值。真正的多接触平衡场景使用独立接触根求解，见<a href="FORMULATION_WORKFLOW.html">完整工作流</a>与<a href="MULTI_CONTACT_DEMOS.html">固定环境多接触 demo</a>。</p>
+<h3>14.1 多种子、多噪声</h3>
+<p><a href="../rod/run_submission_statistics.m">run_submission_statistics.m</a> 默认用场景 ceiling_hook、inclined_plane、sliding_noisy，种子 [11,22,33]，曲率噪声 [0,5e-5,1e-4] /mm，共 27 帧。它以 force sensitivity 输出的局部标准差计算</p>
+<pre><code class="language-text">hit = |force_error| &lt;= 1.96 * conditionalNoiseStdN
+</code></pre>
+<p>报告中的 coverageCertified 固定为 false，因为这不是完整后验、接触模式混合、历史边缘化或真实噪声校准。</p>
+<h3>14.2 公平基线</h3>
+<p><a href="../rod/run_fair_baseline_protocol.m">run_fair_baseline_protocol.m</a> 从同一 demo artifact 读取相同 tube、稀疏 FBG、历史 packet、平面 packet 和噪声实现，给三种方法同一份 sensorInput：</p>
+<ol>
+<li>EnFiRCE：读取形状、历史、环境和摩擦；</li>
+<li>shape-only point-load：只用同一稀疏形状；</li>
+<li>Aloi-style Gaussian：只用同一稀疏位置/形状拟合 Gaussian 载荷。</li>
+</ol>
+<p>shape-only 的合力可能看起来较小，是分量互相补偿的结果，不能代替接触/末端分力指标。基线从不读取 truth；truth 只用于协议内部 scoring。</p>
+<h3>14.3 运行时间</h3>
+<p><a href="../rod/run_realtime_benchmark.m">run_realtime_benchmark.m</a> 重放相同 packet，统计 mean/median/p95/max 和 effectiveHz。当前公开测量约为 119 s/frame p95，而 packet 周期是 0.02 s；这不是实时系统。主要瓶颈是每个候选状态都可能触发 ode45 + fsolve + 有限差分 MAP Jacobian。</p>
+<h2>15. 质量、可辨识性和不确定性</h2>
+<p>output.quality 的字段在 <a href="../rod/estimate_sensor_forces.m">estimate_sensor_forces.m</a> 末尾构造：</p>
+<ul>
+<li>finite、shapeConsistent、activeConstraintResidual、frictionConeViolation、gap；</li>
+<li>rodGeometryEnforced、minimumSampledRodGapMm、hasRodPenetration；</li>
+<li>frictionKinematicsEnforced、frictionKinematicsConsistent；</li>
+<li>frictionDirectionResolutionAssessed、frictionDirectionResolved、hasFrictionObservationWarning；</li>
+<li>forceComponentsLocallySeparable、hasForceSeparationWarning；</li>
+<li>hasOptimizationWarning、numericalChecksPassed、requiresReview；</li>
+<li>environmentCovarianceUsed、uncertaintyScope；</li>
+<li>forceUncertaintyCoverageValidated、forceAccuracyCertified。</li>
+</ul>
+<p>其中 shapeConsistent 的当前阈值是 shapeRmseMm&lt;0.5，active constraint 的统一阈值是 1e-3，gap 允许至多 −1e-5 mm 的数值误差，锥违反阈值是 1e-4。requiresReview 是这些警告的合取加上求解退出码和摩擦观测分辨率，不是准确率标签。</p>
+<p>force_sensitivity_diagnostic / nonlinear_force_sensitivity 判断的是当前解附近接触力和末端力 Jacobian 的局部分离；不代表全局唯一。posteriorCovarianceFromLinearization 只计算当前分支的</p>
+<pre><code class="language-text">Pplus = pinv(Pminus^-1 + H' * R^-1 * H)
+</code></pre>
+<p>并对称化。当前没有模式混合边缘化、约束曲率后验、历史变量完整边缘化、仿真到真实的噪声校准，因此 coverageValidated 和 accuracyCertified 必须保留 false。</p>
+<h2>16. 工程检查、根因修复和代码边界</h2>
+<p><a href="../rod/run_project_checks.m">run_project_checks.m</a> 当前注册 31 项检查：输入契约、协方差/深度平面、曲率重建、摩擦方向、接触射击、ODE 工作量、整杆碰撞、旋转等变性、独立多接触、结果生命周期、传感器重放、语法和观测缩放 MAP。</p>
+<p>本轮系统性调试发现的真实故障是 test_observation_scaled_map.m 仍硬编码旧 UUID 496dc953-eb47-499d-9e38-bd83a92dd98b；该目录已被新 demo 运行删除，因此 force('check') 的第 15 项失败。它是回归 fixture 失效，不是力学算法失败。修复后的测试：</p>
+<ol>
+<li>读取 out/demos/comparison.json；</li>
+<li>查找 completed=true 的 inclined_plane case；</li>
+<li>根据 case.artifactFolder 加载当前 results.mat；</li>
+<li>继续原有观测缩放断言。</li>
+</ol>
+<p>其他已经在代码中落实的保护：</p>
+<ul>
+<li>Cosserat 输入拒绝非法弧长、曲率、刚度、接触位置和力；</li>
+<li>超出 RHS 工作量预算时拒绝 trial，不返回截断杆形；</li>
+<li>杆身非穿透检查贯穿 seed、MPCC 约束和最终 quality；</li>
+<li>packet 不允许 truth/forward 泄漏；</li>
+<li>planeCovariance 必须正定，且环境白化可追溯；</li>
+<li>多接触真值使用独立 forward solve，不复制逆解；</li>
+<li>结果目录记录状态、退出码、约束残差和源 SHA。</li>
+</ul>
+<h2>17. 当前缺口和 RA-L 路线</h2>
+<p>当前代码能支撑“仿真中的环境+形状物理力分解原型”，还不能支撑“已完成的 RA-L 系统”这一表述。缺口按优先级：</p>
+<ol>
+<li>真实 FBG、环境几何/深度、同步和独立接触力 ground truth；</li>
+<li>端点接触及无接触/三维斜平面的扩大统计；新工作流已实际验证两状态零候选、仅末端载荷场景；</li>
+<li>已完成多平面、三维多接触和历史平衡；继续扩大候选覆盖、接触出生/消失、跨分区迁移及独立轨迹统计；</li>
+<li>分布载荷或 Gaussian 载荷的明确模型，并与 shape-only/Aloi/Ferguson 风格基线公平比较；</li>
+<li>W=2/3 时间窗的大样本统计、失败恢复和速度；</li>
+<li>历史误差和接触模式混合后的校准区间；</li>
+<li>解析/自动微分 Jacobian、稀疏结构、递归边缘化，以降低完整窗口延迟；当前已支持保存状态的 warm start，但尚非实时；</li>
+<li>实物实验图、标定报告和公开数据/脚本。</li>
+</ol>
+<p>推荐实施顺序：</p>
+<pre><code class="language-text">标定真实观测包
+  → 三维斜平面/无接触/端点接触
+  → 扩大已实现的三维多接触窗口统计和独立基线
+  → W=2/3 时间窗统计
+  → 模式混合与区间校准
+  → 解析导数、稀疏窗口及复用初值加速
+  → 实物实验、论文图表和补充材料
+</code></pre>
+<h2>18. 复现、审计和交接</h2>
+<p>MATLAB 根目录命令：</p>
+<pre><code class="language-matlab">addpath(genpath(pwd));
+force('demos');
+force('formulation');
+force('depth');
+force('statistics');
+force('mismatch');
+force('baselines');
+force('realtime');
+force('temporal-window');
+force('check');
+</code></pre>
+<p>只跑修复的回归：</p>
+<pre><code class="language-matlab">addpath('rod');
+test_observation_scaled_map;
+</code></pre>
+<p>审计当前 demo 与源代码是否匹配：</p>
+<pre><code class="language-matlab">report = jsondecode(fileread('out/demos/comparison.json'));
+report.runRecord.runId
+report.runRecord.matlabVersion
+report.runRecord.source(1)
+</code></pre>
+<p>六个 demo 的 artifact 适合交接的文件是 comparison.json、每个 case 的 data.json、forces.csv 和 demo.mp4；input_and_truth.mat 只在需要复算评分时发送。不要把 MEMORY.md、tmp/、调试日志、过期 UUID 目录或只为本地浏览的 HTML 当作研究产物。</p>
+<p>可以给学长的准确表述是：EnFiRCE 已经有稀疏形状+环境平面驱动的连续体机器人力分解仿真，主路径是三维 Cosserat 射击、杆身非穿透、离散 Coulomb 摩擦锥和 Scholtes MPCC/MAP；六个独立单接触场景、同输入基线，以及四个已知接触顺序的平面多接触场景可复现。多接触无噪声结果主要验证模型一致性，带曲率噪声场景会显式触发 review。真实传感器、未知模式/摩擦的三维多接触逆解、区间校准和实时性仍未完成。</p>
+<h2>19. 用最通俗的话说</h2>
+<p>FBG 只能告诉我们杆在各处弯了多少，不能单独告诉我们弯曲是“碰墙的反力”造成的，还是“末端被外力拉/推”造成的。环境观测告诉程序墙在哪里。程序猜一个接触点、一个法向力、一些摩擦力和一个末端力，把它们放进 Cosserat 杆方程，算出杆应该长成什么样；然后把算出的形状和 FBG 形状比较，同时要求杆不能穿墙、接触力不能把杆从墙上拉开、摩擦力不能超出摩擦锥、滑动方向要和摩擦方向相容。优化器不断改猜测，直到观测误差和物理约束都足够小。最后给出接触力、末端力、接触位置以及是否需要人工复核。</p>
+<p>这就是项目的主旨：用<strong>环境信息 + 形状信息 + 连续体力学</strong>做可审计的接触力分解。当前已经是可复现的仿真原型；要成为完整 RA-L 工作，还必须补真实观测、多接触/三维环境、不确定性校准和可接受的计算时间。</p>
+<h2>20. 按文件逐项查找实现</h2>
+<p>本节把“概念”落到 MATLAB 文件、入口函数和数据边界。MATLAB 没有单独的类层；一个 <code>.m</code> 文件通常包含一个公开入口和若干私有局部函数。局部函数只能由同文件入口调用，不能从工作区直接调用。阅读代码时建议先看入口函数的第一百行，再沿下面的调用链进入局部函数。</p>
+<h3>20.1 调度、配置和公共入口</h3>
+<table>
+<thead>
+<tr>
+<th>文件/函数</th>
+<th>具体职责</th>
+<th>关键输入/输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../force.m">force.m</a> / <code>force</code></td>
+<td>根目录命令分发器；给 scenario 加 <code>rod/</code> 路径，并将 <code>demos</code>、<code>formulation</code>、<code>check</code> 等名称映射到协议函数</td>
+<td><code>scenario, quickMode</code> → 协议报告</td>
+</tr>
+<tr>
+<td><a href="../rod/run_rod_plane_force_sensing_experiment.m">run_rod_plane_force_sensing_experiment.m</a> / <code>run_rod_plane_force_sensing_experiment</code></td>
+<td>旧 wall/video 主实验；同一文件还承载默认配置、正向模拟、逐帧逆解、统计和视频导出</td>
+<td><code>quickMode, overrides</code> → <code>results</code></td>
+</tr>
+<tr>
+<td>同文件 <code>defaultExperimentConfig</code></td>
+<td>创建杆、平面、推入/滑动、FBG、噪声、先验、视频和输出目录的完整默认配置</td>
+<td><code>rootDir, quickMode</code> → <code>cfg</code></td>
+</tr>
+<tr>
+<td>同文件 <code>normalizeExperimentConfig</code></td>
+<td>单位化法向、投影滑动方向、补默认字段并做范围检查</td>
+<td><code>cfg</code> → 标准化 <code>cfg</code></td>
+</tr>
+<tr>
+<td><a href="../rod/formulation_solver_config.m">formulation_solver_config.m</a> / <code>formulation_solver_config</code></td>
+<td>论文主路径开关：三维 Cosserat、整杆碰撞、Scholtes、完整状态、缩放和容差</td>
+<td><code>cfg</code> → <code>cfg.forceSensor</code></td>
+</tr>
+<tr>
+<td><a href="../rod/sensor_estimator_config.m">sensor_estimator_config.m</a> / <code>sensor_estimator_config</code></td>
+<td>从实验配置复制估计器允许读取的字段；设定 history mode、历史噪声和滑动分辨率</td>
+<td><code>cfg</code> → 无 truth 的 <code>estimator</code></td>
+</tr>
+<tr>
+<td><a href="../rod/estimate_sensor_forces.m">estimate_sensor_forces.m</a> / <code>estimate_sensor_forces</code></td>
+<td>公共传感器入口；拒绝 <code>truth/forward/results</code> 泄漏，调用 packet 转换和逆解，最后生成 <code>output.quality</code></td>
+<td><code>sensorInput</code> → <code>output</code></td>
+</tr>
+<tr>
+<td><a href="../rod/estimate_formulation_forces.m">estimate_formulation_forces.m</a> / <code>estimate_formulation_forces</code></td>
+<td>显式使用 <code>formulation_solver_config</code> 的论文主路径包装器</td>
+<td><code>sensorInput</code> → <code>output</code></td>
+</tr>
+<tr>
+<td><a href="../rod/make_experiment_tube.m">make_experiment_tube.m</a> / <code>make_experiment_tube</code></td>
+<td>读取 <code>rod.sMm</code>、<code>intrinsicCurvaturePerMm</code>、刚度或默认 CreatTube，生成检查过的 <code>tube</code></td>
+<td><code>cfg</code> → <code>tube</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>cfg</code> 中的字段可以按四层理解：<code>cfg.rod.*</code> 描述弧长、本征曲率和刚度；<code>cfg.sensing.*</code> 描述 FBG 抽样、插值和噪声；<code>cfg.forceSensor.*</code> 描述状态、求解器、先验和互补约束；<code>cfg.output/video.*</code> 只影响保存和展示。估计器只接收前三层中允许的传感器/模型字段，不能因为字段名存在就读取 forward truth。</p>
+<h3>20.2 数据包和形状重建</h3>
+<table>
+<thead>
+<tr>
+<th>文件/函数</th>
+<th>实现细节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../rod/measurements_from_sensor_packet.m">measurements_from_sensor_packet.m</a> / <code>measurements_from_sensor_packet</code></td>
+<td>逐字段验证 schema、索引、时间、基座位姿、平面和协方差；对当前及 previous curvature 各调用一次重建；返回 <code>m</code>，并计算历史间隔与 process step count</td>
+</tr>
+<tr>
+<td><a href="../rod/reconstruct_sensor_curvature.m">reconstruct_sensor_curvature.m</a> / <code>reconstruct_sensor_curvature</code></td>
+<td>在 FBG 节点计算 <code>u−uhat</code>，按弧长 PCHIP 插值，选择 intrinsic-delta 或 absolute 模式，再调用 SE(3) 积分</td>
+</tr>
+<tr>
+<td><a href="../rod/integrate_curvature_field.m">integrate_curvature_field.m</a> / <code>integrate_curvature_field</code></td>
+<td>逐段用中点指数映射更新 <code>R,p</code>；处理小角度极限；输出稠密 <code>R,p</code> 和稀疏索引位置</td>
+</tr>
+<tr>
+<td><a href="../rod/simulate_sensor_packet.m">simulate_sensor_packet.m</a> / <code>simulate_sensor_packet</code></td>
+<td>只从 forward shape 抽取允许公开的 24 个 FBG 曲率、基座、平面和 frictionMu；按 seed 加噪声；可生成 previous packet</td>
+</tr>
+<tr>
+<td><a href="../rod/subset_sensor_packet.m">subset_sensor_packet.m</a></td>
+<td>只裁剪时间维并同步所有 current/previous 字段；供噪声协议和重放使用</td>
+</tr>
+<tr>
+<td><a href="../rod/attach_depth_environment.m">attach_depth_environment.m</a></td>
+<td>将深度图估计的平面点、法向和协方差绑定到既有 packet，不改变曲率观测</td>
+</tr>
+<tr>
+<td><a href="../rod/plane_from_depth.m">plane_from_depth.m</a></td>
+<td>对深度像素做相机反投影、鲁棒平面拟合和残差协方差估计；输出环境观测而非力真值</td>
+</tr>
+</tbody>
+</table>
+<h3>20.3 力学映射、几何和互补约束</h3>
+<table>
+<thead>
+<tr>
+<th>文件/函数</th>
+<th>实现细节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../rod/solve_cosserat_force_map.m">solve_cosserat_force_map.m</a> / <code>solve_cosserat_force_map</code></td>
+<td>给定 <code>contactS, fc, fe</code>，在接触点精确切换内力，<code>fsolve</code> 求基座矩，<code>ode45</code> 分段积分；同时生成固定碰撞网格和末端力矩残差</td>
+</tr>
+<tr>
+<td><a href="../rod/plane_contact_constraints.m">plane_contact_constraints.m</a> / <code>plane_contact_constraints</code></td>
+<td>将解码状态和 Cosserat collision samples 变成 <code>c≤0, ceq=0</code>；检查点接触 gap、整杆非穿透、正力内部切触</td>
+</tr>
+<tr>
+<td><a href="../rod/solve_contact_mpcc.m">solve_contact_mpcc.m</a> / <code>solve_contact_mpcc</code></td>
+<td>对全状态 MAP 逐级执行 Scholtes <code>tau</code>；每级调用 <code>fmincon</code>，记录退出码、约束和耗时</td>
+</tr>
+<tr>
+<td><a href="../rod/solve_contact_mode_map.m">solve_contact_mode_map.m</a> / <code>solve_contact_mode_map</code></td>
+<td>在 MPCC 解附近做可选 active-set polishing；验收不通过时返回同伦解</td>
+</tr>
+<tr>
+<td><a href="../rod/contact_tangent.m">contact_tangent.m</a></td>
+<td>从法向构造确定性的切向基向量，保证摩擦方向可复现</td>
+</tr>
+<tr>
+<td><a href="../rod/friction_mode_resolution.m">friction_mode_resolution.m</a></td>
+<td>用切向位移、方向矩阵、协方差和 <code>slipConfidenceSigma</code> 判断方向是否能被噪声分开</td>
+</tr>
+<tr>
+<td><a href="../rod/paired_contact_uncertainty.m">paired_contact_uncertainty.m</a></td>
+<td>将 current/previous 形状、基座和曲率误差传播为同一接触弧长位移协方差</td>
+</tr>
+<tr>
+<td><a href="../rod/friction_direction_quality.m">friction_direction_quality.m</a></td>
+<td>把摩擦运动学是否满足、方向是否分辨和观测警告压缩为质量字段</td>
+</tr>
+<tr>
+<td><a href="../rod/solve_cosserat_multi_contact_map.m">solve_cosserat_multi_contact_map.m</a></td>
+<td>仅用于独立多接触 forward stress truth；公共单接触逆解不调用它</td>
+</tr>
+<tr>
+<td><a href="../rod/solve_planar_multi_contact.m">solve_planar_multi_contact.m</a></td>
+<td>固定平面环境下同时求解多个接触位置、法向力和基座弯矩</td>
+</tr>
+<tr>
+<td><a href="../rod/integrate_planar_multi_contact.m">integrate_planar_multi_contact.m</a></td>
+<td>按多个接触弧长积分连续平衡，并返回接触点与整杆形状</td>
+</tr>
+<tr>
+<td><a href="../rod/audit_planar_multi_contact.m">audit_planar_multi_contact.m</a></td>
+<td>对固定环境多接触结果检查闭合、非穿透、切触、接触顺序和力矩</td>
+</tr>
+<tr>
+<td><a href="../rod/run_multi_contact_demo_suite.m">run_multi_contact_demo_suite.m</a></td>
+<td>生成四个按场景名保存的多接触结果目录、CSV、JSON 和 MP4</td>
+</tr>
+<tr>
+<td><a href="../rod/multi_contact_state_spec.m">multi_contact_state_spec.m</a></td>
+<td>K 接触状态布局；K=1 保持 27 维旧 API，K=2 独立平面为 51 维</td>
+</tr>
+<tr>
+<td><a href="../rod/decode_multi_contact_state.m">decode_multi_contact_state.m</a></td>
+<td>将 K 个接触的平面、弧长、法向/摩擦变量解码为 <code>contactForce(3,K)</code></td>
+</tr>
+<tr>
+<td><a href="../rod/evaluate_multi_contact_state.m">evaluate_multi_contact_state.m</a></td>
+<td>调用多接触 Cosserat forward map 并返回候选曲率、接触点和约束审计；不执行逆向优化</td>
+</tr>
+<tr>
+<td><a href="../rod/multi_contact_constraints.m">multi_contact_constraints.m</a></td>
+<td>多接触 gap、整杆 sampled collision、摩擦锥互补和弧长有序检查</td>
+</tr>
+<tr>
+<td><a href="../rod/solve_planar_contact_shooting.m">solve_planar_contact_shooting.m</a></td>
+<td>六 demo 的独立二维单接触真值 shooting；将平衡、切触、单边力和端部力矩作为验收条件</td>
+</tr>
+<tr>
+<td><a href="../rod/solve_planar_energy_rod.m">solve_planar_energy_rod.m</a></td>
+<td>旧二维能量杆基线；用于历史协议和与 Cosserat shooting 的交叉检查</td>
+</tr>
+</tbody>
+</table>
+<h3>20.4 逆解文件内部的实际调用链</h3>
+<p>论文主路径每帧的函数级调用顺序如下；这比只看文件名更接近调试时的执行栈：</p>
+<pre><code class="language-text">estimate_sensor_forces
+  -&gt; measurements_from_sensor_packet
+      -&gt; reconstruct_sensor_curvature (current + previous)
+          -&gt; integrate_curvature_field
+  -&gt; run_rod_plane_force_sensing_experiment / estimateForcesWithShapeAndEnvironment
+      -&gt; measurementVectorForFrame, measurementStdVector
+      -&gt; initializeMapState
+          -&gt; measuredShapeForFrame
+          -&gt; seedForcesFromMeasuredCurvature
+              -&gt; solve_cosserat_force_map / tip Jacobian seed
+      -&gt; solveNonlinearFormulationMap
+          -&gt; nonlinearSolverScale
+          -&gt; fullMapCost
+          -&gt; solve_contact_mpcc
+              -&gt; mapMeasurementModel
+                  -&gt; decodeMapState
+                      -&gt; solveShapeFromStateForces
+                          -&gt; solve_cosserat_force_map
+              -&gt; fullMapConstraints
+                  -&gt; plane_contact_constraints
+      -&gt; decodeMapState (accepted x)
+      -&gt; force_sensitivity_diagnostic / nonlinear_force_sensitivity
+      -&gt; posteriorCovarianceFromLinearization
+      -&gt; friction_mode_resolution / friction_direction_quality
+      -&gt; output.quality
+</code></pre>
+<p>旧 <code>predecessor-linearized</code> 分支在同一位置改走 <code>solveConstrainedMapUpdate → finiteDifferenceMeasurementJacobian → solveLinearizedConstrainedMapSubproblem → acceptDampedMapStep</code>。因此“历史代码存在”不代表它与 Formulation 主路径同时执行；实际分支由 <code>cfg.forceSensor.complementaritySolver</code>、<code>historyStateMode</code> 和 <code>subproblemCoordinates</code> 决定。</p>
+<h3>20.5 场景、协议、基线和审计文件</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>读什么/写什么</th>
+<th>研究含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../rod/contact_demo_scenes.m">contact_demo_scenes.m</a></td>
+<td>返回六个 scene struct：几何、刚度、旋转、平面、mu、噪声和 push/sliding 设置</td>
+<td>场景定义，不运行优化</td>
+</tr>
+<tr>
+<td><a href="../rod/build_contact_demo_truth.m">build_contact_demo_truth.m</a></td>
+<td>调独立 planar shooting，旋转为 3-D，再生成 packet</td>
+<td>防止 truth 从逆解泄漏</td>
+</tr>
+<tr>
+<td><a href="../rod/run_contact_demo_suite.m">run_contact_demo_suite.m</a></td>
+<td>按 UUID 保存每个 case 的 MAT/JSON/CSV/MP4，并更新 comparison.json</td>
+<td>公共 demo 与 provenance</td>
+</tr>
+<tr>
+<td><a href="../rod/render_contact_demo_video.m">render_contact_demo_video.m</a></td>
+<td>读取已保存的 truth/output，用 MATLAB VideoWriter 绘制旧视频同款的杆形、环境、力箭头和力历史</td>
+<td>连续求解结果的视频导出，不参与估计</td>
+</tr>
+<tr>
+<td><a href="../rod/build_multi_contact_truth.m">build_multi_contact_truth.m</a></td>
+<td>独立固定环境接触平衡，再遗漏平面或改变摩擦参数</td>
+<td>非平行平面不是光滑曲面；只做模型边界压力测试</td>
+</tr>
+<tr>
+<td><a href="../rod/run_model_mismatch_protocol.m">run_model_mismatch_protocol.m</a></td>
+<td>对上述 out-of-model 输入评分，并标 review</td>
+<td>不能解读成多接触成功</td>
+</tr>
+<tr>
+<td><a href="../rod/run_fair_baseline_protocol.m">run_fair_baseline_protocol.m</a></td>
+<td>同一 <code>sensorInput</code> 运行 EnFiRCE、shape-only、Gaussian</td>
+<td>公平输入基线</td>
+</tr>
+<tr>
+<td><a href="../rod/estimate_planar_multi_contact.m">estimate_planar_multi_contact.m</a></td>
+<td>读取曲率、杆参数、接触平面；可选联合估计平面法向偏移</td>
+<td>已知接触顺序的平面多接触逆解</td>
+</tr>
+<tr>
+<td><a href="../rod/estimate_planar_shape_only_point_loads.m">estimate_planar_shape_only_point_loads.m</a></td>
+<td>同一曲率输入，只使用接触数/顺序而不读平面点和法向</td>
+<td>多接触形状基线</td>
+</tr>
+<tr>
+<td><a href="../rod/run_multi_contact_benchmark.m">run_multi_contact_benchmark.m</a></td>
+<td>三种通道、噪声种子/等级/观测密度；写入配对估计、消融、运行时间</td>
+<td>396 次多接触软件协议</td>
+</tr>
+<tr>
+<td><a href="../rod/run_multi_contact_plane_uncertainty.m">run_multi_contact_plane_uncertainty.m</a></td>
+<td>重放 benchmark 的相同标称观测，错放一面墙并估计平面偏移</td>
+<td>54 次几何标定敏感性回放</td>
+</tr>
+<tr>
+<td><a href="../scripts/summarize_multi_contact_benchmark.py">summarize_multi_contact_benchmark.py</a></td>
+<td>读取逐次 JSON，按种子簇重采样并生成结果表</td>
+<td>描述性统计，不输出论文间排名</td>
+</tr>
+<tr>
+<td><a href="../rod/estimate_shape_only_point_loads.m">estimate_shape_only_point_loads.m</a></td>
+<td>仅由稀疏形状拟合点载荷，不读环境平面</td>
+<td>baseline</td>
+</tr>
+<tr>
+<td><a href="../rod/estimate_aloi_gaussian_baseline.m">estimate_aloi_gaussian_baseline.m</a></td>
+<td>用稀疏位置拟合弧长 Gaussian 载荷分布</td>
+<td>Aloi-style baseline</td>
+</tr>
+<tr>
+<td><a href="../rod/run_submission_statistics.m">run_submission_statistics.m</a></td>
+<td>27 组合种子/噪声/场景，输出局部误差和 coverage 标志</td>
+<td>条件统计，尚不是校准置信区间</td>
+</tr>
+<tr>
+<td><a href="../rod/run_history_map_benchmark.m">run_history_map_benchmark.m</a></td>
+<td>比较 fixed/latent history</td>
+<td>历史信息消融</td>
+</tr>
+<tr>
+<td><a href="../rod/estimate_temporal_window_forces.m">estimate_temporal_window_forces.m</a></td>
+<td>合并实际观测/前驱时刻，调用每帧完整平衡和摩擦 MPCC</td>
+<td>完整联合离线窗口；模式边缘化与实时递归待优化</td>
+</tr>
+<tr>
+<td><a href="../rod/run_realtime_benchmark.m">run_realtime_benchmark.m</a></td>
+<td>统计 frame wall time、p95 和 effective Hz</td>
+<td>计算性能边界</td>
+</tr>
+<tr>
+<td><a href="../rod/run_accuracy_benchmark.m">run_accuracy_benchmark.m</a></td>
+<td>在保存输入上做几何/FBG 校准评分</td>
+<td>复核历史结果</td>
+</tr>
+<tr>
+<td><a href="../rod/run_mesh_convergence.m">run_mesh_convergence.m</a></td>
+<td>改 collision/forward mesh step 并比较结果</td>
+<td>离散化误差</td>
+</tr>
+<tr>
+<td><a href="../rod">audit_*.m</a></td>
+<td>不改变估计结果，读取已有 artifact 做准确性、噪声、摩擦、历史和可辨识性报告</td>
+<td>结果审计</td>
+</tr>
+</tbody>
+</table>
+<h3>20.6 测试文件对应的断言类别</h3>
+<p><code>run_project_checks</code> 当前注册 32 项检查，具体可按名称反查：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>测试文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入和结果协议</td>
+<td><code>test_sensor_contracts</code>, <code>test_sensor_config</code>, <code>test_result_lifecycle</code>, <code>test_result_integrity</code></td>
+</tr>
+<tr>
+<td>环境和几何</td>
+<td><code>test_depth_plane</code>, <code>test_environment_covariance</code>, <code>test_plane_contact_geometry</code>, <code>test_cosserat_collision_geometry</code>, <code>test_rotation_equivariance</code></td>
+</tr>
+<tr>
+<td>力学和射击</td>
+<td><code>test_contact_shooting</code>, <code>test_planar_energy_rod</code>, <code>test_cosserat_work_budget</code>, <code>test_multi_contact_map</code></td>
+</tr>
+<tr>
+<td>摩擦和互补</td>
+<td><code>test_lcp_dependency</code>, <code>test_friction_basis</code>, <code>test_friction_regression</code>, <code>test_friction_quality</code>, <code>test_contact_separation_gate</code>, <code>test_reduced_mode_bounds</code></td>
+</tr>
+<tr>
+<td>形状、历史和敏感度</td>
+<td><code>test_intrinsic_curvature_reconstruction</code>, <code>test_latent_fbg_history</code>, <code>test_integrated_history_point</code>, <code>test_history_resolution</code>, <code>test_force_sensitivity</code>, <code>test_nonlinear_shape_seed</code>, <code>test_observation_scaled_map</code></td>
+</tr>
+<tr>
+<td>噪声和重放</td>
+<td><code>test_noise_aware_contact</code>, <code>test_sensor_history_boundary</code>, <code>test_sensor_replay</code></td>
+</tr>
+<tr>
+<td>工程语法</td>
+<td><code>run_project_checks/checkSyntax</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>test_sensor_replay</code> 不是只检查文件存在：它重新读取固定 packet，重复完整逆解，比较保存结果与重放结果的状态和力；本轮两个 replay 均报告 <code>maxStateDifference=0</code>、<code>maxForceDifferenceN=0</code>。<code>test_observation_scaled_map</code> 曾因过期 UUID 失败，现改成从最新 <code>out/demos/comparison.json</code> 解析 artifact，避免下一次 demo 运行后再失效。</p>
+<h2>21. 结果字段到物理量的逐项对照</h2>
+<p>便于从 <code>results.mat</code> 或 <code>data.json</code> 反查：<code>truth.*</code> 只存在离线评分文件，<code>output.ours.*</code> 是估计器可输出的结果，<code>report.*</code> 是协议层统计。常用字段的实际来源如下：</p>
+<table>
+<thead>
+<tr>
+<th>结果字段</th>
+<th>计算位置</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>output.ours.contactForceResultant(:,it)</code></td>
+<td><code>decodeMapState</code> 中 <code>n*fn + D*beta</code></td>
+<td>杆对环境的接触反力估计</td>
+</tr>
+<tr>
+<td><code>output.ours.normalForceResultant(it)</code></td>
+<td>同上 <code>fn</code></td>
+<td>法向标量，非负约束变量</td>
+</tr>
+<tr>
+<td><code>output.ours.frictionForceResultant(:,it)</code></td>
+<td><code>D*beta</code></td>
+<td>多面体锥内的切向合力</td>
+</tr>
+<tr>
+<td><code>output.ours.tipForce(:,it)</code></td>
+<td>状态末三维分量</td>
+<td>独立末端外力；不等于接触力</td>
+</tr>
+<tr>
+<td><code>output.ours.totalForceResultant(:,it)</code></td>
+<td>接触力加末端力</td>
+<td>杆的总外力平衡分量</td>
+</tr>
+<tr>
+<td><code>output.ours.contactArcLength(it)</code></td>
+<td>状态 <code>s1</code></td>
+<td>杆材料坐标 mm，不是世界坐标距离</td>
+</tr>
+<tr>
+<td><code>output.ours.contactPoint(:,it)</code></td>
+<td><code>solve_cosserat_force_map</code> 在 <code>s1</code> 插值</td>
+<td>世界坐标接触点</td>
+</tr>
+<tr>
+<td><code>output.ours.measurementResidual(:,it)</code></td>
+<td><code>z-h(x)</code></td>
+<td>观测白化前/后的残差，查看同文件的定义</td>
+</tr>
+<tr>
+<td><code>output.ours.complementarityResidual(:,it)</code></td>
+<td><code>complementarityResidual</code></td>
+<td>gap-force、摩擦位移-beta、lambda-cone slack 的乘积或等价残差</td>
+</tr>
+<tr>
+<td><code>output.ours.posteriorCovariance(:,:,it)</code></td>
+<td><code>Pplus = pinv(Pminus^-1+H'R^-1H)</code></td>
+<td>当前求解分支的局部线性协方差</td>
+</tr>
+<tr>
+<td><code>output.quality.requiresReview(it)</code></td>
+<td><code>estimate_sensor_forces</code> 末端质量汇总</td>
+<td>有数值、几何、可辨识性或观测分辨率警告时为 true</td>
+</tr>
+<tr>
+<td><code>report.metrics.*</code></td>
+<td><code>run_contact_demo_suite</code> / 各 benchmark</td>
+<td>与独立 truth 比较得到的协议统计，不参与逆解</td>
+</tr>
+</tbody>
+</table>
+<p>读取 <code>forces.csv</code> 时要注意列名中的 <code>truth_*</code> 和 <code>estimate_*</code>：前者只用于离线评分，后者来自 <code>output.ours</code>；CSV 是便携摘要，不能替代 <code>results.mat</code> 中的完整状态、协方差和 solverTrace。</p>
+<h2>22. 当前代码中哪些是“已实现”、哪些是“接口/原型”</h2>
+<p>为了避免交接时把函数名误读成论文结果，按状态明确如下：</p>
+<ul>
+<li><strong>已实现并有实际结果</strong>：稀疏 FBG 包契约、intrinsic-delta 形状重建、三维 Cosserat 平衡、整杆非穿透采样、完整多面体摩擦 MPCC、共享不确定平面、形状驱动多接触候选、未知接触位置/分力/末端力、各时刻平衡的完整窗口、初始/过程完整协方差、局部分支协方差及观测拟合诊断。六个旧连续 demo、四个二维多接触连续 demo 与 396 次配对实验分别记录；新三维窗口和失配实验不与其混成一个分数。</li>
+<li><strong>已实现但只用于诊断/压力测试</strong>：遗漏环境面的独立接触真值、摩擦模型失配、depth covariance、noise attribution、mesh convergence、局部 force sensitivity。</li>
+<li><strong>尚无足够实验支撑或未实现</strong>：真实 FBG/相机标定、任意光滑曲面/有限面片/杆半径接触、任意接触拓扑的全局搜索、独立黏滑模式切换、完整多模态后验、校准后的覆盖率、已发表方法的同输入实现与实时递归窗口。</li>
+<li><strong>明确未声明</strong>：没有把当前 <code>posteriorCovariance</code> 当成 95% 置信区间，没有把无噪声 demo RMSE 当成真实精度，没有把 <code>forces.mp4</code> 当成硬件录像，也没有把 mismatch case 当成算法成功。</li>
+</ul>
+<p>这一区分是技术文档的一部分：一个入口函数能运行，只说明代码路径存在；只有独立输入、明确评分、重复运行和相应实验设计都完成，才可以在论文中把它写成结果。</p>
+<h2>23. 多接触 benchmark 的状态、目标和几何误差处理</h2>
+<p>最新协议的逐次记录和场景结果见<a href="SOFTWARE_BENCHMARK_2026-09-30.html">软件实验报告</a>。这里补充逆解实际执行的数学与代码对应关系。设接触数为 K、杆长为 L、刚度为 EI、观测曲率为 κᵢ，本征曲率为 κ₀ᵢ。<code>estimate_planar_multi_contact.m</code> 的优化变量按顺序为 <code>x = [M₀/(EI/L), λ₁…λK, c₁/L…cK/L, Ftip,x, Ftip,z]</code>，其中 λ 为非负法向力，c 为杆弧长。每次 <code>lsqnonlin</code> 评估都由 <code>integrate_planar_multi_contact.m</code> 从这些变量重建预测曲率、接触点与切向量，最小化以下白化残差的平方和：</p>
+<pre><code class="language-text">(predicted_curvature - measured_curvature) / max(curvatureStdPerMm, 1e-7)
+tip_moment_residual / 1e-3 Nmm
+gapWeight * contact_normal_gap / 1e-3 mm
+tangentWeight * normal_dot_contact_tangent / 1e-4
+</code></pre>
+<p><code>gapWeight=0</code> 或 <code>tangentWeight=0</code> 只删除相应罚项；法向力的方向、接触初值以及弧长分区仍来自环境模型。独立 shape-only 基线用同一曲率观测积分中心线，按接触顺序把弧长分为 K 段，再用带 <code>0.5 mm</code> 力正则的线性最小二乘拟合各点二维力及末端力。<code>test_multi_contact_benchmark_protocol.m</code> 改动平面点和法向后验证该基线输出不变。</p>
+<p>当 <code>options.planePointStdMm &gt; 0</code>，在上述状态末尾额外加入每个<strong>实际使用平面</strong>的法向偏移 δₚ（单位 mm）；重复碰到同一平面时共享 δₚ，且每个偏移被限制在 ±3 倍先验标准差。接触间隙残差改为 <code>normal_dot(contact_point - supplied_plane_point) - δₚ</code>，并加入 <code>δₚ / planePointStdMm</code> 的零均值高斯先验残差。求解后审计使用原平面点加 <code>δₚ * normal</code> 的几何；返回 <code>planePointOffsetMm</code>、使用的平面索引及数值秩。默认标准差为 0，状态与旧算法完全相同。这是一个局部平面标定误差模型，不表示对任意曲面或相机误差的完整后验。</p>
+<p>主 benchmark 的随机噪声在 121 个正向节点上先生成，再按 8/16/24 个 FBG 位置采样；同一场景、种子和状态下不同密度来自同一噪声场。真值、观测包、解和代码 SHA-256 分别保存在 <code>out/benchmarks/multi_contact/&lt;scene-id&gt;/truth.mat</code>、<code>trials.mat</code> 及根目录的 <code>comparison.json</code>。报告脚本以种子而不是逐帧为 bootstrap 抽样单位。<code>force('multi-geometry')</code> 读取这些保存的观测包，向第一面墙注入 +1 mm 误差后比较固定几何与两个预设先验，另写 <code>plane_uncertainty.json</code>。结果审计中的 <code>requiresReview</code> 与离线力误差分开记录，不能用优化器返回成功来代替物理可信度。</p></main></body></html>

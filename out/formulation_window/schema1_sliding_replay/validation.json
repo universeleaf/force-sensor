@@ -1,0 +1,24 @@
+{
+  "contactForceRmseN": 2.0774095631305996E-6,
+  "tipForceRmseN": 2.2817042044370141E-6,
+  "totalForceRmseN": 3.0187741721891958E-7,
+  "timeSeconds": [
+    4.26,
+    4.32
+  ],
+  "windowTimeSeconds": [
+    4.24,
+    4.26,
+    4.3,
+    4.32
+  ],
+  "optimizationSeconds": 1239.0120217,
+  "warmStateBoundCorrection": 3.5995281343127845E-24,
+  "originalTruthSha256": "13e1463bf10d01a76ce8f95736189e03c74349850d8fa4f9431dee3db8097c66",
+  "scope": "Independent archived sliding truth, output indices 10 and 11; warm start from a previous observation-only solve; not a cold-start or real-time benchmark.",
+  "truthOutputIndices": [
+    10,
+    11
+  ],
+  "truthArtifactSha256": "8dc7139162d83c63b8489a43e79c2e88d39222b9dda7937b0bfc2042efe3f61d"
+}

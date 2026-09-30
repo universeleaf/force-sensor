@@ -1,12 +1,12 @@
 {
   "scope": "Code correctness and fixed regressions; not publication readiness or universal force accuracy.",
-  "includeReplay": false,
+  "includeReplay": true,
   "state": "complete",
   "runRecord": {
     "schemaVersion": 1,
-    "runId": "6f44d3a9-5902-4fbd-bd4f-e1174e6d0aad",
+    "runId": "0464ad55-60bf-45f1-b264-c14918fcd24f",
     "state": "complete",
-    "startedAtUtc": "2026-09-30T15:14:59Z",
+    "startedAtUtc": "2026-09-30T16:13:45Z",
     "matlabVersion": "24.1.0.2537033 (R2024a)",
     "platform": "PCWIN64",
     "source": [
@@ -25,6 +25,10 @@
       {
         "path": "rod/audit_force_identifiability.m",
         "sha256": "585b6b6889c1e5284e92fdba052399115fc6d426f7f63bbcd5f0a418d9dba758"
+      },
+      {
+        "path": "rod/audit_formulation_window_fit.m",
+        "sha256": "1360c9294b8b0fbf1f6c0751f34010f5d10c5874b810c4b25faae3fa0995efc0"
       },
       {
         "path": "rod/audit_friction_quality.m",
@@ -57,6 +61,10 @@
       {
         "path": "rod/build_contact_demo_truth.m",
         "sha256": "fb7fcfc2c198957ffb8da56d146a9b83d8a31a3cdc114d13cdc864e073e82e2a"
+      },
+      {
+        "path": "rod/build_formulation_free_packet.m",
+        "sha256": "b2fae1235a83413830ebcca5d1098cd0680b50415bd75f7b14e00332e4501ff7"
       },
       {
         "path": "rod/build_formulation_multi_packet.m",
@@ -108,7 +116,7 @@
       },
       {
         "path": "rod/estimate_formulation_window.m",
-        "sha256": "f0bf82c163cb17c3e28bdbb00dadfd4d2f6b953a6754e74e202edea849c4c68a"
+        "sha256": "e0dc2c0367f44d686ed5584dbbdfb9aac10de4856d10b43b91d6defc8efd7639"
       },
       {
         "path": "rod/estimate_planar_multi_contact.m",
@@ -212,7 +220,7 @@
       },
       {
         "path": "rod/new_run_record.m",
-        "sha256": "5d8fa66bcc30ebe74c8dee0b611f847533606381e57fe1eada3f344436df5830"
+        "sha256": "95eb19d17aff097e11a34d7c8e901fed20a611bc2f15df3b65b04360b133d7ca"
       },
       {
         "path": "rod/nonlinear_force_sensitivity.m",
@@ -267,6 +275,10 @@
         "sha256": "8112d46f1a832017b97033029e1537e3d539f7ae710f85bccce198cffc3ec705"
       },
       {
+        "path": "rod/review_formulation_artifacts.m",
+        "sha256": "ca0b12c4eea9242efe3e6e2abaf0e289ef23cff6396e42c45db8524ac0d5939e"
+      },
+      {
         "path": "rod/run_accuracy_benchmark.m",
         "sha256": "aca4e59c6319df9d8903d400bb2233d8b6f93ca8f79d90d9918916514dbefd98"
       },
@@ -316,7 +328,7 @@
       },
       {
         "path": "rod/run_model_mismatch_protocol.m",
-        "sha256": "b0fa704b9bc58aac0c2ee2e097b8ee55aeb1736952357d20da673c8ebad1f175"
+        "sha256": "3555ba6443afe96f4e23bdef1fae8c0a685501c2a83d466faffd19da5b37096c"
       },
       {
         "path": "rod/run_multi_contact_benchmark.m",
@@ -420,7 +432,7 @@
       },
       {
         "path": "rod/solve_cosserat_multi_contact_map.m",
-        "sha256": "3e817256f6c0644627423a0d5bb10ca1e3842c5742d41bb263bbf8ef2995f2a4"
+        "sha256": "b64009a1a04a8f54cceabc74ddb83c94869f70306376e12fde91ae50efca6b11"
       },
       {
         "path": "rod/solve_planar_contact_shooting.m",
@@ -588,7 +600,7 @@
       },
       {
         "path": "rod/validate_lcp_dependency.m",
-        "sha256": "9e4e55be185ea92fa1c2ea3506b13902bdabc4fa73d2ee573d94b3272b9db1b9"
+        "sha256": "bdea95e0822869411b005b1df853a8561d5f7c1b481b29fe54efcba9f84fdf0c"
       },
       {
         "path": "rod/validate_plane_geometry_run.m",
@@ -619,194 +631,240 @@
         "sha256": "b1d75f9e8ef5d2560a77f96c95a37d0c8f84a364a246450700c86aa3ba1a4171"
       }
     ],
-    "sourceScope": "Code present when this operation started; historical input provenance is separate."
+    "sourceScope": "Code present when this operation started; historical input provenance is separate.",
+    "dependency": {
+      "sourceRevision": "Jia0Shen/LCP-Continuum@56bfd089665efc95bba3e0e49ad11557cf206524",
+      "files": [
+        {
+          "path": "LCP-Continuum/tubeKinematics/CreatTube.m",
+          "sha256": "166fb545a48f113e6adcd2b18dc9ec0f51dc0576668a63ec0988267bddd76444"
+        },
+        {
+          "path": "LCP-Continuum/tubeKinematics/solveShape.m",
+          "sha256": "003d9650b33c7f3fc6b2b67e16b207a0879da7ffc8e6e9fc66ea76c2daa10931"
+        },
+        {
+          "path": "LCP-Continuum/tubeKinematics/computeJacobian.m",
+          "sha256": "03d4b8463ab9196775b920d1783b0daff3fed5c05a072bc4f320380f13348e6c"
+        },
+        {
+          "path": "LCP-Continuum/tubeKinematics/getTubeK.m",
+          "sha256": "cfff8cdcc45033f25767f6296a4684d682404d97cb5f2a88143582fab22e4846"
+        },
+        {
+          "path": "LCP-Continuum/LCP/LCPSolve.m",
+          "sha256": "b6bb02a38a6f42afad81954ea5c801d58d3de6839168cf59624ababbe4ea11fd"
+        },
+        {
+          "path": "LCP-Continuum/contactMechanics/getContactShape3.m",
+          "sha256": "fbb3283a2a5496f625972f21d54490e3fba422596485110c79b84e86a1293a95"
+        },
+        {
+          "path": "LCP-Continuum/contactMechanics/getFrictionalContactShape3.m",
+          "sha256": "0461e65e6579c959200fd655c90b7cdb0399f67920c54c44b57c3a5c42b804f6"
+        }
+      ],
+      "scope": "Required external functions including the rod constructor; hashes detect local edits beyond the Git revision."
+    }
   },
   "allPassed": true,
   "checks": [
     {
       "name": "test_lcp_dependency",
       "passed": true,
-      "seconds": 1.5092243,
+      "seconds": 0.615787,
       "error": ""
     },
     {
       "name": "test_sensor_history_boundary",
       "passed": true,
-      "seconds": 2.0626429,
+      "seconds": 1.4378702,
       "error": ""
     },
     {
       "name": "test_sensor_contracts",
       "passed": true,
-      "seconds": 0.4381996,
+      "seconds": 0.4584336,
       "error": ""
     },
     {
       "name": "test_sensor_config",
       "passed": true,
-      "seconds": 0.054216,
+      "seconds": 0.048636,
       "error": ""
     },
     {
       "name": "test_fbg_likelihood_calibration",
       "passed": true,
-      "seconds": 0.0139319,
+      "seconds": 0.0139709,
       "error": ""
     },
     {
       "name": "test_result_lifecycle",
       "passed": true,
-      "seconds": 1.3863874,
+      "seconds": 2.5702954,
       "error": ""
     },
     {
       "name": "test_force_sensitivity",
       "passed": true,
-      "seconds": 0.8164865,
+      "seconds": 0.5528746,
       "error": ""
     },
     {
       "name": "test_environment_covariance",
       "passed": true,
-      "seconds": 0.7726464,
+      "seconds": 0.5682974,
       "error": ""
     },
     {
       "name": "test_depth_plane",
       "passed": true,
-      "seconds": 0.6036408,
+      "seconds": 0.4697834,
       "error": ""
     },
     {
       "name": "test_reduced_mode_bounds",
       "passed": true,
-      "seconds": 1.8325326,
+      "seconds": 1.4514848,
       "error": ""
     },
     {
       "name": "test_plane_contact_geometry",
       "passed": true,
-      "seconds": 0.556962,
+      "seconds": 0.4440582,
       "error": ""
     },
     {
       "name": "test_cosserat_collision_geometry",
       "passed": true,
-      "seconds": 0.9647741,
+      "seconds": 0.8341198,
       "error": ""
     },
     {
       "name": "test_cosserat_work_budget",
       "passed": true,
-      "seconds": 0.6917313,
+      "seconds": 0.5507387,
       "error": ""
     },
     {
       "name": "test_nonlinear_shape_seed",
       "passed": true,
-      "seconds": 3.6110478,
+      "seconds": 3.015577,
       "error": ""
     },
     {
       "name": "test_observation_scaled_map",
       "passed": true,
-      "seconds": 38.152853,
+      "seconds": 29.8118639,
       "error": ""
     },
     {
       "name": "test_latent_fbg_history",
       "passed": true,
-      "seconds": 0.8467198,
+      "seconds": 0.7227149,
       "error": ""
     },
     {
       "name": "test_integrated_history_point",
       "passed": true,
-      "seconds": 0.4011736,
+      "seconds": 0.310821,
       "error": ""
     },
     {
       "name": "test_history_resolution",
       "passed": true,
-      "seconds": 2.6282334,
+      "seconds": 2.2365518,
       "error": ""
     },
     {
       "name": "test_result_integrity",
       "passed": true,
-      "seconds": 0.1185805,
+      "seconds": 0.0882747,
       "error": ""
     },
     {
       "name": "test_friction_regression",
       "passed": true,
-      "seconds": 0.1811108,
+      "seconds": 0.1379738,
       "error": ""
     },
     {
       "name": "test_friction_quality",
       "passed": true,
-      "seconds": 0.0139407,
+      "seconds": 0.0155858,
       "error": ""
     },
     {
       "name": "test_planar_energy_rod",
       "passed": true,
-      "seconds": 1.19585,
+      "seconds": 1.1091393,
       "error": ""
     },
     {
       "name": "test_contact_shooting",
       "passed": true,
-      "seconds": 1.433138,
+      "seconds": 1.372803,
       "error": ""
     },
     {
       "name": "test_contact_separation_gate",
       "passed": true,
-      "seconds": 5.6808857,
+      "seconds": 5.0424,
       "error": ""
     },
     {
       "name": "test_intrinsic_curvature_reconstruction",
       "passed": true,
-      "seconds": 2.0277022,
+      "seconds": 2.374275,
       "error": ""
     },
     {
       "name": "test_rotation_equivariance",
       "passed": true,
-      "seconds": 0.1280713,
+      "seconds": 0.0922247,
       "error": ""
     },
     {
       "name": "test_multi_contact_map",
       "passed": true,
-      "seconds": 0.1627859,
+      "seconds": 0.0991136,
       "error": ""
     },
     {
       "name": "test_multi_contact_benchmark_protocol",
       "passed": true,
-      "seconds": 1.1064943,
+      "seconds": 0.908892,
       "error": ""
     },
     {
       "name": "test_formulation_window_mechanics",
       "passed": true,
-      "seconds": 5.1314416,
+      "seconds": 4.5456693,
       "error": ""
     },
     {
       "name": "@()run_rod_plane_force_sensing_experiment('jacobian-audit',fullfile(root,'out','video','inverse_results.mat'))",
       "passed": true,
-      "seconds": 2.9714499,
+      "seconds": 2.4459683,
       "error": ""
     },
     {
       "name": "run_project_checks/checkSyntax",
       "passed": true,
-      "seconds": 2.670429,
+      "seconds": 2.1754477,
+      "error": ""
+    },
+    {
+      "name": "@()test_sensor_replay(fullfile(root,'out','stage1','video_seeded'))",
+      "passed": true,
+      "seconds": 114.0680275,
+      "error": ""
+    },
+    {
+      "name": "@()test_sensor_replay(fullfile(root,'out','stage1','wall_tip_seeded'))",
+      "passed": true,
+      "seconds": 171.3674461,
       "error": ""
     }
   ]

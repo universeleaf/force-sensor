@@ -1,9 +1,9 @@
 function shape = solve_cosserat_multi_contact_map(tube, contactS, contactForces, tipForce, options)
 %SOLVE_COSSERAT_MULTI_CONTACT_MAP Static Cosserat map with several point loads.
 % The force at an arc-length s_i is a jump in the internal force.  This
-% helper is deliberately separate from solve_cosserat_force_map: the public
-% estimator still has a one-contact state, while this map generates a
-% physically independent multi-contact stress test.
+% helper uses independent nested shooting, while the joint inverse uses
+% lifted equilibrium states. An empty contact set denotes free space with
+% only the independently specified terminal load.
 if nargin < 5, options = struct; end
 if ~isfield(options,'relativeTolerance'), options.relativeTolerance = 2e-7; end
 if ~isfield(options,'momentToleranceNmm'), options.momentToleranceNmm = 2e-4; end
@@ -15,7 +15,7 @@ assert(numel(s)>=2 && all(isfinite(s)) && all(diff(s)>0), ...
 assert(isequal(size(tube.uhat),[3 ns]) && all(isfinite(tube.uhat),'all'), ...
     'rod:InvalidTubeCurvature','Intrinsic curvature must be a finite 3-by-N field.');
 contactS = contactS(:)';
-assert(~isempty(contactS) && all(isfinite(contactS)) && all(diff(contactS)>0) && ...
+assert(all(isfinite(contactS)) && all(diff(contactS)>0) && ...
     all(contactS>s(1)) && all(contactS<s(end)), ...
     'rod:InvalidContactArcLength','Contact arc lengths must be ordered and interior to the rod.');
 contactForces = reshape(contactForces,3,[]);

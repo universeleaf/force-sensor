@@ -2,7 +2,7 @@
 
 这份文档是当前仓库的实现手册，按“研究问题 → 数据边界 → 正向真值 → 逆问题 → 数值求解 → 结果审计”的顺序解释代码。每一节给出相应函数，便于直接跳到实现。最新的完整三维多接触/时间窗口路径及其全部代码对应见[完整 formulation 工作流](FORMULATION_WORKFLOW.md)。场景和视频另见[场景矩阵](SCENARIO_MATRIX.md)，多接触配对实验见[软件实验报告](SOFTWARE_BENCHMARK_2026-09-30.md)，实验状态另见[状态页](STATUS.md)。若历史文字与代码冲突，以当前代码及相应运行目录中的 comparison.json 为准。
 
-**2026-09-30 实现更正：** 本轮发现旧三维多接触射击函数的力矩导数符号错误，以及最近节点读取固有曲率可能移动突变位置的问题，均已修复。因此旧 `model_mismatch` 三个结果暂不作为正确物理实验引用。独立二维多接触 demo/396 次 benchmark 和既有单接触射击不受这两个错误影响。旧时间窗口 penalty smoother 已被每帧完整 Cosserat/MPCC 的联合窗口替代；下文旧版本描述作为历史解释保留，以新工作流文档为准。
+**2026-09-30 实现更正：** 本轮修复三维多接触射击的力矩符号及固有曲率分段，移除重复计入观测的旧窗口 penalty smoother，接通完整三维多接触/时间窗口，并重新运行三组失配实验。新结果见[窗口实验](../out/formulation_window/summary.md)和[失配实验](../out/model_mismatch/summary.md)。独立二维 demo/396 次 benchmark 和既有单接触射击不受这两处前向错误影响；旧失配分数撤回，新失配不沿用旧真值。代码与新窗口的逐项对应见[完整工作流](FORMULATION_WORKFLOW.md)。
 
 **研究目标**：利用连续体机器人的稀疏形状信息和环境几何信息，估计杆身接触位置、接触力与独立末端外力，并识别观测不足或模型失配。当前是 MATLAB 仿真研究原型；真实 FBG、相机、力传感器和同步系统尚未接入，数值结果不能解释为实物精度。
 
@@ -336,13 +336,13 @@ createForceSensingVideo 使用 MATLAB VideoWriter('MPEG-4') 写旧式 forces.mp4
 
 ### 12.3 多接触和非平面压力测试
 
-[build_multi_contact_truth.m](../rod/build_multi_contact_truth.m) 使用独立多接触 Cosserat 映射生成两个接触反力和一个末端力。公共 packet 只提供第一平面和单接触可表达的输入：
+[build_multi_contact_truth.m](../rod/build_multi_contact_truth.m) 先在固定环境中独立求解接触闭合、切触和反力，再只对逆解遗漏一个平面或更改摩擦系数。使用新完整窗口，输入没有真值接触标签：
 
-- two-contact：真实两个接触，逆解仍只有一个接触点；
-- curved-surface：第二个局部平面与第一平面夹角约 24.6°，但逆解没有第二平面；
-- friction-mismatch：真值的切向反力与 packet 的 mu 不一致。
+- two-contact：S 通道真实两个接触，只观测一面墙，形状/环境候选生成器给出一个候选；
+- curved-surface：兼容旧命令名，实际为法向夹角 5.7248° 的收窄双平面通道，只观测一侧，不能称为光滑曲面；
+- friction-mismatch：空间双接触真值 mu=0.03，两个平面均被观测，逆解使用 mu=0.01。
 
-[run_model_mismatch_protocol.m](../rod/run_model_mismatch_protocol.m) 把这些结果标成 out-of-model stress result；误差和 review 率用于界定模型边界，不能写成“多接触已解决”。
+[run_model_mismatch_protocol.m](../rod/run_model_mismatch_protocol.m) 保存独立输入/真值、估计、逐接触 CSV、源码与文件校验和，失败也保留。三组总合力 RMSE 为 17.8341、15.9639、1.64746 N。前两组原固定 RMS 阈值为 4，未触发原复核标志；新增 [audit_formulation_window_fit.m](../rod/audit_formulation_window_fit.m) 在三组全部两个时刻均触发观测拟合复核。新诊断以独立的 `observation_fit.json` 保存，不追改原始力或质量。详见[失配报告](../out/model_mismatch/summary.md)。
 
 ### 12.4 固定环境多接触 demo
 
@@ -475,12 +475,12 @@ Pplus = pinv(Pminus^-1 + H' * R^-1 * H)
 当前代码能支撑“仿真中的环境+形状物理力分解原型”，还不能支撑“已完成的 RA-L 系统”这一表述。缺口按优先级：
 
 1. 真实 FBG、环境几何/深度、同步和独立接触力 ground truth；
-2. 无接触、端点接触、真正三维斜平面；
-3. 让逆解状态表达两个以上接触点和多个局部平面，而不是只做 mismatch 压力测试；
+2. 端点接触及无接触/三维斜平面的扩大统计；新工作流已实际验证两状态零候选、仅末端载荷场景；
+3. 已完成多平面、三维多接触和历史平衡；继续扩大候选覆盖、接触出生/消失、跨分区迁移及独立轨迹统计；
 4. 分布载荷或 Gaussian 载荷的明确模型，并与 shape-only/Aloi/Ferguson 风格基线公平比较；
 5. W=2/3 时间窗的大样本统计、失败恢复和速度；
 6. 历史误差和接触模式混合后的校准区间；
-7. 解析/自动微分 Jacobian、warm start、稀疏结构和降阶力学，以把两分钟级单帧降到可用频率；
+7. 解析/自动微分 Jacobian、稀疏结构、递归边缘化，以降低完整窗口延迟；当前已支持保存状态的 warm start，但尚非实时；
 8. 实物实验图、标定报告和公开数据/脚本。
 
 推荐实施顺序：
@@ -488,10 +488,10 @@ Pplus = pinv(Pminus^-1 + H' * R^-1 * H)
 ~~~text
 标定真实观测包
   → 三维斜平面/无接触/端点接触
-  → 双接触状态和独立基线
+  → 扩大已实现的三维多接触窗口统计和独立基线
   → W=2/3 时间窗统计
   → 模式混合与区间校准
-  → 解析导数、warm start、降阶加速
+  → 解析导数、稀疏窗口及复用初值加速
   → 实物实验、论文图表和补充材料
 ~~~
 
@@ -636,7 +636,7 @@ estimate_sensor_forces
 | [build_contact_demo_truth.m](../rod/build_contact_demo_truth.m) | 调独立 planar shooting，旋转为 3-D，再生成 packet | 防止 truth 从逆解泄漏 |
 | [run_contact_demo_suite.m](../rod/run_contact_demo_suite.m) | 按 UUID 保存每个 case 的 MAT/JSON/CSV/MP4，并更新 comparison.json | 公共 demo 与 provenance |
 | [render_contact_demo_video.m](../rod/render_contact_demo_video.m) | 读取已保存的 truth/output，用 MATLAB VideoWriter 绘制旧视频同款的杆形、环境、力箭头和力历史 | 连续求解结果的视频导出，不参与估计 |
-| [build_multi_contact_truth.m](../rod/build_multi_contact_truth.m) | 生成双接触、曲面和 friction mismatch 的 forward truth | 只做模型边界压力测试 |
+| [build_multi_contact_truth.m](../rod/build_multi_contact_truth.m) | 独立固定环境接触平衡，再遗漏平面或改变摩擦参数 | 非平行平面不是光滑曲面；只做模型边界压力测试 |
 | [run_model_mismatch_protocol.m](../rod/run_model_mismatch_protocol.m) | 对上述 out-of-model 输入评分，并标 review | 不能解读成多接触成功 |
 | [run_fair_baseline_protocol.m](../rod/run_fair_baseline_protocol.m) | 同一 `sensorInput` 运行 EnFiRCE、shape-only、Gaussian | 公平输入基线 |
 | [estimate_planar_multi_contact.m](../rod/estimate_planar_multi_contact.m) | 读取曲率、杆参数、接触平面；可选联合估计平面法向偏移 | 已知接触顺序的平面多接触逆解 |
@@ -695,9 +695,9 @@ estimate_sensor_forces
 
 为了避免交接时把函数名误读成论文结果，按状态明确如下：
 
-- **已实现并有回归检查**：稀疏 FBG 包契约、intrinsic-delta 形状重建、三维 Cosserat 单接触 shooting、平面整杆非穿透采样、离散摩擦锥、Scholtes MPCC 同伦、局部 MAP 协方差、六个独立 demo、已知顺序的平面多接触稀疏曲率逆解、基线输入隔离、结果 provenance 和完整重放。
-- **已实现但只用于诊断/压力测试**：双接触/曲面/摩擦失配 forward truth、depth covariance、noise attribution、mesh convergence、局部 force sensitivity、短时间窗口惩罚优化。
-- **存在代码路径但没有足够实验支撑**：真实 FBG/相机数据接入、任意曲面几何、未知接触模式和摩擦的三维多接触逆解、完整多模态后验、校准后的置信区间、实时 warm-start 版本。
+- **已实现并有实际结果**：稀疏 FBG 包契约、intrinsic-delta 形状重建、三维 Cosserat 平衡、整杆非穿透采样、完整多面体摩擦 MPCC、共享不确定平面、形状驱动多接触候选、未知接触位置/分力/末端力、各时刻平衡的完整窗口、初始/过程完整协方差、局部分支协方差及观测拟合诊断。六个旧连续 demo、四个二维多接触连续 demo 与 396 次配对实验分别记录；新三维窗口和失配实验不与其混成一个分数。
+- **已实现但只用于诊断/压力测试**：遗漏环境面的独立接触真值、摩擦模型失配、depth covariance、noise attribution、mesh convergence、局部 force sensitivity。
+- **尚无足够实验支撑或未实现**：真实 FBG/相机标定、任意光滑曲面/有限面片/杆半径接触、任意接触拓扑的全局搜索、独立黏滑模式切换、完整多模态后验、校准后的覆盖率、已发表方法的同输入实现与实时递归窗口。
 - **明确未声明**：没有把当前 `posteriorCovariance` 当成 95% 置信区间，没有把无噪声 demo RMSE 当成真实精度，没有把 `forces.mp4` 当成硬件录像，也没有把 mismatch case 当成算法成功。
 
 这一区分是技术文档的一部分：一个入口函数能运行，只说明代码路径存在；只有独立输入、明确评分、重复运行和相应实验设计都完成，才可以在论文中把它写成结果。

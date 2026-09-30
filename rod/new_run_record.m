@@ -11,4 +11,14 @@ record=struct('schemaVersion',1,'runId',char(java.util.UUID.randomUUID()), ...
     'state','running','startedAtUtc',char(datetime('now','TimeZone','UTC','Format',"yyyy-MM-dd'T'HH:mm:ss'Z'")), ...
     'matlabVersion',version,'platform',computer,'source',source, ...
     'sourceScope','Code present when this operation started; historical input provenance is separate.');
+dependencyDir=fullfile(root,'LCP-Continuum');
+if isfolder(dependencyDir)
+    dep=validate_lcp_dependency(root); dependencyFiles=struct('path',{},'sha256',{});
+    for k=1:numel(dep.requiredFiles)
+        path=fullfile(dependencyDir,dep.requiredFiles{k});
+        dependencyFiles(k)=struct('path',strrep(path(numel(root)+2:end),'\','/'),'sha256',file_sha256(path));
+    end
+    record.dependency=struct('sourceRevision',dep.sourceRevision,'files',dependencyFiles, ...
+        'scope','Required external functions including the rod constructor; hashes detect local edits beyond the Git revision.');
+end
 end

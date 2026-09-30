@@ -174,6 +174,9 @@ if options.computeCovariance
 else
     result.quality.forceSeparationAssessed=false;
 end
+result.observationFit=audit_formulation_window_fit(result);
+result.quality.hasObservationFitWarning=result.observationFit.requiresReview;
+result.quality.requiresReview=result.quality.requiresReview|result.quality.hasObservationFitWarning;
 
     function [X,lower,upper,S,Pstd,Qstd]=initialState()
         X=zeros(nx,T); lower=-inf(nx,T); upper=inf(nx,T); S=ones(nx,T);

@@ -8,9 +8,11 @@
 
 | 协议 | 结果 |
 |---|---|
-| 基础工程检查 | 本轮 31/31 通过；另有 2 项可选归档重放 |
+| 工程检查与归档重放 | 本轮 33/33 通过：31 项基础检查及 2 项归档重放 |
+| 完整三维多接触窗口 | 七组/14 个状态完成；含噪三接触逐接触力 RMSE 0.6005 N；含噪空间摩擦双接触 0.3302 N |
+| 无杆身接触、仅末端载荷 | 自动候选数为 0；末端力 RMSE 6.784e-10 N，两个状态无复核标志 |
 | 3 个随机种子 × 3 个曲率噪声等级 | 9 cases、27 frames 完成；平均总力 RMSE 0.3076 N |
-| 旧双接触 / 非平面 / 摩擦失配压力测试 | 多接触前向符号和标定分段已修正；旧数字撤出有效结果 |
+| 修正后失配压力测试 | 遗漏环境面两组总力 RMSE 17.83/15.96 N；摩擦系数失配 1.647 N；新增观测拟合诊断均提示复核 |
 | 固定环境多接触 | 双接触 9.668e-11–7.598e-11 N；三接触 1.267e-10 N；带噪声三接触 0.6202 N |
 | 多接触配对 benchmark | 396 次估计；24 个曲率点、标称噪声下接触力 RMSE：环境方法 0.490 N，shape-only 2.967 N；8 个点时环境方法 13.576 N |
 | 平面标定误差 | 第一个平面错位 1 mm 时接触力 RMSE 31.092 N；允许 1 mm 标准差的潜在平面偏移后为 1.341 N |
@@ -31,6 +33,8 @@
 完整的算法、数据流、文件职责、实验结果和限制见[技术总说明](docs/TECHNICAL_OVERVIEW.md)；滑动阶段、视频说明、文献场景和实验矩阵见[场景矩阵](docs/SCENARIO_MATRIX.md)；旧视频与经典文献问题的对应关系见[文献场景视频对照](docs/LITERATURE_SCENARIO_MAP.md)；当前单接触边界和双接触扩展路径见[多接触扩展说明](docs/MULTI_CONTACT_EXTENSION.md)；当前实验状态见[状态页](docs/STATUS.md)。
 
 多接触的配对基线、传感器密度/噪声消融、几何约束消融和标定误差回放见[软件实验报告](docs/SOFTWARE_BENCHMARK_2026-09-30.md)。这些内部仿真比较还不能证明 SOTA；原始逐次结果与观测包可用下述入口在本地重建。
+
+新增完整窗口的[逐接触真值与估计结果](out/formulation_window/summary.md)、[模型失配报告](out/model_mismatch/summary.md)和[无杆身接触结果](out/formulation_window/free_space/metrics.json)分别记录。完整公式、代码对应和每个场景的具体参数见[完整 formulation 工作流](docs/FORMULATION_WORKFLOW.md)。
 
 ## 快速运行
 
@@ -53,6 +57,15 @@ force('check');           % 工程回归与传感器重放
 ```
 
 严格路径需要 MATLAB R2024a 或兼容版本、Optimization Toolbox，以及本地的 `LCP-Continuum/` 依赖。完整 MPCC 运行时间较长；各协议会在 `out/` 下写出本地结果，但大体积 MAT 和逐帧日志保留在本地；精选视频与结果摘要随仓库发布。
+
+首次克隆本项目时，外部依赖需单独获取。本轮环境使用版本 `56bfd089665efc95bba3e0e49ad11557cf206524`，可在仓库根目录运行：
+
+```text
+git clone https://github.com/Jia0Shen/LCP-Continuum.git LCP-Continuum
+git -C LCP-Continuum checkout 56bfd089665efc95bba3e0e49ad11557cf206524
+```
+
+依赖检查确认杆构造器及力学函数来自这个本地目录，避免同名函数遮蔽。新的运行记录同时保存所需依赖文件的 SHA-256；仅有 Git 版本号不能证明依赖未被本地修改。新窗口和失配协议的精选原始输入/真值/估计 MAT 随结果发布；其他大量归档输出仍在本地。
 
 ## 代码结构
 

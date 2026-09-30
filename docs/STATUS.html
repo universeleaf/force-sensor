@@ -1,0 +1,154 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>杆接触力估计技术记录</title><style>
+body{font:16px/1.8 'Microsoft YaHei',Arial,sans-serif;color:#20303b;background:#eef3f6;margin:0}
+main{max-width:1100px;margin:28px auto;background:white;padding:32px 40px;border-top:5px solid #17698b}
+h1{font-size:28px}h2{margin-top:30px}a{color:#096989}img{max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #cddbe5;padding:8px;text-align:left}
+th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
+@media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
+</style></head><body><main><h1>当前状态</h1>
+<p>更新：2026-10-01。</p>
+<p>本仓库当前是 EnFiRCE 的 MATLAB 仿真研究实现，目标是从稀疏形状和环境几何中估计连续体机器人杆身接触力与独立末端载荷。完整算法、代码结构、实验协议和限制见<a href="TECHNICAL_OVERVIEW.html">技术总说明</a>。</p>
+<p>最新完整代码路径见<a href="FORMULATION_WORKFLOW.html">三维多接触与完整时间窗口</a>。本轮已修复三维多接触前向力矩符号/曲率分段，完成七组完整窗口、三组修正后失配、无杆身接触及旧滑动场景四平衡状态回放。旧失配分数撤回；新结果独立生成。二维多接触 benchmark 与单接触结果不受前述两处错误影响。</p>
+<p>本页的六场景结果来自当前代码重新运行的 <code>5140876c-8e87-4da6-ac4d-c28113e12b88</code>；多接触结果来自 2026-09-30 的四场景运行记录。运行记录保存了参与计算的源码 SHA-256；每个场景完成 12 个 MATLAB 真实求解状态，视频是由这些状态生成的连续播放可视化，不是硬件录像。</p>
+<h2>已完成</h2>
+<ul>
+<li>三维 Cosserat 平衡、平面接触、离散 Coulomb 摩擦锥和互补 MAP 路径。</li>
+<li>当前 FBG、环境平面和历史观测的似然与质量标志。</li>
+<li>六个连续体接触场景及独立连续平衡真值。</li>
+<li>3 seed × 3 noise 统计协议，共 9 cases、27 frames。</li>
+<li>修正后遗漏环境面、非平行通道与摩擦系数失配实验全部完成；每组独立输入、真值和估计分别保留。</li>
+<li>多接触公共 mechanics 层，以及四个固定环境的双接触/三接触连续 Cosserat demo；前三个无噪声场景和一个带曲率噪声场景都读取稀疏形状观测，输出每个接触的力和位置，并保留逐帧 review 标志。</li>
+<li>三个固定环境的配对多接触 benchmark：3 个噪声种子、3 级曲率噪声、3 个传感器密度、2 个状态，共 396 次估计；另有 54 次平面位置不确定度回放。协议、结果和复现入口见<a href="SOFTWARE_BENCHMARK_2026-09-30.html">软件实验报告</a>。</li>
+<li>Ferguson 论文参数适配在当前代码下重新运行了 5/15/50 个曲率点的三个单帧条件；5/15 点触发形状一致性复核，具体数值见<a href="SOFTWARE_BENCHMARK_2026-09-30.html">软件实验报告</a>。</li>
+<li>相同观测输入的 shape-only 和 Gaussian 基线。</li>
+<li>完整三维窗口 MAP：自动接触候选、共享平面参数、每帧平衡、完整摩擦互补、未知末端力和局部协方差；已替代旧 penalty smoother。</li>
+<li>观测到 MAT/CSV/JSON 的通用离线工作流，失败记录和校验和一起导出。</li>
+<li>七组完整窗口（14 个输出状态），未知接触位置和分力由观测估计；无接触时自动推断零候选并估计独立末端载荷。</li>
+<li>旧滑动场景两个输出样本实际求解四个平衡状态，接触力 RMSE 2.077e-6 N；复用先前纯观测结果作初值的优化时间为 1239.01 s，不是冷启动/实时指标。</li>
+<li>观测噪声尺度的拟合诊断自动合并到新估计的复核标志；旧结果另外导出带源码记录的派生诊断，保留原始力和质量。</li>
+<li>本轮完整工程检查 33/33 通过：31 项基础检查及两项归档重放；记录在 <code>out/completion/project_checks.json</code>。</li>
+</ul>
+<h2>关键结果</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th style="text-align: right;">当前结果</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多种子/多噪声平均总力 RMSE</td>
+<td style="text-align: right;">0.3076 N</td>
+<td>单个 <code>ceiling_hook</code> 轨迹，局部统计</td>
+</tr>
+<tr>
+<td>条件局部区间命中</td>
+<td style="text-align: right;">27/27</td>
+<td>未校准的局部一阶诊断</td>
+</tr>
+<tr>
+<td>修正后遗漏环境面压力测试</td>
+<td style="text-align: right;">总合力 RMSE 17.8341/15.9639 N</td>
+<td>两组原始复核未触发；新增观测拟合诊断均 2/2 触发</td>
+</tr>
+<tr>
+<td>修正后摩擦系数失配</td>
+<td style="text-align: right;">总合力 RMSE 1.64746 N</td>
+<td>真实 mu=0.03，估计 mu=0.01；合并拟合诊断后 2/2 触发</td>
+</tr>
+<tr>
+<td>新完整窗口含噪三接触</td>
+<td style="text-align: right;">接触力向量 RMSE 0.600524 N</td>
+<td>两个状态、24 个位置的两个实际弯曲通道；位置 RMSE 0.02353 mm</td>
+</tr>
+<tr>
+<td>新完整窗口含噪空间双接触</td>
+<td style="text-align: right;">接触力向量 RMSE 0.330189 N</td>
+<td>位置 RMSE 0.03220 mm；首状态无更早摩擦历史，1/2 复核</td>
+</tr>
+<tr>
+<td>新完整窗口无杆身接触</td>
+<td style="text-align: right;">末端力 RMSE 6.784e-10 N</td>
+<td>自动候选数 0；2 个无噪声状态，模型一致结果</td>
+</tr>
+<tr>
+<td>实时回放 p95</td>
+<td style="text-align: right;">119.14 s/frame</td>
+<td>未达到 20 ms</td>
+</tr>
+<tr>
+<td>当前五个近乎无噪声接触力 RMSE</td>
+<td style="text-align: right;"><code>3.870e-7–5.212e-6 N</code></td>
+<td>当前运行的五个模型一致场景</td>
+</tr>
+<tr>
+<td>当前无噪声滑动接触力 RMSE</td>
+<td style="text-align: right;"><code>5.212e-6 N</code></td>
+<td>指定摩擦滑动分支</td>
+</tr>
+<tr>
+<td>当前含噪声滑动接触力 RMSE</td>
+<td style="text-align: right;"><code>0.8793 N</code></td>
+<td>12/12 帧触发 review，仍未解决的分力场景</td>
+</tr>
+<tr>
+<td>固定环境多接触（双接触）</td>
+<td style="text-align: right;"><code>9.668e-11–7.598e-11 N</code></td>
+<td>已知接触顺序、无摩擦、模型一致的稀疏曲率逆解</td>
+</tr>
+<tr>
+<td>固定环境多接触（三接触）</td>
+<td style="text-align: right;"><code>1.267e-10 N</code></td>
+<td>三接触无噪声；12/12 帧通过 review</td>
+</tr>
+<tr>
+<td>三接触 + 曲率噪声</td>
+<td style="text-align: right;"><code>0.6202 N</code> 合力 RMSE</td>
+<td>1/12 帧标记 review，作为噪声压力测试</td>
+</tr>
+<tr>
+<td>多接触配对 benchmark，标称噪声/24 个点</td>
+<td style="text-align: right;">环境方法 0.490 N；shape-only 2.967 N</td>
+<td>18 个配对帧；接触力向量 RMSE，不是论文间比较</td>
+</tr>
+<tr>
+<td>多接触配对 benchmark，标称噪声/8 个点</td>
+<td style="text-align: right;">环境方法 13.576 N</td>
+<td>稀疏观测下明显失准，6/18 帧 review</td>
+</tr>
+<tr>
+<td>第一个平面错位 +1 mm</td>
+<td style="text-align: right;">固定平面 31.092 N；潜在偏移先验 SD 1 mm 后 1.341 N</td>
+<td>18 帧；仍有 2 帧 review</td>
+</tr>
+</tbody>
+</table>
+<p>多接触 demo 的视频、输入范围和逐场景评分见<a href="MULTI_CONTACT_DEMOS.html">固定环境多接触 demo</a>。真值最大整杆穿透为 <code>6.995e-10</code>、<code>1.514e-9</code>、<code>1.517e-8</code> 和 <code>1.517e-8 mm</code>；前三个场景估计接触力几乎达到数值一致，带噪声场景按审计标志保留误差。这些是合成平面模型结果，不应解读为硬件传感器精度。</p>
+<p>新窗口每个接触的真实/估计力大小、向量误差与优化时间见<a href="../out/formulation_window/summary.md">完整窗口结果表</a>，失配的原始与派生复核见<a href="../out/model_mismatch/summary.md">失配结果表</a>。七组窗口求解的源码内容核对为 Git <code>813cdfb</code>，之后集成了边界舍入修复、噪声尺度诊断、零接触与依赖记录；不能把旧求解源码 SHA 写成最新工作区。原始文件、校验和及派生诊断版本各自保留。</p>
+<h2>目前需要确认或继续完成</h2>
+<ol>
+<li>真实 FBG、相机/深度相机和接触力传感器标定。</li>
+<li>新完整三维窗口的多轨迹统计、接触模式边缘化和联合后验校准。</li>
+<li>改进有限候选的覆盖和优化收敛；新增路径已包含三维多平面与摩擦，仍不能保证任意接触拓扑。</li>
+<li>多轨迹、多载荷和独立实验集上的全局覆盖率。</li>
+<li>MPCC/Cosserat 求解加速和实时预算验证。</li>
+<li>在相同输入和真值上运行已发表方法的可核实实现；当前内部基线和论文参数适配不足以判定 SOTA。</li>
+</ol>
+<h2>常用入口</h2>
+<pre><code class="language-matlab">addpath(genpath(pwd));
+force('demos');
+force('formulation');
+force('depth');
+force('statistics');
+force('model-mismatch');
+force('fair-baselines');
+force('multi-benchmark');
+force('multi-geometry');
+force('multi-formulation');
+force('realtime');
+force('temporal-window');
+force('check');
+</code></pre>
+<p>详细结果摘要写入 <code>out/*/comparison.json</code>。精选视频和演示动图已纳入版本库；完整 MAT 与逐帧日志仍留在本地。</p></main></body></html>
