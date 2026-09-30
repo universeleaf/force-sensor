@@ -40,6 +40,10 @@ end
 free=find(ub(:)>lb(:)); fixed=x0(:); sc=scale(free); origin=x0(free);
 lo=(lb(free)-origin)./sc; hi=(ub(free)-origin)./sc; y=zeros(size(free));
 cachedY=[]; cachedFrames={}; rejected=0; lastRejection='';
+% Geometry-only changes do not change the rod IVP. Finite differences also
+% change only one time state: retain exact mechanical states per time rather
+% than integrating the entire window again for each perturbed coordinate.
+mechanicalCache=repmat({{}},1,T); mechanicalEvaluations=0; mechanicalCacheHits=0;
 seedWhitening=obs.curvatureWhitening;
 timer=tic; stages=cell(1,numel(options.relaxations));
 [initialA,~,initialC,initialE]=physicalConstraints(decode(y));
@@ -160,6 +164,7 @@ result=struct('method','joint-3d-multi-contact-cosserat-mpcc-map', ...
     'solver',struct('seedExitflag',seedFlag,'seedIterations',seedOut.iterations,'seedTrace',{seedTrace}, ...
         'stages',{stages},'exitflag',flag,'selectedStage',selectedStage, ...
         'warmStateBoundCorrection',warmBoundCorrection, ...
+        'mechanicalEvaluations',mechanicalEvaluations,'mechanicalCacheHits',mechanicalCacheHits, ...
         'rejectedTrials',rejected,'lastRejection',lastRejection), ...
     'options',options,'observations',obs, ...
     'scope','Full nonlinear equilibrium at all window times; full polyhedral friction MPCC after the first time; bounded shape-driven candidate set; half-space environment.');
@@ -268,16 +273,35 @@ result.quality.requiresReview=result.quality.requiresReview|result.quality.hasOb
                 force(:,jj)=normals(:,ix.plane)*fn(jj)+directions{ix.plane}*beta(:,jj);
             end
             rod=tube; rod.T_base=obs.basePose(:,:,kk);
-            sh=integrate_cosserat_load_state(rod,x(spec.baseMoment),s,force,x(spec.tip),options);
-            [sensorP,sensorR]=cosserat_state_at_arc(sh,obs.arcs); %#ok<ASGLU>
-            predicted=zeros(numel(obs.axes),numel(obs.arcs));
-            for zz=1:numel(obs.arcs)
-                node=find(tube.s<=obs.arcs(zz),1,'last');
-                segment=find(sh.segmentEdges<=obs.arcs(zz),1,'last'); segment=min(segment,numel(sh.pieces));
-                state=deval(sh.pieces{segment},obs.arcs(zz));
-                curv=tube.uhat(:,node)+(sensorR(:,:,zz)'*state(13:15))./stiffness(:,node);
-                predicted(:,zz)=curv(obs.axes);
+            signature=[x(spec.baseMoment);s(:);force(:);x(spec.tip)];
+            hit=0; entries=mechanicalCache{kk};
+            if options.cacheMechanics
+                for zz=1:numel(entries)
+                    if isequal(signature,entries{zz}.signature), hit=zz; break; end
+                end
             end
+            if hit>0
+                sh=entries{hit}.shape; predicted=entries{hit}.predicted;
+                mechanicalCacheHits=mechanicalCacheHits+1;
+                entries=[entries(hit),entries(1:hit-1),entries(hit+1:end)];
+            else
+                sh=integrate_cosserat_load_state(rod,x(spec.baseMoment),s,force,x(spec.tip),options);
+                mechanicalEvaluations=mechanicalEvaluations+1;
+                [~,sensorR]=cosserat_state_at_arc(sh,obs.arcs);
+                predicted=zeros(numel(obs.axes),numel(obs.arcs));
+                for zz=1:numel(obs.arcs)
+                    node=find(tube.s<=obs.arcs(zz),1,'last');
+                    segment=find(sh.segmentEdges<=obs.arcs(zz),1,'last'); segment=min(segment,numel(sh.pieces));
+                    state=deval(sh.pieces{segment},obs.arcs(zz));
+                    curv=tube.uhat(:,node)+(sensorR(:,:,zz)'*state(13:15))./stiffness(:,node);
+                    predicted(:,zz)=curv(obs.axes);
+                end
+                if options.cacheMechanics
+                    entries=[{struct('signature',signature,'shape',sh,'predicted',predicted)},entries];
+                    entries=entries(1:min(8,numel(entries)));
+                end
+            end
+            mechanicalCache{kk}=entries;
             v=zeros(3,K); gap=zeros(1,K); tangent=gap; cone=gap; w=zeros(m,K);
             previousIndex=obs.predecessorIndex(kk);
             if previousIndex>0, previousP=cosserat_state_at_arc(frames{previousIndex}.shape,s);
@@ -460,7 +484,8 @@ d=struct('numFrictionDirs',4,'maxContacts',4,'candidateMaxGapMm',5,'candidateMer
     'relaxations',[1e-2 1e-4 1e-6 1e-8],'lengthScaleMm',1,'forceScaleN',1, ...
     'constraintTolerance',1e-5,'exactContinuationTolerance',1e-8, ...
     'activeForceThresholdN',1e-3,'equilibriumToleranceNmm',2e-4,'geometryToleranceMm',2e-4, ...
-    'complementarityTolerance',1e-5,'maxWhitenedCurvatureRms',4,'showProgress',true,'computeCovariance',false);
+    'complementarityTolerance',1e-5,'maxWhitenedCurvatureRms',4,'showProgress',true,'computeCovariance',false, ...
+    'cacheMechanics',true);
 names=fieldnames(d); for k=1:numel(names), if ~isfield(opts,names{k}), opts.(names{k})=d.(names{k}); end; end
 positive={'candidateMaxGapMm','candidateMergeMm','minArcSeparationMm','normalChartRadiusRad','maxForceN', ...
     'maxTipForceN','maxSlipMm','relativeTolerance','collisionStepMm','maxRhsEvaluations','seedIterations', ...

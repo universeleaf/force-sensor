@@ -20,6 +20,7 @@ function results = force(scenario, quickMode)
 % force('multi-benchmark') : paired multi-contact baselines, ablations, noise and timing
 % force('multi-geometry')  : calibrated-plane perturbation and latent-offset replay
 % force('multi-formulation'): shape-driven contacts, full 3-D friction/window MAP
+% force('literature-baselines'): same archived packets, source-grounded point/Gaussian adaptations
 % force('history')         : paired latent-history MAP vs fixed history
 % force('temporal-window'): joint short-window Cosserat MAP smoother
 % force('statistics')      : multi-seed/multi-noise conditional coverage protocol
@@ -80,6 +81,8 @@ switch lower(char(scenario))
         results = run_multi_contact_plane_uncertainty();
     case 'multi-formulation'
         results = run_formulation_window_protocol(quickMode);
+    case 'literature-baselines'
+        results = run_literature_baseline_protocol(quickMode);
     case 'history'
         results = run_history_map_benchmark();
     case {'temporal-window','window'}
