@@ -9,6 +9,11 @@ if ~isfield(options,'gaussianSigmaMm'),options.gaussianSigmaMm=[];end
 if ~isfield(options,'queryArcsMm'),options.queryArcsMm=tube.s;end
 if ~isfield(options,'computeShape'),options.computeShape=true;end
 if ~isfield(options,'relativeTolerance'),options.relativeTolerance=2e-8;end
+assert(isnumeric(options.relativeTolerance)&&isreal(options.relativeTolerance)&& ...
+    isscalar(options.relativeTolerance)&&isfinite(options.relativeTolerance)&&options.relativeTolerance>0&& ...
+    (islogical(options.computeShape)||isnumeric(options.computeShape))&& ...
+    isreal(options.computeShape)&&isscalar(options.computeShape)&&ismember(options.computeShape,[0 1]), ...
+    'rod:InvalidBodyOptions','Provide a positive tolerance and scalar logical computeShape.');
 s=tube.s(:)'; K=reshape(getTubeK(tube),3,[]); u0=tube.uhat;
 cs=contactS(:)'; f=reshape(localForce,3,[]); sigma=options.gaussianSigmaMm(:)';
 assert(all(diff(s)>0)&&isequal(size(K),size(u0))&&all(K>0,'all')&& ...
@@ -33,6 +38,7 @@ edges=unique(edges); pieces=cell(1,numel(edges)-1);
 state=[zeros(3,1);localTipForce(:)]; rhsCount=0; intrinsic=zeros(3,1); stiffness=ones(3,1);
 if ~isempty(sigma)
     area=0.5*(erf((s(end)-cs)./(sqrt(2)*sigma))-erf((s(1)-cs)./(sqrt(2)*sigma)));
+    assert(all(isfinite(area))&&all(area>0),'rod:InvalidBodyLoad','Gaussian normalization must be finite and positive.');
 else,area=[];end
 settings=odeset('RelTol',options.relativeTolerance,'AbsTol',options.relativeTolerance/100);
 for j=numel(pieces):-1:1

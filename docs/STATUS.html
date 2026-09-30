@@ -9,6 +9,8 @@ th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{fon
 <p>更新：2026-10-01。</p>
 <p>本仓库当前是 EnFiRCE 的 MATLAB 仿真研究实现，目标是从稀疏形状和环境几何中估计连续体机器人杆身接触力与独立末端载荷。完整算法、代码结构、实验协议和限制见<a href="TECHNICAL_OVERVIEW.html">技术总说明</a>。</p>
 <p>最新完整代码路径见<a href="FORMULATION_WORKFLOW.html">三维多接触与完整时间窗口</a>。本轮已修复三维多接触前向力矩符号/曲率分段，完成七组完整窗口、三组修正后失配、无杆身接触及旧滑动场景四平衡状态回放。旧失配分数撤回；新结果独立生成。二维多接触 benchmark 与单接触结果不受前述两处错误影响。</p>
+<p>本轮新增已完成的<a href="LITERATURE_COMPARISON.html">同曲率文献基线与精确缓存</a>：14 次基线运行/28 个状态，两个含噪场景的接触分力与位置误差优于本次适配基线，合力存在反例；缓存开关双接触试验 116.29 → 50.75 s，估计结果相同。论文图和原始数据同步公开，不能据此称为 SOTA 或再无问题。</p>
+<p>实验目录通过 <code>.gitattributes</code> 保留原始字节，避免 Windows/Linux 行尾转换破坏 CSV/JSON 的 SHA；这个发布缺陷已修复，数值结果未改写。</p>
 <p>本页的六场景结果来自当前代码重新运行的 <code>5140876c-8e87-4da6-ac4d-c28113e12b88</code>；多接触结果来自 2026-09-30 的四场景运行记录。运行记录保存了参与计算的源码 SHA-256；每个场景完成 12 个 MATLAB 真实求解状态，视频是由这些状态生成的连续播放可视化，不是硬件录像。</p>
 <h2>已完成</h2>
 <ul>
@@ -21,12 +23,15 @@ th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{fon
 <li>三个固定环境的配对多接触 benchmark：3 个噪声种子、3 级曲率噪声、3 个传感器密度、2 个状态，共 396 次估计；另有 54 次平面位置不确定度回放。协议、结果和复现入口见<a href="SOFTWARE_BENCHMARK_2026-09-30.html">软件实验报告</a>。</li>
 <li>Ferguson 论文参数适配在当前代码下重新运行了 5/15/50 个曲率点的三个单帧条件；5/15 点触发形状一致性复核，具体数值见<a href="SOFTWARE_BENCHMARK_2026-09-30.html">软件实验报告</a>。</li>
 <li>相同观测输入的 shape-only 和 Gaussian 基线。</li>
+<li>Xiao–Chen 点载荷曲率 LS 与 Aloi 局部横向 Gaussian 的可查看源码适配；完整非线性力学、独立三维末端力；不冒充原作者官方实现。</li>
+<li>每帧独立的精确力学 LRU 缓存；两组缓存开关试验的力、目标和质量完全一致，真实 ODE 调用数下降。</li>
 <li>完整三维窗口 MAP：自动接触候选、共享平面参数、每帧平衡、完整摩擦互补、未知末端力和局部协方差；已替代旧 penalty smoother。</li>
 <li>观测到 MAT/CSV/JSON 的通用离线工作流，失败记录和校验和一起导出。</li>
 <li>七组完整窗口（14 个输出状态），未知接触位置和分力由观测估计；无接触时自动推断零候选并估计独立末端载荷。</li>
 <li>旧滑动场景两个输出样本实际求解四个平衡状态，接触力 RMSE 2.077e-6 N；复用先前纯观测结果作初值的优化时间为 1239.01 s，不是冷启动/实时指标。</li>
 <li>观测噪声尺度的拟合诊断自动合并到新估计的复核标志；旧结果另外导出带源码记录的派生诊断，保留原始力和质量。</li>
 <li>本轮完整工程检查 33/33 通过：31 项基础检查及两项归档重放；记录在 <code>out/completion/project_checks.json</code>。</li>
+<li>新局部坐标力学的一致性检查另外已通过，加入工程入口后下一次完整检查为 34 项；原有 33 项账本不改写为未运行过的 34 项。</li>
 </ul>
 <h2>关键结果</h2>
 <table>
@@ -67,6 +72,21 @@ th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{fon
 <td>新完整窗口含噪空间双接触</td>
 <td style="text-align: right;">接触力向量 RMSE 0.330189 N</td>
 <td>位置 RMSE 0.03220 mm；首状态无更早摩擦历史，1/2 复核</td>
+</tr>
+<tr>
+<td>同输入含噪三接触基线</td>
+<td style="text-align: right;">点载荷 1.78064 N；Gaussian 1.21216 N</td>
+<td>EnFiRCE 接触 RMSE 0.600524 N；但合力 0.819888 N 大于点载荷 0.631551 N</td>
+</tr>
+<tr>
+<td>同输入含噪空间滑动基线</td>
+<td style="text-align: right;">点载荷 1.73184 N；Gaussian 0.993874 N</td>
+<td>EnFiRCE 接触 RMSE 0.330189 N；仅支持该输入下的比较</td>
+</tr>
+<tr>
+<td>精确缓存双接触试验</td>
+<td style="text-align: right;">116.29 → 50.75 s；力差 0</td>
+<td>相同冷启动/目标/约束，单次固定顺序试验，无协方差</td>
 </tr>
 <tr>
 <td>新完整窗口无杆身接触</td>
@@ -126,7 +146,7 @@ th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{fon
 </tbody>
 </table>
 <p>多接触 demo 的视频、输入范围和逐场景评分见<a href="MULTI_CONTACT_DEMOS.html">固定环境多接触 demo</a>。真值最大整杆穿透为 <code>6.995e-10</code>、<code>1.514e-9</code>、<code>1.517e-8</code> 和 <code>1.517e-8 mm</code>；前三个场景估计接触力几乎达到数值一致，带噪声场景按审计标志保留误差。这些是合成平面模型结果，不应解读为硬件传感器精度。</p>
-<p>新窗口每个接触的真实/估计力大小、向量误差与优化时间见<a href="../out/formulation_window/summary.md">完整窗口结果表</a>，失配的原始与派生复核见<a href="../out/model_mismatch/summary.md">失配结果表</a>。七组窗口求解的源码内容核对为 Git <code>813cdfb</code>，之后集成了边界舍入修复、噪声尺度诊断、零接触与依赖记录；不能把旧求解源码 SHA 写成最新工作区。原始文件、校验和及派生诊断版本各自保留。</p>
+<p>新窗口每个接触的真实/估计力大小、向量误差与优化时间见<a href="../out/formulation_window/summary.html">完整窗口结果表</a>，失配的原始与派生复核见<a href="../out/model_mismatch/summary.html">失配结果表</a>。七组窗口求解的源码内容核对为 Git <code>813cdfb</code>，之后集成了边界舍入修复、噪声尺度诊断、零接触与依赖记录；不能把旧求解源码 SHA 写成最新工作区。原始文件、校验和及派生诊断版本各自保留。</p>
 <h2>目前需要确认或继续完成</h2>
 <ol>
 <li>真实 FBG、相机/深度相机和接触力传感器标定。</li>
@@ -134,7 +154,7 @@ th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{fon
 <li>改进有限候选的覆盖和优化收敛；新增路径已包含三维多平面与摩擦，仍不能保证任意接触拓扑。</li>
 <li>多轨迹、多载荷和独立实验集上的全局覆盖率。</li>
 <li>MPCC/Cosserat 求解加速和实时预算验证。</li>
-<li>在相同输入和真值上运行已发表方法的可核实实现；当前内部基线和论文参数适配不足以判定 SOTA。</li>
+<li>扩展本轮已完成的文献适配比较：完整因子图方法、统一窗口因素消融及独立多轨迹重复；当前两种适配不能判定 SOTA。</li>
 </ol>
 <h2>常用入口</h2>
 <pre><code class="language-matlab">addpath(genpath(pwd));
@@ -147,6 +167,7 @@ force('fair-baselines');
 force('multi-benchmark');
 force('multi-geometry');
 force('multi-formulation');
+force('literature-baselines');
 force('realtime');
 force('temporal-window');
 force('check');

@@ -697,7 +697,7 @@ estimate_sensor_forces
 
 - **已实现并有实际结果**：稀疏 FBG 包契约、intrinsic-delta 形状重建、三维 Cosserat 平衡、整杆非穿透采样、完整多面体摩擦 MPCC、共享不确定平面、形状驱动多接触候选、未知接触位置/分力/末端力、各时刻平衡的完整窗口、初始/过程完整协方差、局部分支协方差及观测拟合诊断。六个旧连续 demo、四个二维多接触连续 demo 与 396 次配对实验分别记录；新三维窗口和失配实验不与其混成一个分数。
 - **已实现但只用于诊断/压力测试**：遗漏环境面的独立接触真值、摩擦模型失配、depth covariance、noise attribution、mesh convergence、局部 force sensitivity。
-- **尚无足够实验支撑或未实现**：真实 FBG/相机标定、任意光滑曲面/有限面片/杆半径接触、任意接触拓扑的全局搜索、独立黏滑模式切换、完整多模态后验、校准后的覆盖率、已发表方法的同输入实现与实时递归窗口。
+- **尚无足够实验支撑或未实现**：真实 FBG/相机标定、任意光滑曲面/有限面片/杆半径接触、任意接触拓扑的全局搜索、独立黏滑模式切换、完整多模态后验、校准后的覆盖率、正式因子图方法的同输入复现与实时递归窗口。点载荷/Gaussian 的同曲率文献适配已完成，见第 24 节，不据此宣布 SOTA。
 - **明确未声明**：没有把当前 `posteriorCovariance` 当成 95% 置信区间，没有把无噪声 demo RMSE 当成真实精度，没有把 `forces.mp4` 当成硬件录像，也没有把 mismatch case 当成算法成功。
 
 这一区分是技术文档的一部分：一个入口函数能运行，只说明代码路径存在；只有独立输入、明确评分、重复运行和相应实验设计都完成，才可以在论文中把它写成结果。
@@ -718,3 +718,56 @@ tangentWeight * normal_dot_contact_tangent / 1e-4
 当 `options.planePointStdMm > 0`，在上述状态末尾额外加入每个**实际使用平面**的法向偏移 δₚ（单位 mm）；重复碰到同一平面时共享 δₚ，且每个偏移被限制在 ±3 倍先验标准差。接触间隙残差改为 `normal_dot(contact_point - supplied_plane_point) - δₚ`，并加入 `δₚ / planePointStdMm` 的零均值高斯先验残差。求解后审计使用原平面点加 `δₚ * normal` 的几何；返回 `planePointOffsetMm`、使用的平面索引及数值秩。默认标准差为 0，状态与旧算法完全相同。这是一个局部平面标定误差模型，不表示对任意曲面或相机误差的完整后验。
 
 主 benchmark 的随机噪声在 121 个正向节点上先生成，再按 8/16/24 个 FBG 位置采样；同一场景、种子和状态下不同密度来自同一噪声场。真值、观测包、解和代码 SHA-256 分别保存在 `out/benchmarks/multi_contact/<scene-id>/truth.mat`、`trials.mat` 及根目录的 `comparison.json`。报告脚本以种子而不是逐帧为 bootstrap 抽样单位。`force('multi-geometry')` 读取这些保存的观测包，向第一面墙注入 +1 mm 误差后比较固定几何与两个预设先验，另写 `plane_uncertainty.json`。结果审计中的 `requiresReview` 与离线力误差分开记录，不能用优化器返回成功来代替物理可信度。
+
+## 24. 同曲率文献适配与精确缓存：实现、结果和结论
+
+详细公式、配置边界、代码对应、全部指标及复现步骤见[文献比较完整技术报告](LITERATURE_COMPARISON.md)。这是本轮新增的可运行工作流，不是用别人的论文误差数字拼成排名。
+
+### 24.1 新增计算链
+
+```text
+force('literature-baselines')
+  -> run_literature_baseline_protocol
+     -> 验证参考 comparison / input / truth / estimate SHA
+     -> estimate_literature_curvature_baseline(input, 'point'|'gaussian', K)
+        -> formulation_window_observations：实际两通道与完整白化矩阵
+        -> 自身曲率重建与三个有序弧长初值；K 来自观测候选数
+        -> lsqnonlin -> integrate_body_load_curvature
+           -> 六状态局部坐标 h,n 从末端反向积分
+           -> u=u0+K^-1 h：保留完整本征曲率/刚度/扭转
+           -> 最终正向积分 R,p，变换各接触与末端力到世界坐标
+        -> 非正退出 / 观测拟合诊断
+     -> 估计完成以后才读 truth -> score_formulation_window
+     -> estimate.mat / forces.csv / comparison.json / 源码与数据 SHA
+  -> export_literature_geometry
+     -> 校验原始参考数据 -> 实际第一状态的杆形 / 平面 / 接触力 -> geometry.json
+  -> scripts/render_literature_comparison.py
+     -> source_data.csv / 四张 PDF+SVG+PNG / LaTeX 表格 / provenance.json
+```
+
+局部力学方程为 `h'=-u×h-e3×n`、`n'=-u×n-q_local`，终端 h=0。点载荷反向跨接触弧长时 n 加局部点力；Gaussian 是沿杆连续的局部横向载荷，世界合力必须积分 `R(s)q_local(s)`。曲率预测不用每次射击未知基座力矩，但没有删除非线性项。独立真值对照见 [test_body_load_curvature.m](../rod/test_body_load_curvature.m)。
+
+适配边界：Xiao–Chen 思路推广到一般杆标定；Aloi Gaussian 将原位置似然换成相同曲率通道，σ 下界 0.25 mm。两者逐帧求解且没有环境/摩擦/时间过程因子，不能称原作者官方方法，也不能把完整方法差异只解释为某个约束增益。不同边界与正则化逐项列在详细报告中。
+
+### 24.2 本轮真实性能比较
+
+| 两状态含噪窗口 | EnFiRCE 接触 RMSE / N | Point LS / N | Gaussian LS / N |
+|---|---:|---:|---:|
+| 三接触 | 0.600524 | 1.780640 | 1.212155 |
+| 面外摩擦滑动双接触 | 0.330189 | 1.731838 | 0.993874 |
+
+两个窗口均为 24 个传感器位置、两个弯曲通道，噪声 SD=2.5e-5 /mm；各只有一个 seed。三接触合力 RMSE 为 EnFiRCE 0.819888 N、点载荷 0.631551 N，保留为明确反例。无噪声时点载荷也接近数值零；不能宣称所有场景/所有指标最好。原始表见[21 组方法/场景结果](../out/benchmarks/literature/summary.md)和[绘图源数据](../out/benchmarks/literature/source_data.csv)。
+
+### 24.3 精确缓存的代码与不变性
+
+[estimate_formulation_window.m](../rod/estimate_formulation_window.m) 的 `decode` 现在按帧缓存 `[baseMoment;contactArc;worldContactForce;worldTipForce]`。每帧最多八项，使用 `isequal` 完全匹配；各帧的杆标定/基座姿态在一次调用内固定。改变平面点或另一帧时可复用不受影响的力学解；当前几何、整杆间隙和前驱同一材料点摩擦位移仍重新求值。`options.cacheMechanics=false` 可关闭，计数在 `solver.mechanicalEvaluations/mechanicalCacheHits`。
+
+相同冷启动双接触：116.2865 → 50.7523 s，ODE 调用 28322 → 11243，最大力差 0，目标和全部质量字段相同。无接触：3.1312 → 1.1883 s，754 → 210 次，力差也为 0。原始文件与 SHA 见[缓存对照](../out/benchmarks/mechanics_cache/comparison.json)。这是一轮固定顺序、无协方差的完整求解调用时间，不能当严格速度排名或实时性证明。
+
+新接口校验逻辑开关、积分容差及基线迭代预算；只有已知物理试探失败可转换为拒绝残差，配置/编程错误直接抛出。新力学测试已通过并加入完整检查入口；历史工程账本 33/33 保留，下一次完整检查将注册 34 项，尚未把旧记录改成未实际运行的数量。
+
+### 24.4 论文更新与剩余缺口
+
+论文主线改为共享不确定平面、多接触、每时刻完整平衡和摩擦历史的联合 MAP，图表直接由完成的 MATLAB 数据生成。原旧遗漏环境面压力分数撤回，采用修正后 17.83/15.96/1.647 N；不把拟合警告等同真实力误差认证。
+
+软件现有完整求解链已经贯通；“贯通”仍不是“任意输入都无问题”。有限候选/有序弧长区间、遗漏墙面、有限面片与半径、材料误差、真实黏滑切换、完整三维多 seed 统计、全局覆盖率和实时递归仍需研究。已有 396 次二维原型消融与这轮 7 组完整窗口各自说明，不把它们混为三维统计证据。

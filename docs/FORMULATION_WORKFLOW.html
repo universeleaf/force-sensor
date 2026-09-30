@@ -6,7 +6,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid 
 th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
 @media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
 </style></head><body><main><h1>EnFiRCE：三维多接触与完整时间窗口实现</h1>
-<p>更新：2026-10-01。本文说明本轮新增的完整软件流程，以及其与 <code>papers/Formulation.pdf</code> 的关系。它补充<a href="TECHNICAL_OVERVIEW.html">技术总说明</a>，没有把软件完成度等同于投稿或硬件验证完成度。实际数值以 <code>out/formulation_window/comparison.json</code> 为准；逐接触真值与估计见<a href="../out/formulation_window/summary.md">实际窗口结果</a>。</p>
+<p>更新：2026-10-01。本文说明本轮新增的完整软件流程，以及其与 <code>papers/Formulation.pdf</code> 的关系。它补充<a href="TECHNICAL_OVERVIEW.html">技术总说明</a>，没有把软件完成度等同于投稿或硬件验证完成度。实际数值以 <code>out/formulation_window/comparison.json</code> 为准；逐接触真值与估计见<a href="../out/formulation_window/summary.html">实际窗口结果</a>。</p>
 <h2>1. 这条路径实际解决什么问题</h2>
 <p>输入是已标定的杆模型、稀疏弯曲测量、基座位姿、环境平面观测与协方差。算法从观测重建的形状中产生接触候选，然后联合优化窗口内各帧的环境参数、身体接触位置、法向力、摩擦力、末端力和基座力矩。每帧均满足当前载荷下的三维 Cosserat 平衡；相邻帧的真实形状共同决定摩擦位移。</p>
 <p>二维多接触原型 <code>estimate_planar_multi_contact</code> 继续用于历史 benchmark 与独立对照。新的逆解没有读取它的接触数、接触顺序、接触位置或力标签。候选数由形状和环境决定，优化中的法向互补允许某个候选变成零反力。这里的“未知接触”是有上限的候选搜索，并非对任意接触拓扑进行全局枚举。</p>
@@ -291,9 +291,13 @@ fitReport = review_formulation_artifacts(fullfile(pwd,'out','formulation_window'
 </tr>
 </tbody>
 </table>
-<p>例如含噪三接触的第一状态，三个力的真值分别为 134.477452、44.760219、13.072686 N，估计为 135.384216、45.439857、13.823778 N。含噪空间双接触第一状态的真值为 107.975766、16.252634 N，估计为 107.762958、16.076764 N。完整两时刻、每个接触的力大小、向量误差、末端力误差、位置和逐场景 CSV 链接均见<a href="../out/formulation_window/summary.md">窗口结果表</a>。第一空间状态仍因历史缺失复核，不因数值接近真值而改判。</p>
+<p>例如含噪三接触的第一状态，三个力的真值分别为 134.477452、44.760219、13.072686 N，估计为 135.384216、45.439857、13.823778 N。含噪空间双接触第一状态的真值为 107.975766、16.252634 N，估计为 107.762958、16.076764 N。完整两时刻、每个接触的力大小、向量误差、末端力误差、位置和逐场景 CSV 链接均见<a href="../out/formulation_window/summary.html">窗口结果表</a>。第一空间状态仍因历史缺失复核，不因数值接近真值而改判。</p>
 <p>无杆身接触在最终集成代码下完成两个状态，候选数为 0，真实末端力为 <code>[0.12,0.08,-0.06]</code> N，大小 0.156205 N；末端力 RMSE 为 6.7844e-10 N，无复核标志。<a href="../out/formulation_window/free_space/forces.csv">原始力表</a>、<a href="../out/formulation_window/free_space/metrics.json">指标</a>和<a href="../out/formulation_window/free_space/manifest.json">运行记录</a>保留。CSV 仍需显示末端力，因此输出一条 <code>active=0, planeIndex=NaN, arcMm=NaN</code> 的零接触占位行，不表示推断了一个接触；逐接触误差和位置指标不适用，JSON 中为 null。</p>
 <p>旧单接触 <code>sliding_clean</code> 的第 10/11 个输出时刻，经新工作流求解四个平衡状态，接触力 RMSE 为 2.0774e-6 N、末端力 RMSE 2.2817e-6 N、总合力 RMSE 3.0188e-7 N。它复用了前一次纯观测求解的状态作初值，本次优化耗时 1239.01 s，不能作为冷启动速度。边界舍入修正量为 3.5995e-24。<a href="../out/formulation_window/schema1_sliding_replay/validation.json">评分记录</a>和<a href="../out/formulation_window/schema1_sliding_replay/forces.csv">输出力表</a>均保留。</p>
-<p>修正后的三组失配运行 ID 为 <code>7f9e8ef0-e13e-4530-b4b6-87a0ca2236ac</code>，总合力 RMSE 分别为 17.8341、15.9639、1.64746 N。前两组的单接触候选无法表达未观测墙面的反力；这不能靠优化器退出成功证明正确。新增拟合诊断均在两时刻触发。详见<a href="../out/model_mismatch/summary.md">失配原始与派生诊断</a>。所有这些结果来自 MATLAB 实际求解，没有由视频外观或预设估计力标签生成。</p>
+<p>修正后的三组失配运行 ID 为 <code>7f9e8ef0-e13e-4530-b4b6-87a0ca2236ac</code>，总合力 RMSE 分别为 17.8341、15.9639、1.64746 N。前两组的单接触候选无法表达未观测墙面的反力；这不能靠优化器退出成功证明正确。新增拟合诊断均在两时刻触发。详见<a href="../out/model_mismatch/summary.html">失配原始与派生诊断</a>。所有这些结果来自 MATLAB 实际求解，没有由视频外观或预设估计力标签生成。</p>
 <p>本轮新结果仅证明这些窗口的实现与有限条件下的性能；它们没有替代原 396 次二维消融统计，也没有完成全局三维多种子覆盖率或原论文方法比较。基本工程检查、场景精度、版本/数据完整性和投稿证据是不同维度，均按各自文件记录。</p>
-<p>最终代码集成之后，工程检查及归档重放共 33/33 项通过（31 项基础、2 项重放）。记录见<a href="../out/completion/project_checks.json">工程检查账本</a>。检查不等于所有力估计都准确；高失配误差仍如实保留。</p></main></body></html>
+<p>最终代码集成之后，工程检查及归档重放共 33/33 项通过（31 项基础、2 项重放）。记录见<a href="../out/completion/project_checks.json">工程检查账本</a>。检查不等于所有力估计都准确；高失配误差仍如实保留。</p>
+<h2>14. 2026-10-01：同输入文献适配与精确缓存</h2>
+<p>已完成七组窗口对应的点载荷/Gaussian 曲率基线，14 次运行、28 个状态；未知末端力与完整非线性杆力学均保留。两组含噪接触 RMSE 为 EnFiRCE 0.6005/0.3302 N、Point LS 1.7806/1.7318 N、Gaussian LS 1.2122/0.9939 N。三接触合力 EnFiRCE 0.8199 N 高于 Point LS 0.6316 N；这些是披露假设的文献适配、单 seed 两状态结果，不是 SOTA 证明。</p>
+<p>完整窗口 <code>decode</code> 新增每帧精确力学缓存，仅在力矩、弧长与世界载荷完全相同才复用；当前几何与前驱平衡摩擦因子仍重新计算，不修改 MAP/MPCC。双接触相同冷启动对照 116.29 → 50.75 s，力、目标与质量一致。通过 <code>cacheMechanics=false</code> 可关闭，调用数分别在 solver 字段记录。</p>
+<p>详细公式、代码文件、图与版本说明见<a href="LITERATURE_COMPARISON.html">文献基线与缓存报告</a>。新测试加入检查入口后的下次完整检查为 34 项；本页先前 33/33 的已运行记录仍按原版本保存。</p></main></body></html>

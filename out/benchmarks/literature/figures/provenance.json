@@ -1,0 +1,13 @@
+{
+  "runId": "6d9ee3b2-eeea-4747-a943-f374b50b71be",
+  "comparisonSha256": "117212630258872d77a3371def7e80ef90ba352cda007793e7266b6af55f2610",
+  "sourceDataSha256": "185ca662a2ff922b7a6aa046eaf9f2b45868f957f3476da6c51b3e918f705775",
+  "planarComparisonSha256": "becd0c953c13c0465795f921c4b1cc40d7142cf023e60d665183357b0e32e906",
+  "geometryDataSha256": "4113e830f2ae5af8fcb83001d075d609f7310acff78f9066667938c27e18f7ee",
+  "scriptSha256": "00f5b19c97341db378e4d449b0095121b712c38c85cdb6c42ca0ef39d15a942c",
+  "backend": "Python/matplotlib",
+  "figureContract": "Archived solved first-state geometry with true/estimated forces; noisy same-input force and location comparison; clean numerical consistency separate; planar density/ablation explicitly separate.",
+  "statistics": "Noisy comparison: 2 states, one seed per scene, no inferential intervals. Planar density: mean and min/max of 3 seed-level pooled state RMSEs. Boxplots: 18 per-state RMSEs, descriptive quartiles, correlated states, no significance test.",
+  "authorsOfficialImplementations": false,
+  "sotaEstablished": false
+}

@@ -10,6 +10,14 @@ if nargin<4,options=struct;end
 if ~isfield(options,'numStarts'),options.numStarts=3;end
 if ~isfield(options,'maxIterations'),options.maxIterations=80;end
 if ~isfield(options,'showProgress'),options.showProgress=true;end
+assert(isnumeric(options.numStarts)&&isreal(options.numStarts)&&isscalar(options.numStarts)&& ...
+    isfinite(options.numStarts)&&options.numStarts>=1&&options.numStarts==fix(options.numStarts)&& ...
+    isnumeric(options.maxIterations)&&isreal(options.maxIterations)&&isscalar(options.maxIterations)&& ...
+    isfinite(options.maxIterations)&&options.maxIterations>=1&&options.maxIterations==fix(options.maxIterations), ...
+    'rod:InvalidLiteratureOptions','Starts and iteration budget must be positive integers.');
+assert((islogical(options.showProgress)||isnumeric(options.showProgress))&& ...
+    isreal(options.showProgress)&&isscalar(options.showProgress)&&ismember(options.showProgress,[0 1]), ...
+    'rod:InvalidLiteratureOptions','showProgress must be a scalar logical value.');
 assert(ismember(method,{'point','gaussian'})&&isscalar(contactCount)&&contactCount>=0&& ...
     contactCount==round(contactCount),'rod:InvalidLiteratureBaseline','Invalid method/contact count.');
 obs=formulation_window_observations(input); tube=input.tube; K=contactCount; T=obs.frameCount;
@@ -98,7 +106,12 @@ result.quality.requiresReview=result.quality.requiresReview|result.observationFi
             % Weak, isotropic zero-force regularization. No force/arc truth.
             amplitude=x(K+1:K+d*K+3);value=[obs.curvatureWhitening(:,:,k)*e(:);amplitude/1e6];
             if any(~isfinite(value)),error('rod:NonfiniteBaseline','Invalid prediction.');end
-        catch
+        catch err
+            % Only physical integration failures are rejected optimizer
+            % trials. Programming errors and malformed inputs remain visible.
+            if ~ismember(err.identifier,{'rod:BodyLoadBudget','rod:NonfiniteBaseline'})
+                rethrow(err);
+            end
             rejected=rejected+1;value=ones(numel(obs.axes)*numel(obs.arcs)+d*K+3,1)*1e8;
         end
     end

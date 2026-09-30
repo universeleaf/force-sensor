@@ -10,6 +10,8 @@
 |---|---|
 | 工程检查与归档重放 | 本轮 33/33 通过：31 项基础检查及 2 项归档重放 |
 | 完整三维多接触窗口 | 七组/14 个状态完成；含噪三接触逐接触力 RMSE 0.6005 N；含噪空间摩擦双接触 0.3302 N |
+| 同曲率文献适配基线 | 14 次/28 个状态全部完成；两组含噪接触 RMSE：EnFiRCE 0.601/0.330 N、点载荷 1.781/1.732 N、Gaussian 1.212/0.994 N；三接触合力并非 EnFiRCE 最优 |
+| 完整窗口精确力学缓存 | 同一双接触冷启动：116.29 → 50.75 s、ODE 28322 → 11243 次，估计力差 0；单次计时，不是实时结论 |
 | 无杆身接触、仅末端载荷 | 自动候选数为 0；末端力 RMSE 6.784e-10 N，两个状态无复核标志 |
 | 3 个随机种子 × 3 个曲率噪声等级 | 9 cases、27 frames 完成；平均总力 RMSE 0.3076 N |
 | 修正后失配压力测试 | 遗漏环境面两组总力 RMSE 17.83/15.96 N；摩擦系数失配 1.647 N；新增观测拟合诊断均提示复核 |
@@ -36,6 +38,8 @@
 
 新增完整窗口的[逐接触真值与估计结果](out/formulation_window/summary.md)、[模型失配报告](out/model_mismatch/summary.md)和[无杆身接触结果](out/formulation_window/free_space/metrics.json)分别记录。完整公式、代码对应和每个场景的具体参数见[完整 formulation 工作流](docs/FORMULATION_WORKFLOW.md)。
 
+最新的[文献基线与缓存技术报告](docs/LITERATURE_COMPARISON.md)解释适配公式、公平输入、逐项结果、代码实现和剩余缺口；[真实对比图](out/benchmarks/literature/figures/noisy_baseline_comparison.png)与[绘图源数据](out/benchmarks/literature/source_data.csv)随仓库发布。它们不是原作者官方实现，当前证据不足以宣布 SOTA。
+
 ## 快速运行
 
 在 MATLAB 中将 Current Folder 设置为仓库根目录：
@@ -51,6 +55,8 @@ force('fair-baselines');  % 相同观测输入的基线比较
 force('multi-benchmark'); % 双/三接触，396 次配对基线及消融
 force('multi-geometry');  % 重放 1 mm 平面误差及潜在偏移先验
 force('multi-formulation'); % 自动候选、三维多接触、完整摩擦时间窗口
+force('literature-baselines'); % 同一归档曲率：文献点载荷/Gaussian 适配
+run_formulation_cache_benchmark(); % 相同冷启动的精确缓存开关消融
 force('realtime');        % 墙钟性能回放
 force('temporal-window'); % 短窗口 Cosserat MAP
 force('check');           % 工程回归与传感器重放
@@ -75,6 +81,7 @@ git -C LCP-Continuum checkout 56bfd089665efc95bba3e0e49ad11557cf206524
 - `rod/estimate_formulation_window.m`、`integrate_cosserat_load_state.m`：完整三维多接触窗口 MAP、逐时刻非线性平衡和摩擦 MPCC。
 - `rod/formulation_window_observations.m`、`formulation_contact_candidates.m`：实际观测通道、协方差与真实前驱时间，形状和环境驱动的候选搜索。
 - `rod/run_formulation_workflow.m`、`write_formulation_window_csv.m`：全部给定观测到 MAT/CSV/JSON 的可复现离线流程。
+- `rod/estimate_literature_curvature_baseline.m`、`integrate_body_load_curvature.m`：完整局部坐标 Cosserat 点载荷/Gaussian 曲率基线；`run_literature_baseline_protocol.m` 与 `scripts/render_literature_comparison.py` 生成同输入记录和矢量图。
 - `rod/solve_cosserat_force_map.m`、`rod/solve_contact_mpcc.m`：单接触三维平衡和互补优化。
 - `rod/solve_cosserat_multi_contact_map.m`：独立多接触正向压力真值。
 - `rod/solve_planar_multi_contact.m`、`integrate_planar_multi_contact.m`、`audit_planar_multi_contact.m`：固定平面环境中的多接触连续 Cosserat 求解和整杆非穿透审计。

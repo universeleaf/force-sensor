@@ -1,0 +1,3 @@
+# Preserve the bytes covered by recorded experiment SHA-256 checksums.
+# CSV files may use CRLF and JSON may use LF; neither may change on checkout.
+out/** -text whitespace=trailing-space,space-before-tab,cr-at-eol
