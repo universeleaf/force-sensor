@@ -7,13 +7,16 @@ if nargin<2||isempty(kinds),kinds={'two-contact','curved-surface','friction-mism
 if ischar(kinds)||isstring(kinds),kinds=cellstr(kinds);end
 if quickMode,kinds=kinds(1:min(1,numel(kinds)));end
 root=fileparts(fileparts(mfilename('fullpath'))); record=new_run_record(); folder=fullfile(root,'out','model_mismatch');
+if quickMode,folder=fullfile(folder,'smoke');end
 if ~isfolder(folder),mkdir(folder);end; runFolder=fullfile(folder,record.runId);mkdir(runFolder);
-report=struct('state','running','runRecord',record,'cases',{{}}, ...
+report=struct('state','running','runRecord',record,'quickMode',quickMode,'cases',{{}}, ...
     'scope','Independent fixed-surface contact truth; inverse loses a face or uses wrong friction; not nominal accuracy.');publish();
 for j=1:numel(kinds)
     kind=kinds{j}; timer=tic; entry=struct('kind',kind,'completed',false); fprintf('\nMISMATCH %s\n',kind);
     try
         [sensorInput,truth]=build_multi_contact_truth(kind,401+j);
+        atomic_write_artifact(fullfile(runFolder,[kind '_input.mat']),'mat',struct('sensorInput',sensorInput));
+        atomic_write_artifact(fullfile(runFolder,[kind '_truth.mat']),'mat',struct('truth',truth));
         output=estimate_formulation_forces(sensorInput);
         entry.completed=true; entry.contactRmseN=rmse(output.contactForceResultant-truth.contactForce);
         entry.totalRmseN=rmse(output.totalForceResultant-truth.totalForce);
@@ -25,6 +28,11 @@ for j=1:numel(kinds)
         entry.meanFrameSeconds=output.optimizationSeconds/numel(output.timeSeconds); entry.seconds=toc(timer);
         entry.interpretation=truth.scope;
         atomic_write_artifact(fullfile(runFolder,[kind '.mat']),'mat',struct('sensorInput',sensorInput,'truth',truth,'output',output,'entry',entry));
+        write_formulation_window_csv(output,fullfile(runFolder,[kind '_forces.csv']));
+        entry.artifactSha256=struct('input',file_sha256(fullfile(runFolder,[kind '_input.mat'])), ...
+            'truth',file_sha256(fullfile(runFolder,[kind '_truth.mat'])), ...
+            'estimate',file_sha256(fullfile(runFolder,[kind '.mat'])), ...
+            'forces',file_sha256(fullfile(runFolder,[kind '_forces.csv'])));
         fprintf('MISMATCH_RESULT %s: total RMSE %.5g N; review %.1f%%; frame %.4g s\n',kind,entry.totalRmseN,100*entry.reviewRate,entry.meanFrameSeconds);
     catch err
         entry.errorIdentifier=err.identifier;entry.error=getReport(err,'extended','hyperlinks','off');entry.seconds=toc(timer);

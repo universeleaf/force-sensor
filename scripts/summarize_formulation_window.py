@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import argparse
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,6 +29,9 @@ def number(value: float | None) -> str:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source-revision', help='Verify recorded MATLAB source content against a recoverable Git revision.')
+    args = parser.parse_args()
     report = json.loads((FOLDER / "comparison.json").read_text(encoding="utf-8"))
     if report["state"] != "complete":
         raise RuntimeError("The protocol is still running; do not publish a partial summary.")
@@ -35,10 +40,25 @@ def main() -> None:
         and digest(ROOT / item["path"]) == item["sha256"]
         for item in report["runRecord"]["source"]
     )
+    revision_note = ''
+    if args.source_revision:
+        for item in report['runRecord']['source']:
+            blob = subprocess.run(['git', 'show', f"{args.source_revision}:{item['path']}"],
+                                  cwd=ROOT, check=True, capture_output=True).stdout
+            lf = blob.replace(b'\r\n', b'\n')
+            possible = {hashlib.sha256(data).hexdigest() for data in (blob, lf, lf.replace(b'\n', b'\r\n'))}
+            recorded_matches = item['sha256'] in possible
+            current = (ROOT / item['path']).read_bytes()
+            if not recorded_matches:
+                recorded_matches = (hashlib.sha256(current).hexdigest() == item['sha256']
+                                    and current.replace(b'\r\n', b'\n') == lf)
+            if not recorded_matches:
+                raise RuntimeError(f"Recorded source cannot be verified at {args.source_revision}: {item['path']}")
+        revision_note = f"源码内容已核对 Git 版本 `{args.source_revision}`（允许文本换行符差异），可恢复本次求解代码。"
     lines = [
         "# 完整三维多接触窗口：实际运行结果",
         "",
-        f"运行 ID：`{report['runRecord']['runId']}`。源码与当前工作区一致：{matches}。",
+        f"运行 ID：`{report['runRecord']['runId']}`。源码 SHA-256 与当前工作区一致：{matches}。{revision_note}",
         "",
         "每组使用两个状态，24 个稀疏弯曲采样位置、两个实际观测通道；无噪声条件保留显式数值方差。",
         "真值独立求解接触平衡，仅进入评分；逆解通过观测生成候选，不读取接触数量/位置/力标签。",
