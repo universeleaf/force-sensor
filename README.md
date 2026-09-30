@@ -8,10 +8,12 @@
 
 | 协议 | 结果 |
 |---|---|
-| 31 项工程检查 | 31/31 通过 |
+| 32 项工程检查 | 32/32 通过 |
 | 3 个随机种子 × 3 个曲率噪声等级 | 9 cases、27 frames 完成；平均总力 RMSE 0.3076 N |
 | 双接触 / 非平面 / 摩擦失配压力测试 | 总力 RMSE 1.584 / 1.649 / 1.630 N；均触发 review |
 | 固定环境多接触 | 双接触 9.668e-11–7.598e-11 N；三接触 1.267e-10 N；带噪声三接触 0.6202 N |
+| 多接触配对 benchmark | 396 次估计；24 个曲率点、标称噪声下接触力 RMSE：环境方法 0.490 N，shape-only 2.967 N；8 个点时环境方法 13.576 N |
+| 平面标定误差 | 第一个平面错位 1 mm 时接触力 RMSE 31.092 N；允许 1 mm 标准差的潜在平面偏移后为 1.341 N |
 | 相同观测输入基线 | EnFiRCE 接触力 RMSE 0.0190 N；shape-only 1.069 N；Gaussian 1.689 N |
 | 墙钟性能 | p95 119.14 s/frame，尚未达到 20 ms |
 
@@ -28,6 +30,8 @@
 
 完整的算法、数据流、文件职责、实验结果和限制见[技术总说明](docs/TECHNICAL_OVERVIEW.md)；滑动阶段、视频说明、文献场景和实验矩阵见[场景矩阵](docs/SCENARIO_MATRIX.md)；旧视频与经典文献问题的对应关系见[文献场景视频对照](docs/LITERATURE_SCENARIO_MAP.md)；当前单接触边界和双接触扩展路径见[多接触扩展说明](docs/MULTI_CONTACT_EXTENSION.md)；当前实验状态见[状态页](docs/STATUS.md)。
 
+多接触的配对基线、传感器密度/噪声消融、几何约束消融和标定误差回放见[软件实验报告](docs/SOFTWARE_BENCHMARK_2026-09-30.md)。这些内部仿真比较还不能证明 SOTA；原始逐次结果与观测包可用下述入口在本地重建。
+
 ## 快速运行
 
 在 MATLAB 中将 Current Folder 设置为仓库根目录：
@@ -40,6 +44,8 @@ force('depth');           % 合成深度图到平面估计再到力估计
 force('statistics');      % 多种子、多噪声统计协议
 force('model-mismatch');  % 双接触、非平面、摩擦失配压力测试
 force('fair-baselines');  % 相同观测输入的基线比较
+force('multi-benchmark'); % 双/三接触，396 次配对基线及消融
+force('multi-geometry');  % 重放 1 mm 平面误差及潜在偏移先验
 force('realtime');        % 墙钟性能回放
 force('temporal-window'); % 短窗口 Cosserat MAP
 force('check');           % 工程回归与传感器重放
@@ -55,6 +61,8 @@ force('check');           % 工程回归与传感器重放
 - `rod/solve_cosserat_force_map.m`、`rod/solve_contact_mpcc.m`：单接触三维平衡和互补优化。
 - `rod/solve_cosserat_multi_contact_map.m`：独立多接触正向压力真值。
 - `rod/solve_planar_multi_contact.m`、`integrate_planar_multi_contact.m`、`audit_planar_multi_contact.m`：固定平面环境中的多接触连续 Cosserat 求解和整杆非穿透审计。
+- `rod/estimate_planar_multi_contact.m`：带可选平面偏移先验的稀疏形状多接触逆解；`estimate_planar_shape_only_point_loads.m`：只用形状的同输入点力基线。
+- `rod/run_multi_contact_benchmark.m`、`run_multi_contact_plane_uncertainty.m`：多接触配对实验、消融与标定误差回放；`scripts/summarize_multi_contact_benchmark.py`：生成可核对的结果表。
 - `rod/run_multi_contact_demo_suite.m`、`render_multi_contact_demo_video.m`：按可读场景名生成多接触结果和 MP4。
 - `rod/multi_contact_state_spec.m`、`decode_multi_contact_state.m`、`evaluate_multi_contact_state.m`：三维多接触状态布局、解码和 Cosserat 候选评估层；未知模式和摩擦 MAP 仍在扩展中。
 - `rod/estimate_temporal_window_forces.m`：前一时刻平衡和过程先验的短窗口 MAP。

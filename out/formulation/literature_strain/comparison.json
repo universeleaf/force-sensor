@@ -1,12 +1,10 @@
 {
-  "scope": "Code correctness and fixed regressions; not publication readiness or universal force accuracy.",
-  "includeReplay": true,
   "state": "complete",
   "runRecord": {
     "schemaVersion": 1,
-    "runId": "4d16274d-e01c-4ba1-9897-61d32db16a67",
+    "runId": "208bdec0-8649-4039-89f9-e4ee8e9db7c6",
     "state": "complete",
-    "startedAtUtc": "2026-09-30T12:13:36Z",
+    "startedAtUtc": "2026-09-30T12:27:22Z",
     "matlabVersion": "24.1.0.2537033 (R2024a)",
     "platform": "PCWIN64",
     "source": [
@@ -561,199 +559,143 @@
     ],
     "sourceScope": "Code present when this operation started; historical input provenance is separate."
   },
-  "allPassed": true,
-  "checks": [
+  "cases": [
     {
-      "name": "test_lcp_dependency",
-      "passed": true,
-      "seconds": 1.0817814,
-      "error": ""
+      "completed": true,
+      "numSensors": 5,
+      "contactErrorN": 0.031116834163258764,
+      "tipErrorN": 0.01244268238584488,
+      "totalErrorN": 0.019802654472100088,
+      "shapeOnlyContactErrorN": 0.034594464717383241,
+      "shapeOnlyTipErrorN": 0.016970352368030038,
+      "shapeOnlyTotalErrorN": 0.021937819761204416,
+      "quality": {
+        "scope": "Numerical and observation consistency only; force accuracy and calibrated uncertainty are not certified.",
+        "hasOptimizationWarning": false,
+        "shapeConsistencyMm": 1.1202444960648419,
+        "complementarityResidual": 5.1285667342927242E-10,
+        "shapeConsistent": false,
+        "finite": true,
+        "frictionKinematicsEnforced": true,
+        "frictionKinematicsConsistent": true,
+        "frictionDirectionResolutionAssessed": false,
+        "frictionDirectionResolved": false,
+        "hasFrictionObservationWarning": false,
+        "activeConstraintResidual": 9.999994368416714E-9,
+        "minimumSampledRodGapMm": 5.4976734276124262E-9,
+        "rodGeometryEnforced": true,
+        "hasRodPenetration": false,
+        "numericalChecksPassed": false,
+        "forceComponentsLocallySeparable": true,
+        "forceSeparationApplicable": true,
+        "hasForceSeparationWarning": false,
+        "requiresReview": true,
+        "forceUncertaintyCoverageValidated": false,
+        "forceAccuracyCertified": false,
+        "historyUncertaintyModeled": false,
+        "historyStateOptimized": false,
+        "historyModeResolutionModeled": false,
+        "historyNoiseCalibrationAvailable": true,
+        "contactModeOptimized": true,
+        "environmentCovarianceUsed": false,
+        "environmentCalibrationUncertaintyModeled": false,
+        "uncertaintyScope": "Local first-order observation covariance conditional on reconstructed history. Full contact mode optimized; history noise is not included in the MAP likelihood, and history states and mode mixtures are not marginalized."
+      },
+      "seconds": 47.5058819
     },
     {
-      "name": "test_sensor_history_boundary",
-      "passed": true,
-      "seconds": 1.3905475,
-      "error": ""
+      "completed": true,
+      "numSensors": 15,
+      "contactErrorN": 0.010035528545541426,
+      "tipErrorN": 0.005135822739002001,
+      "totalErrorN": 0.0056184321470789562,
+      "shapeOnlyContactErrorN": 0.015525545623117493,
+      "shapeOnlyTipErrorN": 0.018429895340612065,
+      "shapeOnlyTotalErrorN": 0.0073090862779640262,
+      "quality": {
+        "scope": "Numerical and observation consistency only; force accuracy and calibrated uncertainty are not certified.",
+        "hasOptimizationWarning": false,
+        "shapeConsistencyMm": 0.900930538929818,
+        "complementarityResidual": 2.4005510250723634E-14,
+        "shapeConsistent": false,
+        "finite": true,
+        "frictionKinematicsEnforced": true,
+        "frictionKinematicsConsistent": true,
+        "frictionDirectionResolutionAssessed": false,
+        "frictionDirectionResolved": false,
+        "hasFrictionObservationWarning": false,
+        "activeConstraintResidual": 5.9685589803848416E-13,
+        "minimumSampledRodGapMm": 4.6013193255589613E-13,
+        "rodGeometryEnforced": true,
+        "hasRodPenetration": false,
+        "numericalChecksPassed": false,
+        "forceComponentsLocallySeparable": true,
+        "forceSeparationApplicable": true,
+        "hasForceSeparationWarning": false,
+        "requiresReview": true,
+        "forceUncertaintyCoverageValidated": false,
+        "forceAccuracyCertified": false,
+        "historyUncertaintyModeled": false,
+        "historyStateOptimized": false,
+        "historyModeResolutionModeled": false,
+        "historyNoiseCalibrationAvailable": true,
+        "contactModeOptimized": true,
+        "environmentCovarianceUsed": false,
+        "environmentCalibrationUncertaintyModeled": false,
+        "uncertaintyScope": "Local first-order observation covariance conditional on reconstructed history. Full contact mode optimized; history noise is not included in the MAP likelihood, and history states and mode mixtures are not marginalized."
+      },
+      "seconds": 41.3125752
     },
     {
-      "name": "test_sensor_contracts",
-      "passed": true,
-      "seconds": 0.3749305,
-      "error": ""
-    },
-    {
-      "name": "test_sensor_config",
-      "passed": true,
-      "seconds": 0.0482157,
-      "error": ""
-    },
-    {
-      "name": "test_fbg_likelihood_calibration",
-      "passed": true,
-      "seconds": 0.0128384,
-      "error": ""
-    },
-    {
-      "name": "test_result_lifecycle",
-      "passed": true,
-      "seconds": 0.9884984,
-      "error": ""
-    },
-    {
-      "name": "test_force_sensitivity",
-      "passed": true,
-      "seconds": 0.5653261,
-      "error": ""
-    },
-    {
-      "name": "test_environment_covariance",
-      "passed": true,
-      "seconds": 0.4984582,
-      "error": ""
-    },
-    {
-      "name": "test_depth_plane",
-      "passed": true,
-      "seconds": 0.538111,
-      "error": ""
-    },
-    {
-      "name": "test_reduced_mode_bounds",
-      "passed": true,
-      "seconds": 1.0809232,
-      "error": ""
-    },
-    {
-      "name": "test_plane_contact_geometry",
-      "passed": true,
-      "seconds": 0.4746581,
-      "error": ""
-    },
-    {
-      "name": "test_cosserat_collision_geometry",
-      "passed": true,
-      "seconds": 0.7596904,
-      "error": ""
-    },
-    {
-      "name": "test_cosserat_work_budget",
-      "passed": true,
-      "seconds": 0.5068285,
-      "error": ""
-    },
-    {
-      "name": "test_nonlinear_shape_seed",
-      "passed": true,
-      "seconds": 2.246458,
-      "error": ""
-    },
-    {
-      "name": "test_observation_scaled_map",
-      "passed": true,
-      "seconds": 20.0578788,
-      "error": ""
-    },
-    {
-      "name": "test_latent_fbg_history",
-      "passed": true,
-      "seconds": 0.6596557,
-      "error": ""
-    },
-    {
-      "name": "test_integrated_history_point",
-      "passed": true,
-      "seconds": 0.2906139,
-      "error": ""
-    },
-    {
-      "name": "test_history_resolution",
-      "passed": true,
-      "seconds": 1.344382,
-      "error": ""
-    },
-    {
-      "name": "test_result_integrity",
-      "passed": true,
-      "seconds": 0.0837411,
-      "error": ""
-    },
-    {
-      "name": "test_friction_regression",
-      "passed": true,
-      "seconds": 0.1342953,
-      "error": ""
-    },
-    {
-      "name": "test_friction_quality",
-      "passed": true,
-      "seconds": 0.0115419,
-      "error": ""
-    },
-    {
-      "name": "test_planar_energy_rod",
-      "passed": true,
-      "seconds": 0.8006374,
-      "error": ""
-    },
-    {
-      "name": "test_contact_shooting",
-      "passed": true,
-      "seconds": 0.873624,
-      "error": ""
-    },
-    {
-      "name": "test_contact_separation_gate",
-      "passed": true,
-      "seconds": 3.2693818,
-      "error": ""
-    },
-    {
-      "name": "test_intrinsic_curvature_reconstruction",
-      "passed": true,
-      "seconds": 1.2922701,
-      "error": ""
-    },
-    {
-      "name": "test_rotation_equivariance",
-      "passed": true,
-      "seconds": 0.0850023,
-      "error": ""
-    },
-    {
-      "name": "test_multi_contact_map",
-      "passed": true,
-      "seconds": 0.3261616,
-      "error": ""
-    },
-    {
-      "name": "test_multi_contact_benchmark_protocol",
-      "passed": true,
-      "seconds": 0.632383,
-      "error": ""
-    },
-    {
-      "name": "@()run_rod_plane_force_sensing_experiment('jacobian-audit',fullfile(root,'out','video','inverse_results.mat'))",
-      "passed": true,
-      "seconds": 1.9099628,
-      "error": ""
-    },
-    {
-      "name": "run_project_checks/checkSyntax",
-      "passed": true,
-      "seconds": 1.5908716,
-      "error": ""
-    },
-    {
-      "name": "@()test_sensor_replay(fullfile(root,'out','stage1','video_seeded'))",
-      "passed": true,
-      "seconds": 70.1260043,
-      "error": ""
-    },
-    {
-      "name": "@()test_sensor_replay(fullfile(root,'out','stage1','wall_tip_seeded'))",
-      "passed": true,
-      "seconds": 102.024318,
-      "error": ""
+      "completed": true,
+      "numSensors": 50,
+      "contactErrorN": 0.0078112406268359847,
+      "tipErrorN": 0.0041029259044853047,
+      "totalErrorN": 0.0037129101591611793,
+      "shapeOnlyContactErrorN": 0.078291416698972036,
+      "shapeOnlyTipErrorN": 0.048625404040629844,
+      "shapeOnlyTotalErrorN": 0.039018649493186036,
+      "quality": {
+        "scope": "Numerical and observation consistency only; force accuracy and calibrated uncertainty are not certified.",
+        "hasOptimizationWarning": false,
+        "shapeConsistencyMm": 0.14208606312870559,
+        "complementarityResidual": 2.9957950352421061E-13,
+        "shapeConsistent": true,
+        "finite": true,
+        "frictionKinematicsEnforced": true,
+        "frictionKinematicsConsistent": true,
+        "frictionDirectionResolutionAssessed": false,
+        "frictionDirectionResolved": false,
+        "hasFrictionObservationWarning": false,
+        "activeConstraintResidual": 2.9957950352421061E-13,
+        "minimumSampledRodGapMm": 4.28021507126175E-12,
+        "rodGeometryEnforced": true,
+        "hasRodPenetration": false,
+        "numericalChecksPassed": true,
+        "forceComponentsLocallySeparable": true,
+        "forceSeparationApplicable": true,
+        "hasForceSeparationWarning": false,
+        "requiresReview": false,
+        "forceUncertaintyCoverageValidated": false,
+        "forceAccuracyCertified": false,
+        "historyUncertaintyModeled": false,
+        "historyStateOptimized": false,
+        "historyModeResolutionModeled": false,
+        "historyNoiseCalibrationAvailable": true,
+        "contactModeOptimized": true,
+        "environmentCovarianceUsed": false,
+        "environmentCalibrationUncertaintyModeled": false,
+        "uncertaintyScope": "Local first-order observation covariance conditional on reconstructed history. Full contact mode optimized; history noise is not included in the MAP likelihood, and history states and mode mixtures are not marginalized."
+      },
+      "seconds": 47.4285946
     }
-  ]
+  ],
+  "reference": "Ferguson et al., IEEE TRO 2024, DOI 10.1109/TRO.2024.3360950, Sec. V",
+  "scope": "Parameter-matched sparse-strain adaptation; own curved single-contact plus tip-load scene. No implementation/comparison of Ferguson algorithm.",
+  "rodLengthMm": 1000,
+  "diameterMm": 1.5,
+  "youngModulusNPerMm2": 207000,
+  "strainStdMicrostrain": 10,
+  "curvatureStdPerMm": 1.3333333333333335E-5,
+  "seed": 71
 }

@@ -1,6 +1,6 @@
 # EnFiRCE：Environment- and Friction-informed Rod Contact Estimation 技术总说明
 
-这份文档是当前仓库的实现手册，按“研究问题 → 数据边界 → 正向真值 → 逆问题 → 数值求解 → 结果审计”的顺序解释代码。每一节给出相应函数，便于直接跳到实现。场景和视频另见[场景矩阵](SCENARIO_MATRIX.md)，实验状态另见[状态页](STATUS.md)。若历史文字与代码冲突，以当前代码及相应运行目录中的 comparison.json 为准。
+这份文档是当前仓库的实现手册，按“研究问题 → 数据边界 → 正向真值 → 逆问题 → 数值求解 → 结果审计”的顺序解释代码。每一节给出相应函数，便于直接跳到实现。场景和视频另见[场景矩阵](SCENARIO_MATRIX.md)，最新多接触配对实验见[软件实验报告](SOFTWARE_BENCHMARK_2026-09-30.md)，实验状态另见[状态页](STATUS.md)。若历史文字与代码冲突，以当前代码及相应运行目录中的 comparison.json 为准。
 
 **研究目标**：利用连续体机器人的稀疏形状信息和环境几何信息，估计杆身接触位置、接触力与独立末端外力，并识别观测不足或模型失配。当前是 MATLAB 仿真研究原型；真实 FBG、相机、力传感器和同步系统尚未接入，数值结果不能解释为实物精度。
 
@@ -20,7 +20,8 @@
 | 时间历史 | [latent_fbg_history.m](../rod/latent_fbg_history.m)、[estimate_temporal_window_forces.m](../rod/estimate_temporal_window_forces.m) | 前一帧观测或 W 帧 → 联合估计 |
 | 独立真值/demo | [build_contact_demo_truth.m](../rod/build_contact_demo_truth.m)、[contact_demo_scenes.m](../rod/contact_demo_scenes.m)、[run_contact_demo_suite.m](../rod/run_contact_demo_suite.m)、[render_contact_demo_video.m](../rod/render_contact_demo_video.m) | 场景 → 独立平衡真值、模拟传感器包、逐状态 MAP/MPCC 评分和 MATLAB 连续视频 |
 | 压力与基线 | [run_model_mismatch_protocol.m](../rod/run_model_mismatch_protocol.m)、[run_fair_baseline_protocol.m](../rod/run_fair_baseline_protocol.m) | 相同或模型外输入 → 对照结果 |
-| 工程回归 | [run_project_checks.m](../rod/run_project_checks.m) | 31 项检查 → project_checks.json |
+| 多接触配对实验 | [run_multi_contact_benchmark.m](../rod/run_multi_contact_benchmark.m)、[run_multi_contact_plane_uncertainty.m](../rod/run_multi_contact_plane_uncertainty.m) | 同一曲率包 → 环境/形状基线、几何消融和标定误差 |
+| 工程回归 | [run_project_checks.m](../rod/run_project_checks.m) | 32 项检查 → project_checks.json |
 
 主数据流：
 
@@ -346,6 +347,8 @@ createForceSensingVideo 使用 MATLAB VideoWriter('MPEG-4') 写旧式 forces.mp4
 
 这条路径是已知接触数量/顺序的平面无摩擦稀疏曲率逆解。前三个无噪声场景的接触力 RMSE 为 `9.668e-11`、`7.598e-11` 和 `1.267e-10 N`；带曲率噪声的三接触场景合力 RMSE 为 `0.6202 N`，12 帧中 1 帧被标记为 review。视频显示的是已保存状态，不会从视频重新估计力。该路径已经不是“只有 forward mechanics”，但仍不能替代三维摩擦锥 MPCC、未知接触模式边缘化或真实传感器验证。
 
+新配对协议把上述前三种几何扩展为 3 个随机种子、3 个噪声等级、8/16/24 个曲率观测和两个基座状态。`estimate_planar_shape_only_point_loads.m` 对同一观测包拟合点力，不读环境；`run_multi_contact_benchmark.m` 记录两种方法、接触间隙/切触消融和 1 mm 平面错位，共 396 次估计。正确几何、标称噪声、24 个观测时接触力 RMSE 为 0.490 N，对照为 2.967 N；仅 8 个观测时环境方法升到 13.576 N。`run_multi_contact_plane_uncertainty.m` 用相同观测包检验标定误差，把错位平面视为精确时 RMSE 31.092 N，允许标准差 1 mm 的潜在平面偏移时为 1.341 N。完整定义和逐条件结果见[软件实验报告](SOFTWARE_BENCHMARK_2026-09-30.md)。
+
 ## 13. 结果文件、视频和 provenance
 
 ### 13.1 六 demo 的目录结构
@@ -633,6 +636,11 @@ estimate_sensor_forces
 | [build_multi_contact_truth.m](../rod/build_multi_contact_truth.m) | 生成双接触、曲面和 friction mismatch 的 forward truth | 只做模型边界压力测试 |
 | [run_model_mismatch_protocol.m](../rod/run_model_mismatch_protocol.m) | 对上述 out-of-model 输入评分，并标 review | 不能解读成多接触成功 |
 | [run_fair_baseline_protocol.m](../rod/run_fair_baseline_protocol.m) | 同一 `sensorInput` 运行 EnFiRCE、shape-only、Gaussian | 公平输入基线 |
+| [estimate_planar_multi_contact.m](../rod/estimate_planar_multi_contact.m) | 读取曲率、杆参数、接触平面；可选联合估计平面法向偏移 | 已知接触顺序的平面多接触逆解 |
+| [estimate_planar_shape_only_point_loads.m](../rod/estimate_planar_shape_only_point_loads.m) | 同一曲率输入，只使用接触数/顺序而不读平面点和法向 | 多接触形状基线 |
+| [run_multi_contact_benchmark.m](../rod/run_multi_contact_benchmark.m) | 三种通道、噪声种子/等级/观测密度；写入配对估计、消融、运行时间 | 396 次多接触软件协议 |
+| [run_multi_contact_plane_uncertainty.m](../rod/run_multi_contact_plane_uncertainty.m) | 重放 benchmark 的相同标称观测，错放一面墙并估计平面偏移 | 54 次几何标定敏感性回放 |
+| [summarize_multi_contact_benchmark.py](../scripts/summarize_multi_contact_benchmark.py) | 读取逐次 JSON，按种子簇重采样并生成结果表 | 描述性统计，不输出论文间排名 |
 | [estimate_shape_only_point_loads.m](../rod/estimate_shape_only_point_loads.m) | 仅由稀疏形状拟合点载荷，不读环境平面 | baseline |
 | [estimate_aloi_gaussian_baseline.m](../rod/estimate_aloi_gaussian_baseline.m) | 用稀疏位置拟合弧长 Gaussian 载荷分布 | Aloi-style baseline |
 | [run_submission_statistics.m](../rod/run_submission_statistics.m) | 27 组合种子/噪声/场景，输出局部误差和 coverage 标志 | 条件统计，尚不是校准置信区间 |
@@ -645,7 +653,7 @@ estimate_sensor_forces
 
 ### 20.6 测试文件对应的断言类别
 
-`run_project_checks` 当前注册 31 项检查，具体可按名称反查：
+`run_project_checks` 当前注册 32 项检查，具体可按名称反查：
 
 | 类别 | 测试文件 |
 |---|---|
@@ -690,3 +698,20 @@ estimate_sensor_forces
 - **明确未声明**：没有把当前 `posteriorCovariance` 当成 95% 置信区间，没有把无噪声 demo RMSE 当成真实精度，没有把 `forces.mp4` 当成硬件录像，也没有把 mismatch case 当成算法成功。
 
 这一区分是技术文档的一部分：一个入口函数能运行，只说明代码路径存在；只有独立输入、明确评分、重复运行和相应实验设计都完成，才可以在论文中把它写成结果。
+
+## 23. 多接触 benchmark 的状态、目标和几何误差处理
+
+最新协议的逐次记录和场景结果见[软件实验报告](SOFTWARE_BENCHMARK_2026-09-30.md)。这里补充逆解实际执行的数学与代码对应关系。设接触数为 K、杆长为 L、刚度为 EI、观测曲率为 κᵢ，本征曲率为 κ₀ᵢ。`estimate_planar_multi_contact.m` 的优化变量按顺序为 `x = [M₀/(EI/L), λ₁…λK, c₁/L…cK/L, Ftip,x, Ftip,z]`，其中 λ 为非负法向力，c 为杆弧长。每次 `lsqnonlin` 评估都由 `integrate_planar_multi_contact.m` 从这些变量重建预测曲率、接触点与切向量，最小化以下白化残差的平方和：
+
+```text
+(predicted_curvature - measured_curvature) / max(curvatureStdPerMm, 1e-7)
+tip_moment_residual / 1e-3 Nmm
+gapWeight * contact_normal_gap / 1e-3 mm
+tangentWeight * normal_dot_contact_tangent / 1e-4
+```
+
+`gapWeight=0` 或 `tangentWeight=0` 只删除相应罚项；法向力的方向、接触初值以及弧长分区仍来自环境模型。独立 shape-only 基线用同一曲率观测积分中心线，按接触顺序把弧长分为 K 段，再用带 `0.5 mm` 力正则的线性最小二乘拟合各点二维力及末端力。`test_multi_contact_benchmark_protocol.m` 改动平面点和法向后验证该基线输出不变。
+
+当 `options.planePointStdMm > 0`，在上述状态末尾额外加入每个**实际使用平面**的法向偏移 δₚ（单位 mm）；重复碰到同一平面时共享 δₚ，且每个偏移被限制在 ±3 倍先验标准差。接触间隙残差改为 `normal_dot(contact_point - supplied_plane_point) - δₚ`，并加入 `δₚ / planePointStdMm` 的零均值高斯先验残差。求解后审计使用原平面点加 `δₚ * normal` 的几何；返回 `planePointOffsetMm`、使用的平面索引及数值秩。默认标准差为 0，状态与旧算法完全相同。这是一个局部平面标定误差模型，不表示对任意曲面或相机误差的完整后验。
+
+主 benchmark 的随机噪声在 121 个正向节点上先生成，再按 8/16/24 个 FBG 位置采样；同一场景、种子和状态下不同密度来自同一噪声场。真值、观测包、解和代码 SHA-256 分别保存在 `out/benchmarks/multi_contact/<scene-id>/truth.mat`、`trials.mat` 及根目录的 `comparison.json`。报告脚本以种子而不是逐帧为 bootstrap 抽样单位。`force('multi-geometry')` 读取这些保存的观测包，向第一面墙注入 +1 mm 误差后比较固定几何与两个预设先验，另写 `plane_uncertainty.json`。结果审计中的 `requiresReview` 与离线力误差分开记录，不能用优化器返回成功来代替物理可信度。

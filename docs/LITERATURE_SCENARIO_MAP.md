@@ -1,6 +1,6 @@
 # 文献场景与视频对应关系
 
-这里把仓库中的完整视频和常见连续体机器人力感知文献逐一对应。**“适配”表示复用了文献的载荷或观测设置，但没有声称复现论文的硬件、材料或算法。** 所有新 `out/demos/*/forces.mp4` 都是 EnFiRCE 的三维 Cosserat + 接触 MPCC/MAP 结果；论文方法的公平基线仍由单独的 baseline 协议完成。
+这里把仓库中的完整视频和常见连续体机器人力感知文献逐一对应。**“适配”表示复用了文献的载荷或观测设置，但没有声称复现论文的硬件、材料或算法。** 六个单接触 `out/demos/latest/*/forces.mp4` 来自三维 Cosserat + 接触 MPCC/MAP；`out/demos/multi_contact/*/forces.mp4` 来自已知接触顺序的平面无摩擦多接触逆解。论文方法的公平基线仍由单独的 baseline 协议完成。
 
 ## 已有的旧格式完整视频
 
@@ -35,11 +35,16 @@
 | `sliding_clean` | 摩擦接触和切向力方向 | 滑移分支是预设的准静态配对，不是动力学粘滑转变。 |
 | `sliding_noisy` | 噪声下的摩擦方向可观测性 | 当前结果用于暴露分力退化，不能写成已解决的噪声鲁棒性。 |
 
+双接触通道和蛇形三接触视频见[固定环境多接触 demo](MULTI_CONTACT_DEMOS.md)。它们覆盖了双侧约束、变化法向和蛇形通道，但没有复现 Xiao 与 Chen 的具体机器人、Prakash 等的因子图或 Ferguson 等的分布载荷实验。新[软件实验报告](SOFTWARE_BENCHMARK_2026-09-30.md)对三个多接触环境用相同稀疏曲率观测运行环境方法、shape-only 点力基线及消融，并记录平面标定误差。这个协议能评估本项目的环境信息贡献，不能据此和不同观测模态的论文数字排序。
+
+`force('literature-strain')` 重新运行了 Ferguson 参数适配：5/15/50 个曲率点、10 微应变噪声、每种密度一个单接触状态。5 和 15 点的形状一致性审计未通过。它使用本项目的杆形和逆解，并未运行 Ferguson 的连续时间批估计算法；逐条件结果见[软件实验报告](SOFTWARE_BENCHMARK_2026-09-30.md)。
+
 ## 论文引用
 
 - Rucker & Webster, “Deflection-based force sensing for continuum robots: A probabilistic approach,” IROS 2011, [DOI](https://doi.org/10.1109/IROS.2011.6094526)。
 - Aloi et al., “Estimating Forces Along Continuum Robots,” IEEE RA-L 2022, [DOI](https://doi.org/10.1109/LRA.2022.3188905)。
 - Ferguson, Rucker & Webster, “Unified Shape and External Load State Estimation for Continuum Robots,” IEEE T-RO 2024, [DOI](https://doi.org/10.1109/TRO.2024.3360950)。
 - Xiao & Chen, “Efficient Force Estimation for Continuum Robot,” [arXiv:2109.12469](https://arxiv.org/abs/2109.12469)。
+- Prakash, Vela & Tsiotras, “Multi-Contact Force Estimation for Continuum Robots via Gaussian-Parameterized Factor Graphs,” 2026 预印本，[arXiv:2606.29165](https://arxiv.org/abs/2606.29165)。
 
 要把这些适配升级为论文级复现，还需要把相同观测输入、载荷参数、材料、传感器布局和评价指标写成可公开的基线协议；不能只凭视频外观或单一 wall 场景声称优于文献方法。

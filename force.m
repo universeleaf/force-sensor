@@ -17,6 +17,8 @@ function results = force(scenario, quickMode)
 % force('literature-strain'): Ferguson-parameter sparse-strain scenario adaptation
 % force('demos')           : multiple continuous-rod/environment contact demos
 % force('multi-demos')     : fixed-channel multi-contact sparse-shape inverse
+% force('multi-benchmark') : paired multi-contact baselines, ablations, noise and timing
+% force('multi-geometry')  : calibrated-plane perturbation and latent-offset replay
 % force('history')         : paired latent-history MAP vs fixed history
 % force('temporal-window'): joint short-window Cosserat MAP smoother
 % force('statistics')      : multi-seed/multi-noise conditional coverage protocol
@@ -71,6 +73,10 @@ switch lower(char(scenario))
         results = run_contact_demo_suite();
     case 'multi-demos'
         results = run_multi_contact_demo_suite();
+    case 'multi-benchmark'
+        results = run_multi_contact_benchmark(quickMode);
+    case 'multi-geometry'
+        results = run_multi_contact_plane_uncertainty();
     case 'history'
         results = run_history_map_benchmark();
     case {'temporal-window','window'}
@@ -97,7 +103,7 @@ switch lower(char(scenario))
         error('force:UnknownScenario', ...
             ['Use wall, senior, upward, video, sensor-video, sensor-tip, ', ...
              'sensor-noise, noise, depth, depth-ablation, independent, ', ...
-             'continuous, formulation, formulation-slide, literature-strain, demos, multi-demos, history, temporal-window, ', ...
+             'continuous, formulation, formulation-slide, literature-strain, demos, multi-demos, multi-benchmark, multi-geometry, history, temporal-window, ', ...
              'statistics, baselines, mismatch, realtime, geometry, accuracy, mesh or check.']);
 end
 end

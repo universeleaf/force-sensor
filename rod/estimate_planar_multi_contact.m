@@ -1,13 +1,27 @@
-function estimate = estimate_planar_multi_contact(input)
+function estimate = estimate_planar_multi_contact(input, options)
 % Sparse-curvature inverse for a known ordered frictionless contact set.
 % INPUT contains geometry, stiffness, base pose, and measurements only.
 % Unknowns: base moment, each contact's positive normal force and arc length,
 % and an independent two-component tip force. This is a planar constrained
 % least-squares prototype, not the full 3-D frictional MPCC/MAP estimator.
 model=input.model;
+if nargin<2 || isempty(options), options=struct; end
+if ~isfield(options,'gapWeight'), options.gapWeight=1; end
+if ~isfield(options,'tangentWeight'), options.tangentWeight=1; end
+if ~isfield(options,'planePointStdMm'), options.planePointStdMm=0; end
+assert(isfinite(options.gapWeight) && options.gapWeight>=0 && ...
+    isfinite(options.tangentWeight) && options.tangentWeight>=0 && ...
+    isscalar(options.planePointStdMm) && isfinite(options.planePointStdMm) && ...
+    options.planePointStdMm>=0, ...
+    'rod:InvalidMultiContactWeights','Constraint weights must be finite and nonnegative.');
 assert(~isfield(model,'tipForceXZ'),'rod:TruthInMultiContactInput', ...
     'Tip force is unknown; do not pass it to the inverse model.');
 K=numel(model.contactPlaneIndex); L=model.sMm(end); scale=model.EINmm2/L;
+usedPlanes=unique(model.contactPlaneIndex,'stable');
+[~,contactPlaneSlot]=ismember(model.contactPlaneIndex,usedPlanes);
+estimatePlaneOffsets=options.planePointStdMm>0;
+offsetCount=estimatePlaneOffsets*numel(usedPlanes);
+tipIndices=(2*K+2):(2*K+3);
 fbgs=input.fbgArcLengthMm(:)'; measured=input.curvaturePerMm(:)';
 assert(numel(fbgs)==numel(measured) && all(isfinite([fbgs measured])) && ...
     all(diff(fbgs)>0) && fbgs(1)>=0 && fbgs(end)<=L);
@@ -49,16 +63,31 @@ m0=sum((pc(2,:)-model.baseXZ(2)).*normals(1,model.contactPlaneIndex).*forces(1:K
 initial=[m0/scale;forces(1:K);contactS(:)/L;forces(K+1:K+2)];
 lb=[-inf;zeros(K,1);branchEdges(1:end-1)'/L+1e-6;-inf;-inf];
 ub=[inf;inf(K,1);branchEdges(2:end)'/L-1e-6;inf;inf];
+if estimatePlaneOffsets
+    initial=[initial;zeros(offsetCount,1)];
+    lb=[lb;-3*options.planePointStdMm*ones(offsetCount,1)];
+    ub=[ub; 3*options.planePointStdMm*ones(offsetCount,1)];
+end
 sigma=max(input.curvatureStdPerMm,1e-7);
-options=optimoptions('lsqnonlin','Display','off','FunctionTolerance',1e-12, ...
+solverOptions=optimoptions('lsqnonlin','Display','off','FunctionTolerance',1e-12, ...
     'OptimalityTolerance',1e-8,'StepTolerance',1e-12,'MaxIterations',100, ...
     'MaxFunctionEvaluations',3000,'FiniteDifferenceType','central','FiniteDifferenceStepSize',1e-6);
 timer=tic;
-[x,value,residual,flag,solverOutput,~,jacobian]=lsqnonlin(@cost,initial,lb,ub,options);
+[x,value,residual,flag,solverOutput,~,jacobian]=lsqnonlin(@cost,initial,lb,ub,solverOptions);
 contactS=x(K+2:2*K+1)'*L;
 query=unique([s fbgs contactS linspace(0,L,2001)]);
-state=integrate_planar_multi_contact(model,x(1)*scale,contactS,x(2:K+1),x(end-1:end),query);
-audit=audit_planar_multi_contact(model,state);
+state=integrate_planar_multi_contact(model,x(1)*scale,contactS,x(2:K+1),x(tipIndices),query);
+auditedModel=model;
+if estimatePlaneOffsets
+    for planeSlot=1:offsetCount
+        plane=usedPlanes(planeSlot);
+        auditedModel.planePointXZ(:,plane)=model.planePointXZ(:,plane)+ ...
+            normals(:,plane)*x(tipIndices(end)+planeSlot);
+    end
+end
+audit=audit_planar_multi_contact(auditedModel,state);
+planePointOffsetMm=zeros(1,numel(usedPlanes));
+if estimatePlaneOffsets, planePointOffsetMm=x(tipIndices(end)+1:end)'; end
 estimate=struct('state',state,'audit',audit,'exitflag',flag,'objective',value, ...
     'iterations',solverOutput.iterations,'seconds',toc(timer), ...
     'maxScaledResidual',max(abs(residual)), ...
@@ -66,13 +95,23 @@ estimate=struct('state',state,'audit',audit,'exitflag',flag,'objective',value, .
     'requiresReview',~audit.passed || flag<=0 || rank(full(jacobian))<numel(x), ...
     'seedContactArcLengthMm',initial(K+2:2*K+1)'*L, ...
     'searchBoundsMm',[branchEdges(1:end-1);branchEdges(2:end)], ...
+    'gapWeight',options.gapWeight,'tangentWeight',options.tangentWeight, ...
+    'planePointStdMm',options.planePointStdMm,'usedPlaneIndex',usedPlanes, ...
+    'planePointOffsetMm',planePointOffsetMm, ...
     'scope','Planar frictionless known-contact-order sparse-curvature inverse; conditional least-squares solution.');
     function r=cost(v)
         q=integrate_planar_multi_contact(model,v(1)*scale,v(K+2:2*K+1)*L, ...
-            v(2:K+1),v(end-1:end),fbgs);
+            v(2:K+1),v(tipIndices),fbgs);
         n=normals(:,model.contactPlaneIndex); points=model.planePointXZ(:,model.contactPlaneIndex);
+        planeOffsets=zeros(K,1);
+        prior=[];
+        if estimatePlaneOffsets
+            offsets=v(tipIndices(end)+1:end);
+            planeOffsets=offsets(contactPlaneSlot);
+            prior=offsets/options.planePointStdMm;
+        end
         r=[(q.curvaturePerMm-measured)'/sigma; q.tipMomentResidualNmm/1e-3; ...
-            sum(n.*(q.contactPointsXZ-points),1)'/1e-3; ...
-            sum(n.*q.contactTangentXZ,1)'/1e-4];
+            options.gapWeight*(sum(n.*(q.contactPointsXZ-points),1)'-planeOffsets)/1e-3; ...
+            options.tangentWeight*sum(n.*q.contactTangentXZ,1)'/1e-4;prior];
     end
 end
