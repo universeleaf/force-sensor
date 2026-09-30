@@ -10,18 +10,21 @@
 |---|---|
 | 31 项工程检查 | 31/31 通过 |
 | 3 个随机种子 × 3 个曲率噪声等级 | 9 cases、27 frames 完成；平均总力 RMSE 0.3076 N |
-| 双接触 / 非平面 / 摩擦失配 | 总力 RMSE 1.584 / 1.649 / 1.630 N；均触发 review |
+| 双接触 / 非平面 / 摩擦失配压力测试 | 总力 RMSE 1.584 / 1.649 / 1.630 N；均触发 review |
+| 固定环境多接触 | 双接触 9.668e-11–7.598e-11 N；三接触 1.267e-10 N；带噪声三接触 0.6202 N |
 | 相同观测输入基线 | EnFiRCE 接触力 RMSE 0.0190 N；shape-only 1.069 N；Gaussian 1.689 N |
 | 墙钟性能 | p95 119.14 s/frame，尚未达到 20 ms |
 
-多种子和噪声区间目前是条件局部一阶诊断，不是校准后的全局置信区间。当前研究范围仍是仿真、单平面名义模型和有限的多接触压力测试。
+多种子和噪声区间目前是条件局部一阶诊断，不是校准后的全局置信区间。多接触逆解目前限定为已知接触数量/顺序的平面无摩擦原型；完整三维摩擦 MAP 和真实传感器仍在后续工作范围内。
 
 ## 公开视频与演示
 
 - [六个接触场景离线播放器](out/demos/index.html)：包含顶面弯钩、侧墙、斜面和滑动场景；每个场景现在用 12 个完整求解状态生成 MATLAB `forces.mp4`。
+- 视频文件按场景放在 [`out/demos/latest/`](out/demos/latest/) 下；目录名保持稳定，运行 UUID 只保留在结果 JSON 中作为复现实验记录。
 - [90° 旋转后向上推的力图视频](out/upward/forces.mp4)：沿 `+z` 推 45 mm，随后沿 `-x` 滑 1 mm。
 - [视频几何回放](out/video/forces.mp4)：先沿 `+z` 推 20 mm，再沿 `-x` 滑 12 mm；这是 `fail.mp4` 的图像几何近似，不是原视频参数恢复。
 - [视频种子回放](out/stage1/video_seeded/forces.mp4)和[壁面种子回放](out/stage1/wall_tip_seeded/forces.mp4)。
+- [固定环境多接触 demos](docs/MULTI_CONTACT_DEMOS.md)：S 形双侧通道、收窄通道双接触、蛇形杆三接触及带曲率噪声的三接触，视频位于 `out/demos/multi_contact/<scene-id>/`。
 
 完整的算法、数据流、文件职责、实验结果和限制见[技术总说明](docs/TECHNICAL_OVERVIEW.md)；滑动阶段、视频说明、文献场景和实验矩阵见[场景矩阵](docs/SCENARIO_MATRIX.md)；旧视频与经典文献问题的对应关系见[文献场景视频对照](docs/LITERATURE_SCENARIO_MAP.md)；当前单接触边界和双接触扩展路径见[多接触扩展说明](docs/MULTI_CONTACT_EXTENSION.md)；当前实验状态见[状态页](docs/STATUS.md)。
 
@@ -51,7 +54,9 @@ force('check');           % 工程回归与传感器重放
 - `rod/estimate_formulation_forces.m`：论文主路径的配置入口。
 - `rod/solve_cosserat_force_map.m`、`rod/solve_contact_mpcc.m`：单接触三维平衡和互补优化。
 - `rod/solve_cosserat_multi_contact_map.m`：独立多接触正向压力真值。
-- `rod/multi_contact_state_spec.m`、`decode_multi_contact_state.m`、`evaluate_multi_contact_state.m`：多接触状态布局、解码和 Cosserat 候选评估层；双接触 MAP 优化仍在扩展中。
+- `rod/solve_planar_multi_contact.m`、`integrate_planar_multi_contact.m`、`audit_planar_multi_contact.m`：固定平面环境中的多接触连续 Cosserat 求解和整杆非穿透审计。
+- `rod/run_multi_contact_demo_suite.m`、`render_multi_contact_demo_video.m`：按可读场景名生成多接触结果和 MP4。
+- `rod/multi_contact_state_spec.m`、`decode_multi_contact_state.m`、`evaluate_multi_contact_state.m`：三维多接触状态布局、解码和 Cosserat 候选评估层；未知模式和摩擦 MAP 仍在扩展中。
 - `rod/estimate_temporal_window_forces.m`：前一时刻平衡和过程先验的短窗口 MAP。
 - `rod/run_submission_statistics.m`、`run_model_mismatch_protocol.m`、`run_fair_baseline_protocol.m`、`run_realtime_benchmark.m`：投稿评估协议。
 - `rod/test_*.m`、`rod/validate_*.m`：输入契约、物理约束、摩擦和结果完整性检查。
@@ -60,4 +65,4 @@ force('check');           % 工程回归与传感器重放
 
 ## 研究边界
 
-当前没有真实 FBG、相机同步、接触力传感器标定或实时硬件结果。短窗口 MAP 已实现 W=1 smoke test，但 W=2/3 统计、接触模式边缘化、全局不确定性校准、多接触逆解和实时加速仍需继续完成。这些边界会在结果文件的 `quality` 和报告中显式保留。
+当前没有真实 FBG、相机同步、接触力传感器标定或实时硬件结果。短窗口 MAP 已实现 W=1 smoke test；当前多接触结果是已知接触顺序的平面无摩擦稀疏曲率逆解，W=2/3 统计、接触模式边缘化、三维摩擦 MAP、全局不确定性校准和实时加速仍需继续完成。这些边界会在结果文件的 `quality` 和报告中显式保留。

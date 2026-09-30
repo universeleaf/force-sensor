@@ -184,7 +184,7 @@ def write_report(report, cases):
 
 更新：{run_date}。本次运行状态：`{report['state']}`；运行编号：`{report['runRecord']['runId']}`。本页数字由 `scripts/render_contact_demos.py` 从本次保存的 JSON 生成，未把旧输出混入新结果。
 
-**先打开[可播放的离线演示](../out/demos/index.html)**，切换六个场景，用滑块查看每个真实求解状态的杆形、估计杆形、接触位置、真实／估计的接触力、末端力和合力。MP4 是 MATLAB `VideoWriter` 在完整求解后生成的连续播放；GIF/PNG 是本脚本生成的便携预览。所有文件都是仿真结果的可视化，不是硬件录像。
+**先打开[可播放的离线演示](../out/demos/index.html)**，切换六个场景，用滑块查看每个真实求解状态的杆形、估计杆形、接触位置、真实／估计的接触力、末端力和合力。视频按场景放在稳定的 `out/demos/latest/<scene-id>/` 路径；UUID 运行目录仍保留为不可变 provenance 归档。MP4 是 MATLAB `VideoWriter` 在完整求解后生成的连续播放；GIF/PNG 是本脚本生成的便携预览。所有文件都是仿真结果的可视化，不是硬件录像。
 
 {conclusion}
 

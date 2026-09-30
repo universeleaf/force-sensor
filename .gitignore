@@ -61,5 +61,23 @@ fail.mp4
 out/*/
 out/*
 
+# The canonical continuous demo videos have stable, human-readable paths.
+!out/
+!out/demos/
+out/demos/*
+out/demos/*/
+!out/demos/latest/
+out/demos/latest/*
+!out/demos/latest/*/
+out/demos/latest/*/*
+!out/demos/latest/*/forces.mp4
+
+# Named multi-contact demo videos are publishable; MAT/CSV/JSON remain local.
+!out/demos/multi_contact/
+out/demos/multi_contact/*
+!out/demos/multi_contact/*/
+out/demos/multi_contact/*/*
+!out/demos/multi_contact/*/forces.mp4
+
 # Historical generated images
 aloifig6.png

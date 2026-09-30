@@ -340,6 +340,12 @@ createForceSensingVideo 使用 MATLAB VideoWriter('MPEG-4') 写旧式 forces.mp4
 
 [run_model_mismatch_protocol.m](../rod/run_model_mismatch_protocol.m) 把这些结果标成 out-of-model stress result；误差和 review 率用于界定模型边界，不能写成“多接触已解决”。
 
+### 12.4 固定环境多接触 demo
+
+为了区分“多接触力学是否能成立”和“通用三维摩擦 MAP 是否已经完成”，仓库另外提供了[固定环境多接触 demo](MULTI_CONTACT_DEMOS.md)。`solve_planar_multi_contact.m` 在固定平面上同时优化每个接触的弧长、法向力和基座弯矩；`integrate_planar_multi_contact.m` 按接触弧长把力跳变带入连续 Cosserat 平衡；`estimate_planar_multi_contact.m` 只读取杆参数、固定环境和 24 个稀疏曲率观测，估计每个接触的法向力/弧长及末端力；`audit_planar_multi_contact.m` 对每个平面闭合、整杆采样间隙、切触、力矩残差和接触顺序做统一检查。四个场景的目录名是 `s_channel_two_contact`、`tapered_channel_two_contact`、`serpentine_three_contact` 和 `serpentine_three_contact_noisy`，结果放在 `out/demos/multi_contact/<scene-id>/`。
+
+这条路径是已知接触数量/顺序的平面无摩擦稀疏曲率逆解。前三个无噪声场景的接触力 RMSE 为 `9.668e-11`、`7.598e-11` 和 `1.267e-10 N`；带曲率噪声的三接触场景合力 RMSE 为 `0.6202 N`，12 帧中 1 帧被标记为 review。视频显示的是已保存状态，不会从视频重新估计力。该路径已经不是“只有 forward mechanics”，但仍不能替代三维摩擦锥 MPCC、未知接触模式边缘化或真实传感器验证。
+
 ## 13. 结果文件、视频和 provenance
 
 ### 13.1 六 demo 的目录结构
@@ -349,6 +355,9 @@ run_contact_demo_suite 每次生成新的 UUID，并逐 case 原子更新比较�
 ~~~text
 out/demos/
   comparison.json
+  latest/                    # 稳定的人类可读发布别名
+    <sceneId>/
+      forces.mp4
   <runId>/
     comparison.json
     <sceneId>/
@@ -359,6 +368,8 @@ out/demos/
       forces.mp4
       demo.mp4
 ~~~
+
+`latest/<sceneId>` 是便于分享和查找的稳定路径；`<runId>/<sceneId>` 是不可变的运行归档。两者内容相同，comparison JSON 同时记录 `artifactFolder` 和 `sourceArtifactFolder`，因此改进目录命名不会牺牲结果 provenance。
 
 input_and_truth.mat 只适合离线评分；results.mat 保存输入、truth、output、scene 和 report；data.json 是 viewer 可读的逐帧摘要；forces.csv 包含真值/估计接触力、末端力、合力、接触弧长、互补残差和 review。顶层 comparison.json 只指向最新完整运行，旧目录不会被估计器自动重用。
 
@@ -513,7 +524,7 @@ report.runRecord.source(1)
 
 六个 demo 的 artifact 适合交接的文件是 comparison.json、每个 case 的 data.json、forces.csv 和 demo.mp4；input_and_truth.mat 只在需要复算评分时发送。不要把 MEMORY.md、tmp/、调试日志、过期 UUID 目录或只为本地浏览的 HTML 当作研究产物。
 
-可以给学长的准确表述是：EnFiRCE 已经有稀疏形状+环境平面驱动的单接触连续体机器人力分解仿真，主路径是三维 Cosserat 射击、杆身非穿透、离散 Coulomb 摩擦锥和 Scholtes MPCC/MAP；六个独立场景和同输入基线可复现。无噪声结果主要验证数值一致性，带噪声滑动会触发 review。真实传感器、多接触逆解、区间校准和实时性仍未完成。
+可以给学长的准确表述是：EnFiRCE 已经有稀疏形状+环境平面驱动的连续体机器人力分解仿真，主路径是三维 Cosserat 射击、杆身非穿透、离散 Coulomb 摩擦锥和 Scholtes MPCC/MAP；六个独立单接触场景、同输入基线，以及四个已知接触顺序的平面多接触场景可复现。多接触无噪声结果主要验证模型一致性，带曲率噪声场景会显式触发 review。真实传感器、未知模式/摩擦的三维多接触逆解、区间校准和实时性仍未完成。
 
 ## 19. 用最通俗的话说
 
@@ -566,6 +577,10 @@ FBG 只能告诉我们杆在各处弯了多少，不能单独告诉我们弯曲�
 | [paired_contact_uncertainty.m](../rod/paired_contact_uncertainty.m) | 将 current/previous 形状、基座和曲率误差传播为同一接触弧长位移协方差 |
 | [friction_direction_quality.m](../rod/friction_direction_quality.m) | 把摩擦运动学是否满足、方向是否分辨和观测警告压缩为质量字段 |
 | [solve_cosserat_multi_contact_map.m](../rod/solve_cosserat_multi_contact_map.m) | 仅用于独立多接触 forward stress truth；公共单接触逆解不调用它 |
+| [solve_planar_multi_contact.m](../rod/solve_planar_multi_contact.m) | 固定平面环境下同时求解多个接触位置、法向力和基座弯矩 |
+| [integrate_planar_multi_contact.m](../rod/integrate_planar_multi_contact.m) | 按多个接触弧长积分连续平衡，并返回接触点与整杆形状 |
+| [audit_planar_multi_contact.m](../rod/audit_planar_multi_contact.m) | 对固定环境多接触结果检查闭合、非穿透、切触、接触顺序和力矩 |
+| [run_multi_contact_demo_suite.m](../rod/run_multi_contact_demo_suite.m) | 生成四个按场景名保存的多接触结果目录、CSV、JSON 和 MP4 |
 | [multi_contact_state_spec.m](../rod/multi_contact_state_spec.m) | K 接触状态布局；K=1 保持 27 维旧 API，K=2 独立平面为 51 维 |
 | [decode_multi_contact_state.m](../rod/decode_multi_contact_state.m) | 将 K 个接触的平面、弧长、法向/摩擦变量解码为 `contactForce(3,K)` |
 | [evaluate_multi_contact_state.m](../rod/evaluate_multi_contact_state.m) | 调用多接触 Cosserat forward map 并返回候选曲率、接触点和约束审计；不执行逆向优化 |
@@ -669,9 +684,9 @@ estimate_sensor_forces
 
 为了避免交接时把函数名误读成论文结果，按状态明确如下：
 
-- **已实现并有回归检查**：稀疏 FBG 包契约、intrinsic-delta 形状重建、三维 Cosserat 单接触 shooting、平面整杆非穿透采样、离散摩擦锥、Scholtes MPCC 同伦、局部 MAP 协方差、六个独立 demo、基线输入隔离、结果 provenance 和完整重放。
+- **已实现并有回归检查**：稀疏 FBG 包契约、intrinsic-delta 形状重建、三维 Cosserat 单接触 shooting、平面整杆非穿透采样、离散摩擦锥、Scholtes MPCC 同伦、局部 MAP 协方差、六个独立 demo、已知顺序的平面多接触稀疏曲率逆解、基线输入隔离、结果 provenance 和完整重放。
 - **已实现但只用于诊断/压力测试**：双接触/曲面/摩擦失配 forward truth、depth covariance、noise attribution、mesh convergence、局部 force sensitivity、短时间窗口惩罚优化。
-- **存在代码路径但没有足够实验支撑**：真实 FBG/相机数据接入、任意曲面几何、多接触逆解、完整多模态后验、校准后的置信区间、实时 warm-start 版本。
+- **存在代码路径但没有足够实验支撑**：真实 FBG/相机数据接入、任意曲面几何、未知接触模式和摩擦的三维多接触逆解、完整多模态后验、校准后的置信区间、实时 warm-start 版本。
 - **明确未声明**：没有把当前 `posteriorCovariance` 当成 95% 置信区间，没有把无噪声 demo RMSE 当成真实精度，没有把 `forces.mp4` 当成硬件录像，也没有把 mismatch case 当成算法成功。
 
 这一区分是技术文档的一部分：一个入口函数能运行，只说明代码路径存在；只有独立输入、明确评分、重复运行和相应实验设计都完成，才可以在论文中把它写成结果。

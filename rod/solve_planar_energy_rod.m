@@ -20,8 +20,10 @@ C=0.5*(eye(n)+diag(ones(n-1,1),-1));
 prefix=tril(ones(n));
 planeActive=isfield(model,'planePointXZ') && ~isempty(model.planePointXZ);
 if planeActive
-    plane=model.planePointXZ(:); normal=model.planeNormalXZ(:); normal=normal/norm(normal);
-    assert(normal'*(base-plane)>=-1e-8,'Clamped base lies inside the obstacle.');
+    plane=reshape(model.planePointXZ,2,[]); normal=reshape(model.planeNormalXZ,2,[]);
+    assert(isequal(size(plane),size(normal)) && all(vecnorm(normal)>0));
+    normal=normal./vecnorm(normal);
+    assert(all(sum(normal.*(base-plane),1)>=-1e-8),'Clamped base lies inside the obstacle.');
 end
 options=optimoptions('fmincon','Algorithm','interior-point','Display','off', ...
     'SpecifyObjectiveGradient',true,'SpecifyConstraintGradient',true, ...
@@ -33,7 +35,12 @@ timer=tic;
     [],[],@constraints,options);
 [p,~,~]=geometry(theta); [c,~,dc]=constraints(theta); [~,gradient]=energy(theta);
 reaction=zeros(2,n);
-if planeActive, reaction=normal*max(multipliers.ineqnonlin(:)',0); end
+if planeActive
+    planeMultipliers=reshape(max(multipliers.ineqnonlin,0),n,[]);
+    reaction=normal*planeMultipliers';
+else
+    planeMultipliers=zeros(n,0);
+end
 stationarity=gradient+dc*multipliers.ineqnonlin;
 allTheta=[theta0;theta];
 result=struct('sMm',s','thetaRad',allTheta','pXZ',[base,p], ...
@@ -43,6 +50,7 @@ result=struct('sMm',s','thetaRad',allTheta','pXZ',[base,p], ...
     'stationarityInfNmm',norm(stationarity,inf), ...
     'maxPenetrationMm',max([0;c]),'seconds',toc(timer), ...
     'complementarityNmm',max([0;abs(c.*multipliers.ineqnonlin)]));
+result.planeNormalReactionN=planeMultipliers';
 result.method='Independent planar static bending-energy minimization; frictionless nodal contact, midpoint quadrature.';
 if planeActive, result.contactGapMm=-c; else, result.contactGapMm=[]; end
 % Expose gradient checks at a deterministic non-equilibrium point.
@@ -76,14 +84,21 @@ end
         ceq=[]; dceq=[];
         if ~planeActive, c=zeros(0,1); dc=zeros(n,0); return; end
         [p,jx,jz]=geometry(theta);
-        c=-(normal'*(p-plane))'; dc=-(normal(1)*jx+normal(2)*jz)';
+        gap=normal'*p-sum(normal.*plane,1)'; c=-reshape(gap',[],1);
+        dc=zeros(n,n*size(normal,2));
+        for b=1:size(normal,2)
+            dc(:,(b-1)*n+(1:n))=-(normal(1,b)*jx+normal(2,b)*jz)';
+        end
     end
     function H=hessian(theta,lambda)
         midpoint=C*theta; midpoint(1)=midpoint(1)+0.5*theta0;
         diagonal=h.*(force(1)*sin(midpoint)+force(2)*cos(midpoint));
         if planeActive
-            downstream=flipud(cumsum(flipud(lambda(:))));
-            diagonal=diagonal+h.*(normal(1)*sin(midpoint)+normal(2)*cos(midpoint)).*downstream;
+            forces=reshape(lambda,n,[]);
+            for b=1:size(normal,2)
+                downstream=flipud(cumsum(flipud(forces(:,b))));
+                diagonal=diagonal+h.*(normal(1,b)*sin(midpoint)+normal(2,b)*cos(midpoint)).*downstream;
+            end
         end
         H=model.EINmm2*B'*diag(1./h)*B+C'*diag(diagonal)*C;
         H=0.5*(H+H');

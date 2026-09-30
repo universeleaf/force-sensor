@@ -13,6 +13,10 @@ end
 record=new_run_record();
 folder=fullfile(root,'out','demos'); if ~isfolder(folder),mkdir(folder);end
 runFolder=fullfile(folder,record.runId); mkdir(runFolder);
+% Keep the UUID run directory for provenance, but publish a stable human
+% readable alias so links do not expose opaque run IDs.
+releaseName='latest';
+releaseFolder=fullfile(folder,releaseName);
 report=struct('state','running','runRecord',record,'cases',{{}}, ...
     'scope','Independent planar continuous contact truth; nonlinear 3-D inverse; simulation only. All cases retained.', ...
     'supersedes','out/formulation/demo_suite is invalid as contact truth because rods penetrate its planes.');
@@ -21,7 +25,9 @@ for j=1:numel(scenes)
     scene=scenes(j); timer=tic; stage='truth';
     caseFolder=fullfile(runFolder,scene.id);mkdir(caseFolder);
     entry=struct('id',scene.id,'title',scene.title,'completed',false, ...
-        'description',scene.description,'artifactFolder',strrep(fullfile(record.runId,scene.id),'\','/'));
+        'description',scene.description, ...
+        'artifactFolder',strrep(fullfile(releaseName,scene.id),'\','/'), ...
+        'sourceArtifactFolder',strrep(fullfile(record.runId,scene.id),'\','/'));
     fprintf('\nDEMO %d/%d: %s\n',j,numel(scenes),scene.id);
     try
         [sensorInput,truth]=build_contact_demo_truth(scene);
@@ -84,8 +90,21 @@ report.caseCount=numel(scenes);
 report.state='complete';
 if report.successCount<report.caseCount,report.state='complete-with-failures';end
 report.runRecord.state=report.state;
+if isfolder(releaseFolder), rmdir(releaseFolder,'s'); end
+for j=1:numel(report.cases)
+    entry=report.cases{j};
+    if isfield(entry,'completed') && entry.completed
+        source=fullfile(runFolder,scenes(j).id);
+        target=fullfile(releaseFolder,scenes(j).id);
+        if ~isfolder(releaseFolder), mkdir(releaseFolder); end
+        copyfile(source,target,'f');
+    end
+end
 atomic_write_artifact(fullfile(runFolder,'comparison.json'),'json',report);
 atomic_write_artifact(fullfile(folder,'comparison.json'),'json',report);
+if isfolder(releaseFolder)
+    atomic_write_artifact(fullfile(releaseFolder,'comparison.json'),'json',report);
+end
 fprintf('\nDemo results saved to %s\n',folder);
 fprintf('Build the offline viewer: python scripts/render_contact_demos.py\n');
 end

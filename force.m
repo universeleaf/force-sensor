@@ -16,6 +16,7 @@ function results = force(scenario, quickMode)
 % force('formulation-slide'): independent sliding truth, exact friction solve
 % force('literature-strain'): Ferguson-parameter sparse-strain scenario adaptation
 % force('demos')           : multiple continuous-rod/environment contact demos
+% force('multi-demos')     : fixed-channel multi-contact sparse-shape inverse
 % force('history')         : paired latent-history MAP vs fixed history
 % force('temporal-window'): joint short-window Cosserat MAP smoother
 % force('statistics')      : multi-seed/multi-noise conditional coverage protocol
@@ -68,6 +69,8 @@ switch lower(char(scenario))
         results = run_literature_strain_scenarios();
     case 'demos'
         results = run_contact_demo_suite();
+    case 'multi-demos'
+        results = run_multi_contact_demo_suite();
     case 'history'
         results = run_history_map_benchmark();
     case {'temporal-window','window'}
@@ -94,7 +97,7 @@ switch lower(char(scenario))
         error('force:UnknownScenario', ...
             ['Use wall, senior, upward, video, sensor-video, sensor-tip, ', ...
              'sensor-noise, noise, depth, depth-ablation, independent, ', ...
-             'continuous, formulation, formulation-slide, literature-strain, demos, history, temporal-window, ', ...
+             'continuous, formulation, formulation-slide, literature-strain, demos, multi-demos, history, temporal-window, ', ...
              'statistics, baselines, mismatch, realtime, geometry, accuracy, mesh or check.']);
 end
 end
