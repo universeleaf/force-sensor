@@ -54,11 +54,12 @@ for j=1:numel(solutions)
 end
 R=reshape(y(4:12,:),3,3,ns); u=tube.uhat;
 for j=1:ns, u(:,j)=u(:,j)+(R(:,:,j)'*y(13:15,j))./K(:,j); end
-contactPoints=zeros(3,numel(contactS));
+contactPoints=zeros(3,numel(contactS)); contactTangents=contactPoints;
 for q=1:numel(contactS)
     seg=find(breaks<=contactS(q),1,'last'); seg=min(seg,numel(solutions));
     yc=deval(solutions{seg},contactS(q));
     contactPoints(:,q)=yc(1:3);
+    contactTangents(:,q)=yc(10:12);
 end
 collisionS=unique([s,linspace(s(1),s(end),ceil(L/options.collisionStepMm)+1)]);
 collisionP=zeros(3,numel(collisionS));
@@ -67,7 +68,7 @@ for j=1:numel(solutions)
     yCollision=deval(solutions{j},collisionS(take));
     collisionP(:,take)=yCollision(1:3,:);
 end
-shape=struct('u',u,'R',R,'p',y(1:3,:),'contactPoints',contactPoints, ...
+shape=struct('u',u,'R',R,'p',y(1:3,:),'contactPoints',contactPoints,'contactTangents',contactTangents, ...
     'contactS',contactS,'momentNmm',y(13:15,:),'collisionS',collisionS, ...
     'collisionP',collisionP,'tipMomentResidualNmm',residualNmm, ...
     'baseMomentNmm',baseMoment*momentScale,'exitflag',flag, ...
@@ -76,12 +77,14 @@ shape=struct('u',u,'R',R,'p',y(1:3,:),'contactPoints',contactPoints, ...
     'mechanics','nonlinear-cosserat-shooting-multi-contact');
 
     function [r,sol,bks,loads]=shoot(m0)
-        bks=unique([s,contactS]); sol=cell(numel(bks)-1,1); loads=cell(size(sol));
+        changes=any(diff(tube.uhat(:,1:end-1),1,2)~=0,1)|any(diff(K(:,1:end-1),1,2)~=0,1);
+        bks=unique([s(1),s(find(changes)+1),contactS,s(end)]);
+        sol=cell(numel(bks)-1,1); loads=cell(size(sol));
         yy=[pbase;Rbase(:);momentScale*m0];
         for a=1:numel(sol)
             aa=bks(a); bb=bks(a+1); midpoint=0.5*(aa+bb);
             loads{a}=tipForce+sum(contactForces(:,contactS>=bb-10*eps),2);
-            [~,ii]=min(abs(s-midpoint)); activeK0=tube.uhat(:,ii); activeStiffness=K(:,ii); activeLoad=loads{a};
+            ii=find(s<=midpoint,1,'last'); activeK0=tube.uhat(:,ii); activeStiffness=K(:,ii); activeLoad=loads{a};
             sol{a}=ode45(@balance,[aa bb],yy,odeOptions); yy=sol{a}.y(:,end);
         end
         r=yy(13:15)/momentScale;
@@ -94,6 +97,6 @@ shape=struct('u',u,'R',R,'p',y(1:3,:),'contactPoints',contactPoints, ...
         rot=reshape(state(4:12),3,3); tangent=rot(:,3);
         curvature=activeK0+(rot'*state(13:15))./activeStiffness;
         hat=[0 -curvature(3) curvature(2);curvature(3) 0 -curvature(1);-curvature(2) curvature(1) 0];
-        dR=rot*hat; dm=cross(tangent,activeLoad); dy=[tangent;dR(:);dm];
+        dR=rot*hat; dm=-cross(tangent,activeLoad); dy=[tangent;dR(:);dm];
     end
 end

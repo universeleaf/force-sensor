@@ -1,6 +1,8 @@
 # EnFiRCE：Environment- and Friction-informed Rod Contact Estimation 技术总说明
 
-这份文档是当前仓库的实现手册，按“研究问题 → 数据边界 → 正向真值 → 逆问题 → 数值求解 → 结果审计”的顺序解释代码。每一节给出相应函数，便于直接跳到实现。场景和视频另见[场景矩阵](SCENARIO_MATRIX.md)，最新多接触配对实验见[软件实验报告](SOFTWARE_BENCHMARK_2026-09-30.md)，实验状态另见[状态页](STATUS.md)。若历史文字与代码冲突，以当前代码及相应运行目录中的 comparison.json 为准。
+这份文档是当前仓库的实现手册，按“研究问题 → 数据边界 → 正向真值 → 逆问题 → 数值求解 → 结果审计”的顺序解释代码。每一节给出相应函数，便于直接跳到实现。最新的完整三维多接触/时间窗口路径及其全部代码对应见[完整 formulation 工作流](FORMULATION_WORKFLOW.md)。场景和视频另见[场景矩阵](SCENARIO_MATRIX.md)，多接触配对实验见[软件实验报告](SOFTWARE_BENCHMARK_2026-09-30.md)，实验状态另见[状态页](STATUS.md)。若历史文字与代码冲突，以当前代码及相应运行目录中的 comparison.json 为准。
+
+**2026-09-30 实现更正：** 本轮发现旧三维多接触射击函数的力矩导数符号错误，以及最近节点读取固有曲率可能移动突变位置的问题，均已修复。因此旧 `model_mismatch` 三个结果暂不作为正确物理实验引用。独立二维多接触 demo/396 次 benchmark 和既有单接触射击不受这两个错误影响。旧时间窗口 penalty smoother 已被每帧完整 Cosserat/MPCC 的联合窗口替代；下文旧版本描述作为历史解释保留，以新工作流文档为准。
 
 **研究目标**：利用连续体机器人的稀疏形状信息和环境几何信息，估计杆身接触位置、接触力与独立末端外力，并识别观测不足或模型失配。当前是 MATLAB 仿真研究原型；真实 FBG、相机、力传感器和同步系统尚未接入，数值结果不能解释为实物精度。
 
@@ -18,10 +20,11 @@
 | 接触优化 | [solve_contact_mpcc.m](../rod/solve_contact_mpcc.m)、[solve_contact_mode_map.m](../rod/solve_contact_mode_map.m) | MAP 目标 + 接触约束 → 可行解和同伦轨迹 |
 | 全杆几何 | [plane_contact_constraints.m](../rod/plane_contact_constraints.m) | 连续力学采样形状 → 非穿透与切触残差 |
 | 时间历史 | [latent_fbg_history.m](../rod/latent_fbg_history.m)、[estimate_temporal_window_forces.m](../rod/estimate_temporal_window_forces.m) | 前一帧观测或 W 帧 → 联合估计 |
+| 完整三维多接触/窗口 | [estimate_formulation_window.m](../rod/estimate_formulation_window.m)、[run_formulation_workflow.m](../rod/run_formulation_workflow.m) | 稀疏形状、多平面、协方差 → 自动候选、全窗口物理约束、逐接触力、质量和可追踪文件 |
 | 独立真值/demo | [build_contact_demo_truth.m](../rod/build_contact_demo_truth.m)、[contact_demo_scenes.m](../rod/contact_demo_scenes.m)、[run_contact_demo_suite.m](../rod/run_contact_demo_suite.m)、[render_contact_demo_video.m](../rod/render_contact_demo_video.m) | 场景 → 独立平衡真值、模拟传感器包、逐状态 MAP/MPCC 评分和 MATLAB 连续视频 |
 | 压力与基线 | [run_model_mismatch_protocol.m](../rod/run_model_mismatch_protocol.m)、[run_fair_baseline_protocol.m](../rod/run_fair_baseline_protocol.m) | 相同或模型外输入 → 对照结果 |
 | 多接触配对实验 | [run_multi_contact_benchmark.m](../rod/run_multi_contact_benchmark.m)、[run_multi_contact_plane_uncertainty.m](../rod/run_multi_contact_plane_uncertainty.m) | 同一曲率包 → 环境/形状基线、几何消融和标定误差 |
-| 工程回归 | [run_project_checks.m](../rod/run_project_checks.m) | 32 项检查 → project_checks.json |
+| 工程回归 | [run_project_checks.m](../rod/run_project_checks.m) | 当前 31 项基础检查、可选 2 项归档重放 → project_checks.json |
 
 主数据流：
 
@@ -45,7 +48,7 @@
 
 环境由平面点 p1 和单位法向 n 描述。带符号间隙定义为 g=n'·(p_contact−p1)。g>0 是可行侧，g=0 是接触，g<0 是穿透；世界坐标的 x/z 方向本身没有固定的“接触法向”意义，取决于场景配置。
 
-当前逆解的物理范围是**一个无限平面、一个零半径点接触、静态/准静态、不可伸长不可剪切杆**。没有惯性、阻尼、分布载荷、接触面厚度、有限杆半径碰撞和动态粘滑转换。三维求解器允许三维姿态与力，但当前六个独立 demo 的真值来自二维 XZ 平面平衡再刚体旋转；它们不是任意三维接触真值。
+历史单接触逆解使用一个无限平面和一个零半径点接触；新完整窗口使用多个观测半空间和形状驱动的多个接触槽。共同假设是静态/准静态、不可伸长不可剪切杆，没有惯性、阻尼、分布载荷、有限杆半径和动态黏滑转换。原六个连续 demo 的真值来自二维 XZ 平衡再刚体旋转；新空间滑动输入另外由三维射击与接触根求解生成面外载荷，详见[新工作流](FORMULATION_WORKFLOW.md)。
 
 ## 3. 输入数据的逐字段契约
 
@@ -250,7 +253,7 @@ subject to a≥0, b≥0, a_i b_i≤tau
 
 latent-FBG 模式：[latent_fbg_history.m](../rod/latent_fbg_history.m) 把所有已观测的前一时刻 FBG 通道写成 q=(u_previous_latent−u_previous_measured)/sigma_history，并在目标中加 q'q/2；当前状态与 q 一起进入完整 MPCC。第三个未观测扭转仍由本征扭转假设给出。该模式只联立一对时刻的历史运动学，不是前一时刻力平衡的完整联合后验。
 
-短时间窗口：[estimate_temporal_window_forces.m](../rod/estimate_temporal_window_forces.m) 先运行逐帧估计作为初值，再把 W 个状态拼成 y=[x1;…;xW]。联合目标包含每帧 FBG/环境残差、相对独立后验的项、相邻状态的 processStd 随机游走项、接触点切向位移项、非穿透/锥/互补惩罚与自由末端力矩残差。每个状态重新调用三维 Cosserat 射击，因此模型里确实有前一时刻的平衡状态；但是该实现用**惩罚项**而非主路径的完整硬 MPCC 非线性约束，且 W=2/3 的系统统计尚未完成。若 fmincon 退出码非正，该窗口的结果统一标记 requiresReview。不能把该实验路径直接称为已验证的完整轨迹后验。
+短时间窗口：[estimate_temporal_window_forces.m](../rod/estimate_temporal_window_forces.m) 现在直接调用完整联合逆解。每个实际观测时刻有独立三维平衡状态，原始 FBG/环境观测只计入一次，物理状态带时间缩放的随机游走先验；末端力矩和完整摩擦 MPCC 是非线性约束。schema 1 中输出可能跳过采样时刻，适配器会合并所有当前/前驱时间，并使用每个当前样本明确记录的前驱，不以“上一视频帧”替代它。旧逐帧后验加原始观测的 penalty smoother 已移除，避免重复计算信息。详细状态、约束和输出见[完整工作流](FORMULATION_WORKFLOW.md)。
 
 ## 11. 逐帧主循环：从观测到 output.ours
 
@@ -397,7 +400,7 @@ runRecord 保存 schemaVersion、UUID、UTC 时间、MATLAB 版本、平台和 s
 
 前五个 case 使用与真值一致的近乎无噪声模型，主要说明数值实现能复原独立平衡；不能外推为真实传感器误差。`sliding_noisy` 的 12/12 帧都触发 `requiresReview` 和摩擦方向观测警告，虽然最终互补和整杆非穿透检查通过；其估计平面参考下的最大穿透约 0.122 mm。这是当前方法边界，不应写成噪声下成功。
 
-模型外三项压力测试的合力 RMSE 约为 two-contact 1.584 N、curved-surface 1.649 N、friction-mismatch 1.630 N。它们的共同原因是公开逆解的状态只表达一接触平面和一个摩擦先验；真正的双接触扩展见[多接触扩展说明](MULTI_CONTACT_EXTENSION.md)。
+旧三项 `model_mismatch` 分数撤出有效物理证据：其前向函数存在本轮已修复的力矩符号和曲率分段问题，而且原生成器只规定点载荷，没有求解所有固定表面的接触闭合与摩擦。因此不能把它称为完整双接触/曲面真值。真正的多接触平衡场景使用独立接触根求解，见[完整工作流](FORMULATION_WORKFLOW.md)与[固定环境多接触 demo](MULTI_CONTACT_DEMOS.md)。
 
 ### 14.1 多种子、多噪声
 
@@ -645,7 +648,7 @@ estimate_sensor_forces
 | [estimate_aloi_gaussian_baseline.m](../rod/estimate_aloi_gaussian_baseline.m) | 用稀疏位置拟合弧长 Gaussian 载荷分布 | Aloi-style baseline |
 | [run_submission_statistics.m](../rod/run_submission_statistics.m) | 27 组合种子/噪声/场景，输出局部误差和 coverage 标志 | 条件统计，尚不是校准置信区间 |
 | [run_history_map_benchmark.m](../rod/run_history_map_benchmark.m) | 比较 fixed/latent history | 历史信息消融 |
-| [estimate_temporal_window_forces.m](../rod/estimate_temporal_window_forces.m) | 把 W 个状态拼接并加 process、切向位移和力学惩罚 | 短窗原型，当前不是完整硬 MPCC |
+| [estimate_temporal_window_forces.m](../rod/estimate_temporal_window_forces.m) | 合并实际观测/前驱时刻，调用每帧完整平衡和摩擦 MPCC | 完整联合离线窗口；模式边缘化与实时递归待优化 |
 | [run_realtime_benchmark.m](../rod/run_realtime_benchmark.m) | 统计 frame wall time、p95 和 effective Hz | 计算性能边界 |
 | [run_accuracy_benchmark.m](../rod/run_accuracy_benchmark.m) | 在保存输入上做几何/FBG 校准评分 | 复核历史结果 |
 | [run_mesh_convergence.m](../rod/run_mesh_convergence.m) | 改 collision/forward mesh step 并比较结果 | 离散化误差 |

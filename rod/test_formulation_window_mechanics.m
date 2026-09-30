@@ -1,0 +1,39 @@
+function test_formulation_window_mechanics()
+% Independent nonlinear truth and same-material predecessor regression.
+[input,truth]=build_formulation_multi_packet([],3);
+rod=input.tube; rod.T_base=input.packet.basePose(:,:,1);
+K=reshape(getTubeK(rod),3,[]);
+m0=truth.R(:,:,1,1)*(K(:,1).*(truth.u(:,1,1)-rod.uhat(:,1)));
+shape=integrate_cosserat_load_state(rod,m0,truth.contactS(:,1),truth.contactForces(:,:,1),truth.tipForce(:,1));
+assert(max(vecnorm(shape.p-truth.p(:,:,1)))<1e-4&&shape.tipMomentResidualNmm<1e-4, ...
+    'rod:LiftedMechanicsMismatch','Lifted 3-D mechanics does not match independent planar equilibrium.');
+shoot=solve_cosserat_multi_contact_map(rod,truth.contactS(:,1),truth.contactForces(:,:,1),truth.tipForce(:,1), ...
+    struct('maxRhsEvaluations',1000000,'collisionStepMm',1));
+assert(max(vecnorm(shoot.p-truth.p(:,:,1)))<1e-3,'rod:MultiContactSignRegression', ...
+    'Shooting map must agree with independent planar truth, not only its own terminal residual.');
+arcs=truth.contactS(:,1)'+[0.5 -0.4];
+p=cosserat_state_at_arc(shape,arcs);
+assert(max(vecnorm(p-shape.contactPoints))>0.1,'rod:MaterialQueryRegression','Moved contacts reused old contact points.');
+bad=input; bad.packet.planeCovariance(1,1,1,1)=-1;
+try, formulation_window_observations(bad); error('rod:ExpectedRejection','Invalid covariance accepted.');
+catch err, assert(strcmp(err.identifier,'rod:InvalidObservationCovariance')); end
+full=input; full.packet=rmfield(full.packet,'curvatureStdPerMm');
+nu=numel(full.packet.observedCurvatureAxes)*numel(full.packet.sFbgMm);
+full.packet.curvatureCovariance=eye(nu)*1e-10;
+obs=formulation_window_observations(full);
+assert(norm(obs.curvatureWhitening(:,:,1)-eye(nu)*1e5,'fro')<1e-8, ...
+    'rod:FullCovarianceRegression','A full covariance must work without a redundant standard-deviation field.');
+subset_formulation_packet(full.packet,1); % covariance-only packets remain replayable
+pairedInput=input; indices=unique([1:5:numel(rod.s),numel(rod.s)]);
+curv=repmat(truth.u(:,indices,1),1,1,2); bases=repmat(input.packet.basePose(:,:,1),1,1,2);
+pairedInput.packet=struct('schemaVersion',1,'fbgIdx',indices,'sFbgMm',rod.s(indices), ...
+    'curvaturePerMm',curv,'previousCurvaturePerMm',curv,'basePose',bases,'previousBasePose',bases, ...
+    'timeSeconds',[4.26 4.32],'previousTimeSeconds',[4.24 4.30],'processReferencePeriodSeconds',0.02, ...
+    'frictionMu',[0 0],'actuationMm',[0 0],'planePointMm',repmat(input.packet.planePointMm(:,1,1),1,2), ...
+    'planeNormal',repmat(input.packet.planeNormal(:,1,1),1,2));
+paired=formulation_window_observations(pairedInput);
+assert(paired.frameCount==4&&isequal(paired.outputIndices,[2 4])&& ...
+    isequal(paired.predecessorIndex,[0 1 0 3])&&sum(paired.environmentLikelihood)==2, ...
+    'rod:PairedHistoryRegression','Skipped output ticks must keep both real predecessors without duplicated camera likelihoods.');
+fprintf('test_formulation_window_mechanics: PASS\n');
+end

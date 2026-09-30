@@ -1,8 +1,7 @@
 function report = run_model_mismatch_protocol(quickMode, kinds)
 %RUN_MODEL_MISMATCH_PROTOCOL Stress-test the declared single-plane model.
-% Truth contains two point reactions. The public EnFiRCE input contains one
-% plane and one-contact variables, so errors and review flags quantify the
-% out-of-model behavior rather than being counted as nominal accuracy.
+% Independent contact-closure truth, with an omitted environment face or a
+% wrong friction coefficient. Reactions are not arbitrary imposed loads.
 if nargin<1||isempty(quickMode),quickMode=false;end
 if nargin<2||isempty(kinds),kinds={'two-contact','curved-surface','friction-mismatch'};end
 if ischar(kinds)||isstring(kinds),kinds=cellstr(kinds);end
@@ -10,21 +9,21 @@ if quickMode,kinds=kinds(1:min(1,numel(kinds)));end
 root=fileparts(fileparts(mfilename('fullpath'))); record=new_run_record(); folder=fullfile(root,'out','model_mismatch');
 if ~isfolder(folder),mkdir(folder);end; runFolder=fullfile(folder,record.runId);mkdir(runFolder);
 report=struct('state','running','runRecord',record,'cases',{{}}, ...
-    'scope','Independent two-contact Cosserat truth; public estimator remains a single-plane/single-contact model.');publish();
+    'scope','Independent fixed-surface contact truth; inverse loses a face or uses wrong friction; not nominal accuracy.');publish();
 for j=1:numel(kinds)
     kind=kinds{j}; timer=tic; entry=struct('kind',kind,'completed',false); fprintf('\nMISMATCH %s\n',kind);
     try
         [sensorInput,truth]=build_multi_contact_truth(kind,401+j);
-        output=estimate_sensor_forces(sensorInput); o=output.ours;
-        entry.completed=true; entry.contactRmseN=rmse(o.contactForceResultant-truth.contactForce);
-        entry.totalRmseN=rmse(o.totalForceResultant-truth.totalForce);
-        entry.tipRmseN=rmse(o.tipForce-truth.tipForce); entry.reviewRate=mean(output.quality.requiresReview);
-        entry.maxPlanePenetrationMm=max(output.quality.minimumSampledRodGapMm*-1,[],'omitnan');
-        entry.trueContactCount=size(truth.contactForces,2); entry.estimatedContactCount=1;
+        output=estimate_formulation_forces(sensorInput);
+        entry.completed=true; entry.contactRmseN=rmse(output.contactForceResultant-truth.contactForce);
+        entry.totalRmseN=rmse(output.totalForceResultant-truth.totalForce);
+        entry.tipRmseN=rmse(output.tipForce-truth.tipForce); entry.reviewRate=mean(output.quality.requiresReview);
+        entry.maxPlanePenetrationMm=max(0,max(-output.quality.minimumRodGapMm,[],'omitnan'));
+        entry.trueContactCount=size(truth.contactForces,2); entry.estimatedContactCount=size(output.contactForce,2);
         entry.nonplanarAngleDeg=truth.nonplanarAngleDeg;
-        entry.secondaryPlaneIsObserved=false;
-        entry.meanFrameSeconds=mean(o.frameSeconds,'omitnan'); entry.seconds=toc(timer);
-        entry.interpretation='Out-of-model stress result; single-contact force is not expected to recover both reactions.';
+        entry.secondaryPlaneIsObserved=size(sensorInput.packet.planePointMm,2)>1;
+        entry.meanFrameSeconds=output.optimizationSeconds/numel(output.timeSeconds); entry.seconds=toc(timer);
+        entry.interpretation=truth.scope;
         atomic_write_artifact(fullfile(runFolder,[kind '.mat']),'mat',struct('sensorInput',sensorInput,'truth',truth,'output',output,'entry',entry));
         fprintf('MISMATCH_RESULT %s: total RMSE %.5g N; review %.1f%%; frame %.4g s\n',kind,entry.totalRmseN,100*entry.reviewRate,entry.meanFrameSeconds);
     catch err

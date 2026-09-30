@@ -6,10 +6,11 @@
 
 - `estimate_sensor_forces(sensorInput)`：通用传感器数据包入口。
 - `estimate_formulation_forces(sensorInput)`：Formulation 对齐的三维非线性路径。
+- `estimate_formulation_window`、`run_formulation_workflow`：形状驱动候选、完整三维多接触/摩擦联合窗口及 MAT/CSV/JSON 导出，详见[完整工作流](../docs/FORMULATION_WORKFLOW.md)。
 - `solve_cosserat_force_map`：给定杆、接触和末端载荷的 Cosserat 射击映射。
 - `solve_contact_mpcc`：带平面接触、摩擦锥和互补约束的 MAP 优化。
 - `solve_cosserat_multi_contact_map`：多接触独立正向压力真值。
-- `multi_contact_state_spec`、`decode_multi_contact_state`、`evaluate_multi_contact_state`：K 接触状态布局、解码和 Cosserat 候选评估；当前用于多接触逆解的公共 mechanics 层，尚不替代单接触 MAP。
+- `multi_contact_state_spec`、`decode_multi_contact_state`、`evaluate_multi_contact_state`：早期 K 接触候选评估。完整窗口使用 `formulation_window_spec` 与 `integrate_cosserat_load_state`。
 - `multi_contact_constraints`：多接触闭合、非穿透、摩擦锥和弧长有序性审计。
 - `estimate_temporal_window_forces`：包含前一时刻平衡和过程先验的短窗口 MAP。
 

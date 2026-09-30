@@ -1,12 +1,12 @@
 {
   "scope": "Code correctness and fixed regressions; not publication readiness or universal force accuracy.",
-  "includeReplay": true,
+  "includeReplay": false,
   "state": "complete",
   "runRecord": {
     "schemaVersion": 1,
-    "runId": "4d16274d-e01c-4ba1-9897-61d32db16a67",
+    "runId": "6f44d3a9-5902-4fbd-bd4f-e1174e6d0aad",
     "state": "complete",
-    "startedAtUtc": "2026-09-30T12:13:36Z",
+    "startedAtUtc": "2026-09-30T15:14:59Z",
     "matlabVersion": "24.1.0.2537033 (R2024a)",
     "platform": "PCWIN64",
     "source": [
@@ -59,12 +59,20 @@
         "sha256": "fb7fcfc2c198957ffb8da56d146a9b83d8a31a3cdc114d13cdc864e073e82e2a"
       },
       {
+        "path": "rod/build_formulation_multi_packet.m",
+        "sha256": "eeab2d0bb2e33300d54f993e0f33ba11c50ddf4ac0ffc00fbc230048ea2299db"
+      },
+      {
         "path": "rod/build_multi_contact_demo_truth.m",
         "sha256": "9749856ec68a8f3598cbf4c19e5ad342ef0080908b3bd4a61d0c3b4acbde5af8"
       },
       {
         "path": "rod/build_multi_contact_truth.m",
-        "sha256": "ea5a354befd8472020c71d16e4fbb4d8c1609a69b542a615ae06419b0659e347"
+        "sha256": "6506269063cc0de338bbc062562bea80b6d20f1caed32d7a65bb689ce22a0c9a"
+      },
+      {
+        "path": "rod/build_spatial_friction_packet.m",
+        "sha256": "b59ec987f3dfe114514ad29e5f85a68aa470315a471bcf0feb4f24bf8c82a517"
       },
       {
         "path": "rod/calibrate_fbg_likelihood.m",
@@ -83,6 +91,10 @@
         "sha256": "e5d270f2e62604d1122bbe6b5c65120b95259cd6dedaeaf7d2aba7cfbbc95953"
       },
       {
+        "path": "rod/cosserat_state_at_arc.m",
+        "sha256": "7c8f5ccd3b5b81e20729600438420c0dcce8a31378b97b779af634d6af69719a"
+      },
+      {
         "path": "rod/decode_multi_contact_state.m",
         "sha256": "e9f2607f6ab668c01844a8c94c13fa47d19734c3fb19ed990c5eaaaa06548627"
       },
@@ -92,7 +104,11 @@
       },
       {
         "path": "rod/estimate_formulation_forces.m",
-        "sha256": "24f9895f7e1ab923428c26fb455f2a6de7e66a8dc381ac50c18fd3be96475acc"
+        "sha256": "872370753a8ad33d69e21f249336328f5f4f486eae905cf763997f2931902cbc"
+      },
+      {
+        "path": "rod/estimate_formulation_window.m",
+        "sha256": "f0bf82c163cb17c3e28bdbb00dadfd4d2f6b953a6754e74e202edea849c4c68a"
       },
       {
         "path": "rod/estimate_planar_multi_contact.m",
@@ -104,7 +120,7 @@
       },
       {
         "path": "rod/estimate_sensor_forces.m",
-        "sha256": "40e7d353902dc1b0498041b1b4df942b0893d8cde51649299f0b0379f7971a77"
+        "sha256": "f9c319a3f798e86abcef8f7b929b05346d955d48756002660773183fc42a7c0e"
       },
       {
         "path": "rod/estimate_shape_only_point_loads.m",
@@ -112,7 +128,7 @@
       },
       {
         "path": "rod/estimate_temporal_window_forces.m",
-        "sha256": "3f51f47a5cb1d478824c999047db7972dc1dd8a1195991dd05ddff38fcf04704"
+        "sha256": "dc49a5f6a4479d8e7d1971e5cabbc2a0204f160cbc3c2706e1a37f16ac50e7ea"
       },
       {
         "path": "rod/evaluate_multi_contact_state.m",
@@ -131,8 +147,24 @@
         "sha256": "4354d3bd8e971ed41c15f11f3c93f3be0d3fcfd1ae459a9ca2cd5e62e4448444"
       },
       {
+        "path": "rod/formulation_contact_candidates.m",
+        "sha256": "90e63b41f4d664b4f18ee03a82606bd37ff75bd4119d276805985f1a42a8f32a"
+      },
+      {
+        "path": "rod/formulation_contact_frame.m",
+        "sha256": "17c59006774c1d56b5dea5d13a23b43e52bbb1565d1c896e4ebfec873570e583"
+      },
+      {
         "path": "rod/formulation_solver_config.m",
         "sha256": "17c32756e46d4d5b24c8484b7a2da79a99654a96cfe555d4c342307f035e6a88"
+      },
+      {
+        "path": "rod/formulation_window_observations.m",
+        "sha256": "5bc8e4a0ba4eb075166571238789b7e4cad464ca59d2f1109328c1d5fb035fdb"
+      },
+      {
+        "path": "rod/formulation_window_spec.m",
+        "sha256": "54a1192899f0c1b5b824931aea19b9e65a469e4e241bd143369c7376d5cd0bed"
       },
       {
         "path": "rod/friction_direction_quality.m",
@@ -141,6 +173,10 @@
       {
         "path": "rod/friction_mode_resolution.m",
         "sha256": "903b3b18b90f7ce098992d9b93e638a24c2c4c209125b5e13af0fa3140d99d02"
+      },
+      {
+        "path": "rod/integrate_cosserat_load_state.m",
+        "sha256": "9a59daaf3d165932b7d99172b018a0c757169bf46cd659caa42c889984f882b7"
       },
       {
         "path": "rod/integrate_curvature_field.m",
@@ -255,6 +291,14 @@
         "sha256": "93e558a620bb9389ab656750af58f8811deb75334e76937feedeb39a3b2bf29e"
       },
       {
+        "path": "rod/run_formulation_window_protocol.m",
+        "sha256": "5413a15a1b0b55a3d25013fb04797eb31dba90e737a968a64c5e4a19ad293243"
+      },
+      {
+        "path": "rod/run_formulation_workflow.m",
+        "sha256": "4aacf2bdeb9b341dd6abb20cae23119ff4e254531da03dde1c7dc7734b5bd4b9"
+      },
+      {
         "path": "rod/run_history_map_benchmark.m",
         "sha256": "4756a91ac00042cd4dbd68291fdb671b8a02ee0aaf2d2dbd2a1579b3539ff124"
       },
@@ -272,11 +316,11 @@
       },
       {
         "path": "rod/run_model_mismatch_protocol.m",
-        "sha256": "18437a0b8f1ac436693bfbe9063f126df11608196aec330aebce6d8e00e263b9"
+        "sha256": "b0fa704b9bc58aac0c2ee2e097b8ee55aeb1736952357d20da673c8ebad1f175"
       },
       {
         "path": "rod/run_multi_contact_benchmark.m",
-        "sha256": "318b05eafa2095b638b3fecaf3c4461a43ac33eff3d36bea3912cea5d031f8de"
+        "sha256": "199350541836b44d625b87319dcdd9a90d67a72f253e7dfe673037c86e70d5c4"
       },
       {
         "path": "rod/run_multi_contact_demo_suite.m",
@@ -300,7 +344,7 @@
       },
       {
         "path": "rod/run_project_checks.m",
-        "sha256": "6a880d113cdf505c33956703816b8e14b8efe83a36aa73c99636d2c74dd4d05f"
+        "sha256": "2cd6462daf1a3f3f0a1681e5ceecd18877a5c7ff8f10b57419c1aeadbe151a65"
       },
       {
         "path": "rod/run_realtime_benchmark.m",
@@ -333,6 +377,10 @@
       {
         "path": "rod/save_result_checkpoint.m",
         "sha256": "748e47cc83c44568c9a8176a33092f2b3c5559192f9c8c2cdf9fd01af1ccf1de"
+      },
+      {
+        "path": "rod/score_formulation_window.m",
+        "sha256": "03abd39e9e8db2a998842b6f6727ee0d9ebf0f517bab0d1c7094dcca55594445"
       },
       {
         "path": "rod/sensor_estimator_config.m",
@@ -372,7 +420,7 @@
       },
       {
         "path": "rod/solve_cosserat_multi_contact_map.m",
-        "sha256": "ac31a29a8660ccfa713170a62753cdf85d5043917e1e4bbf086fd52affd6787a"
+        "sha256": "3e817256f6c0644627423a0d5bb10ca1e3842c5742d41bb263bbf8ef2995f2a4"
       },
       {
         "path": "rod/solve_planar_contact_shooting.m",
@@ -385,6 +433,10 @@
       {
         "path": "rod/solve_planar_multi_contact.m",
         "sha256": "da289bc76e05915a809ffd152a0751ae2c99b4a56ae3d56c4a970243aa3e871e"
+      },
+      {
+        "path": "rod/subset_formulation_packet.m",
+        "sha256": "e6e89971b7c41ae7c9dda72af903f84409ab51528475b0dd341e5413ec8a8031"
       },
       {
         "path": "rod/subset_sensor_packet.m",
@@ -421,6 +473,10 @@
       {
         "path": "rod/test_force_sensitivity.m",
         "sha256": "6a5d37f84d52fe0666403c2a29804d46b8fac4108380fe1d01000ff8a5b2c588"
+      },
+      {
+        "path": "rod/test_formulation_window_mechanics.m",
+        "sha256": "cd3cdb43dce0528bf5d018c23c9a88fd3e473f1a6e75b615e22a105aa98297b7"
       },
       {
         "path": "rod/test_friction_basis.m",
@@ -460,7 +516,7 @@
       },
       {
         "path": "rod/test_multi_contact_map.m",
-        "sha256": "30f9129aae57748a917e60134c230751c9159ac4086bd68447a8c295e38f1865"
+        "sha256": "5e3e0da64f2356cc7737a88a64509846374d97a226cab53daf5ee2dbc40b6761"
       },
       {
         "path": "rod/test_multi_contact_state_spec.m",
@@ -555,8 +611,12 @@
         "sha256": "b4f492a607ee0cd905572b98950c79aa5fe2f801b7402efa0d1271a51f557628"
       },
       {
+        "path": "rod/write_formulation_window_csv.m",
+        "sha256": "32b7ab77c9fff1412256299eea0beb692231e2def093498d05e2caf80f64b9db"
+      },
+      {
         "path": "force.m",
-        "sha256": "1b21659007ca3fa31231c835a3ef65d904ea73025fc5c44d60ab81efd2331abc"
+        "sha256": "b1d75f9e8ef5d2560a77f96c95a37d0c8f84a364a246450700c86aa3ba1a4171"
       }
     ],
     "sourceScope": "Code present when this operation started; historical input provenance is separate."
@@ -566,193 +626,187 @@
     {
       "name": "test_lcp_dependency",
       "passed": true,
-      "seconds": 1.0817814,
+      "seconds": 1.5092243,
       "error": ""
     },
     {
       "name": "test_sensor_history_boundary",
       "passed": true,
-      "seconds": 1.3905475,
+      "seconds": 2.0626429,
       "error": ""
     },
     {
       "name": "test_sensor_contracts",
       "passed": true,
-      "seconds": 0.3749305,
+      "seconds": 0.4381996,
       "error": ""
     },
     {
       "name": "test_sensor_config",
       "passed": true,
-      "seconds": 0.0482157,
+      "seconds": 0.054216,
       "error": ""
     },
     {
       "name": "test_fbg_likelihood_calibration",
       "passed": true,
-      "seconds": 0.0128384,
+      "seconds": 0.0139319,
       "error": ""
     },
     {
       "name": "test_result_lifecycle",
       "passed": true,
-      "seconds": 0.9884984,
+      "seconds": 1.3863874,
       "error": ""
     },
     {
       "name": "test_force_sensitivity",
       "passed": true,
-      "seconds": 0.5653261,
+      "seconds": 0.8164865,
       "error": ""
     },
     {
       "name": "test_environment_covariance",
       "passed": true,
-      "seconds": 0.4984582,
+      "seconds": 0.7726464,
       "error": ""
     },
     {
       "name": "test_depth_plane",
       "passed": true,
-      "seconds": 0.538111,
+      "seconds": 0.6036408,
       "error": ""
     },
     {
       "name": "test_reduced_mode_bounds",
       "passed": true,
-      "seconds": 1.0809232,
+      "seconds": 1.8325326,
       "error": ""
     },
     {
       "name": "test_plane_contact_geometry",
       "passed": true,
-      "seconds": 0.4746581,
+      "seconds": 0.556962,
       "error": ""
     },
     {
       "name": "test_cosserat_collision_geometry",
       "passed": true,
-      "seconds": 0.7596904,
+      "seconds": 0.9647741,
       "error": ""
     },
     {
       "name": "test_cosserat_work_budget",
       "passed": true,
-      "seconds": 0.5068285,
+      "seconds": 0.6917313,
       "error": ""
     },
     {
       "name": "test_nonlinear_shape_seed",
       "passed": true,
-      "seconds": 2.246458,
+      "seconds": 3.6110478,
       "error": ""
     },
     {
       "name": "test_observation_scaled_map",
       "passed": true,
-      "seconds": 20.0578788,
+      "seconds": 38.152853,
       "error": ""
     },
     {
       "name": "test_latent_fbg_history",
       "passed": true,
-      "seconds": 0.6596557,
+      "seconds": 0.8467198,
       "error": ""
     },
     {
       "name": "test_integrated_history_point",
       "passed": true,
-      "seconds": 0.2906139,
+      "seconds": 0.4011736,
       "error": ""
     },
     {
       "name": "test_history_resolution",
       "passed": true,
-      "seconds": 1.344382,
+      "seconds": 2.6282334,
       "error": ""
     },
     {
       "name": "test_result_integrity",
       "passed": true,
-      "seconds": 0.0837411,
+      "seconds": 0.1185805,
       "error": ""
     },
     {
       "name": "test_friction_regression",
       "passed": true,
-      "seconds": 0.1342953,
+      "seconds": 0.1811108,
       "error": ""
     },
     {
       "name": "test_friction_quality",
       "passed": true,
-      "seconds": 0.0115419,
+      "seconds": 0.0139407,
       "error": ""
     },
     {
       "name": "test_planar_energy_rod",
       "passed": true,
-      "seconds": 0.8006374,
+      "seconds": 1.19585,
       "error": ""
     },
     {
       "name": "test_contact_shooting",
       "passed": true,
-      "seconds": 0.873624,
+      "seconds": 1.433138,
       "error": ""
     },
     {
       "name": "test_contact_separation_gate",
       "passed": true,
-      "seconds": 3.2693818,
+      "seconds": 5.6808857,
       "error": ""
     },
     {
       "name": "test_intrinsic_curvature_reconstruction",
       "passed": true,
-      "seconds": 1.2922701,
+      "seconds": 2.0277022,
       "error": ""
     },
     {
       "name": "test_rotation_equivariance",
       "passed": true,
-      "seconds": 0.0850023,
+      "seconds": 0.1280713,
       "error": ""
     },
     {
       "name": "test_multi_contact_map",
       "passed": true,
-      "seconds": 0.3261616,
+      "seconds": 0.1627859,
       "error": ""
     },
     {
       "name": "test_multi_contact_benchmark_protocol",
       "passed": true,
-      "seconds": 0.632383,
+      "seconds": 1.1064943,
+      "error": ""
+    },
+    {
+      "name": "test_formulation_window_mechanics",
+      "passed": true,
+      "seconds": 5.1314416,
       "error": ""
     },
     {
       "name": "@()run_rod_plane_force_sensing_experiment('jacobian-audit',fullfile(root,'out','video','inverse_results.mat'))",
       "passed": true,
-      "seconds": 1.9099628,
+      "seconds": 2.9714499,
       "error": ""
     },
     {
       "name": "run_project_checks/checkSyntax",
       "passed": true,
-      "seconds": 1.5908716,
-      "error": ""
-    },
-    {
-      "name": "@()test_sensor_replay(fullfile(root,'out','stage1','video_seeded'))",
-      "passed": true,
-      "seconds": 70.1260043,
-      "error": ""
-    },
-    {
-      "name": "@()test_sensor_replay(fullfile(root,'out','stage1','wall_tip_seeded'))",
-      "passed": true,
-      "seconds": 102.024318,
+      "seconds": 2.670429,
       "error": ""
     }
   ]

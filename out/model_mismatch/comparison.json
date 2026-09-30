@@ -1,4 +1,10 @@
 {
+  "validity": {
+    "status": "withdrawn",
+    "annotatedOn": "2026-09-30",
+    "reason": "Historical multi-contact forward moment sign and calibrated-profile segmentation were incorrect. The imposed-load generator also did not solve closure/friction at all claimed fixed surfaces. Preserve historical values for provenance; do not cite them as valid contact experiments.",
+    "replacement": "out/formulation_window/comparison.json and independent planar multi-contact benchmarks"
+  },
   "state": "complete",
   "runRecord": {
     "schemaVersion": 1,

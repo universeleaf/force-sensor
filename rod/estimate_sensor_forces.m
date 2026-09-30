@@ -6,6 +6,10 @@ assert(isstruct(sensorInput) && all(isfield(sensorInput,{'tube','packet','config
     'Provide sensorInput with tube, packet and estimator config.');
 assert(~any(isfield(sensorInput,{'forward','truth','results'})), ...
     'Truth/scoring containers do not belong in the estimator input.');
+if sensorInput.packet.schemaVersion==2
+    output=estimate_formulation_window(sensorInput);
+    return;
+end
 output=run_rod_plane_force_sensing_experiment('replay-sensors',sensorInput);
 o=output.ours; nt=size(o.state,2);
 q=struct('scope','Numerical and observation consistency only; force accuracy and calibrated uncertainty are not certified.', ...

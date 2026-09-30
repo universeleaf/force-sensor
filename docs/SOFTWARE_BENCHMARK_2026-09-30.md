@@ -2,6 +2,8 @@
 
 本页记录目前可以由代码重跑、逐帧核对的多接触实验。它回答两个问题：环境几何能否帮助从稀疏杆形分离多个接触力；平面标定错误、曲率噪声和传感器数量会怎样改变结果。数据全是仿真，尚不能据此宣称达到 SOTA 或具备 RA-L 投稿所需的实验充分性。
 
+本页数值来自已知接触顺序的独立二维原型，不是新三维窗口的分数。完整三维多接触、形状驱动候选、前驱平衡和摩擦 MPCC 现已连接，新的范围与独立结果另见[完整工作流](FORMULATION_WORKFLOW.md)。本页二维力学与 benchmark 不使用有符号错误的旧三维多接触前向函数，因此不受该修复影响。
+
 ## 实验对象与输入边界
 
 `rod/multi_contact_demo_scenes.m` 定义三个固定环境：平行双侧 S 通道、收窄双侧通道、蛇形三接触通道。`rod/build_multi_contact_demo_truth.m` 对每个基座位置求解平面 Cosserat 杆静力平衡，再生成曲率观测；真值力和位置不传给逆解。三个场景分别有 2、2、3 个接触，均为点接触、无摩擦、平面内弯曲。另一个带噪声三接触视频使用相同力学场景，仅供逐帧可视化；正式 benchmark 的噪声在统一协议中重新生成。
@@ -89,4 +91,4 @@ python scripts/summarize_multi_contact_benchmark.py
 
 `rod/run_multi_contact_benchmark.m` 写[逐次比较 JSON](../out/benchmarks/multi_contact/comparison.json)、每场景的 `truth.mat` 与 `trials.mat`；`rod/run_multi_contact_plane_uncertainty.m` 写[平面误差回放 JSON](../out/benchmarks/multi_contact/plane_uncertainty.json)；Python 脚本从这些原始数据生成[完整结果表](../out/benchmarks/multi_contact/summary.md)。JSON 中逐次保留场景、种子、状态、噪声、采样密度、方法、误差、运行时间和 review 标志；MAT 保留每个观测包及解的诊断。这组 benchmark 的上述文件作为精选结果纳入版本库；其他 `out/` 运行目录仍默认忽略。实验依赖 MATLAB R2024a、Optimization Toolbox 和项目已有的本地杆模型依赖。
 
-下一阶段的关键缺口仍是：未知接触数量与模式的搜索、三维摩擦多接触逆解、分布载荷、独立来源的环境与形状标定误差、更多轨迹与随机种子、可公开复用的同输入论文基线，以及实际硬件力真值。它们不是本次运行已经完成的实验。
+新增代码已包含三维摩擦多接触逆解和有限的形状驱动候选搜索；尚需扩大该路径的多轨迹/多种子统计、候选覆盖与接触模式切换验证。分布载荷、独立环境与材料标定误差、原论文方法的同输入复现，以及真实硬件力真值仍未完成，不能由本页二维统计推断其表现。
