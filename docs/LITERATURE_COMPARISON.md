@@ -1,6 +1,8 @@
 # 同观测文献基线、真实结果与求解加速
 
-更新：2026-10-01。项目：**EnFiRCE: Environment- and Friction-informed Rod Contact Estimation**。
+更新：2026-10-04。项目：**EnFiRCE: Environment- and Friction-informed Rod Contact Estimation**。
+
+**版本说明：** 第 5–7 节的七窗口/14 基线和缓存开关数字是已归档的历史对照。新的完整三维多种子因素、同包基线及共享求导协议见[完整窗口因素实验](FORMULATION_FACTORS.md)；新的定量结果由 `out/benchmarks/publication/paired_summary.json` 生成，不能把两轮不同噪声实现的差异冒充算法提升。当前默认接触位置已改为全长有序搜索，历史固定分区限制保留为显式消融。
 
 本轮已经实际完成七组相同输入下的点载荷/Gaussian 基线求解，共 14 次方法运行、28 个输出状态，无运行失败；与已有七组完整三维窗口的 14 个状态比较。两个含噪场景中，EnFiRCE 的逐接触向量与位置误差较低，但三接触的合力误差高于点载荷基线。结论是**这些输入下接触分力估计有优势，尚不能称为 SOTA**。
 
@@ -23,9 +25,11 @@ EnFiRCE 联合求解两个时刻的 MAP；基线独立逐帧求解，前一帧�
 | [Ferguson 等，TRO 2024，Unified Shape and External Load State Estimation for Continuum Robots](https://doi.org/10.1109/TRO.2024.3360950) | 相关工作；旧杆参数/传感器密度场景另记 | 联合形状与载荷的概率估计提供研究背景 | 本轮 Gaussian LS **不是**该论文的 Gaussian-process batch 实现，不能给它贴 Ferguson 原方法标签 |
 | [Chen 等，Soft Robotics 2026，mixed external geometric constraints](https://doi.org/10.1177/21695172251388226) | 相关工作 | 已有研究也利用几何约束进行形状/接触估计 | 使用驱动模型、混合几何与真实机器人；未在本轮同输入完整复现，不能声称本项目首次使用形状和环境 |
 | [Prakash、Vela 与 Tsiotras，2026，Gaussian-Parameterized Factor Graphs](https://arxiv.org/abs/2606.29165v2) | 最新相关工作 | 多接触 Gaussian 参数化因子图 | 包含应变、腱张力和位姿输入，本轮没有实现其完整随机杆/驱动图；当前 Gaussian 曲率 LS 不是该方法 |
-| [Ferguson、Kuntz 与 Hermans，2026，Actuation Uncertainty](https://arxiv.org/abs/2601.04493v3) | 最新相关工作与加速路线 | 离散 Cosserat、稀疏因子图、驱动不确定性 | 不是本轮连续 shooting 的性能基线；原文的实时声明不能用来替代本项目的实测时间 |
+| [Ferguson、Kuntz 与 Hermans，RA-L 2026，Actuation Uncertainty](https://doi.org/10.1109/LRA.2026.3703250) | 最新相关工作与加速路线 | 离散 Cosserat、稀疏因子图、驱动不确定性 | 不是本轮连续 shooting 的性能基线；原文的实时声明不能用来替代本项目的实测时间 |
 
 这些条目均有真实论文主页或 DOI。这里的点载荷/Gaussian 方法是**可查看源码的文献适配实现**，不是原作者官方代码，也不是覆盖全部论文设定的复现。不同论文使用的机器人、传感器、载荷大小与误差定义不同，不把它们的硬件百分比误差与本项目仿真 RMSE 直接排名。
+
+2026-10-04 重新核对了 [Prakash 等 v2 原文](https://arxiv.org/html/2606.29165v2)和 [Ferguson 等 v3 原文](https://arxiv.org/html/2601.04493v3)。前者的随机点力实验使用不同的直杆、10 个角应变位置和末端位置输入；本项目两弯曲通道、环境平面及独立末端力的设置不能直接套用其公布的误差作排名。后者官方 [BENDIER 仓库](https://github.com/Kuntz-Lab/bendier)确实公开，并要求用 `RAL` tag 对应论文版本；其原始 C++/GTSAM 图不是当前 Gaussian LS。该文章现已有正式 RA-L 卷期和 DOI，论文引用已更新为 11(8):9487–9494。官方图的同输入适配属于另一个需要执行并归档的比较，当前没有将其写成已运行结果。
 
 ## 3. 新局部坐标力学映射：为什么没有偷偷简化
 
@@ -142,10 +146,10 @@ python scripts/render_literature_comparison.py
 python scripts/render_notes.py docs/LITERATURE_COMPARISON.md
 ```
 
-MATLAB R2024a、Optimization Toolbox 与固定 `LCP-Continuum` 依赖版本沿用 README。正式实验会重新写正式目录；只想查看成果时打开已有 JSON/CSV/图即可。基础检查的历史 33/33 记录保留；新力学检查另外已通过并加入检查入口，下一次完整 `force('check')` 将注册 34 项，不能把旧账本改写成已经运行过 34 项。
+MATLAB R2024a、Optimization Toolbox 与固定 `LCP-Continuum` 依赖版本沿用 README。正式实验会重新写正式目录；只想查看成果时打开已有 JSON/CSV/图即可。基础检查的历史 33/33 记录保留；当前组合协议注册 34 项基础检查及两项完整归档重放，执行结果以各轮 `out/completion/project_checks.json` 为准，不能回写旧运行的检查数量。
 
 ## 9. 目前还不能作出的结论与后续优先级
 
-不是“代码再无问题”：遗漏环境面两组的总力 RMSE 17.83/15.96 N 仍保留，只是拟合诊断能提示异常；有限形状驱动候选、固定弧长分区与原型的稀疏观测失败也仍是算法边界。缓存不改变这些边界。对任意光滑曲面、有限面片、杆半径、真实黏滑切换和全局模式后验没有完整验证。
+遗漏环境面两组的总力 RMSE 17.83/15.96 N 仍保留，只是拟合诊断能提示异常。有限形状驱动候选与原型的稀疏观测失败仍是算法边界；默认固定弧长分区已移除，旧限制只保留为消融。缓存不改变观测/模型边界。对任意光滑曲面、有限面片、杆半径、真实黏滑切换和全局模式后验没有完整验证。
 
-下一步的优先级是：完整三维窗口的独立多轨迹/多 seed 统计；以完全相同窗口因子进行环境/时间/摩擦逐项消融；扩大候选覆盖并处理跨分区迁移；材料/几何失配下的后验校准；正式因子图方法在相同输入子集下的实现或明确不可比；重复且随机顺序的性能测量。真实 FBG、相机和力传感器标定仍需要硬件。现在已有可以审阅的完整算法、公开输入、真实对比图与论文草稿，距离“已经证明可发表/最优”仍缺这些证据。
+新的完整三维多 seed/噪声、同窗口环境/时间/摩擦因素消融、共享求导和字节相同基线已由组合协议串联，结果以[新实验说明](FORMULATION_FACTORS.md)和实际完成账本为准。进一步的研究验证是独立多轨迹、接触候选/模式混合、材料和几何失配下的后验校准、官方因子图的同输入适配，以及重复且随机顺序的性能测量。真实 FBG、相机和力传感器标定仍需要硬件。完整软件与真实图表可以供审阅，但不能保证论文接收或最优。

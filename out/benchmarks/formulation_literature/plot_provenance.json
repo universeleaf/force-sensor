@@ -1,0 +1,474 @@
+{
+  "sourceComparisonSha256": "c717057a86bd69b3d23f85ce5024bb6c07f26aaa6db255d4a69e3e26581c98c4",
+  "runId": "205ff3bd-a98d-4512-a9c1-43802278a3ee",
+  "artifacts": [
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_11/input.mat",
+      "sha256": "80fbacfe8f3ec57bc822f9fd2724f3735f88ff8c25c1bd1bcdd5f70618fc21fc"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_11/truth.mat",
+      "sha256": "ef00a057bf6c56680599953fe0d096c9f4688538dcb9fc2064d4d3f1f88446e8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_11/point/estimate.mat",
+      "sha256": "7b9dba283c318a71de8c7ed7d36bfdfeb1d5e561e6a28815832af36217ae327c"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_11/point/forces.csv",
+      "sha256": "6f77bc2d579c033e795cf2220b057d97ac3012c67dfa6085109dab445c8c8483"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_11/gaussian/estimate.mat",
+      "sha256": "d42d48aa2224251b61fcbbc2b6c3797108eb57a5e6e97bc9ae5d61d3f68a99c6"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_11/gaussian/forces.csv",
+      "sha256": "27394b44f9b65d4d9a6a0e0997c2fd9ef5c181eb10297d5391b8b8d4b4daba38"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_23/input.mat",
+      "sha256": "a3899caeb130341019094caff5e81d36bfc3fbe3615ca85e0c442609415111cf"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_23/truth.mat",
+      "sha256": "ef00a057bf6c56680599953fe0d096c9f4688538dcb9fc2064d4d3f1f88446e8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_23/point/estimate.mat",
+      "sha256": "9201500c20c4bbc8dcdf8d4e496616f1a656d8eec349cf03776f7fa7c2b18197"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_23/point/forces.csv",
+      "sha256": "22b804dc9b2caf39f0ef0e322e8aac0634d21546694a0403c2d06fc82063bc40"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_23/gaussian/estimate.mat",
+      "sha256": "1c5599bb510bb3bffb31590b39a2854ff4031af2598a86e7f7d4829c99a899f8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_23/gaussian/forces.csv",
+      "sha256": "14dba5004386434f1be4b2bf516b4cb1af2e74eb02c42911c198a6a3150ab205"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_37/input.mat",
+      "sha256": "5f942f5da8151c484b72ecfa6fdcf00dbeb64485548893d0a4b8c47adc9032a0"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_37/truth.mat",
+      "sha256": "ef00a057bf6c56680599953fe0d096c9f4688538dcb9fc2064d4d3f1f88446e8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_37/point/estimate.mat",
+      "sha256": "bd550a99df4595a081a4363844b3307aa05be5dbcd8b0af8371d3006a5633e40"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_37/point/forces.csv",
+      "sha256": "5f2532d286d7caebb28d12c4cb9fc0190d8e20160b7645491959ff8e1f78af9c"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_37/gaussian/estimate.mat",
+      "sha256": "757f551c98144baedb807cce3be6ab058007f8d2c3e06766ade34edc9c2869bc"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_50_micro_per_mm/seed_37/gaussian/forces.csv",
+      "sha256": "1750de6a29013136d0f8b032018bc034247bb895665d839180c7be1a3e5dca14"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_11/input.mat",
+      "sha256": "f22e521ee305fb741774eee7b5730ed3b1f18a7c1df43e6f0e5e5b74b1e579e3"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_11/truth.mat",
+      "sha256": "ef00a057bf6c56680599953fe0d096c9f4688538dcb9fc2064d4d3f1f88446e8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_11/point/estimate.mat",
+      "sha256": "2ffdb2ad1693a1b4bd508e5739077230a67eedbae7ae739c191628eb01c092e2"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_11/point/forces.csv",
+      "sha256": "a26a847b25edbe042e77728356cad325d0cbe67d52fe52f7f1e07ebb8fc7cc31"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_11/gaussian/estimate.mat",
+      "sha256": "b30eda73ba0b4a210664422d552708be90bcf685492164e629a2428176ba27dd"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_11/gaussian/forces.csv",
+      "sha256": "87f5803c27544eef3fd89b6a26502ef1d38363b6e4f345543024e45507a7dd57"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_23/input.mat",
+      "sha256": "d10095c5e2737468c233d01189644339aaf0deaaed548e09b4de5d4eb13c509b"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_23/truth.mat",
+      "sha256": "ef00a057bf6c56680599953fe0d096c9f4688538dcb9fc2064d4d3f1f88446e8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_23/point/estimate.mat",
+      "sha256": "2590379996e5f001289f72cd0de16d699953af0ea54d2038bd96cf0cfd862c02"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_23/point/forces.csv",
+      "sha256": "e4b112b5d6ac8f60b54e7204b2df0d77bef4aeb7137facbda2363afaa41c7cbf"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_23/gaussian/estimate.mat",
+      "sha256": "8de2f5f4bcf6c08d3a4f2dee3103e01cbfa3d0897aff64a2060e26561ee4714a"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_23/gaussian/forces.csv",
+      "sha256": "e54de7332e62b743dfc38e6ce48032a3a9b76e64abadbbd4aacf0b04aee93ec1"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_37/input.mat",
+      "sha256": "667a734f1d7899cf590ce558905ba06cf35f85a406f7f1feb3b3848bb81f02bb"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_37/truth.mat",
+      "sha256": "ef00a057bf6c56680599953fe0d096c9f4688538dcb9fc2064d4d3f1f88446e8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_37/point/estimate.mat",
+      "sha256": "ec3813a6137fc6b98bb23cb90e2420aae15bef79265c40a2a04224efa380808a"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_37/point/forces.csv",
+      "sha256": "9aa2ac9b21b4e02b008b68789360bf12a5df87a4022c0cf38e56aa286f11e2a5"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_37/gaussian/estimate.mat",
+      "sha256": "563edcdbc03583c21ca00d23f270633b80f230c17af91192214a9d945fc33b3f"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/noise_25_micro_per_mm/seed_37/gaussian/forces.csv",
+      "sha256": "01c54483e4c75d1acbfbd0e4d9214429f47ff035d36f0d579a23d7d44db4c20b"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_11/input.mat",
+      "sha256": "4a86652d4de086514b0194817a8c15dab79b8e990bec197c85f7426f51f7d0f4"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_11/truth.mat",
+      "sha256": "ef00a057bf6c56680599953fe0d096c9f4688538dcb9fc2064d4d3f1f88446e8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_11/point/estimate.mat",
+      "sha256": "dcc193a4f57220b4de6eb193d6721c80f5c50c9b3be04d7b80c2f1c4cd0322a7"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_11/point/forces.csv",
+      "sha256": "db481ed2ab3f5686a664fce2372885a5970030535d1ff9aa24c80687d3932b7f"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_11/gaussian/estimate.mat",
+      "sha256": "5b434477f377404231e20d917606cda50935e914431417e0abd5918cbc8b2ddf"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_11/gaussian/forces.csv",
+      "sha256": "c807c6e0f729b6032d5cb57d68597ddbcc5337754de9adcb5bf8f684c301e55d"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_23/input.mat",
+      "sha256": "e0f3c21273a700126f682c12567989dac79d633d85883f4146352c6792a4076a"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_23/truth.mat",
+      "sha256": "ef00a057bf6c56680599953fe0d096c9f4688538dcb9fc2064d4d3f1f88446e8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_23/point/estimate.mat",
+      "sha256": "506d71adde9f4a6a99a371dc6295e4cb699169b09aea824bb8956a121382d48e"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_23/point/forces.csv",
+      "sha256": "db481ed2ab3f5686a664fce2372885a5970030535d1ff9aa24c80687d3932b7f"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_23/gaussian/estimate.mat",
+      "sha256": "269d57c1909a9ff20b0d24a5be6c6d99c2f985b4554a58fcb95f31c7ef42b32c"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_23/gaussian/forces.csv",
+      "sha256": "c807c6e0f729b6032d5cb57d68597ddbcc5337754de9adcb5bf8f684c301e55d"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_37/input.mat",
+      "sha256": "e332f218aaf78e0addfe1668cfab31e16ec46895dcef1d56c9cf59419a0a863d"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_37/truth.mat",
+      "sha256": "ef00a057bf6c56680599953fe0d096c9f4688538dcb9fc2064d4d3f1f88446e8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_37/point/estimate.mat",
+      "sha256": "7d9ae06572ebdb67ce3577783a9e97109cab4d5d37da77d9c79950b02c969d45"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_37/point/forces.csv",
+      "sha256": "db481ed2ab3f5686a664fce2372885a5970030535d1ff9aa24c80687d3932b7f"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_37/gaussian/estimate.mat",
+      "sha256": "869cff66277e9649296d94667bcf6c53695c136cd73fc45f848bb1781e257c05"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/spatial_sliding/clean/seed_37/gaussian/forces.csv",
+      "sha256": "c807c6e0f729b6032d5cb57d68597ddbcc5337754de9adcb5bf8f684c301e55d"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_11/input.mat",
+      "sha256": "0457b917ba00f0a9c8929ddfc90786fa9dd87bfec52306e52fad98aa48e79cdf"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_11/truth.mat",
+      "sha256": "e977f92dcf3f3e058edc3126ad3239e38bd1b8c0e7a269a13b817ade7713d159"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_11/point/estimate.mat",
+      "sha256": "b4143763236c272bf83beff7db9e7f1fca903c256714a7a6dc35683e339a3ffb"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_11/point/forces.csv",
+      "sha256": "5de52334ef61b1620a1d298810520dede19faa8e553d60a439f8600442241307"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_11/gaussian/estimate.mat",
+      "sha256": "00b18a77a60bc3d3559f75137cd3ec90e1890c2952f0c6813484051e51351fc0"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_11/gaussian/forces.csv",
+      "sha256": "1fb3e7bdae9909af0d13d196da335b4d6ada31efd14d800cb6698342326941e3"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_23/input.mat",
+      "sha256": "511fe4b610f824dd6fc48703d98167986649ae3b73829eb17ba1d0232636ffa5"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_23/truth.mat",
+      "sha256": "e977f92dcf3f3e058edc3126ad3239e38bd1b8c0e7a269a13b817ade7713d159"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_23/point/estimate.mat",
+      "sha256": "304e078ecd6bca530edf20b625e36eca8a077f41cf005a5268d1d67adda2cca8"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_23/point/forces.csv",
+      "sha256": "d111283ed1f689a411e2493271b67cd8bde5249c32f26bcaf4c89b34e3030ca9"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_23/gaussian/estimate.mat",
+      "sha256": "d1afb92f6a02506c59120879586f5bb687d70cdb67d228e060c10ec316576e02"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_23/gaussian/forces.csv",
+      "sha256": "669ba36e44792895172a6b5cd2e66ac959e15b092811df87c61ded82ff7beb65"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_37/input.mat",
+      "sha256": "f03b198d4f778ed64d2612bf8f02e25aaf4966c084dda3cdf75135fffe4bb30f"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_37/truth.mat",
+      "sha256": "e977f92dcf3f3e058edc3126ad3239e38bd1b8c0e7a269a13b817ade7713d159"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_37/point/estimate.mat",
+      "sha256": "771d3891242565dc7da0050c716e8889600f15c3b5873688b7a802736dfdd15a"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_37/point/forces.csv",
+      "sha256": "283840421b05cd84f3db9648e6f4d987cfe93a4e92e58ca0eef74a94c8503845"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_37/gaussian/estimate.mat",
+      "sha256": "565e264c8c0e9a018374bfa8ce763ea9f724349f6af58c85cf48d3d60b692a0b"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_50_micro_per_mm/seed_37/gaussian/forces.csv",
+      "sha256": "e3efd8816f8e75b60346fc712d38c127620b476bd6366425abada1e51a1ced6c"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_11/input.mat",
+      "sha256": "9b45549754168e8392e965299ef5dc7e95a22da41076be48e583a66865047160"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_11/truth.mat",
+      "sha256": "e977f92dcf3f3e058edc3126ad3239e38bd1b8c0e7a269a13b817ade7713d159"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_11/point/estimate.mat",
+      "sha256": "9d2f10281c87d976d23c3216c9412daa6cdf202afbd05e1eafdbb12b6041ba17"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_11/point/forces.csv",
+      "sha256": "032d5ed1fe3fc1460fbfe61bb92534cc10a35d58555ee3266d3b553ed8ec3af5"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_11/gaussian/estimate.mat",
+      "sha256": "8e8034426f04604d0764ab8f433a964dbd1e011e3e031235905128c941bafae3"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_11/gaussian/forces.csv",
+      "sha256": "3d7e2a2b4d9bda900a7f73a37db8ab6510b9ea904df289002387cb1be6ebece9"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_23/input.mat",
+      "sha256": "1886427449f2771e95cbf6598f51f6362ae5084f7e23f63f9bf3b17591b3c969"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_23/truth.mat",
+      "sha256": "e977f92dcf3f3e058edc3126ad3239e38bd1b8c0e7a269a13b817ade7713d159"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_23/point/estimate.mat",
+      "sha256": "06a7e38bb96680806bd2d39dd5e38a7441a054b79a7e68b16676402a4f9a9e79"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_23/point/forces.csv",
+      "sha256": "187ce6bb4fd5b807ecaf0253681d22679223b28c6ceffe6a93a70303ed3627b6"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_23/gaussian/estimate.mat",
+      "sha256": "5a292323eb728cdc5082c264374f3c2db09ad05c090c28fbc2a5a2bd00889c56"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_23/gaussian/forces.csv",
+      "sha256": "3f2e301e2a8e40c6214879380eeb48b1a1caae55f793f8a9ed9d723cf485052d"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_37/input.mat",
+      "sha256": "47eb5afb5fd0285e78cc4b3a67fff2f8c747963ed889b3836f9521a1a6067234"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_37/truth.mat",
+      "sha256": "e977f92dcf3f3e058edc3126ad3239e38bd1b8c0e7a269a13b817ade7713d159"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_37/point/estimate.mat",
+      "sha256": "141fc4ce203caf19d427e1a14d083526e46aef8a8c1628e1f7eb476179beb2c4"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_37/point/forces.csv",
+      "sha256": "a0cd5de782d7ac9e04ac79a58df9cab6de15df9dfb48a2dc21c66605c490c20d"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_37/gaussian/estimate.mat",
+      "sha256": "a5ca0248841dba1dcfa1a9b75929ded95945bb425651f584f39bf1a81fb166ff"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/noise_25_micro_per_mm/seed_37/gaussian/forces.csv",
+      "sha256": "45f427bece54b36718e8dad71e85a165a633bcce208ebafc57e6465a1a1f24a1"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_11/input.mat",
+      "sha256": "4c2f8b13f15d7f09bfd7a01878e7820b9622a9a70dafefa59b26610184753703"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_11/truth.mat",
+      "sha256": "e977f92dcf3f3e058edc3126ad3239e38bd1b8c0e7a269a13b817ade7713d159"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_11/point/estimate.mat",
+      "sha256": "5ad872f44c752ef4a783f7b4d349f3206ec3d060c7737e23af1fbe76365ed35c"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_11/point/forces.csv",
+      "sha256": "15bd395f61aa074b952dcdd6588c227e544ce641e70c2836157b109af6654182"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_11/gaussian/estimate.mat",
+      "sha256": "f1dd57707599d82a8b7e91cdc5d71a277b0201e0fcdee5d55143a1b3082f71db"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_11/gaussian/forces.csv",
+      "sha256": "35890396b44d0705cce4b4338ae4937138efef14a0777b1dfd59f263689d4446"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_23/input.mat",
+      "sha256": "4c75a799ea3bec37fe23f0af5e3eee3d7567f465bb9f88908af26c480ac94a4f"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_23/truth.mat",
+      "sha256": "e977f92dcf3f3e058edc3126ad3239e38bd1b8c0e7a269a13b817ade7713d159"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_23/point/estimate.mat",
+      "sha256": "69db36a969351c8abf404c4b982b039f2051e30883fbbe2d7b34d80ed12f9222"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_23/point/forces.csv",
+      "sha256": "15bd395f61aa074b952dcdd6588c227e544ce641e70c2836157b109af6654182"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_23/gaussian/estimate.mat",
+      "sha256": "2d03372c4899340209a5f8091a67090df79940da3ce8dfcb800c14c42e22422d"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_23/gaussian/forces.csv",
+      "sha256": "35890396b44d0705cce4b4338ae4937138efef14a0777b1dfd59f263689d4446"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_37/input.mat",
+      "sha256": "a7f1d1df9e7bcd02f7467cf9144d469aa3b90a588a779da91aa4b3d3e4c23697"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_37/truth.mat",
+      "sha256": "e977f92dcf3f3e058edc3126ad3239e38bd1b8c0e7a269a13b817ade7713d159"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_37/point/estimate.mat",
+      "sha256": "9986b0bb67f61c8b6fb480aacd4b8c2df2cee5321fe643844148bbd983da637f"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_37/point/forces.csv",
+      "sha256": "15bd395f61aa074b952dcdd6588c227e544ce641e70c2836157b109af6654182"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_37/gaussian/estimate.mat",
+      "sha256": "f43ab33bbdd3e499dee93a05feb2786ed8020c36a2132d4e623d8fa996b13273"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/three_contact/clean/seed_37/gaussian/forces.csv",
+      "sha256": "35890396b44d0705cce4b4338ae4937138efef14a0777b1dfd59f263689d4446"
+    }
+  ],
+  "rendererSha256": "f2abd83a43283e1a0c5422ec10d1f28aa104ae0b31a9ad6207acbc29c2860053",
+  "outputs": [
+    {
+      "path": "out/benchmarks/formulation_literature/figures/factor_accuracy.pdf",
+      "sha256": "acf1df441b53f75b62db45ea52c3b94a099504feb198ef688daec28d57dac9aa"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/figures/factor_accuracy.svg",
+      "sha256": "4ef73f9414ddb8eb00aedd94fae087a290c1623e0188dc09d14a215c452707b3"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/figures/factor_accuracy.png",
+      "sha256": "0a54d135d9ea05d27835857f3c7e34978174e0f00df45f49b098bc1aafd413e5"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/figures/coverage_runtime.pdf",
+      "sha256": "c3839d5de13110dc3897bc79de5be06be31e69f29cddadac87935060984493f3"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/figures/coverage_runtime.svg",
+      "sha256": "d075de22ef29074abea8795e8e18efa6fa9647b022d3caf56850a92a95927624"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/figures/coverage_runtime.png",
+      "sha256": "f90e76f39d74228745afee0c031f342980ebf33f6e2ed02c68fb2c50279eb8cb"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/source_data.csv",
+      "sha256": "c5e91f8012a355085d90c3a202d387c4b1f87fcc333ec54972cf65f641c23842"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/summary.md",
+      "sha256": "d231d7a49fb03ce4a6a0ac3cf0c9b9843b0da5c54572ac0a5ff851b4c49d87b6"
+    }
+  ],
+  "statistics": "Seed means/min-max of fixed trajectories; no independent-frame CI or global coverage claim."
+}

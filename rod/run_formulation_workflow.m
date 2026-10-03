@@ -18,10 +18,11 @@ try
     record.completed=true; record.quality=estimate.quality; record.solver=estimate.solver;
     record.frameCount=numel(estimate.timeSeconds); record.candidateCount=size(estimate.contactForce,2);
     record.seconds=estimate.optimizationSeconds; record.candidateAudit=estimate.candidateAudit;
+    if isfield(estimate,'endToEndSeconds'),record.endToEndSeconds=estimate.endToEndSeconds;end
     record.artifactSha256=struct('input',file_sha256(fullfile(outputFolder,'input.mat')), ...
         'estimate',file_sha256(fullfile(outputFolder,'estimate.mat')),'forces',file_sha256(fullfile(outputFolder,'forces.csv')));
 catch err
-    record.state='failed'; record.error=getReport(err,'extended','hyperlinks','off');
+    record.state='failed';record.runRecord.state='failed';record.error=getReport(err,'extended','hyperlinks','off');
     atomic_write_artifact(manifest,'json',record); rethrow(err);
 end
 record.state='complete'; record.runRecord.state='complete'; atomic_write_artifact(manifest,'json',record);

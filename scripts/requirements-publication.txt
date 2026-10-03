@@ -1,0 +1,6 @@
+# Tested with Python 3.12.8. MATLAB inference uses separate pinned dependencies.
+numpy==2.3.5
+matplotlib==3.10.7
+scipy==1.16.3
+Markdown==3.10.2
+pypdf==6.10.2

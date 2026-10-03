@@ -1,0 +1,801 @@
+{
+  "state": "complete",
+  "pairedPackets": 18,
+  "methodRuns": 54,
+  "groups": [
+    {
+      "scene": "spatial_sliding",
+      "noiseStdPerMm": 0,
+      "method": "full",
+      "windowCount": 3,
+      "reviewFrames": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 7.493300011534844e-07,
+        "min": 7.493300011534844e-07,
+        "max": 7.493300011534844e-07,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 2.46239317923281e-07,
+        "min": 2.46239317923281e-07,
+        "max": 2.46239317923281e-07,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 1.2374438818992932e-06,
+        "min": 1.2374438818992932e-06,
+        "max": 1.2374438818992932e-06,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 4.140890249335936e-08,
+        "min": 4.140890249335936e-08,
+        "max": 4.140890249335936e-08,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 4.2384013809737553e-07,
+        "min": 4.2384013809737553e-07,
+        "max": 4.2384013809737553e-07,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 132.32423143333332,
+        "min": 130.8530209,
+        "max": 133.7113587,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "spatial_sliding",
+      "noiseStdPerMm": 0,
+      "method": "gaussian",
+      "windowCount": 3,
+      "reviewFrames": 6,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 0.04495739323106033,
+        "min": 0.044957393231060336,
+        "max": 0.044957393231060336,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 0.031169016031915117,
+        "min": 0.031169016031915117,
+        "max": 0.031169016031915117,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 0.06478062403102074,
+        "min": 0.06478062403102074,
+        "max": 0.06478062403102074,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.002874939800675226,
+        "min": 0.002874939800675226,
+        "max": 0.002874939800675226,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 0.040725962769035284,
+        "min": 0.040725962769035284,
+        "max": 0.040725962769035284,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 25.901103533333337,
+        "min": 25.3630744,
+        "max": 26.865299,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "spatial_sliding",
+      "noiseStdPerMm": 0,
+      "method": "point",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 4.228655458790778e-07,
+        "min": 4.228655458790778e-07,
+        "max": 4.228655458790778e-07,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 7.099417924502218e-10,
+        "min": 7.099417924502217e-10,
+        "max": 7.099417924502217e-10,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 6.300154448518962e-07,
+        "min": 6.300154448518962e-07,
+        "max": 6.300154448518962e-07,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 2.9553907290333273e-08,
+        "min": 2.9553907290333276e-08,
+        "max": 2.9553907290333276e-08,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 1.8648680821797825e-08,
+        "min": 1.8648680821797825e-08,
+        "max": 1.8648680821797825e-08,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 2.915599333333333,
+        "min": 2.7021701,
+        "max": 3.1133682,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "spatial_sliding",
+      "noiseStdPerMm": 2.5e-05,
+      "method": "full",
+      "windowCount": 3,
+      "reviewFrames": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 0.28786876220208696,
+        "min": 0.13124195985225048,
+        "max": 0.4278829223781683,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 0.25130789269618803,
+        "min": 0.10391138215060969,
+        "max": 0.39538134018010107,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 0.31136988084226985,
+        "min": 0.1637333009773225,
+        "max": 0.44820717051449926,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.020113132703935024,
+        "min": 0.013888453060397512,
+        "max": 0.027958495410214754,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 0.23907042649070145,
+        "min": 0.08771824735649236,
+        "max": 0.348676455229755,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 151.79176123333335,
+        "min": 121.9980996,
+        "max": 178.938047,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "spatial_sliding",
+      "noiseStdPerMm": 2.5e-05,
+      "method": "gaussian",
+      "windowCount": 3,
+      "reviewFrames": 1,
+      "nonpositiveExits": 1,
+      "contactRmseN": {
+        "mean": 0.6070357231501443,
+        "min": 0.4016924399747582,
+        "max": 0.909218447325401,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 0.6806882721203289,
+        "min": 0.4125549102966123,
+        "max": 0.9950946923161448,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 0.7097376126817488,
+        "min": 0.4434454168916655,
+        "max": 1.0148045642661399,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.11958885771432114,
+        "min": 0.08616480028939538,
+        "max": 0.18174599121021473,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 0.5417480668270489,
+        "min": 0.3587687187344635,
+        "max": 0.8632645511853267,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 28.990495633333335,
+        "min": 25.3918466,
+        "max": 30.9034019,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "spatial_sliding",
+      "noiseStdPerMm": 2.5e-05,
+      "method": "point",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 2.4905855540190056,
+        "min": 2.042826501207608,
+        "max": 2.907213521396421,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 0.5899083942369698,
+        "min": 0.22317631236205546,
+        "max": 0.8770542570518758,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 2.655255946923945,
+        "min": 2.0297174125495667,
+        "max": 3.109795107880078,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.17358378215363232,
+        "min": 0.1081740785534615,
+        "max": 0.20775354526433878,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 0.5637969397743493,
+        "min": 0.3595607866964201,
+        "max": 0.7787813811810365,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 8.783385033333333,
+        "min": 7.007384,
+        "max": 9.9772293,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "spatial_sliding",
+      "noiseStdPerMm": 5e-05,
+      "method": "full",
+      "windowCount": 3,
+      "reviewFrames": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 0.41066267277059,
+        "min": 0.18264521900062322,
+        "max": 0.6744874975210379,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 0.2859324808947417,
+        "min": 0.11711894196270747,
+        "max": 0.5652122467920344,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 0.438174218717814,
+        "min": 0.22973004558089316,
+        "max": 0.6879778320146129,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.026049838617024746,
+        "min": 0.018495988487372085,
+        "max": 0.036012962656507094,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 0.3429343672569701,
+        "min": 0.12784400760178816,
+        "max": 0.583295240318868,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 208.4124245666667,
+        "min": 137.3410044,
+        "max": 311.9253044,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "spatial_sliding",
+      "noiseStdPerMm": 5e-05,
+      "method": "gaussian",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 1.3818986026227578,
+        "min": 1.0221990224014705,
+        "max": 1.8303393372954946,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 1.5592097692203677,
+        "min": 1.267289128782351,
+        "max": 2.0013917692352545,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 1.5910606767019668,
+        "min": 1.3565646854274682,
+        "max": 2.0255687248121657,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.27923062571636453,
+        "min": 0.17600577484277102,
+        "max": 0.3813055090420471,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 1.2155808440246305,
+        "min": 0.8047155225021263,
+        "max": 1.745572806050923,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 25.051988066666667,
+        "min": 21.9811762,
+        "max": 28.9281417,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "spatial_sliding",
+      "noiseStdPerMm": 5e-05,
+      "method": "point",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 5.785313011467845,
+        "min": 5.038436695683678,
+        "max": 6.5044487594120355,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 1.1867486386117427,
+        "min": 0.45232268037935414,
+        "max": 1.7563272865993635,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 4.517382004826238,
+        "min": 3.84481104064172,
+        "max": 5.650396295740498,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.3877325123766757,
+        "min": 0.21804417649678348,
+        "max": 0.521902670602999,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 1.3981354088863671,
+        "min": 0.7660469347715337,
+        "max": 2.252794075444051,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 10.447814666666668,
+        "min": 9.294853,
+        "max": 11.4515591,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "three_contact",
+      "noiseStdPerMm": 0,
+      "method": "full",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 9.108329943367407e-07,
+        "min": 9.108329943367407e-07,
+        "max": 9.108329943367407e-07,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 1.186654182996355e-06,
+        "min": 1.186654182996355e-06,
+        "max": 1.186654182996355e-06,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 1.1962710605949453e-06,
+        "min": 1.1962710605949453e-06,
+        "max": 1.1962710605949453e-06,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 1.2187005038021769e-08,
+        "min": 1.2187005038021769e-08,
+        "max": 1.2187005038021769e-08,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 7.562238130513302e-07,
+        "min": 7.562238130513302e-07,
+        "max": 7.562238130513302e-07,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 115.72309903333333,
+        "min": 114.6467584,
+        "max": 117.8318559,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "three_contact",
+      "noiseStdPerMm": 0,
+      "method": "gaussian",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 0.00244728719591423,
+        "min": 0.00244728719591423,
+        "max": 0.00244728719591423,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 5.445667361595648e-06,
+        "min": 5.445667361595647e-06,
+        "max": 5.445667361595647e-06,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 5.275132213969999e-07,
+        "min": 5.275132213969999e-07,
+        "max": 5.275132213969999e-07,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 8.001382344491383e-08,
+        "min": 8.001382344491383e-08,
+        "max": 8.001382344491383e-08,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 1.5128580338104787e-06,
+        "min": 1.5128580338104787e-06,
+        "max": 1.5128580338104787e-06,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 3.4954072333333333,
+        "min": 3.3654644,
+        "max": 3.6861534,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "three_contact",
+      "noiseStdPerMm": 0,
+      "method": "point",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 2.8624995481430794e-07,
+        "min": 2.8624995481430794e-07,
+        "max": 2.8624995481430794e-07,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 2.2869232243528193e-10,
+        "min": 2.2869232243528193e-10,
+        "max": 2.2869232243528193e-10,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 4.500860625955324e-07,
+        "min": 4.5008606259553244e-07,
+        "max": 4.5008606259553244e-07,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 1.6064354069600556e-08,
+        "min": 1.6064354069600556e-08,
+        "max": 1.6064354069600556e-08,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 7.022343861962099e-08,
+        "min": 7.022343861962099e-08,
+        "max": 7.022343861962099e-08,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 13.634101533333334,
+        "min": 13.2271151,
+        "max": 14.0994923,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "three_contact",
+      "noiseStdPerMm": 2.5e-05,
+      "method": "full",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 0.21517973416142577,
+        "min": 0.09833120180775692,
+        "max": 0.3231277766734747,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 0.29945599983557947,
+        "min": 0.17265466779013347,
+        "max": 0.40524507095752843,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 0.34105950906746946,
+        "min": 0.22854679293778082,
+        "max": 0.45250310153334344,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.024904093560587995,
+        "min": 0.012241722947831804,
+        "max": 0.03642072498476533,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 0.18493136882706265,
+        "min": 0.06479296729934703,
+        "max": 0.29149789767952594,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 147.57457476666667,
+        "min": 145.4930207,
+        "max": 149.8799164,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "three_contact",
+      "noiseStdPerMm": 2.5e-05,
+      "method": "gaussian",
+      "windowCount": 3,
+      "reviewFrames": 1,
+      "nonpositiveExits": 1,
+      "contactRmseN": {
+        "mean": 0.7796895056050711,
+        "min": 0.6779007934002744,
+        "max": 0.9561384850119371,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 0.9888228750451953,
+        "min": 0.8899986945692363,
+        "max": 1.1504269145188009,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 1.0037363144021805,
+        "min": 0.90191310371945,
+        "max": 1.163771411500818,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.19361819372872588,
+        "min": 0.14975606967990268,
+        "max": 0.2545440196033443,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 0.6425669408836341,
+        "min": 0.47246700479194903,
+        "max": 0.7786713276716387,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 59.6196736,
+        "min": 52.8392888,
+        "max": 68.4228702,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "three_contact",
+      "noiseStdPerMm": 2.5e-05,
+      "method": "point",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 3.1418736512727166,
+        "min": 3.001014300476147,
+        "max": 3.326976421920985,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 2.4692372859901437,
+        "min": 1.4200703093157248,
+        "max": 4.244397273176172,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 2.1471656811924054,
+        "min": 1.37726166172303,
+        "max": 3.4074464956320654,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.9279795252137495,
+        "min": 0.7023471669134956,
+        "max": 1.1123319137029795,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 0.9086372186230567,
+        "min": 0.5600774421458846,
+        "max": 1.2477783417167105,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 26.8658989,
+        "min": 25.9927043,
+        "max": 27.5834976,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "three_contact",
+      "noiseStdPerMm": 5e-05,
+      "method": "full",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 0.3214905909569091,
+        "min": 0.1058666724686642,
+        "max": 0.4786582939612236,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 0.4070584612184458,
+        "min": 0.1721980309446835,
+        "max": 0.5431739917564581,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 0.4806478123369035,
+        "min": 0.2510617018219604,
+        "max": 0.6026879426332108,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.026554835897755757,
+        "min": 0.0162631266798414,
+        "max": 0.037291467089772684,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 0.2854121921281972,
+        "min": 0.07768495457726428,
+        "max": 0.44060821494267205,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 139.46255686666666,
+        "min": 134.239135,
+        "max": 144.5505294,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "three_contact",
+      "noiseStdPerMm": 5e-05,
+      "method": "gaussian",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 1.6797406218587643,
+        "min": 1.3562990974856424,
+        "max": 2.2887888425555367,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 2.107867003758384,
+        "min": 1.7814296919561088,
+        "max": 2.7143725166554367,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 2.124597634135825,
+        "min": 1.8056037622715273,
+        "max": 2.701452475257043,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 0.37193168705898794,
+        "min": 0.2879575250097365,
+        "max": 0.48551519811690963,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 1.3746889343083977,
+        "min": 0.9461534745400915,
+        "max": 1.8348839075766135,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 61.792931733333326,
+        "min": 59.4460692,
+        "max": 66.4788203,
+        "eligible": 3
+      }
+    },
+    {
+      "scene": "three_contact",
+      "noiseStdPerMm": 5e-05,
+      "method": "point",
+      "windowCount": 3,
+      "reviewFrames": 0,
+      "nonpositiveExits": 0,
+      "contactRmseN": {
+        "mean": 5.1031873371343215,
+        "min": 4.918503077506023,
+        "max": 5.255041534713569,
+        "eligible": 3
+      },
+      "tipRmseN": {
+        "mean": 4.556913368774988,
+        "min": 2.8234979008674066,
+        "max": 7.3518066221624165,
+        "eligible": 3
+      },
+      "totalRmseN": {
+        "mean": 4.293452450524955,
+        "min": 2.758669120245031,
+        "max": 6.810608145048795,
+        "eligible": 3
+      },
+      "arcRmseMm": {
+        "mean": 1.2835400508819423,
+        "min": 0.9528549981863519,
+        "max": 1.450789717001023,
+        "eligible": 3
+      },
+      "magnitudeMaeN": {
+        "mean": 1.8025200711453415,
+        "min": 1.2235880637355045,
+        "max": 2.301636889842086,
+        "eligible": 3
+      },
+      "wallSeconds": {
+        "mean": 24.80967,
+        "min": 20.6021765,
+        "max": 28.0867184,
+        "eligible": 3
+      }
+    }
+  ],
+  "sotaEstablished": false,
+  "scope": "Identical input/truth bytes, observation-derived candidate count; adapted point/Gaussian LS, not official factor-graph implementations. Seed ranges, no trajectory-level CI."
+}

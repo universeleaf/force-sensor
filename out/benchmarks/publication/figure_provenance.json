@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "pairedPackets": 18,
+  "methodRuns": 54,
+  "rendererSha256": "9d9b0dce4ec62d8622ca500c7e67c335cfb108d704c5fa58df5946d7bc54bf04",
+  "sourceLedgers": [
+    {
+      "path": "out/benchmarks/formulation_factors/comparison.json",
+      "sha256": "079fb6ba6b510bda6a07879da6f887c0808b97fd653cce761d6ec7462104f081"
+    },
+    {
+      "path": "out/benchmarks/formulation_literature/comparison.json",
+      "sha256": "c717057a86bd69b3d23f85ce5024bb6c07f26aaa6db255d4a69e3e26581c98c4"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "out/benchmarks/publication/figures/matched_baselines.pdf",
+      "sha256": "a8427b8abe87c7c575087573e8ae6fdaeba21f217c1d5cc98ac181fab264ccd9"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/matched_baselines.svg",
+      "sha256": "e95a01bd1eea046429368e74121d757e7221ccbccfc20566a3ada6a62305a2ef"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/matched_baselines.png",
+      "sha256": "19871288ffba115740c134ffeec791bddbbba10e495fc98670c22206d0bece50"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/contact_magnitudes.pdf",
+      "sha256": "4d3ec1eccb1636488d7eb50ebcafcf55cbdf0c70aca588deee791b3930641cb9"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/contact_magnitudes.svg",
+      "sha256": "2ac21412840c8c40e3027f65196e6a67da3e9392e0c5b7e743190b53c08d9f10"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/contact_magnitudes.png",
+      "sha256": "3d19f49178d36c4a83135b921ee998cb14b3ef85433fef4630048abb25526bc6"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/local_uncertainty.pdf",
+      "sha256": "9c42c0f8c40e970b363794ecf0eff4086a02ebacc8d29de8ff46b0b467b93d3f"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/local_uncertainty.svg",
+      "sha256": "66d7ab529f2ed3f16e10d5f9a83dc083f800500e3adccffe6c4c38fa356ff9d8"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/local_uncertainty.png",
+      "sha256": "8f0a782a88a227d5e8be4222438a55195938ac39da61045f5322733d9610bdb1"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/method_overview.pdf",
+      "sha256": "9b8af3cd586363a74061d6d1c47fbe4d3004659e1f2babbdaafe75e7ca92be9b"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/method_overview.svg",
+      "sha256": "9b7b1088a0b516e73fa7022e39e3c6a033461bcd2e210ca6018db85fd08af3fc"
+    },
+    {
+      "path": "out/benchmarks/publication/figures/method_overview.png",
+      "sha256": "9fde1916ed3ef6e51024052d5011059df3e5c8e93676dd5062bacd94569d5169"
+    },
+    {
+      "path": "out/benchmarks/publication/paired_source_data.csv",
+      "sha256": "02a5fb1d263a47cf28e9a3377f9f7fd3ad9652acfc93a277fa9e251b1b063109"
+    },
+    {
+      "path": "out/benchmarks/publication/contact_magnitude_source_data.csv",
+      "sha256": "6392f2059d26be1aca2cd185a7d66ac199669e602350fafe03b0385f529c9681"
+    },
+    {
+      "path": "out/benchmarks/publication/paired_summary.json",
+      "sha256": "7a804b29b4e4480bcec9d2ec860ee813556199e97d62f7fe22f223451ca7bb1e"
+    },
+    {
+      "path": "out/benchmarks/publication/paired_table.tex",
+      "sha256": "6c7a54981fbc958bc49105f131a787f3091bfa981fb3c69ac35613e054f23f8b"
+    },
+    {
+      "path": "out/benchmarks/publication/runtime_host.json",
+      "sha256": "d472057561fefedcae67898e882842ba93c6d483c3e454cec2d5cb6c41b83c8f"
+    }
+  ],
+  "statistics": "Identical input/truth bytes, observation-derived candidate count; adapted point/Gaussian LS, not official factor-graph implementations. Seed ranges, no trajectory-level CI."
+}

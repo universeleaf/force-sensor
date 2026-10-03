@@ -21,6 +21,8 @@ function results = force(scenario, quickMode)
 % force('multi-geometry')  : calibrated-plane perturbation and latent-offset replay
 % force('multi-formulation'): shape-driven contacts, full 3-D friction/window MAP
 % force('literature-baselines'): same archived packets, source-grounded point/Gaussian adaptations
+% force('formulation-factors'): full 3-D multi-seed/noise/factor/coverage protocol
+% force('publication')     : factors, same-byte literature, derivatives, full checks
 % force('history')         : paired latent-history MAP vs fixed history
 % force('temporal-window'): joint short-window Cosserat MAP smoother
 % force('statistics')      : multi-seed/multi-noise conditional coverage protocol
@@ -83,6 +85,10 @@ switch lower(char(scenario))
         results = run_formulation_window_protocol(quickMode);
     case 'literature-baselines'
         results = run_literature_baseline_protocol(quickMode);
+    case 'formulation-factors'
+        results = run_formulation_factor_protocol(struct('quickMode',quickMode));
+    case 'publication'
+        results = run_formulation_publication_protocol(quickMode);
     case 'history'
         results = run_history_map_benchmark();
     case {'temporal-window','window'}
@@ -110,7 +116,7 @@ switch lower(char(scenario))
             ['Use wall, senior, upward, video, sensor-video, sensor-tip, ', ...
              'sensor-noise, noise, depth, depth-ablation, independent, ', ...
              'continuous, formulation, formulation-slide, literature-strain, demos, multi-demos, multi-benchmark, multi-geometry, multi-formulation, history, temporal-window, ', ...
-             'statistics, baselines, literature-baselines, mismatch, realtime, geometry, accuracy, mesh or check.']);
+             'statistics, baselines, literature-baselines, formulation-factors, mismatch, realtime, geometry, accuracy, mesh or check.']);
 end
 end
 

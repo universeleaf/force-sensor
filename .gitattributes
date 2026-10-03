@@ -1,3 +1,7 @@
 # Preserve the bytes covered by recorded experiment SHA-256 checksums.
 # CSV files may use CRLF and JSON may use LF; neither may change on checkout.
 out/** -text whitespace=trailing-space,space-before-tab,cr-at-eol
+# Run records also fingerprint the exact MATLAB source bytes.
+rod/*.m -text whitespace=trailing-space,space-before-tab,cr-at-eol
+force.m -text whitespace=trailing-space,space-before-tab,cr-at-eol
+scripts/*.py -text whitespace=trailing-space,space-before-tab,cr-at-eol

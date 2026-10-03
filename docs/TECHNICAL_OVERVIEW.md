@@ -6,7 +6,30 @@
 
 **研究目标**：利用连续体机器人的稀疏形状信息和环境几何信息，估计杆身接触位置、接触力与独立末端外力，并识别观测不足或模型失配。当前是 MATLAB 仿真研究原型；真实 FBG、相机、力传感器和同步系统尚未接入，数值结果不能解释为实物精度。
 
+**2026-10-04 搜索与数值更新：** 当前候选按时间关联；接触位置在整根杆上保持顺序而不再锁在首帧分区；目标、约束及局部协方差复用同一个导数矩阵；退化互补分支精化后重新检查原始约束；连续接触位置追加到所有平面的碰撞检查中。旧记录保留其原求解版本。完整实现、参数、逐因素开关和统计边界见[完整三维因素实验说明](FORMULATION_FACTORS.md)。
+
 ## 1. 阅读地图与职责边界
+
+**先区分两条保留的计算链。** 当前论文主路径是 `estimate_formulation_window`：schema 2 数据包自动进入，schema 1 也可通过 `estimate_formulation_forces(input, options)` 或时间窗口接口迁移后进入。它联合估计所有给定时刻，每个时刻完整平衡。第 25 节、[完整工作流](FORMULATION_WORKFLOW.md)是理解这个路径的入口。第 2–22 节还逐项保留旧单接触 `run_rod_plane_force_sensing_experiment` 的数据、配置、状态和逐帧算法，便于解释已有 MP4 与重放历史结果；它的 14 维单接触状态、上一帧后验先验和 `output.ours` 不能套到当前完整窗口状态上。
+
+当前主路径的数据流：
+
+```text
+sensorInput(tube / packet / config)
+  -> formulation_window_observations：时刻、实际通道、完整白化、真实前驱
+  -> formulation_contact_candidates + track_formulation_candidates：观测生成候选
+  -> formulation_window_spec + formulation_contact_arc_domain：变量布局与有序全长域
+  -> estimate_formulation_window：多时刻约束 MAP
+       -> decode / integrate_cosserat_load_state：每帧力学平衡
+       -> residual：形状、环境、初始/时间先验
+       -> physicalConstraints：末端平衡、几何、摩擦互补
+       -> derivatives / formulation_derivative_bundle：共享中央差分
+       -> polishBranch：非线性可行性恢复后优化原 MAP
+       -> audit / localCovariance / observationFit：物理、可辨识性与拟合
+  -> estimate（contactForce / tipForce / contactArcLength / uncertainty / quality）
+  -> run_formulation_workflow：MAT / CSV / manifest
+  -> 仅离线加载 truth：score_formulation_window / score_formulation_coverage
+```
 
 | 层 | 主要代码 | 输入 → 输出 |
 |---|---|---|
@@ -24,7 +47,7 @@
 | 独立真值/demo | [build_contact_demo_truth.m](../rod/build_contact_demo_truth.m)、[contact_demo_scenes.m](../rod/contact_demo_scenes.m)、[run_contact_demo_suite.m](../rod/run_contact_demo_suite.m)、[render_contact_demo_video.m](../rod/render_contact_demo_video.m) | 场景 → 独立平衡真值、模拟传感器包、逐状态 MAP/MPCC 评分和 MATLAB 连续视频 |
 | 压力与基线 | [run_model_mismatch_protocol.m](../rod/run_model_mismatch_protocol.m)、[run_fair_baseline_protocol.m](../rod/run_fair_baseline_protocol.m) | 相同或模型外输入 → 对照结果 |
 | 多接触配对实验 | [run_multi_contact_benchmark.m](../rod/run_multi_contact_benchmark.m)、[run_multi_contact_plane_uncertainty.m](../rod/run_multi_contact_plane_uncertainty.m) | 同一曲率包 → 环境/形状基线、几何消融和标定误差 |
-| 工程回归 | [run_project_checks.m](../rod/run_project_checks.m) | 当前 31 项基础检查、可选 2 项归档重放 → project_checks.json |
+| 工程回归 | [run_project_checks.m](../rod/run_project_checks.m) | 当前 34 项基础检查、可选 2 项归档重放 → project_checks.json |
 
 主数据流：
 
@@ -40,7 +63,7 @@
   → 只在离线评分阶段与独立真值比较
 ~~~
 
-公共入口明确拒绝 sensorInput 中的 forward、truth、results 字段；评分文件可以同时保存 sensorInput 与 truth，但传给估计器的只能是 sensorInput。这个边界由 estimate_sensor_forces.m 的入口断言及 [test_sensor_contracts.m](../rod/test_sensor_contracts.m) 检查。
+公共入口拒绝 sensorInput 中的 forward、truth、results 字段；评分文件可以同时保存 sensorInput 与 truth，但传给估计器的只能是 sensorInput。旧入口在 `estimate_sensor_forces.m` 检查，当前窗口在 `formulation_window_observations.m` 验证输入并拒绝真值容器；对应回归是 [test_sensor_contracts.m](../rod/test_sensor_contracts.m) 与完整窗口接口检查。
 
 ## 2. 坐标、单位与模型假设
 
@@ -209,7 +232,7 @@ x_prior 为上一帧状态和随机游走过程先验；第一帧由 measured pl
 
 initializeMapState 先用测量杆形对平面求 signed gap，在 contactSearchBandMm 内寻找最近接触弧长；seedTipOnlyForceFromMeasuredCurvature 用 K·(u−uhat) 与 tip Jacobian 解带小 ridge 的最小二乘末端力种子。solveReducedShapeKnownMapUpdate 和 refine_cosserat_shape_seed 提供额外初值；它们只决定从何处开始优化，不替代最终完整 MAP。
 
-### 8.3 历史线性化路径与当前主路径
+### 8.3 旧单接触配置中的线性化路径与非线性路径
 
 默认历史配置为 predecessor-linearized、point-only、active-set、mode-reduced。solveConstrainedMapUpdate 在每轮用 finiteDifferenceMeasurementJacobian 计算 H，将 h(x) 线性化为 h0+H(x−x_lin)，调用 solveLinearizedConstrainedMapSubproblem，再通过 acceptDampedMapStep 验收非线性代价。该路径保留旧结果可复现性，但不是当前完整三维主张。
 
@@ -229,7 +252,7 @@ mechanicsRelativeTolerance=2e-7
 mechanicsMomentToleranceNmm=2e-4
 ~~~
 
-主路径 solveNonlinearFormulationMap 直接优化上述非线性 J(x)。nonlinearSolverScale 用每个状态坐标的局部信息列 H'R⁻¹H 与先验精度设置对角坐标尺度；这**只改变求解坐标**，不改变物理目标。finiteDifferenceMeasurementJacobian 对一个坐标单独扰动，不顺便把其他力变量投影到锥上，避免求导方向被投影污染。
+旧单接触的非线性路径 `solveNonlinearFormulationMap` 直接优化上述非线性 J(x)。`nonlinearSolverScale` 用每个状态坐标的局部信息列 H'R⁻¹H 与先验精度设置对角坐标尺度；这只改变求解坐标，不改变物理目标。`finiteDifferenceMeasurementJacobian` 对一个坐标单独扰动，不把其他力变量同时投影到锥上。当前完整窗口使用自己的联合状态、残差、先验和导数链，见第 25 节及完整工作流，不能把这段旧单帧更新写成当前窗口求解。
 
 ## 9. Scholtes MPCC 的数值执行细节
 
@@ -398,7 +421,7 @@ runRecord 保存 schemaVersion、UUID、UTC 时间、MATLAB 版本、平台和 s
 | sliding_clean | 5.212e-6 | 3.567e-6 | 2.109e-6 | 4.507e-6 |
 | sliding_noisy | 8.793e-1 | 7.019e-1 | 2.992e-1 | 4.610e-2 |
 
-前五个 case 使用与真值一致的近乎无噪声模型，主要说明数值实现能复原独立平衡；不能外推为真实传感器误差。`sliding_noisy` 的 12/12 帧都触发 `requiresReview` 和摩擦方向观测警告，虽然最终互补和整杆非穿透检查通过；其估计平面参考下的最大穿透约 0.122 mm。这是当前方法边界，不应写成噪声下成功。
+前五个 case 使用与真值一致的近乎无噪声模型，主要说明数值实现能复原独立平衡；不能外推为真实传感器误差。`sliding_noisy` 的 12/12 帧都触发 `requiresReview` 和摩擦方向观测警告，虽然最终互补和整杆非穿透检查通过；其估计平面参考下的最大穿透约 0.122 mm。这是该历史单接触路径的边界，不应写成噪声下成功。
 
 旧三项 `model_mismatch` 分数撤出有效物理证据：其前向函数存在本轮已修复的力矩符号和曲率分段问题，而且原生成器只规定点载荷，没有求解所有固定表面的接触闭合与摩擦。因此不能把它称为完整双接触/曲面真值。真正的多接触平衡场景使用独立接触根求解，见[完整工作流](FORMULATION_WORKFLOW.md)与[固定环境多接触 demo](MULTI_CONTACT_DEMOS.md)。
 
@@ -424,7 +447,7 @@ shape-only 的合力可能看起来较小，是分量互相补偿的结果，不
 
 ### 14.3 运行时间
 
-[run_realtime_benchmark.m](../rod/run_realtime_benchmark.m) 重放相同 packet，统计 mean/median/p95/max 和 effectiveHz。当前公开测量约为 119 s/frame p95，而 packet 周期是 0.02 s；这不是实时系统。主要瓶颈是每个候选状态都可能触发 ode45 + fsolve + 有限差分 MAP Jacobian。
+[run_realtime_benchmark.m](../rod/run_realtime_benchmark.m) 重放相同 packet，统计 mean/median/p95/max 和 effectiveHz。旧单帧估计器的归档测量约为 119 s/frame p95，而 packet 周期是 0.02 s；完整窗口的调用成本另见本轮软件实验报告，二者都不作为实时性声明。主要瓶颈是每个候选状态都可能触发 ode45 + fsolve + 有限差分 MAP Jacobian。
 
 ## 15. 质量、可辨识性和不确定性
 
@@ -451,7 +474,7 @@ Pplus = pinv(Pminus^-1 + H' * R^-1 * H)
 
 ## 16. 工程检查、根因修复和代码边界
 
-[run_project_checks.m](../rod/run_project_checks.m) 当前注册 31 项检查：输入契约、协方差/深度平面、曲率重建、摩擦方向、接触射击、ODE 工作量、整杆碰撞、旋转等变性、独立多接触、结果生命周期、传感器重放、语法和观测缩放 MAP。
+[run_project_checks.m](../rod/run_project_checks.m) 当前注册 34 项基础检查，并可增加 2 项归档重放：输入契约、协方差/深度平面、曲率重建、摩擦方向、接触射击、ODE 工作量、整杆碰撞、旋转等变性、独立多接触、结果生命周期、传感器重放、语法和观测缩放 MAP。
 
 本轮系统性调试发现的真实故障是 test_observation_scaled_map.m 仍硬编码旧 UUID 496dc953-eb47-499d-9e38-bd83a92dd98b；该目录已被新 demo 运行删除，因此 force('check') 的第 15 项失败。它是回归 fixture 失效，不是力学算法失败。修复后的测试：
 
@@ -476,8 +499,8 @@ Pplus = pinv(Pminus^-1 + H' * R^-1 * H)
 
 1. 真实 FBG、环境几何/深度、同步和独立接触力 ground truth；
 2. 端点接触及无接触/三维斜平面的扩大统计；新工作流已实际验证两状态零候选、仅末端载荷场景；
-3. 已完成多平面、三维多接触和历史平衡；继续扩大候选覆盖、接触出生/消失、跨分区迁移及独立轨迹统计；
-4. 分布载荷或 Gaussian 载荷的明确模型，并与 shape-only/Aloi/Ferguson 风格基线公平比较；
+3. 已完成多平面、三维多接触和历史平衡；默认位置可在整杆范围迁移，继续研究候选覆盖、接触出生/消失和独立轨迹统计；
+4. 点载荷/Gaussian 同曲率适配已实现并运行；进一步比较官方完整因子图，需要匹配观测子集及模型假设；
 5. W=2/3 时间窗的大样本统计、失败恢复和速度；
 6. 历史误差和接触模式混合后的校准区间；
 7. 解析/自动微分 Jacobian、稀疏结构、递归边缘化，以降低完整窗口延迟；当前已支持保存状态的 warm start，但尚非实时；
@@ -530,7 +553,7 @@ report.runRecord.source(1)
 
 六个 demo 的 artifact 适合交接的文件是 comparison.json、每个 case 的 data.json、forces.csv 和 demo.mp4；input_and_truth.mat 只在需要复算评分时发送。不要把 MEMORY.md、tmp/、调试日志、过期 UUID 目录或只为本地浏览的 HTML 当作研究产物。
 
-可以给学长的准确表述是：EnFiRCE 已经有稀疏形状+环境平面驱动的连续体机器人力分解仿真，主路径是三维 Cosserat 射击、杆身非穿透、离散 Coulomb 摩擦锥和 Scholtes MPCC/MAP；六个独立单接触场景、同输入基线，以及四个已知接触顺序的平面多接触场景可复现。多接触无噪声结果主要验证模型一致性，带曲率噪声场景会显式触发 review。真实传感器、未知模式/摩擦的三维多接触逆解、区间校准和实时性仍未完成。
+可以给学长的准确表述是：EnFiRCE 已有稀疏形状与环境驱动的三维多接触力分解仿真，完整窗口保留每时刻的 Cosserat 平衡、共享潜在平面、同一材料点的历史摩擦互补与独立末端力。接触候选由观测生成，默认位置在整根杆上保持顺序，载荷由联合 MAP 推断。六个单接触连续 demo、四个平面多接触连续 demo 和七组完整三维窗口分别保存真实求解记录，不能互相替换版本。无噪声结果验证模型一致性；含噪结果与同观测文献适配已有明确误差及合力反例。真实传感器、全局后验校准与实时性属于后续验证。
 
 ## 19. 用最通俗的话说
 
@@ -698,13 +721,13 @@ estimate_sensor_forces
 - **已实现并有实际结果**：稀疏 FBG 包契约、intrinsic-delta 形状重建、三维 Cosserat 平衡、整杆非穿透采样、完整多面体摩擦 MPCC、共享不确定平面、形状驱动多接触候选、未知接触位置/分力/末端力、各时刻平衡的完整窗口、初始/过程完整协方差、局部分支协方差及观测拟合诊断。六个旧连续 demo、四个二维多接触连续 demo 与 396 次配对实验分别记录；新三维窗口和失配实验不与其混成一个分数。
 - **已实现但只用于诊断/压力测试**：遗漏环境面的独立接触真值、摩擦模型失配、depth covariance、noise attribution、mesh convergence、局部 force sensitivity。
 - **尚无足够实验支撑或未实现**：真实 FBG/相机标定、任意光滑曲面/有限面片/杆半径接触、任意接触拓扑的全局搜索、独立黏滑模式切换、完整多模态后验、校准后的覆盖率、正式因子图方法的同输入复现与实时递归窗口。点载荷/Gaussian 的同曲率文献适配已完成，见第 24 节，不据此宣布 SOTA。
-- **明确未声明**：没有把当前 `posteriorCovariance` 当成 95% 置信区间，没有把无噪声 demo RMSE 当成真实精度，没有把 `forces.mp4` 当成硬件录像，也没有把 mismatch case 当成算法成功。
+- **明确未声明**：没有把 `posteriorCovariance` 当成已校准的全局 95% 置信区间；本轮局部 95% 分量区间明确条件化于分支和固定环境，没有把无噪声 demo RMSE 当成真实精度，没有把 `forces.mp4` 当成硬件录像，也没有把 mismatch case 当成算法成功。
 
 这一区分是技术文档的一部分：一个入口函数能运行，只说明代码路径存在；只有独立输入、明确评分、重复运行和相应实验设计都完成，才可以在论文中把它写成结果。
 
 ## 23. 多接触 benchmark 的状态、目标和几何误差处理
 
-最新协议的逐次记录和场景结果见[软件实验报告](SOFTWARE_BENCHMARK_2026-09-30.md)。这里补充逆解实际执行的数学与代码对应关系。设接触数为 K、杆长为 L、刚度为 EI、观测曲率为 κᵢ，本征曲率为 κ₀ᵢ。`estimate_planar_multi_contact.m` 的优化变量按顺序为 `x = [M₀/(EI/L), λ₁…λK, c₁/L…cK/L, Ftip,x, Ftip,z]`，其中 λ 为非负法向力，c 为杆弧长。每次 `lsqnonlin` 评估都由 `integrate_planar_multi_contact.m` 从这些变量重建预测曲率、接触点与切向量，最小化以下白化残差的平方和：
+历史平面协议的逐次记录和场景结果见[软件实验报告](SOFTWARE_BENCHMARK_2026-09-30.md)。这里补充逆解实际执行的数学与代码对应关系。设接触数为 K、杆长为 L、刚度为 EI、观测曲率为 κᵢ，本征曲率为 κ₀ᵢ。`estimate_planar_multi_contact.m` 的优化变量按顺序为 `x = [M₀/(EI/L), λ₁…λK, c₁/L…cK/L, Ftip,x, Ftip,z]`，其中 λ 为非负法向力，c 为杆弧长。每次 `lsqnonlin` 评估都由 `integrate_planar_multi_contact.m` 从这些变量重建预测曲率、接触点与切向量，最小化以下白化残差的平方和：
 
 ```text
 (predicted_curvature - measured_curvature) / max(curvatureStdPerMm, 1e-7)
@@ -719,7 +742,7 @@ tangentWeight * normal_dot_contact_tangent / 1e-4
 
 主 benchmark 的随机噪声在 121 个正向节点上先生成，再按 8/16/24 个 FBG 位置采样；同一场景、种子和状态下不同密度来自同一噪声场。真值、观测包、解和代码 SHA-256 分别保存在 `out/benchmarks/multi_contact/<scene-id>/truth.mat`、`trials.mat` 及根目录的 `comparison.json`。报告脚本以种子而不是逐帧为 bootstrap 抽样单位。`force('multi-geometry')` 读取这些保存的观测包，向第一面墙注入 +1 mm 误差后比较固定几何与两个预设先验，另写 `plane_uncertainty.json`。结果审计中的 `requiresReview` 与离线力误差分开记录，不能用优化器返回成功来代替物理可信度。
 
-## 24. 同曲率文献适配与精确缓存：实现、结果和结论
+## 24. 历史同曲率文献适配与精确缓存：实现、结果和结论
 
 详细公式、配置边界、代码对应、全部指标及复现步骤见[文献比较完整技术报告](LITERATURE_COMPARISON.md)。这是本轮新增的可运行工作流，不是用别人的论文误差数字拼成排名。
 
@@ -749,7 +772,7 @@ force('literature-baselines')
 
 适配边界：Xiao–Chen 思路推广到一般杆标定；Aloi Gaussian 将原位置似然换成相同曲率通道，σ 下界 0.25 mm。两者逐帧求解且没有环境/摩擦/时间过程因子，不能称原作者官方方法，也不能把完整方法差异只解释为某个约束增益。不同边界与正则化逐项列在详细报告中。
 
-### 24.2 本轮真实性能比较
+### 24.2 历史单种子窗口比较
 
 | 两状态含噪窗口 | EnFiRCE 接触 RMSE / N | Point LS / N | Gaussian LS / N |
 |---|---:|---:|---:|
@@ -764,10 +787,93 @@ force('literature-baselines')
 
 相同冷启动双接触：116.2865 → 50.7523 s，ODE 调用 28322 → 11243，最大力差 0，目标和全部质量字段相同。无接触：3.1312 → 1.1883 s，754 → 210 次，力差也为 0。原始文件与 SHA 见[缓存对照](../out/benchmarks/mechanics_cache/comparison.json)。这是一轮固定顺序、无协方差的完整求解调用时间，不能当严格速度排名或实时性证明。
 
-新接口校验逻辑开关、积分容差及基线迭代预算；只有已知物理试探失败可转换为拒绝残差，配置/编程错误直接抛出。新力学测试已通过并加入完整检查入口；历史工程账本 33/33 保留，下一次完整检查将注册 34 项，尚未把旧记录改成未实际运行的数量。
+新接口校验逻辑开关、积分容差及基线迭代预算；只有已知物理试探失败可转换为拒绝残差，配置/编程错误直接抛出。当前新力学、位置迁移、共享导数及统计接口检查均已实际执行，工程入口共 36/36 项通过。历史实验保留各自源码与质量，不改写其求解版本。
 
 ### 24.4 论文更新与剩余缺口
 
 论文主线改为共享不确定平面、多接触、每时刻完整平衡和摩擦历史的联合 MAP，图表直接由完成的 MATLAB 数据生成。原旧遗漏环境面压力分数撤回，采用修正后 17.83/15.96/1.647 N；不把拟合警告等同真实力误差认证。
 
-软件现有完整求解链已经贯通；“贯通”仍不是“任意输入都无问题”。有限候选/有序弧长区间、遗漏墙面、有限面片与半径、材料误差、真实黏滑切换、完整三维多 seed 统计、全局覆盖率和实时递归仍需研究。已有 396 次二维原型消融与这轮 7 组完整窗口各自说明，不把它们混为三维统计证据。
+软件现有完整求解链已经贯通；最新修复与因素实验见第 25 节。有限候选、遗漏墙面、有限面片与半径、材料误差、真实黏滑切换、全局覆盖率和实时递归是当前模型之外的研究验证范围。首帧固定分区已从默认搜索中移除。已有 396 次二维原型消融与历史 7 组完整窗口各自说明，不把它们混为新完整三维统计证据。
+
+## 25. 当前搜索、导数和因素实验的实现
+
+### 25.1 从跨帧极小值到轨迹槽位
+
+[formulation_contact_candidates.m](../rod/formulation_contact_candidates.m) 负责测量通道的弹性曲率插值、已知本征曲率补全和形状积分。每帧的平面间隙局部极小值进入 [track_formulation_candidates.m](../rod/track_formulation_candidates.m)：先按平面在单帧合并，再按前一次观测位置与时间间隔关联。新槽位支持出现/消失，轨迹未观测帧仅插值初始位置；最终载荷仍由同一 MAP 估计。`generatedCount` 是原极小值数量，`trackedCount` 是关联后轨迹数量，`retainedCount` 是数量/近角点裁剪后的求解槽位数。`ambiguousTrackAssignment`、`trackObservedAtFrame` 和弧长范围记录关联证据。
+
+关联不声称解决任意拓扑。相同平面的接触身份、交叉与槽位替换仍需要足够观测；截断或歧义进入 review。一个极小值沿杆移动超过旧 10 mm 合并距离，现在不会仅因此复制多个槽位。
+
+### 25.2 全长有序位置与试探积分
+
+[formulation_contact_arc_domain.m](../rod/formulation_contact_arc_domain.m) 生成全长位置界和线性最小间隔约束。两帧的全部物理坐标展平后，约束对每帧各自施加 `s_i-s_(i+1)<=-0.1 mm`。初始化用信赖域最小二乘、显式顺序违约项和阶段间可行投影；最终优化接收硬线性约束。`partitioned` 是显式旧分区对照，不是新默认。
+
+[integrate_cosserat_load_state.m](../rod/integrate_cosserat_load_state.m) 的载荷与查询点列保持原身份，分段边界自行排序，能够计算中央差分和 SQP 的顺序违规试探。可接受结果必须满足顺序约束。碰撞数组使用“固定规则网格 + 当前接触点”顺序，不去重；这保持函数值、导数行与约束维数稳定。所属平面间隙已经在互补对中，整杆不等式删去其候选处重复项，保留候选处所有其他面。
+
+### 25.3 共享导数与分支精化
+
+[formulation_derivative_bundle.m](../rod/formulation_derivative_bundle.m) 生成同一中央差分步长下的 `[J_r;J_a;J_b;J_c;J_e]`。窗口求解器缓存完全相同状态的矩阵，传递目标与约束梯度给 `fmincon`。矩阵可跨同伦常数复用，既不冻结前驱形状，也不将 Cosserat 变成线性杆。
+
+`localCovariance` 使用全部白化残差的 `J` 计算含初始/过程先验的局部后验协方差；另外提取实际测量行 `Jdata`、排除初始/过程先验，只用于测量信息秩和 `forceUnresolvedByData` 检查。这两种信息不能混淆：有限后验也可能由先验支撑。约束零空间同时考虑末端平衡、已识别互补分支、其他活动约束、活动顺序行和上下界。世界力向量直接由法向/摩擦方向及力系数组装，其导数不需要杆积分。`solver.mechanicalEvaluations` 在协方差后更新，`estimate.endToEndSeconds` 包含它；`estimate.optimizationSeconds` 保持原优化段时间含义。协议的 `wallSeconds` 用外层 tic/toc 包含整个调用，性能图使用这个字段。
+
+同伦给出的分支在高反力或零摩擦时可能仍有原始互补违约。分支精化先用当前推断接触修正几何/零摩擦 slack 初值，再以非线性最小二乘恢复分支等式与非负可行性，随后重新优化原 MAP。对应一侧零约束按对偶侧大小缩放到原乘积量级，避免微小间隙乘高反力超出审计容差。恢复残差额外保留 `restorationMapWeight=1e-4` 倍的原 MAP 残差；只求物理可行性会让无相机等弱观测组合的初值严重偏离传感器形状，这个弱项约束该漂移。最终 MAP 不使用这个权重，完整观测似然与全部原约束继续保留。恢复前后最大违约只统计物理项，未加权 MAP 残差平方范数另外保存。恢复步本身不能证明 MAP 收敛，也没有对最终几何做“修图”。所有原始约束和优化器正退出再次审计，分支选择、恢复前后违约、退出和接受过程保存于 `solver.activeBranchPolish`。
+
+分支优化默认约束容差与精确同伦目标统一为 `1e-8`，不再额外除以十。此前的 `1e-9` 比 `1e-8` 步长停止条件更严格，曾把原始违约仅 `3.8e-9` 的干净三接触恢复点拒绝为不可行。修复后仍要求真实正退出和完整原始物理审计，不改写退出码；分支记录额外保存约束容差、步长容差、优化器违约、一阶最优性和完整停止消息。
+
+`formulation_restoration_merit.m` 为恢复步骤增加单调性保护：固定分支、残差维数、物理项、接近起点的弱项与弱 MAP 项后，分别重算起点和返回点的真实平方范数。返回点变差或非有限就保留起点，随后仍运行原约束 MAP。这一保护修复了空间高噪声/旧分区条件下最小二乘恢复把好初值覆盖成坏初值、再触发“步长小且可行”正退出的问题。同一输入的接触向量 RMSE 从 24.933 N 降回 0.183 N，目标值从约 2.17e13 恢复到约 56；这些是针对同一失败输入的诊断，不是重复轨迹统计。完整矩阵在修复后另行冻结重跑，旧诊断不混入发布均值。`restoration.accepted/initialResidualSquaredNorm/candidateResidualSquaredNorm` 保存决定，原始返回范数、候选物理违约及后续 MAP 退出仍保留。测试包含真实退化量级的恶化残差、改善残差与非有限返回值。
+
+### 25.4 六种完整窗口方法与局部覆盖率
+
+[run_formulation_factor_protocol.m](../rod/run_formulation_factor_protocol.m) 使用固定两帧的三接触和面外滑动真值，三个独立传感器噪声种子和三级曲率噪声。每一观测包分别冷启动完整方法、去时间先验、仅静态摩擦锥、去接触几何、去相机似然、旧位置分区；也支持点载荷和 Gaussian 文献适配。它们仍使用每帧完整三维平衡。删除因素的含义、剩余信息和代码开关逐项见[因素说明](FORMULATION_FACTORS.md)。
+
+[resample_formulation_observations.m](../rod/resample_formulation_observations.m) 只属于仿真观测生成器，不进入逆解。每组相同的 `input.mat` 被所有方法读取，真值只在求解后评分。[score_formulation_window.m](../rod/score_formulation_window.m) 区分候选数量和活动接触数量；失配帧不假造接触对应。[score_formulation_coverage.m](../rod/score_formulation_coverage.m) 排除不可辨识/无限方差分量并报告分母，不用无限宽区间制造 100% 覆盖。
+
+[scripts/render_formulation_factors.py](../scripts/render_formulation_factors.py) 校验配置组合完整、输入/真值/估计/CSV SHA 和完成状态后，生成每种子的源数据、逐因素精度、局部覆盖率和时间图。种子范围是 min/max，不是置信区间；重复噪声不是独立轨迹；当前局部分支协方差不等于全球后验校准。
+
+### 25.5 退化约束和非法试探的根因
+
+分支求解里，`f_n`、`beta`、`lambda` 的非负性已经由变量界保证。把同一个零变量再作为非负不等式与零分支等式重复施加，会产生相关约束行；零摩擦和无前驱还产生恒为零的互补对。当前只在活动分支精化表示里排除这些重复/恒等行，保留真正的非线性非负条件。原始 MPCC 同伦和最后的全物理条件验收没有删减。`physicalConstraints` 返回 `boundedA/boundedB/constantZeroPairs`，`branchConstraints`据此选择独立的数值表示。
+
+`decode` 在积分之前检查自由变量维数、有限实数和接触内部位置。尺寸错误是 `rod:InvalidOptimizerState`，会直接抛出；非有限/越界优化试探是 `rod:InvalidOptimizerTrial`，可局部拒绝。`rejectTrial` 只允许该异常和数值平衡异常；它不吞掉任意错误。公共积分器仍严格验证外部载荷。这修复了优化器在退化约束下试探 NaN 后把它当成格式错误中断整组实验的问题。
+
+### 25.6 一个入口到实验、论文和网站
+
+`force('publication')` 调用 [run_formulation_publication_protocol.m](../rod/run_formulation_publication_protocol.m)，依次执行 108 项完整窗口因素实验、36 项文献适配、共享/独立求导的两次冷启动、工程检查。文献适配输入从因素实验逐字节复制并检验 SHA。各步骤的文件路径、SHA 和案例数写入独立完成账本；失败保留栈，不跳过为“全部成功”。自定义因素组合必须设置独立 `outputName`，防止默认目录的配置或源码混合。
+
+[render_formulation_publication.py](../scripts/render_formulation_publication.py) 从完成账本生成同输入比较、逐接触力大小、算法结构示意及 LaTeX 表格。前两类图是实际数值，结构图明确为示意。[update_publication_manuscript.py](../scripts/update_publication_manuscript.py) 再校验四步账本、工程状态、执行源码及作图 SHA，生成详细结果文档并更新独立 Overleaf 本地稿件中的图表和数值。完成编译后，[sync_publication_website.py](../scripts/sync_publication_website.py) 校验四项工作流步骤、图源、连续视频和文件字节，复制到独立网站仓库；这些脚本不执行 Git 推送。网站发布清单区分旧连续视频、旧几何图与新的两状态完整窗口统计，不把不同求解器/版本混成同一个实验。
+
+`.gitattributes` 保留原始结果文件及 MATLAB 源码的换行字节，避免 Git 自动换行破坏记录的 SHA。运行记录是执行当时的源码快照，历史结果不能仅通过修改说明文档升级到当前代码版本。接触数失配、非正退出、物理违约、观测拟合和缺少历史都有独立字段，而“流程完成”只表示配置组合确实执行并保存。
+
+[compile_publication_manuscript.py](../scripts/compile_publication_manuscript.py) 使用现有 latexmk 编译提供的多文件模板。编译前后核对实际 `.tex/.bib/.cls/.bst` 与图表 PDF 的快照，只有退出成功且输入未改变才生成规范稿件 PDF 和 `manuscript_build.json`。记录包括编译脚本 SHA、命令、耗时、退出码、页数、PDF SHA 和输入逐文件 SHA；网站同步要求其仍对应当前稿件。不能仅凭目录里有一个旧 `main.pdf` 就把更新完成。编译日志留在本地，公开的是源文件身份、完整 PDF 和完成记录。
+
+### 25.7 恢复与并行调度的实现细节
+
+[formulation_resume_matches.m](../rod/formulation_resume_matches.m) 比较的是执行身份。JSON 读回可能将结构数组从行变成列，调用者也可能使用不同字段顺序。当前只统一四个协议向量及源码/依赖结构数组方向，递归按字段名排序后比较。求解器数值、依赖版本/逐文件 SHA 和参考输入 SHA 仍须相同。[test_formulation_factor_protocol.m](../rod/test_formulation_factor_protocol.m) 验证 JSON 往返和字段重排不改变身份，同时验证源码、依赖或约束容差改变必须拒绝。
+
+[run_publication_parallel.py](../scripts/run_publication_parallel.py) 属于调度层，未修改力学或优化目标。一个进程拥有一个场景/种子的目录，最多六个 MATLAB 进程各用一个计算线程。中央程序校验每个 `input/truth/estimate/forces.csv` 的 SHA，逐字节复制回规范目录，检查笛卡尔积完整无重复，再保存各工作进程的原始 JSON。`comparison.execution.shards` 给出原始记录 SHA、汇总数据根目录和案例数；`reusedSequentialCaseIds` 明确拆分之前完成的案例。
+
+并行因素运行的墙钟时间受共享资源影响，不能用于独立速度排名。导数计时在全部工作进程退出后顺序执行。调度层采用独占 PID 文件防止两个汇总程序重叠；某个工作进程异常时保留未完成状态和日志，不合并为成功。
+
+[verify_publication_release.py](../scripts/verify_publication_release.py) 检查四项步骤、当前力学依赖、工作进程与汇总案例的一致性、完整矩阵、绘图源码与数据 SHA。`--staged` 从 Git 索引读出实际将提交的字节，防止工作区正确而提交因换行转换或漏加文件失效。恢复、评分、绘图、发布核验各自保存原始证据。
+
+## 26. 当前完整软件实验与交付
+
+当前完整协议记录 `3ee78967-a1c8-4565-a3d0-b4c97cda85da` 保存 173 个 MATLAB 源文件指纹。108 个因素组合、36 个同输入基线、2 个导数组合和 36 项工程检查已完成；具体数值、每种消融、非正退出和 review 见[完整软件实验报告](PUBLICATION_RESULTS.md)。
+
+### 26.1 从入口到可复算结果
+
+| 阶段 | 代码 | 输入与输出 |
+|---|---|---|
+| 调度 | `force('publication')` / `run_publication_parallel.py` | 冻结源码、固定实验矩阵 → 四步完成记录；并行方式增加工作进程来源记录 |
+| 观测实现 | `resample_formulation_observations.m` | 干净传感器包 + 种子/协方差 → 独立曲率实现；不读取参考力 |
+| 完整逆解 | `estimate_formulation_window.m` | 同一个观测包 → 各帧未知状态、力、局部协方差与原始质量字段 |
+| 文献适配 | `estimate_literature_curvature_baseline.m` | 逐字节相同包、观测候选数 → 自有初值的 Point/Gaussian 估计 |
+| 独立评分 | `score_formulation_window.m` / `score_formulation_coverage.m` | 完成估计后才读真值 → 向量/大小/弧长误差、有效区间分母 |
+| 图与表 | `render_formulation_publication.py` | 已完成 JSON/MAT/CSV 的 SHA → 真实数值图、种子范围、图源和 LaTeX 表 |
+| 文稿 | `update_publication_manuscript.py` | 完整四步与图源核验 → 当前结果文档、稿件与图表 |
+| 编译与网站 | `compile_publication_manuscript.py` / `sync_publication_website.py` | 实际 TeX/参考文献/模板/图表 SHA → 对应 PDF、编译记录及真实 MP4 字节副本 |
+
+### 26.2 适合发送给学长的材料
+
+先发送完整软件实验报告、同输入比较/消融/逐接触力大小图，再发送本技术说明和 `FORMULATION_WORKFLOW` 的逐式对应。需要复算时附 `input.mat/truth.mat/estimate.mat/forces.csv/comparison.json`。视频提供运动直观理解，统计图提供可配对的力精度；它们的求解版本与状态数分别说明。
+
+讨论重点仍是实际杆刚度与高反力是否合理、环境观测精度、怎样构造信息充分的摩擦转变、末端/接触力真值获取以及官方图方法的输入匹配。已有不利结果也随报告提供。完成软件流程不自动构成 SOTA、硬件准确性或全局概率校准证据。

@@ -6,22 +6,23 @@
 
 ## 当前结果
 
-| 协议 | 结果 |
-|---|---|
-| 工程检查与归档重放 | 本轮 33/33 通过：31 项基础检查及 2 项归档重放 |
-| 完整三维多接触窗口 | 七组/14 个状态完成；含噪三接触逐接触力 RMSE 0.6005 N；含噪空间摩擦双接触 0.3302 N |
-| 同曲率文献适配基线 | 14 次/28 个状态全部完成；两组含噪接触 RMSE：EnFiRCE 0.601/0.330 N、点载荷 1.781/1.732 N、Gaussian 1.212/0.994 N；三接触合力并非 EnFiRCE 最优 |
-| 完整窗口精确力学缓存 | 同一双接触冷启动：116.29 → 50.75 s、ODE 28322 → 11243 次，估计力差 0；单次计时，不是实时结论 |
-| 无杆身接触、仅末端载荷 | 自动候选数为 0；末端力 RMSE 6.784e-10 N，两个状态无复核标志 |
-| 3 个随机种子 × 3 个曲率噪声等级 | 9 cases、27 frames 完成；平均总力 RMSE 0.3076 N |
-| 修正后失配压力测试 | 遗漏环境面两组总力 RMSE 17.83/15.96 N；摩擦系数失配 1.647 N；新增观测拟合诊断均提示复核 |
-| 固定环境多接触 | 双接触 9.668e-11–7.598e-11 N；三接触 1.267e-10 N；带噪声三接触 0.6202 N |
-| 多接触配对 benchmark | 396 次估计；24 个曲率点、标称噪声下接触力 RMSE：环境方法 0.490 N，shape-only 2.967 N；8 个点时环境方法 13.576 N |
-| 平面标定误差 | 第一个平面错位 1 mm 时接触力 RMSE 31.092 N；允许 1 mm 标准差的潜在平面偏移后为 1.341 N |
-| 相同观测输入基线 | EnFiRCE 接触力 RMSE 0.0190 N；shape-only 1.069 N；Gaussian 1.689 N |
-| 墙钟性能 | p95 119.14 s/frame，尚未达到 20 ms |
+最新完整三维实验及逐种子表见[完整软件实验报告](docs/PUBLICATION_RESULTS.md)。下面来自同一个冻结版本；历史二维原型、单种子窗口和连续视频分别保留自己的来源。
 
-多种子和噪声区间目前是条件局部一阶诊断，不是校准后的全局置信区间。历史多接触 benchmark 使用已知数量/顺序的平面原型；新增完整三维窗口路径从形状和环境生成接触候选，联合求解各帧的 Cosserat 平衡、摩擦、接触力和末端力，见[完整 formulation 工作流](docs/FORMULATION_WORKFLOW.md)。真实传感器尚未接入。
+| 协议 | 本版本结果 |
+|---|---|
+| 完整三维因素矩阵 | 108 次：2 场景 × 3 种子 × 3 噪声 × 6 方法；推断异常 0 |
+| 同观测文献适配 | 36 次点载荷/Gaussian 基线，18 个字节相同的输入/真值包；推断异常 0 |
+| 三接触，标称噪声 | 三种子接触向量 RMSE 均值：EnFiRCE 0.215 N，Point 3.142 N，Gaussian 0.780 N |
+| 空间摩擦双接触，标称噪声 | EnFiRCE 0.288 N，Point 2.491 N，Gaussian 0.607 N |
+| 局部 95% 区间 | 含噪完整法 252/252 个可计分力分量覆盖；平均全宽 1.551 N；条件诊断，未作全局校准声明 |
+| 工程检查与归档重放 | 36/36 通过；包括 JSON 恢复、搜索域、导数和原始传感器重放 |
+| 求导对照 | 2 次顺序冷启动；ODE 6817 → 6060，最大力差 8.28e-15 N |
+
+接触力、末端力与总合力分别计分；各方法的非正退出、review 和不利结果在报告中完整列出。三个种子重复传感器噪声，而非独立机器人轨迹。因素计时共享并行资源，不能作为独立速度排名。对比是文献思想适配，未运行官方完整因子图系统，当前不宣称 SOTA。
+
+完整三维路径从形状与环境生成候选，联合优化各帧 Cosserat 平衡、未知接触弧长、力、环境参数和摩擦历史；见[完整 formulation 工作流](docs/FORMULATION_WORKFLOW.md)。它是直接非线性窗口 MAP，递归预测后验/迭代 EKF 的原式仍单独列为差异。真实传感器尚未接入。
+
+历史 396 次二维多接触及 54 次平面偏移实验见[二维软件报告](docs/SOFTWARE_BENCHMARK_2026-09-30.md)；历史七窗口与缓存结果见[文献比较说明](docs/LITERATURE_COMPARISON.md)。这些历史记录未改写成当前源码结果。
 
 ## 公开视频与演示
 
@@ -38,7 +39,9 @@
 
 新增完整窗口的[逐接触真值与估计结果](out/formulation_window/summary.md)、[模型失配报告](out/model_mismatch/summary.md)和[无杆身接触结果](out/formulation_window/free_space/metrics.json)分别记录。完整公式、代码对应和每个场景的具体参数见[完整 formulation 工作流](docs/FORMULATION_WORKFLOW.md)。
 
-最新的[文献基线与缓存技术报告](docs/LITERATURE_COMPARISON.md)解释适配公式、公平输入、逐项结果、代码实现和剩余缺口；[真实对比图](out/benchmarks/literature/figures/noisy_baseline_comparison.png)与[绘图源数据](out/benchmarks/literature/source_data.csv)随仓库发布。它们不是原作者官方实现，当前证据不足以宣布 SOTA。
+历史版本的[文献基线与缓存技术报告](docs/LITERATURE_COMPARISON.md)解释适配公式、公平输入、逐项结果、代码实现和剩余缺口；[真实对比图](out/benchmarks/literature/figures/noisy_baseline_comparison.png)与[绘图源数据](out/benchmarks/literature/source_data.csv)随仓库发布。它们不是原作者官方实现，当前证据不足以宣布 SOTA。
+
+新的[完整三维因素与修复说明](docs/FORMULATION_FACTORS.md)介绍跨帧候选关联、全长有序接触、共享导数、退化分支精化，以及完整窗口的多种子/多噪声、逐因素消融和局部覆盖率接口。各阶段与代码对应也列入技术总说明第 25 节。
 
 ## 快速运行
 
@@ -57,12 +60,15 @@ force('multi-geometry');  % 重放 1 mm 平面误差及潜在偏移先验
 force('multi-formulation'); % 自动候选、三维多接触、完整摩擦时间窗口
 force('literature-baselines'); % 同一归档曲率：文献点载荷/Gaussian 适配
 run_formulation_cache_benchmark(); % 相同冷启动的精确缓存开关消融
+force('formulation-factors'); % 完整三维：多种子/噪声/六因素/局部覆盖率
+force('publication');        % 消融 → 字节相同的文献对照 → 性能 → 工程检查
+run_formulation_derivative_benchmark(); % 相同冷启动，共享/单独求导对照
 force('realtime');        % 墙钟性能回放
 force('temporal-window'); % 短窗口 Cosserat MAP
 force('check');           % 工程回归与传感器重放
 ```
 
-严格路径需要 MATLAB R2024a 或兼容版本、Optimization Toolbox，以及本地的 `LCP-Continuum/` 依赖。完整 MPCC 运行时间较长；各协议会在 `out/` 下写出本地结果，但大体积 MAT 和逐帧日志保留在本地；精选视频与结果摘要随仓库发布。
+严格路径需要 MATLAB R2024a 或兼容版本、Optimization Toolbox，以及本地的 `LCP-Continuum/` 依赖。完整 MPCC 运行时间较长；各协议会在 `out/` 下写出本地结果，完整投稿协议的精选输入/真值/估计 MAT、CSV、完成记录与图源随仓库发布；其他中间数据和逐帧日志保留在本地。
 
 首次克隆本项目时，外部依赖需单独获取。本轮环境使用版本 `56bfd089665efc95bba3e0e49ad11557cf206524`，可在仓库根目录运行：
 
@@ -80,6 +86,8 @@ git -C LCP-Continuum checkout 56bfd089665efc95bba3e0e49ad11557cf206524
 - `rod/estimate_formulation_forces.m`：论文主路径的配置入口。
 - `rod/estimate_formulation_window.m`、`integrate_cosserat_load_state.m`：完整三维多接触窗口 MAP、逐时刻非线性平衡和摩擦 MPCC。
 - `rod/formulation_window_observations.m`、`formulation_contact_candidates.m`：实际观测通道、协方差与真实前驱时间，形状和环境驱动的候选搜索。
+- `rod/track_formulation_candidates.m`、`formulation_contact_arc_domain.m`、`formulation_derivative_bundle.m`：跨帧候选关联、全长有序接触域与共享导数。
+- `rod/run_formulation_factor_protocol.m`、`resample_formulation_observations.m`、`score_formulation_coverage.m`：完整三维窗口的独立噪声实现、因素消融和可辨识分量覆盖率；`scripts/render_formulation_factors.py`：校验原始数据后绘图。
 - `rod/run_formulation_workflow.m`、`write_formulation_window_csv.m`：全部给定观测到 MAT/CSV/JSON 的可复现离线流程。
 - `rod/estimate_literature_curvature_baseline.m`、`integrate_body_load_curvature.m`：完整局部坐标 Cosserat 点载荷/Gaussian 曲率基线；`run_literature_baseline_protocol.m` 与 `scripts/render_literature_comparison.py` 生成同输入记录和矢量图。
 - `rod/solve_cosserat_force_map.m`、`rod/solve_contact_mpcc.m`：单接触三维平衡和互补优化。
@@ -97,4 +105,4 @@ git -C LCP-Continuum checkout 56bfd089665efc95bba3e0e49ad11557cf206524
 
 ## 研究边界
 
-当前没有真实 FBG、相机同步、接触力传感器标定或实时硬件结果。完整三维摩擦窗口已连接，历史二维 benchmark 和新窗口实验分别记录；候选覆盖、跨分区接触迁移、模式边缘化、材料误差、全局覆盖率和实时加速仍需优化。这些边界会在结果文件的 `quality` 和报告中显式保留，内部方法比较不作为 SOTA 证明。
+当前没有真实 FBG、相机同步、接触力传感器标定或实时硬件结果。完整三维摩擦窗口已连接；接触位置现在可沿整根杆迁移，只施加顺序与最小间距约束，旧首帧分区保留为显式消融。历史二维 benchmark 和新三维实验分别记录。有限候选覆盖、模式边缘化、材料误差、全局覆盖率和实时性能属于后续研究验证范围，内部方法比较不作为 SOTA 证明。

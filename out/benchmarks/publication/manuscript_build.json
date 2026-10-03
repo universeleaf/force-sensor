@@ -1,0 +1,80 @@
+{
+  "state": "complete",
+  "startedAtUtc": "2026-10-03T21:39:51.659398+00:00",
+  "source": [
+    {
+      "path": "EnFiRCE_overleaf/figs/baseline_table.tex",
+      "sha256": "93552b5d4cbc5bc11fbadac17573fef8dfd6db635437ff929f1b4828ad3843d1"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/clean_baseline_consistency.pdf",
+      "sha256": "33ad6adf65a24c4718b99799e9b802524ce93d90de98976e34fade56726377d8"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/contact_magnitudes.pdf",
+      "sha256": "4d3ec1eccb1636488d7eb50ebcafcf55cbdf0c70aca588deee791b3930641cb9"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/coverage_runtime.pdf",
+      "sha256": "2db09d64bc8e61971084919ea2a8075d1e4dbcbd8ecdb9da567b8e8ef8c3f294"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/factor_accuracy.pdf",
+      "sha256": "c5baa4c94435b98adb66bd7139fcf238683aebe4867b3f5997028cf4571f83a1"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/local_uncertainty.pdf",
+      "sha256": "9c42c0f8c40e970b363794ecf0eff4086a02ebacc8d29de8ff46b0b467b93d3f"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/matched_baselines.pdf",
+      "sha256": "a8427b8abe87c7c575087573e8ae6fdaeba21f217c1d5cc98ac181fab264ccd9"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/method_overview.pdf",
+      "sha256": "9b8af3cd586363a74061d6d1c47fbe4d3004659e1f2babbdaafe75e7ca92be9b"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/noisy_baseline_comparison.pdf",
+      "sha256": "578255656726d9e9d0c999a8094eb3d2ec54ea91fdff827a356e3c3fe0f73e7b"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/paired_table.tex",
+      "sha256": "6c7a54981fbc958bc49105f131a787f3091bfa981fb3c69ac35613e054f23f8b"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/planar_density_ablation.pdf",
+      "sha256": "959db04006972096e1de362e3ef16a4fbd4e816c5ac81faf001b43c50e192610"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/solved_contact_geometry.pdf",
+      "sha256": "c289d81c9df223bb0efbd5e764fdf3171af1e330a7a97fc747b62ff0928e3412"
+    },
+    {
+      "path": "EnFiRCE_overleaf/ieeeconf.cls",
+      "sha256": "4befef671c2a996889d325f5170d3387bf42aac9a37dcaa93724ad49816e4ec2"
+    },
+    {
+      "path": "EnFiRCE_overleaf/main.tex",
+      "sha256": "7f73b24754fb34d3a59894057c4e94a354a7f721f7c0747d1d235e7ac40396f2"
+    },
+    {
+      "path": "EnFiRCE_overleaf/refs.bib",
+      "sha256": "70da50d9d04601fe323728684c12bdb773bc741ceaad8fa5d57501be93ab5a1d"
+    }
+  ],
+  "compilerScriptSha256": "ce91e200eb8772375c1bc233f1dadfae02a57058a839591f75de1839bda0d0a7",
+  "command": [
+    "latexmk",
+    "-pdf",
+    "-interaction=nonstopmode",
+    "-halt-on-error",
+    "main.tex"
+  ],
+  "seconds": 5.053959000040777,
+  "exitCode": 0,
+  "pageCount": 7,
+  "pdfPath": "out/benchmarks/publication/EnFiRCE_draft.pdf",
+  "pdfSha256": "5d70480606c7464ecbdc55b680826749a6f7cc762a1954acb9cf797a04a11d0a",
+  "completedAtUtc": "2026-10-03T21:39:56.754832+00:00"
+}

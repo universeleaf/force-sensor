@@ -1,0 +1,18 @@
+{
+  "capturedAtUtc": "2026-10-03T19:58:20Z",
+  "processor": "13th Gen Intel(R) Core(TM) i9-13900HK",
+  "physicalCores": 14,
+  "logicalProcessors": 20,
+  "visibleMemoryGiB": 31.69,
+  "operatingSystem": "Microsoft Windows 11 专业版",
+  "operatingSystemVersion": "10.0.26200",
+  "factorWorkerCount": 6,
+  "factorSingleCompThread": true,
+  "derivativeWorkers": 1,
+  "timingScope": "Factor calls share six worker processes on the same host; derivative calls run sequentially after workers exit. Not isolated latency or real-time evidence.",
+  "baselineSingleCompThread": true,
+  "baselineTimingScope": "All 36 baseline calls were completed sequentially in the first single-thread continuation and reused byte-for-byte.",
+  "derivativeSingleCompThread": false,
+  "legacyReplaySingleCompThread": false,
+  "legacyReplayThreadMode": "MATLAB default, observed maxNumCompThreads=6 in the diagnostic; same input gives exactly zero state/force replay difference."
+}

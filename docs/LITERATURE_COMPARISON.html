@@ -6,7 +6,8 @@ table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid 
 th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
 @media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
 </style></head><body><main><h1>同观测文献基线、真实结果与求解加速</h1>
-<p>更新：2026-10-01。项目：<strong>EnFiRCE: Environment- and Friction-informed Rod Contact Estimation</strong>。</p>
+<p>更新：2026-10-04。项目：<strong>EnFiRCE: Environment- and Friction-informed Rod Contact Estimation</strong>。</p>
+<p><strong>版本说明：</strong> 第 5–7 节的七窗口/14 基线和缓存开关数字是已归档的历史对照。新的完整三维多种子因素、同包基线及共享求导协议见<a href="FORMULATION_FACTORS.html">完整窗口因素实验</a>；新的定量结果由 <code>out/benchmarks/publication/paired_summary.json</code> 生成，不能把两轮不同噪声实现的差异冒充算法提升。当前默认接触位置已改为全长有序搜索，历史固定分区限制保留为显式消融。</p>
 <p>本轮已经实际完成七组相同输入下的点载荷/Gaussian 基线求解，共 14 次方法运行、28 个输出状态，无运行失败；与已有七组完整三维窗口的 14 个状态比较。两个含噪场景中，EnFiRCE 的逐接触向量与位置误差较低，但三接触的合力误差高于点载荷基线。结论是<strong>这些输入下接触分力估计有优势，尚不能称为 SOTA</strong>。</p>
 <p>另完成一次相同冷启动、相同目标和约束的缓存开关消融。双接触两状态窗口的求解调用时间从 116.29 s 降到 50.75 s，力差为 0；这个改进减少重复积分，不简化 Formulation。它仍未达到实时预算。</p>
 <h2>1. 比较的具体问题</h2>
@@ -55,7 +56,7 @@ th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{fon
 <td>包含应变、腱张力和位姿输入，本轮没有实现其完整随机杆/驱动图；当前 Gaussian 曲率 LS 不是该方法</td>
 </tr>
 <tr>
-<td><a href="https://arxiv.org/abs/2601.04493v3">Ferguson、Kuntz 与 Hermans，2026，Actuation Uncertainty</a></td>
+<td><a href="https://doi.org/10.1109/LRA.2026.3703250">Ferguson、Kuntz 与 Hermans，RA-L 2026，Actuation Uncertainty</a></td>
 <td>最新相关工作与加速路线</td>
 <td>离散 Cosserat、稀疏因子图、驱动不确定性</td>
 <td>不是本轮连续 shooting 的性能基线；原文的实时声明不能用来替代本项目的实测时间</td>
@@ -63,6 +64,7 @@ th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{fon
 </tbody>
 </table>
 <p>这些条目均有真实论文主页或 DOI。这里的点载荷/Gaussian 方法是<strong>可查看源码的文献适配实现</strong>，不是原作者官方代码，也不是覆盖全部论文设定的复现。不同论文使用的机器人、传感器、载荷大小与误差定义不同，不把它们的硬件百分比误差与本项目仿真 RMSE 直接排名。</p>
+<p>2026-10-04 重新核对了 <a href="https://arxiv.org/html/2606.29165v2">Prakash 等 v2 原文</a>和 <a href="https://arxiv.org/html/2601.04493v3">Ferguson 等 v3 原文</a>。前者的随机点力实验使用不同的直杆、10 个角应变位置和末端位置输入；本项目两弯曲通道、环境平面及独立末端力的设置不能直接套用其公布的误差作排名。后者官方 <a href="https://github.com/Kuntz-Lab/bendier">BENDIER 仓库</a>确实公开，并要求用 <code>RAL</code> tag 对应论文版本；其原始 C++/GTSAM 图不是当前 Gaussian LS。该文章现已有正式 RA-L 卷期和 DOI，论文引用已更新为 11(8):9487–9494。官方图的同输入适配属于另一个需要执行并归档的比较，当前没有将其写成已运行结果。</p>
 <h2>3. 新局部坐标力学映射：为什么没有偷偷简化</h2>
 <p>代码：<a href="../rod/integrate_body_load_curvature.m">integrate_body_load_curvature.m</a>。设世界坐标内力矩为 m，内力为 N，杆姿态为 R；定义局部量 h=Rᵀm、n=RᵀN。无剪切、不可伸长杆满足：</p>
 <pre><code class="language-text">u(s) = u0(s) + K(s)^(-1) h(s)
@@ -245,7 +247,7 @@ export_literature_geometry();         % 从已完成参考窗口导出实际场�
 <pre><code class="language-text">python scripts/render_literature_comparison.py
 python scripts/render_notes.py docs/LITERATURE_COMPARISON.md
 </code></pre>
-<p>MATLAB R2024a、Optimization Toolbox 与固定 <code>LCP-Continuum</code> 依赖版本沿用 README。正式实验会重新写正式目录；只想查看成果时打开已有 JSON/CSV/图即可。基础检查的历史 33/33 记录保留；新力学检查另外已通过并加入检查入口，下一次完整 <code>force('check')</code> 将注册 34 项，不能把旧账本改写成已经运行过 34 项。</p>
+<p>MATLAB R2024a、Optimization Toolbox 与固定 <code>LCP-Continuum</code> 依赖版本沿用 README。正式实验会重新写正式目录；只想查看成果时打开已有 JSON/CSV/图即可。基础检查的历史 33/33 记录保留；当前组合协议注册 34 项基础检查及两项完整归档重放，执行结果以各轮 <code>out/completion/project_checks.json</code> 为准，不能回写旧运行的检查数量。</p>
 <h2>9. 目前还不能作出的结论与后续优先级</h2>
-<p>不是“代码再无问题”：遗漏环境面两组的总力 RMSE 17.83/15.96 N 仍保留，只是拟合诊断能提示异常；有限形状驱动候选、固定弧长分区与原型的稀疏观测失败也仍是算法边界。缓存不改变这些边界。对任意光滑曲面、有限面片、杆半径、真实黏滑切换和全局模式后验没有完整验证。</p>
-<p>下一步的优先级是：完整三维窗口的独立多轨迹/多 seed 统计；以完全相同窗口因子进行环境/时间/摩擦逐项消融；扩大候选覆盖并处理跨分区迁移；材料/几何失配下的后验校准；正式因子图方法在相同输入子集下的实现或明确不可比；重复且随机顺序的性能测量。真实 FBG、相机和力传感器标定仍需要硬件。现在已有可以审阅的完整算法、公开输入、真实对比图与论文草稿，距离“已经证明可发表/最优”仍缺这些证据。</p></main></body></html>
+<p>遗漏环境面两组的总力 RMSE 17.83/15.96 N 仍保留，只是拟合诊断能提示异常。有限形状驱动候选与原型的稀疏观测失败仍是算法边界；默认固定弧长分区已移除，旧限制只保留为消融。缓存不改变观测/模型边界。对任意光滑曲面、有限面片、杆半径、真实黏滑切换和全局模式后验没有完整验证。</p>
+<p>新的完整三维多 seed/噪声、同窗口环境/时间/摩擦因素消融、共享求导和字节相同基线已由组合协议串联，结果以<a href="FORMULATION_FACTORS.html">新实验说明</a>和实际完成账本为准。进一步的研究验证是独立多轨迹、接触候选/模式混合、材料和几何失配下的后验校准、官方因子图的同输入适配，以及重复且随机顺序的性能测量。真实 FBG、相机和力传感器标定仍需要硬件。完整软件与真实图表可以供审阅，但不能保证论文接收或最优。</p></main></body></html>

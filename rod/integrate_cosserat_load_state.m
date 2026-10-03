@@ -10,10 +10,13 @@ s=tube.s(:)'; K=reshape(getTubeK(tube),3,[]); u0=tube.uhat;
 assert(numel(s)>=2 && all(diff(s)>0) && isequal(size(K),size(u0)) && ...
     all(K>0,'all') && all(isfinite([s(:);K(:);u0(:)])), 'rod:InvalidTube','Invalid calibrated rod.');
 contactS=contactS(:)'; contactForce=reshape(contactForce,3,[]);
-assert(size(contactForce,2)==numel(contactS) && all(diff(contactS)>0) && ...
+assert(size(contactForce,2)==numel(contactS) && ...
     all(contactS>s(1)) && all(contactS<s(end)) && ...
     all(isfinite([baseMoment(:);contactS(:);contactForce(:);tipForce(:)])), ...
-    'rod:InvalidLoadState','Loads and ordered interior contact positions must be finite.');
+    'rod:InvalidLoadState','Loads and interior contact positions must be finite.');
+% Intermediate optimizer/derivative trials may violate contact ordering.
+% Segment edges are sorted independently; load columns and queried material
+% points keep their original identities. Ordering is a solver constraint.
 assert(numel(baseMoment)==3 && numel(tipForce)==3,'rod:InvalidLoadState','Moment/tip load must be 3-vectors.');
 % Piecewise-constant calibrated fields, held on [s_j,s_{j+1}). Only real
 % profile changes require a new ODE segment; the sensor grid does not.
@@ -28,7 +31,9 @@ for j=1:numel(pieces)
     load=tipForce(:)+sum(contactForce(:,contactS>midpoint),2);
     pieces{j}=ode45(@balance,edges(j:j+1),state,odeOptions); state=pieces{j}.y(:,end);
 end
-collisionS=linspace(s(1),s(end),ceil((s(end)-s(1))/options.collisionStepMm)+1);
+% Append continuous contacts with stable row identities. Keep duplicates:
+% unique/sorting would merge or permute constraint rows as contacts migrate.
+collisionS=[linspace(s(1),s(end),ceil((s(end)-s(1))/options.collisionStepMm)+1),contactS];
 y=evaluate(s); yc=evaluate(contactS); ys=evaluate(collisionS);
 R=reshape(y(4:12,:),3,3,[]); u=u0;
 for j=1:numel(s), u(:,j)=u0(:,j)+(R(:,:,j)'*y(13:15,j))./K(:,j); end
