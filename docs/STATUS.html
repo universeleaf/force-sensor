@@ -6,7 +6,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid 
 th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
 @media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
 </style></head><body><main><h1>当前状态</h1>
-<p>更新：2026-10-04。</p>
+<p>更新：2026-10-05。</p>
 <p>EnFiRCE 是利用稀疏形状和环境信息估计连续体机器人接触力及独立末端力的 MATLAB 仿真研究实现。</p>
 <p>本版本完整协议 <code>3ee78967-a1c8-4565-a3d0-b4c97cda85da</code> 已完成：108 项完整三维因素运行、36 项同输入文献适配、2 项顺序导数对照、36 项工程检查。全部原始文件及图表按源码/数据 SHA 对应，详细数值、复核标志、退出状态和消融定义见<a href="PUBLICATION_RESULTS.html">完整软件实验报告</a>。</p>
 <h2>本轮代码改进</h2>
@@ -17,7 +17,12 @@ th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{fon
 <li>恢复步骤重新计算固定物理/弱 MAP 残差平方范数，只接受没有变差的返回点，防止失败恢复覆盖原初值；非法试探局部拒绝，真实编程错误继续抛出。</li>
 <li>JSON 往返的数组方向/字段顺序不再误报源码或依赖改变；真实校验值改变仍拒绝恢复。</li>
 <li>因素单线程与历史归档默认线程分开调度；同一旧 wall 输入在默认线程下状态/合力差均为 0，保留严格重放阈值与实际执行脚本归档。</li>
-<li>六个独立场景/种子目录并行求解并校验合并；图、论文、网站只接收完整数据。</li>
+<li>
+<p>六个独立场景/种子目录并行求解并校验合并；图、论文、网站只接收完整数据。</p>
+</li>
+<li>
+<p>修复论文重复更新时旧比较图残留、导致标签重复而中断的问题。发布核验增加步骤唯一性、逐案例完成状态/数量及工程检查非空/数量检查；8 项 Python 回归通过，真实稿件连续更新两次字节相同。此次未修改 MATLAB 求解器或实验数值。</p>
+</li>
 </ul>
 <h2>阅读和复现</h2>
 <ul>
@@ -35,4 +40,6 @@ python scripts/sync_publication_website.py
 <p>MATLAB 默认顺序入口为 <code>force('publication')</code>。执行代码必须与已有记录相同，否则使用新目录；并行计时不解释为隔离实时性能。</p>
 <h2>证据范围</h2>
 <p>连续 MP4 保留原先实际 12 个平衡状态：单接触为三维旧估计器，多接触为已知顺序/数量的平面原型。新统计为完整三维两状态 MAP；二者分别注明，未把旧视频当作新统计的完整运动实验。</p>
-<p>论文与网站采用本完整版本的统计，适配基线与官方系统区分。真实硬件、独立多轨迹、曲面/有限面片、接触模式混合、材料失配校准和实时递归属于尚需研究证据的范围；本页不将它们写成已完成。</p></main></body></html>
+<p>论文与网站采用本完整版本的统计，适配基线与官方系统区分。真实硬件、独立多轨迹、曲面/有限面片、接触模式混合、材料失配校准和实时递归属于尚需研究证据的范围；本页不将它们写成已完成。</p>
+<h2>新配置比较</h2>
+<p>新增 72 次六配置同观测比较：曲率和平面观测同时采样，包含非平行通道、壁距/末端载荷、几何尺度与空间稀疏观测。全部逐种子指标、真实力大小、退出码、场景定义和代码对应见<a href="GENERALIZATION_RESULTS.html">新配置比较报告</a>。既有冻结协议未改写；基线仍为文献思想适配。</p></main></body></html>

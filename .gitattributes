@@ -5,3 +5,7 @@ out/** -text whitespace=trailing-space,space-before-tab,cr-at-eol
 rod/*.m -text whitespace=trailing-space,space-before-tab,cr-at-eol
 force.m -text whitespace=trailing-space,space-before-tab,cr-at-eol
 scripts/*.py -text whitespace=trailing-space,space-before-tab,cr-at-eol
+
+# Keep the additional experiment protocol and report covered by figure hashes.
+docs/GENERALIZATION_FIGURE_CONTRACT.md -text
+docs/GENERALIZATION_RESULTS.md -text

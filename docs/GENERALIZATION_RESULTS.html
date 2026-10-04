@@ -1,0 +1,353 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>杆接触力估计技术记录</title><style>
+body{font:16px/1.8 'Microsoft YaHei',Arial,sans-serif;color:#20303b;background:#eef3f6;margin:0}
+main{max-width:1100px;margin:28px auto;background:white;padding:32px 40px;border-top:5px solid #17698b}
+h1{font-size:28px}h2{margin-top:30px}a{color:#096989}img{max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #cddbe5;padding:8px;text-align:left}
+th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
+@media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
+</style></head><body><main><h1>新配置的同观测力估计比较</h1>
+<p>更新：2026-10-05。</p>
+<p>实际记录 72 次运行：6 配置 × 3 传感器种子 × 4 方法。异常 0 次。结果来自新的独立配置或明确标注的观测密度控制；不是插值视频或论文报告数值搬运。</p>
+<h2>1. 比较协议</h2>
+<p>曲率噪声 SD 2.5e-5 /mm，同时按观测包的平面协方差采样位置/法向噪声：位置分量 SD 0.05 mm、法向分量 SD 0.001，法向随后单位化。种子为 11、23、37；同维数配置使用共同标准噪声。每个固定配置的三个观测实现独立，但不是三条机器人轨迹。</p>
+<p>每份 input.mat 与 truth.mat 的字节在四种方法间相同。真值从未送入逆模型；候选来自观测。full 和 no_geometry 都保留完整 3-D Cosserat 窗口、前一时刻平衡、独立末端力与潜在环境参数；后者只去掉接触 gap/tangency/nonpenetration。Point LS / Gaussian LS 为项目中的文献思想适配，保留既有三个独立初值、每初值 80 次迭代，不接受 EnFiRCE 解初始化；共享观测候选数量，使用自己的固定有序弧长分区。它们省略环境/过程因素，故比较完整估计器的输入利用能力，不能称为信息量匹配的单一优化器竞赛。</p>
+<p>下表均值按三个窗口计算；每个窗口内部计算两帧、所有匹配接触的向量 RMS。力大小 MAE 单独计算。非正退出/复核不删除，接触数不匹配时不给虚构的接触误差。</p>
+<h2>2. 全部方法结果</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>方法</th>
+<th style="text-align: right;">匹配/尝试</th>
+<th style="text-align: right;">接触向量 RMSE /N</th>
+<th style="text-align: right;">力大小 MAE /N</th>
+<th style="text-align: right;">末端 RMSE /N</th>
+<th style="text-align: right;">总力 RMSE /N</th>
+<th style="text-align: right;">非正退出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parallel channel</td>
+<td>EnFiRCE</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.343137</td>
+<td style="text-align: right;">0.3041</td>
+<td style="text-align: right;">0.334255</td>
+<td style="text-align: right;">0.377523</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Parallel channel</td>
+<td>No contact geometry</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.429568</td>
+<td style="text-align: right;">0.375675</td>
+<td style="text-align: right;">0.421934</td>
+<td style="text-align: right;">0.473846</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Parallel channel</td>
+<td>Adapted point LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">1.71494</td>
+<td style="text-align: right;">0.500357</td>
+<td style="text-align: right;">0.590781</td>
+<td style="text-align: right;">1.54801</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Parallel channel</td>
+<td>Adapted Gaussian LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.783189</td>
+<td style="text-align: right;">0.698441</td>
+<td style="text-align: right;">0.88265</td>
+<td style="text-align: right;">0.892228</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Tapered channel</td>
+<td>EnFiRCE</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.42052</td>
+<td style="text-align: right;">0.379571</td>
+<td style="text-align: right;">0.44852</td>
+<td style="text-align: right;">0.451542</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Tapered channel</td>
+<td>No contact geometry</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.435444</td>
+<td style="text-align: right;">0.373149</td>
+<td style="text-align: right;">0.459028</td>
+<td style="text-align: right;">0.465209</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Tapered channel</td>
+<td>Adapted point LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">2.53803</td>
+<td style="text-align: right;">0.777742</td>
+<td style="text-align: right;">1.37712</td>
+<td style="text-align: right;">2.67593</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Tapered channel</td>
+<td>Adapted Gaussian LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.711112</td>
+<td style="text-align: right;">0.64011</td>
+<td style="text-align: right;">0.796984</td>
+<td style="text-align: right;">0.804587</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Wider channel</td>
+<td>EnFiRCE</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.364335</td>
+<td style="text-align: right;">0.325192</td>
+<td style="text-align: right;">0.371401</td>
+<td style="text-align: right;">0.380202</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Wider channel</td>
+<td>No contact geometry</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.422065</td>
+<td style="text-align: right;">0.365619</td>
+<td style="text-align: right;">0.435368</td>
+<td style="text-align: right;">0.444252</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Wider channel</td>
+<td>Adapted point LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">2.60754</td>
+<td style="text-align: right;">0.887004</td>
+<td style="text-align: right;">1.36169</td>
+<td style="text-align: right;">2.79974</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Wider channel</td>
+<td>Adapted Gaussian LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">1.2454</td>
+<td style="text-align: right;">1.02883</td>
+<td style="text-align: right;">1.3232</td>
+<td style="text-align: right;">1.31217</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Serpentine / tip load</td>
+<td>EnFiRCE</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.248934</td>
+<td style="text-align: right;">0.207831</td>
+<td style="text-align: right;">0.284407</td>
+<td style="text-align: right;">0.351695</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Serpentine / tip load</td>
+<td>No contact geometry</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.280073</td>
+<td style="text-align: right;">0.213887</td>
+<td style="text-align: right;">0.323845</td>
+<td style="text-align: right;">0.368963</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Serpentine / tip load</td>
+<td>Adapted point LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">3.18742</td>
+<td style="text-align: right;">0.929226</td>
+<td style="text-align: right;">2.46602</td>
+<td style="text-align: right;">2.20904</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Serpentine / tip load</td>
+<td>Adapted Gaussian LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.815634</td>
+<td style="text-align: right;">0.668374</td>
+<td style="text-align: right;">1.03075</td>
+<td style="text-align: right;">1.03973</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Longer serpentine</td>
+<td>EnFiRCE</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.2195</td>
+<td style="text-align: right;">0.185008</td>
+<td style="text-align: right;">0.268692</td>
+<td style="text-align: right;">0.312564</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Longer serpentine</td>
+<td>No contact geometry</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.251279</td>
+<td style="text-align: right;">0.200053</td>
+<td style="text-align: right;">0.308726</td>
+<td style="text-align: right;">0.334276</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Longer serpentine</td>
+<td>Adapted point LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">2.6653</td>
+<td style="text-align: right;">0.80639</td>
+<td style="text-align: right;">2.15892</td>
+<td style="text-align: right;">1.93303</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Longer serpentine</td>
+<td>Adapted Gaussian LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.720067</td>
+<td style="text-align: right;">0.592151</td>
+<td style="text-align: right;">0.903022</td>
+<td style="text-align: right;">0.907306</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Spatial / 12 observations</td>
+<td>EnFiRCE</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.55495</td>
+<td style="text-align: right;">0.52804</td>
+<td style="text-align: right;">0.586632</td>
+<td style="text-align: right;">0.641058</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Spatial / 12 observations</td>
+<td>No contact geometry</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">0.56957</td>
+<td style="text-align: right;">0.535655</td>
+<td style="text-align: right;">0.517214</td>
+<td style="text-align: right;">0.659547</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Spatial / 12 observations</td>
+<td>Adapted point LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">6.36049</td>
+<td style="text-align: right;">1.91758</td>
+<td style="text-align: right;">4.27756</td>
+<td style="text-align: right;">3.46011</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Spatial / 12 observations</td>
+<td>Adapted Gaussian LS</td>
+<td style="text-align: right;">3/3</td>
+<td style="text-align: right;">1.06135</td>
+<td style="text-align: right;">0.843507</td>
+<td style="text-align: right;">1.08174</td>
+<td style="text-align: right;">1.12759</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="六个配置的接触力误差" src="../out/benchmarks/generalization/v1/figures/generalization_accuracy.png" /></p>
+<p>方形标记和线段为三个种子的均值及最小/最大范围，圆点为每个种子；范围不是置信区间。纵轴 symlog 在 0.1 N 以下线性，以上为对数。空心三角标记非正退出，并保留在统计中。</p>
+<p><img alt="力大小、末端和总力的配对误差比值" src="../out/benchmarks/generalization/v1/figures/generalization_load_errors.png" /></p>
+<p>辅助误差图的中心是 EnFiRCE 三种子均值 / 对照方法三种子均值，点和范围为逐种子配对比值。小于 1 表示该指标完整法误差更低，大于 1 的结果同样保留；范围不是置信区间。</p>
+<h2>3. 各接触的实际力大小</h2>
+<p><img alt="真实力大小与四种方法" src="../out/benchmarks/generalization/v1/figures/generalization_magnitudes.png" /></p>
+<p>灰线为独立 shooting 真值，彩点及范围为各方法三个种子的估计。C1/C2/C3 按材料弧长排序，t0/t1 是实际独立求解的两个平衡。单位为 N，采用项目当前校准刚度，不能解释为硬件测量。</p>
+<h2>4. 物理配置与实现</h2>
+<p><img alt="实际求解的场景几何" src="../out/benchmarks/generalization/v1/figures/generalization_geometry.png" /></p>
+<ul>
+<li>parallel_channel：140 mm S 形杆、两壁 x=±10 mm，两接触，基座从 x=-0.6 至 +0.6 mm，独立末端力 [0.1,0,-0.08] N。</li>
+<li>tapered_channel：同长度，非平行法向 [1,0,-0.05] / [-1,0,-0.05] 经单位化，真实两接触。</li>
+<li>wider_channel：两壁 x=±11 mm，末端力变为 [0.15,0,-0.10] N；重新求解真值。</li>
+<li>serpentine_tip_load：210 mm 三接触蛇形杆，末端力变为 [0.25,0,-0.15] N。</li>
+<li>longer_serpentine：210 mm 配置按 8/7 几何缩放为 240 mm；段长 80 mm、曲率 0.0175 /mm、壁距和基座移动同样缩放；保持刚度，载荷按 (7/8)^2 缩放。这是相似几何尺度对照，不是新接触拓扑。</li>
+<li>spatial_sparse：旧真实 3-D 双接触滑动真值，µ=0.03，基座 +y 0.5 mm，末端力 [0.1,0.3,-0.08] N；仅将 24 个观测位置均匀减为 12 个。几何图为 x-z 投影，不冒充新的物理轨迹或 stick-slip。</li>
+</ul>
+<p>前五项用独立连续平面 shooting 生成新平衡，再嵌入 3-D 观测；逆模型仍使用非线性 3-D Cosserat。每次构造检查整杆穿透、接触 gap/tangency、端部力矩和平衡。240 mm 的第一次配置保持 20 mm 通道不变，整杆穿透 1.95 mm，审计拒绝，未进入估计排名；拒绝记录保留在 fixture_diagnostics.json。</p>
+<p>代码对应：</p>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>六场景定义、独立输出、同输入方法循环、SHA/恢复</td>
+<td><a href="../rod/run_generalization_comparison.m">run_generalization_comparison.m</a></td>
+</tr>
+<tr>
+<td>连续平面真值</td>
+<td><a href="../rod/build_multi_contact_demo_truth.m">build_multi_contact_demo_truth.m</a>、<a href="../rod/solve_planar_multi_contact.m">solve_planar_multi_contact.m</a></td>
+</tr>
+<tr>
+<td>真正空间摩擦真值</td>
+<td><a href="../rod/build_spatial_friction_packet.m">build_spatial_friction_packet.m</a></td>
+</tr>
+<tr>
+<td>完整窗口 MAP、协方差和质量标志</td>
+<td><a href="../rod/estimate_formulation_window.m">estimate_formulation_window.m</a></td>
+</tr>
+<tr>
+<td>观测候选与跨帧关联</td>
+<td><a href="../rod/formulation_contact_candidates.m">formulation_contact_candidates.m</a></td>
+</tr>
+<tr>
+<td>曲率文献适配基线</td>
+<td><a href="../rod/estimate_literature_curvature_baseline.m">estimate_literature_curvature_baseline.m</a></td>
+</tr>
+<tr>
+<td>曲率/环境观测采样</td>
+<td><a href="../rod/resample_formulation_observations.m">resample_formulation_observations.m</a></td>
+</tr>
+<tr>
+<td>活动接触匹配、力大小/向量/末端/总力误差</td>
+<td><a href="../rod/score_formulation_window.m">score_formulation_window.m</a></td>
+</tr>
+<tr>
+<td>数据核验、配对、绘图与本报告</td>
+<td><a href="../scripts/render_generalization_comparison.py">render_generalization_comparison.py</a></td>
+</tr>
+</tbody>
+</table>
+<h2>5. 复现、结果解释与数据</h2>
+<pre><code class="language-matlab">addpath('rod'); addpath(genpath('LCP-Continuum'));
+ids={'parallel_channel','tapered_channel','wider_channel', ...
+     'serpentine_tip_load','longer_serpentine','spatial_sparse'};
+for i=1:numel(ids), run_generalization_comparison(ids{i}); end
+</code></pre>
+<pre><code class="language-text">python scripts/render_generalization_comparison.py
+</code></pre>
+<p>实际运行按场景使用六个并行 MATLAB -singleCompThread 进程，计时包含局部协方差及共享资源；不能用来宣布隔离速度或实时性能。重复运行精确验证选项、来源及保存文件，配置/源码改变必须建立新版本，不能覆盖旧结果。此前 108 次因素与 36 次基线数据没有改写。</p>
+<ul>
+<li><a href="../out/benchmarks/generalization/v1/source_data.csv">逐种子所有指标 CSV</a></li>
+<li><a href="../out/benchmarks/generalization/v1/force_data.csv">每帧每接触真值和估计大小 CSV</a></li>
+<li><a href="../out/benchmarks/generalization/v1/summary.json">机器可读配置及均值</a></li>
+<li><a href="../out/benchmarks/generalization/v1/plot_provenance.json">来源与图表校验清单</a></li>
+<li><a href="../out/benchmarks/generalization/v1/fixture_diagnostics.json">首次不合法配置与修正说明</a></li>
+</ul>
+<p>优势结论应限定为本组保存的条件/输入与这两个适配基线；基线不是原作者官方实现。已有论文使用不同传感器、载荷、硬件及指标，不能直接按其论文中的误差大小排行。Point 的思想依据 <a href="https://arxiv.org/abs/2109.12469">Xiao and Chen, 2021</a>，Gaussian 的依据 <a href="https://doi.org/10.1109/LRA.2022.3188905">Aloi et al., 2022</a>。本组不改动完整平衡、摩擦或递归近似范围，也不把更多仿真样例说成已经证明全局 SOTA。</p></main></body></html>

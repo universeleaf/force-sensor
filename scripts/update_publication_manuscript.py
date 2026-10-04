@@ -88,6 +88,8 @@ def replace_results_section(source: str, tail: str) -> str:
         ("fig:magnitude", r"\subsection{Multicontact force separation}"),
         ("fig:uncertainty", r"\subsection{Factor ablations and local uncertainty}"),
     )
+    if r"\label{fig:generalization}" in source:
+        placements += (("fig:generalization", r"\subsection{Measured computational cost}"),)
     for label, marker in placements:
         blocks = list(re.finditer(figure_pattern, source, flags=re.S))
         matching = [b for b in blocks if "\\label{" + label + "}" in b.group()]
@@ -126,7 +128,7 @@ def update_project_docs(completion: dict, factors: dict, baselines: dict, deriva
                               "完整投稿协议的精选输入/真值/估计 MAT、CSV、完成记录与图源随仓库发布；其他中间数据和逐帧日志保留在本地。")
     content = content.replace("最新的[文献基线与缓存技术报告]", "历史版本的[文献基线与缓存技术报告]")
     readme.write_text(content, encoding="utf-8")
-    status = ["# 当前状态", "", "更新：2026-10-04。", "",
+    status = ["# 当前状态", "", "更新：2026-10-05。", "",
               "EnFiRCE 是利用稀疏形状和环境信息估计连续体机器人接触力及独立末端力的 MATLAB 仿真研究实现。", "",
               f"本版本完整协议 `{completion['runRecord']['runId']}` 已完成：{len(factors['cases'])} 项完整三维因素运行、{len(baselines['cases'])} 项同输入文献适配、2 项顺序导数对照、{checks} 项工程检查。全部原始文件及图表按源码/数据 SHA 对应，详细数值、复核标志、退出状态和消融定义见[完整软件实验报告](PUBLICATION_RESULTS.md)。", "",
               "## 本轮代码改进", "",
@@ -193,8 +195,72 @@ def update_project_docs(completion: dict, factors: dict, baselines: dict, deriva
     technical.write_text(content.rstrip() + "\n\n" + "\n".join(section), encoding="utf-8")
 
 
+def additional_comparison():
+    path = ROOT / "out/benchmarks/generalization/v1/summary.json"
+    if not path.is_file():
+        return None
+    from render_generalization_comparison import verified_summary
+    return verified_summary(path.parent)
+
+
+def additional_section(report):
+    from render_generalization_comparison import SCENES as additional_scenes
+    rows = {(r["scene"], r["method"]): r for r in report["summary"]}
+    if any(r["matched"] != r["attempted"] for r in rows.values()):
+        raise ValueError("Additional comparison has unmatched counts; revise prose explicitly.")
+    wins = sum(rows[(scene, "full")]["contactRmseN"] < rows[(scene, method)]["contactRmseN"]
+               for scene in additional_scenes for method in ("point", "gaussian"))
+    table = "\n".join(name + " & " + " & ".join(f"{rows[(scene, method)]['contactRmseN']:.3f}"
+                       for method in ("full", "no_geometry", "point", "gaussian")) + r" \\"
+                       for scene, name in additional_scenes.items())
+    exits = sum(r["nonpositiveExits"] for r in rows.values())
+    section = rf"""\subsection{{Additional configurations and sampled planes}}
+A separate {report['caseCount']}-call matrix uses six configurations, seeds 11/23/37, nominal curvature noise, and newly sampled plane observations with the declared 0.05 mm/0.001 component SDs. The configurations are a 140 mm parallel channel; nonparallel tapered walls; walls widened to $x=\pm11$ mm with changed tip load; a 210 mm serpentine rod with tip load $[0.25,0,-0.15]^{{\mathsf T}}$ N; a geometrically similar 240 mm rod; and the existing spatial sliding truth sampled at 12 positions instead of 24. Each planar configuration has two newly solved base states. The longer rod scales all positions by $8/7$, intrinsic curvature by $7/8$, and loads by $(7/8)^2$ at unchanged stiffness; it is a scale control, not a new contact topology. The spatial case is a density control, not an independent trajectory.
+
+\begin{{table}}[t]
+\centering
+\caption{{Additional seed-mean contact-vector RMSE (N). Geometry ablation retains normal/friction and process factors.}}
+\label{{tab:additional}}
+\setlength{{\tabcolsep}}{{2.4pt}}
+\scriptsize
+\begin{{tabular}}{{lrrrr}}
+\hline
+Configuration & EnFiRCE & $-$Geom. & Point & Gaussian \\
+\hline
+{table}
+\hline
+\end{{tabular}}
+\end{{table}}
+
+Every method reads the same saved observation bytes and independently initializes. The original baseline settings are unchanged. EnFiRCE has lower seed-mean contact error in {wins}/12 configuration/adaptation comparisons (Table~\ref{{tab:additional}}); Fig.~\ref{{fig:generalization}} shows every draw. All {exits} nonpositive final exits are retained. These sampled-plane tests extend the fixed-plane controls; three draws per configuration do not establish population significance or official-method rankings. Tip, resultant and magnitude errors remain separate in the accompanying source data.
+
+\begin{{figure*}}[!t]
+\centering
+\includegraphics[width=.98\textwidth]{{generalization_accuracy.pdf}}
+\caption{{Additional controlled configurations with curvature and plane noise. Squares and whiskers denote seed means and min/max, circles show each draw, and hollow triangles retain nonpositive exits. The symlog ordinate is linear below 0.1 N. Curvature-only adaptations omit environment/process factors; the geometry ablation keeps their stated remaining factors.}}
+\label{{fig:generalization}}
+\end{{figure*}}
+
+"""
+    return section
+
+
+def attach_additional_docs(report):
+    note = (f"新增 {report['caseCount']} 次六配置同观测比较：曲率和平面观测同时采样，包含非平行通道、壁距/末端载荷、几何尺度与空间稀疏观测。"
+            "全部逐种子指标、真实力大小、退出码、场景定义和代码对应见[新配置比较报告](GENERALIZATION_RESULTS.md)。既有冻结协议未改写；基线仍为文献思想适配。")
+    for name in ("STATUS.md", "PUBLICATION_RESULTS.md", "TECHNICAL_OVERVIEW.md"):
+        path = ROOT / "docs" / name
+        heading = "### 26.5 新配置与环境观测重复" if name == "TECHNICAL_OVERVIEW.md" else "## 新配置比较"
+        path.write_text(path.read_text(encoding="utf-8").rstrip()+"\n\n"+heading+"\n\n"+note+"\n", encoding="utf-8")
+    readme = ROOT / "README.md"
+    content = readme.read_text(encoding="utf-8")
+    content = content.replace("## 当前结果\n", "## 当前结果\n\n" + note.replace("(GENERALIZATION_RESULTS.md)", "(docs/GENERALIZATION_RESULTS.md)") + "\n", 1)
+    readme.write_text(content, encoding="utf-8")
+
+
 def update() -> None:
     completion, factors, baselines, derivatives, paired = evidence()
+    additional = additional_comparison()
     runtime = read(PUBLICATION / "runtime_host.json")
     processor = runtime["processor"].replace("(R)", "").replace("(TM)", "")
     runtime_description = (f"{processor} ({runtime['physicalCores']} physical cores, "
@@ -252,7 +318,7 @@ def update() -> None:
         f"{label}: {factor_mean('three_contact', method):.3f}/{factor_mean('spatial_sliding', method):.3f} N"
         for method, label in (("no_temporal", "no temporal prior"), ("cone_only", "cone only"),
                               ("no_geometry", "no contact geometry"), ("no_camera", "no camera likelihood")))
-    table = ["# 完整三维软件实验与论文结果", "", "更新：2026-10-04。", "",
+    table = ["# 完整三维软件实验与论文结果", "", "更新：2026-10-05。", "",
              "本轮仍然研究：从稀疏形状与环境信息分离杆身接触力和独立末端力。全部统计来自完整三维 Cosserat 时间窗口，历史二维结果单独保留。", "",
              f"完整协议 run `{completion['runRecord']['runId']}`：{len(factors['cases'])} 次因素运行、{len(baselines['cases'])} 次同输入基线、2 次导数对照、{completion['completedSteps'][-1]['caseCount']} 项工程检查全部完成。因素/基线异常为 {factors['failureCount']}/{baselines['failureCount']}，非正最终退出窗口为 {exit_factors}/{exit_baselines}；复核帧为 {review_factors}/{review_baselines}。", "",
              "## 1. 实验究竟重复了什么", "",
@@ -339,6 +405,8 @@ def update() -> None:
     abstract = rf"""\begin{{abstract}}
 Sparse shape observations may admit several external-load explanations when a continuum robot experiences body contacts and an independent tip load. We present \EnFiRCE, a joint-window maximum-a-posteriori estimator combining measured bending curvature, uncertain environment geometry, and friction history. Every time retains nonlinear three-dimensional Cosserat equilibrium. Contacts on the same plane share its latent parameters at each time, and friction displacement compares the same material coordinate in successive equilibria. We evaluate two fixed two-state multicontact configurations using three sensor seeds, three noise levels, and six factor settings: {len(factors['cases'])} full-window runs, followed by {len(baselines['cases'])} matched point/Gaussian literature adaptations on byte-identical observation packets. At nominal noise, seed-mean contact-vector RMSEs are {mean('three_contact','full'):.3f} and {mean('spatial_sliding','full'):.3f} N; corresponding point-load errors are {mean('three_contact','point'):.3f} and {mean('spatial_sliding','point'):.3f} N. Contact, tip, and resultant metrics, review states, branch-conditional uncertainty, and computational costs are reported separately. Shared derivatives reduce duplicated mechanics evaluations while preserving the estimate within a recorded numerical tolerance. The controlled simulations quantify individual force separation under repeated sensor noise, with inspectable factor ablations and branch-conditional diagnostics.
 \end{{abstract}}"""
+    if additional:
+        abstract = abstract.replace("The controlled simulations", f"An additional {additional['caseCount']}-call matrix tests changed channel geometry, tip loading, rod scale, and sparse spatial observations with sampled plane noise. The controlled simulations")
     source = replace_once(source, r"\\begin\{abstract\}.*?\\end\{abstract\}", abstract)
     old_eval = r"The evaluation retains.*?(?=\\begin\{figure\*\})"
     new_eval = r"""The evaluation retains independent truth equilibria, observation packets, raw estimates, and source records. A completed protocol runs six full-window factor settings over two configurations, three sensor seeds, and three noise levels, then evaluates matched curvature-only adaptations. Separate historical density and mismatch experiments expose failure boundaries. Figure~\ref{fig:method} summarizes the estimator; Fig.~\ref{fig:geometry} shows actual solved configurations. The implementation is an offline simulation method.
@@ -440,6 +508,13 @@ Finite candidates and temporal association may miss reactions or confuse identit
 The present experiments assess two fixed full-window configurations under repeated sensor noise. Broader validation should include independent trajectories, informative friction transitions, and input-matched official implementations. Recursive marginalization and analytical sparse sensitivities may improve computational cost. Hardware validation requires calibrated FBG channels, synchronized geometry, measured stiffness, and independent contact/tip force truth.
 
 """
+    if additional:
+        shutil.copyfile(ROOT / "out/benchmarks/generalization/v1/figures/generalization_accuracy.pdf",
+                        paper / "figs/generalization_accuracy.pdf")
+        tail = tail.replace(r"\section{Discussion and Conclusion}", additional_section(additional) + r"\section{Discussion and Conclusion}", 1)
+        tail = tail.replace("The present experiments assess two fixed full-window configurations under repeated sensor noise.",
+                            "The core matrix assesses two fixed full-window configurations under repeated sensor noise; the additional matrix tests six controlled configurations with sampled plane observations.")
+        attach_additional_docs(additional)
     source = replace_results_section(source, tail)
     (paper / "main.tex").write_text(source, encoding="utf-8", newline="\n")
     print(f"Updated actual results document and manuscript: {contact_wins}/4 contact comparisons; {covered}/{eligible} local components.")

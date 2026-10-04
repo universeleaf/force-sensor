@@ -106,6 +106,19 @@ def sync(site: Path) -> None:
         if sha(source) != case["video"]["sha256"] or case["stateCount"] != 12:
             raise ValueError(f"Multicontact video does not match its ledger: {name}")
         copy(source, name + ".mp4", case["scope"])
+    additional = None
+    extra_folder = ROOT / "out/benchmarks/generalization/v1"
+    if (extra_folder / "summary.json").is_file():
+        from render_generalization_comparison import verified_summary
+        additional = verified_summary(extra_folder)
+        for name in ("generalization_accuracy", "generalization_geometry", "generalization_magnitudes", "generalization_load_errors"):
+            for extension in ("svg", "png", "pdf"):
+                copy(extra_folder / "figures" / f"{name}.{extension}")
+        for name in ("source_data.csv", "force_data.csv", "summary.json", "plot_provenance.json", "fixture_diagnostics.json"):
+            copy(extra_folder / name, "generalization_" + name)
+        for record in additional["sourceLedgers"]:
+            path = ROOT / record["path"]
+            copy(path, "generalization_" + path.parent.name + "_comparison.json")
     nominal = [v for v in summary["groups"] if abs(v["noiseStdPerMm"] - 2.5e-5) < 1e-12]
     wins, comparisons = 0, 0
     for scene in {v["scene"] for v in nominal}:
@@ -125,6 +138,15 @@ def sync(site: Path) -> None:
                    "baselineNonpositiveExits": sum(nonpositive_exit(c["solver"].get("exitflag")) for c in reports["literature"]["cases"]),
                    "nominalGroups": nominal, "comparisonConclusion": conclusion,
                    "publicationRunId": completion["runRecord"]["runId"], "sotaEstablished": False}
+    if additional:
+        groups = {(r["scene"], r["method"]): r for r in additional["summary"]}
+        wins = sum(groups[(scene, "full")]["contactRmseN"] < groups[(scene, method)]["contactRmseN"]
+                   for scene in additional["sceneDefinitions"] for method in ("point", "gaussian"))
+        web_summary["additionalComparison"] = {
+            "caseCount": additional["caseCount"], "failureCount": additional["failureCount"],
+            "groups": additional["summary"], "sotaEstablished": False,
+            "conclusion": f"The additional {additional['caseCount']}-call matrix has lower EnFiRCE seed-mean contact-vector error in {wins}/12 configuration/adaptation comparisons. "
+                          "Shape and plane observations are sampled. These are fixed configurations and disclosed adaptations, not an official-method ranking."}
     summary_path = destination / "website_summary.json"
     summary_path.write_text(json.dumps(web_summary, indent=2) + "\n", encoding="utf-8")
     manifest = {"schemaVersion": 1, "releaseDate": web_summary["releaseDate"],

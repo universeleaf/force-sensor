@@ -1,0 +1,3392 @@
+{
+  "state": "complete",
+  "options": {
+    "seeds": [
+      11,
+      23,
+      37
+    ],
+    "noiseLevelsPerMm": 2.5E-5,
+    "methods": [
+      "full",
+      "no_geometry",
+      "point",
+      "gaussian"
+    ],
+    "sampleEnvironment": true,
+    "resume": true,
+    "solverOptions": {},
+    "sceneIds": [
+      "serpentine_tip_load"
+    ]
+  },
+  "runRecord": {
+    "schemaVersion": 1,
+    "runId": "0af1161d-d8f9-492c-85e3-1581adaba3fb",
+    "state": "complete",
+    "startedAtUtc": "2026-10-04T17:42:10Z",
+    "matlabVersion": "24.1.0.2537033 (R2024a)",
+    "platform": "PCWIN64",
+    "source": [
+      {
+        "path": "rod/atomic_write_artifact.m",
+        "sha256": "f508197253174454159f43b52ac25801026e189d2125993f7cf2716ea8e73e0f"
+      },
+      {
+        "path": "rod/attach_depth_environment.m",
+        "sha256": "a034a3c834fc80dbadef9613928b060692a3d1874db3a8aea2a847dc30b0ed9e"
+      },
+      {
+        "path": "rod/audit_accuracy_run.m",
+        "sha256": "748f9b3abbf5ff633e63114b34a72493de830317b177ac259c9237eb40ede75c"
+      },
+      {
+        "path": "rod/audit_force_identifiability.m",
+        "sha256": "585b6b6889c1e5284e92fdba052399115fc6d426f7f63bbcd5f0a418d9dba758"
+      },
+      {
+        "path": "rod/audit_formulation_window_fit.m",
+        "sha256": "1360c9294b8b0fbf1f6c0751f34010f5d10c5874b810c4b25faae3fa0995efc0"
+      },
+      {
+        "path": "rod/audit_friction_quality.m",
+        "sha256": "600a3c2c49cdb1f90968909c1cd38e6edca16a0288319e84f26018b7f3817461"
+      },
+      {
+        "path": "rod/audit_history_uncertainty.m",
+        "sha256": "b04af503c854dede98b14759f27556814e8656b2f2d8f1c2732208bc32af340e"
+      },
+      {
+        "path": "rod/audit_independent_mesh.m",
+        "sha256": "643f49c4c7e80d9a3f021b03a1f50f75a51d2636319badda16e7352a0a1180e2"
+      },
+      {
+        "path": "rod/audit_noise_attribution.m",
+        "sha256": "87441ad61197c48de9d3e005b17b6e6996fa4cb1f19c38e22071c078f9cd49a8"
+      },
+      {
+        "path": "rod/audit_planar_multi_contact.m",
+        "sha256": "52a0bda7f9cc988d8cc2b65e0e9d7b241a20f6236c3dedd92bf210e3eb991c0e"
+      },
+      {
+        "path": "rod/audit_sensor_stage1.m",
+        "sha256": "6e91d61f04a81a7c0320460e55b2dc6ff2d8241c7f630e4d9bea68e4a2fe9956"
+      },
+      {
+        "path": "rod/begin_result_run.m",
+        "sha256": "b39940c20b04f87d0a812b5ab61f5d365d7b9bbd2c0756dc1c22e6600e4ef860"
+      },
+      {
+        "path": "rod/build_contact_demo_truth.m",
+        "sha256": "fb7fcfc2c198957ffb8da56d146a9b83d8a31a3cdc114d13cdc864e073e82e2a"
+      },
+      {
+        "path": "rod/build_formulation_free_packet.m",
+        "sha256": "b2fae1235a83413830ebcca5d1098cd0680b50415bd75f7b14e00332e4501ff7"
+      },
+      {
+        "path": "rod/build_formulation_multi_packet.m",
+        "sha256": "eeab2d0bb2e33300d54f993e0f33ba11c50ddf4ac0ffc00fbc230048ea2299db"
+      },
+      {
+        "path": "rod/build_multi_contact_demo_truth.m",
+        "sha256": "9749856ec68a8f3598cbf4c19e5ad342ef0080908b3bd4a61d0c3b4acbde5af8"
+      },
+      {
+        "path": "rod/build_multi_contact_truth.m",
+        "sha256": "6506269063cc0de338bbc062562bea80b6d20f1caed32d7a65bb689ce22a0c9a"
+      },
+      {
+        "path": "rod/build_spatial_friction_packet.m",
+        "sha256": "b59ec987f3dfe114514ad29e5f85a68aa470315a471bcf0feb4f24bf8c82a517"
+      },
+      {
+        "path": "rod/calibrate_fbg_likelihood.m",
+        "sha256": "45cb241325ceafe0baa8c9d7f10a8c78471b82fb14671bf3d71ea7110d58e150"
+      },
+      {
+        "path": "rod/compute_aloi_comparison_metrics.m",
+        "sha256": "0bf6f7cfbd3f9e1a3c02a4dd4175ac4b902645475933d1b9afb2bf216bd957d8"
+      },
+      {
+        "path": "rod/contact_demo_scenes.m",
+        "sha256": "c9a9fe6c91a62d1d6a487b8242b5a3eea2af3f3f54420d7f816234bb8af36c83"
+      },
+      {
+        "path": "rod/contact_tangent.m",
+        "sha256": "e5d270f2e62604d1122bbe6b5c65120b95259cd6dedaeaf7d2aba7cfbbc95953"
+      },
+      {
+        "path": "rod/cosserat_state_at_arc.m",
+        "sha256": "7c8f5ccd3b5b81e20729600438420c0dcce8a31378b97b779af634d6af69719a"
+      },
+      {
+        "path": "rod/decode_multi_contact_state.m",
+        "sha256": "e9f2607f6ab668c01844a8c94c13fa47d19734c3fb19ed990c5eaaaa06548627"
+      },
+      {
+        "path": "rod/estimate_aloi_gaussian_baseline.m",
+        "sha256": "b3f6f64d14569872178502ad8b556b92b573b20d1ed82cf1fcab77a5404747e5"
+      },
+      {
+        "path": "rod/estimate_formulation_forces.m",
+        "sha256": "872370753a8ad33d69e21f249336328f5f4f486eae905cf763997f2931902cbc"
+      },
+      {
+        "path": "rod/estimate_formulation_window.m",
+        "sha256": "f4f6c353aff4e2f32770d5eb23f08870d937d75e6deb81fadb13a94f25986576"
+      },
+      {
+        "path": "rod/estimate_literature_curvature_baseline.m",
+        "sha256": "fed7d95e05b99c49afb46758603d3385b93d96a487274efb74d27709798dd03d"
+      },
+      {
+        "path": "rod/estimate_planar_multi_contact.m",
+        "sha256": "7e1140d5fcdd87179a902bd114879907d217b825c01a417bd3feb4f049c1ad28"
+      },
+      {
+        "path": "rod/estimate_planar_shape_only_point_loads.m",
+        "sha256": "2287661c4b8be0753f169310a41e124d3fdbf2a974aee5b484db8a61a39e311e"
+      },
+      {
+        "path": "rod/estimate_sensor_forces.m",
+        "sha256": "f9c319a3f798e86abcef8f7b929b05346d955d48756002660773183fc42a7c0e"
+      },
+      {
+        "path": "rod/estimate_shape_only_point_loads.m",
+        "sha256": "9652faabf4a3e9f67fa0ff338670af86627f84502e7d547761a8af3c7eccfce1"
+      },
+      {
+        "path": "rod/estimate_temporal_window_forces.m",
+        "sha256": "dc49a5f6a4479d8e7d1971e5cabbc2a0204f160cbc3c2706e1a37f16ac50e7ea"
+      },
+      {
+        "path": "rod/evaluate_multi_contact_state.m",
+        "sha256": "483dd266a68272ed468d5ef0c862b2a93ff258cd08e41839c6f64e3f4aae1595"
+      },
+      {
+        "path": "rod/export_inverse_audit.m",
+        "sha256": "1a7c79df44fd06f90cb54e5e0f8fb5d65a99a4a3a6aaa5b43078742e3cbdf813"
+      },
+      {
+        "path": "rod/export_literature_geometry.m",
+        "sha256": "4b9d6219852d1f47da224f121838b8cba74de7d9c6240752d143febac6adeaed"
+      },
+      {
+        "path": "rod/file_sha256.m",
+        "sha256": "bc5e12daca5fb3b2b36301adf4d0c841638ed1435e38dc24d4c4e183471354de"
+      },
+      {
+        "path": "rod/force_sensitivity_diagnostic.m",
+        "sha256": "4354d3bd8e971ed41c15f11f3c93f3be0d3fcfd1ae459a9ca2cd5e62e4448444"
+      },
+      {
+        "path": "rod/formulation_contact_arc_domain.m",
+        "sha256": "95ae4d3bd11f7e87d54e33246244a6f2605b2fb325d71bc84392267231db9a5d"
+      },
+      {
+        "path": "rod/formulation_contact_candidates.m",
+        "sha256": "1bd7e124ec3b8260fbff1f58be15846ec3cab423f685e6fd7e2d5849c4e13637"
+      },
+      {
+        "path": "rod/formulation_contact_frame.m",
+        "sha256": "17c59006774c1d56b5dea5d13a23b43e52bbb1565d1c896e4ebfec873570e583"
+      },
+      {
+        "path": "rod/formulation_derivative_bundle.m",
+        "sha256": "3fd7fcf9954f6d3536cacfe4763468f19239e7c9e00a6816d226cdb6836a817f"
+      },
+      {
+        "path": "rod/formulation_restoration_merit.m",
+        "sha256": "c35fe3fae221d1c904fb95b1d4dd47694b24dfe4bad725840cb2243ae33845e4"
+      },
+      {
+        "path": "rod/formulation_resume_matches.m",
+        "sha256": "f2ffc0256e60eb02e2a5f5799b39cb6dae1d788185e66858c4bf01f92391bc51"
+      },
+      {
+        "path": "rod/formulation_solver_config.m",
+        "sha256": "17c32756e46d4d5b24c8484b7a2da79a99654a96cfe555d4c342307f035e6a88"
+      },
+      {
+        "path": "rod/formulation_window_observations.m",
+        "sha256": "5bc8e4a0ba4eb075166571238789b7e4cad464ca59d2f1109328c1d5fb035fdb"
+      },
+      {
+        "path": "rod/formulation_window_spec.m",
+        "sha256": "54a1192899f0c1b5b824931aea19b9e65a469e4e241bd143369c7376d5cd0bed"
+      },
+      {
+        "path": "rod/friction_direction_quality.m",
+        "sha256": "1a22dc52f08127422148b7cb3831361a2ba529a611d9fe20d0968441a44f5e83"
+      },
+      {
+        "path": "rod/friction_mode_resolution.m",
+        "sha256": "903b3b18b90f7ce098992d9b93e638a24c2c4c209125b5e13af0fa3140d99d02"
+      },
+      {
+        "path": "rod/integrate_body_load_curvature.m",
+        "sha256": "4c661c3ad831d81fd0e2ea4bc39505e86ca1f7d5742a1d5793610bb4f881d933"
+      },
+      {
+        "path": "rod/integrate_cosserat_load_state.m",
+        "sha256": "679057514e5b154ca2f02b31aa726f53b7cebf5ce47888baf5439f1ce2eef469"
+      },
+      {
+        "path": "rod/integrate_curvature_field.m",
+        "sha256": "5d716b41031011b2a55c6274cc37e1e9dee03f98545dea3949b997f0be1b11ac"
+      },
+      {
+        "path": "rod/integrate_planar_multi_contact.m",
+        "sha256": "40faa928bcad59fee57216489bc068b41352f384f5ecadf6803d55f0f59d8157"
+      },
+      {
+        "path": "rod/latent_fbg_history.m",
+        "sha256": "0196e694ab31d6262b56ce03bdf43708e165e893a6db4afe5305e4298cc03782"
+      },
+      {
+        "path": "rod/make_experiment_tube.m",
+        "sha256": "e5df55a8ae3ee36d0d6849a5171f3a6ca04c8e9d28c6b199ce5e2ce634f0622f"
+      },
+      {
+        "path": "rod/measurements_from_sensor_packet.m",
+        "sha256": "f8d2c109bfecfd361de4af3f78c333e4ce48dd3e423514497614e9b9bef200ff"
+      },
+      {
+        "path": "rod/multi_contact_constraints.m",
+        "sha256": "f22dd328915f1934abb3ed5593edbed905376503833a9086c5dd0ac4007ca5df"
+      },
+      {
+        "path": "rod/multi_contact_demo_scenes.m",
+        "sha256": "e2396324f5061cc51caae0abe40f3c61b010fde4cdda384696c5730029b2e7d6"
+      },
+      {
+        "path": "rod/multi_contact_state_spec.m",
+        "sha256": "14bac3b3d9e422cd146bfd1ed7c2bc78409348273943c3a06088f4fce3d246ae"
+      },
+      {
+        "path": "rod/new_run_record.m",
+        "sha256": "95eb19d17aff097e11a34d7c8e901fed20a611bc2f15df3b65b04360b133d7ca"
+      },
+      {
+        "path": "rod/nonlinear_force_sensitivity.m",
+        "sha256": "c444d01aa2936a4ea32621ffd81a9d5c9cbe77345839d6f5587a3c5196a2016c"
+      },
+      {
+        "path": "rod/paired_contact_uncertainty.m",
+        "sha256": "50ad150f7239b78cb22f21ccc92640c51b56029c3a9d8f4326570d10921919e8"
+      },
+      {
+        "path": "rod/plane_contact_constraints.m",
+        "sha256": "24cdf6fb246e8408fa0c60fb94cc40dde5d7ab2c9434d831d6f9e6d029a7c69f"
+      },
+      {
+        "path": "rod/plane_from_depth.m",
+        "sha256": "74418670be2b4e55b7f7975efe76f9070e61330517312067b5addc7b6d1ac8d9"
+      },
+      {
+        "path": "rod/plot_depth_observations.m",
+        "sha256": "eeb061ed89d3d71a09a30168b4fe5ca0c42299c4103f115e920d84bdf396245c"
+      },
+      {
+        "path": "rod/plot_friction.m",
+        "sha256": "3a5ff44d5fa4088ae02ef065216854dbe19c6ef36c773bd63dac89f4b9f8cca0"
+      },
+      {
+        "path": "rod/plot_sensor_stage1.m",
+        "sha256": "f8a47d4c4dd7ad4a303dd8099d6936479c0373c515f2677e247fcc01c071f75f"
+      },
+      {
+        "path": "rod/reconstruct_sensor_curvature.m",
+        "sha256": "8617e9d4a64b026acedf10f38af4070ac6f9a588b74fee13823759807a5eca41"
+      },
+      {
+        "path": "rod/refine_cosserat_shape_seed.m",
+        "sha256": "1a7684cc89a45426acce5414abb767f32893f2a2ecb5a730a684c2671787cf63"
+      },
+      {
+        "path": "rod/render_contact_demo_video.m",
+        "sha256": "b57815347ad29d82d8a7c512907ae9c8e87b85e67e8cdb7f9c33aa628b3bfb4a"
+      },
+      {
+        "path": "rod/render_multi_contact_demo_video.m",
+        "sha256": "65d7c6fd785f38c0ffaaa88df6bbdb9d12f24c8ddd350be7c715f7f78284d1c6"
+      },
+      {
+        "path": "rod/rerun_aloi_saved_result.m",
+        "sha256": "53e032ece2eb4e45bdd6b1587349194ca28104b8a8c4ed5f14ca779919ec7133"
+      },
+      {
+        "path": "rod/resample_formulation_observations.m",
+        "sha256": "45c0a4d6beb46ac6933a6a300a01cf3f6738f7cb611c53162198581f80e05b83"
+      },
+      {
+        "path": "rod/resolve_result_file.m",
+        "sha256": "8112d46f1a832017b97033029e1537e3d539f7ae710f85bccce198cffc3ec705"
+      },
+      {
+        "path": "rod/review_formulation_artifacts.m",
+        "sha256": "ca0b12c4eea9242efe3e6e2abaf0e289ef23cff6396e42c45db8524ac0d5939e"
+      },
+      {
+        "path": "rod/run_accuracy_benchmark.m",
+        "sha256": "aca4e59c6319df9d8903d400bb2233d8b6f93ca8f79d90d9918916514dbefd98"
+      },
+      {
+        "path": "rod/run_contact_demo_suite.m",
+        "sha256": "921e25533e0c51f3711263bbd8367fcb17b6ca9df4215ae5a907656c528f3ecd"
+      },
+      {
+        "path": "rod/run_depth_protocol.m",
+        "sha256": "0c5b2199db1e33e47b0cc20c31f5c8a415f7a15bd60b84746c88177536d6151f"
+      },
+      {
+        "path": "rod/run_fair_baseline_protocol.m",
+        "sha256": "c321c06f281fd17d96c847e104d8f69dec3008ef6c2a1acad2f942bce754d23b"
+      },
+      {
+        "path": "rod/run_formulation_benchmark.m",
+        "sha256": "ebccc9272d447b8adee5a513b6c43fb2f2e263fa8934dcaabe6e57df9d026794"
+      },
+      {
+        "path": "rod/run_formulation_cache_benchmark.m",
+        "sha256": "bfeae009c842a9a7927ab33c55f6fd2ffda2b6c98c48aa8523ae772c3cf7f695"
+      },
+      {
+        "path": "rod/run_formulation_derivative_benchmark.m",
+        "sha256": "55535367f52e7eaf84ede1169c779a76c8477229a39f69cb0c78b825cfe3f158"
+      },
+      {
+        "path": "rod/run_formulation_factor_protocol.m",
+        "sha256": "f5e390665e5990085392e9e8ce48050f61843d604b1db101e961131527a42bfc"
+      },
+      {
+        "path": "rod/run_formulation_publication_protocol.m",
+        "sha256": "d9fe063cf9807031ac4680b9143ad8dae837bb27839c488043f79249c6973426"
+      },
+      {
+        "path": "rod/run_formulation_sliding.m",
+        "sha256": "93e558a620bb9389ab656750af58f8811deb75334e76937feedeb39a3b2bf29e"
+      },
+      {
+        "path": "rod/run_formulation_window_protocol.m",
+        "sha256": "5413a15a1b0b55a3d25013fb04797eb31dba90e737a968a64c5e4a19ad293243"
+      },
+      {
+        "path": "rod/run_formulation_workflow.m",
+        "sha256": "e52ce1f63e64ec6e081913e7f4560684c2fa4cd833980bf195d9329fafda291d"
+      },
+      {
+        "path": "rod/run_generalization_comparison.m",
+        "sha256": "099a43523d3ac5b208affec763d4560e418dc6c04229272a89634224117ff721"
+      },
+      {
+        "path": "rod/run_history_map_benchmark.m",
+        "sha256": "4756a91ac00042cd4dbd68291fdb671b8a02ee0aaf2d2dbd2a1579b3539ff124"
+      },
+      {
+        "path": "rod/run_independent_truth_benchmark.m",
+        "sha256": "c240a1919a640242c5c0e0834ae47d890bc5d561d0a2cfb9d6fb038e084bf66a"
+      },
+      {
+        "path": "rod/run_literature_baseline_protocol.m",
+        "sha256": "2b3651ebd09c543abbe774eef5587a5d72be192807ebede9c2efdf15383daf71"
+      },
+      {
+        "path": "rod/run_literature_strain_scenarios.m",
+        "sha256": "dae23a3dd4cc256bd342650c0ac016c7d483db72d78659e4ea2db549cc79850c"
+      },
+      {
+        "path": "rod/run_mesh_convergence.m",
+        "sha256": "34ea3984d441ec0f28dbc0c797737ce949ab29f5bddb65db72226603f4cccca4"
+      },
+      {
+        "path": "rod/run_model_mismatch_protocol.m",
+        "sha256": "3555ba6443afe96f4e23bdef1fae8c0a685501c2a83d466faffd19da5b37096c"
+      },
+      {
+        "path": "rod/run_multi_contact_benchmark.m",
+        "sha256": "199350541836b44d625b87319dcdd9a90d67a72f253e7dfe673037c86e70d5c4"
+      },
+      {
+        "path": "rod/run_multi_contact_demo_suite.m",
+        "sha256": "2973d7a697fa7df9e3e751674e4fde477f148eaa8e9e7e813195331410e7d7c0"
+      },
+      {
+        "path": "rod/run_multi_contact_plane_uncertainty.m",
+        "sha256": "9efbe9b249408c14ec3a3c02ebe4b7a67e1d40930b218f8d08f43bb2dc95724a"
+      },
+      {
+        "path": "rod/run_noise_attribution.m",
+        "sha256": "ae072af04b5a8229838acc56305972ccec9bf17efb599d0b25155bbd297e7c49"
+      },
+      {
+        "path": "rod/run_noise_aware_protocol.m",
+        "sha256": "6edb411095af544fb3d9dcdb90e57ed096779ee60bb348c95a00cbe6c6a9186c"
+      },
+      {
+        "path": "rod/run_plane_geometry_benchmark.m",
+        "sha256": "f29b053d933006387fa67d9de5725f913389c3f561dece19a7fc0673307962ff"
+      },
+      {
+        "path": "rod/run_project_checks.m",
+        "sha256": "a399d604b38a8acd06f593ecc3e6e2883a2d0a3da60bc0f797091d555de0aa37"
+      },
+      {
+        "path": "rod/run_realtime_benchmark.m",
+        "sha256": "a6828048b125d1f9d33c244de99fa87555f7a8eeb3ec5782ec22db5307efe062"
+      },
+      {
+        "path": "rod/run_rod_plane_force_sensing_experiment.m",
+        "sha256": "c491cbe3c72a63faf2829c2372d0aa143f897263dc075e00ed0703b380aa98f7"
+      },
+      {
+        "path": "rod/run_sensor_noise_protocol.m",
+        "sha256": "b960c24859ec5d0d17f3e938bcf3812aa16b2064436a64ee97c5297fd8201b28"
+      },
+      {
+        "path": "rod/run_sensor_seeded_replay.m",
+        "sha256": "5053fc6d37af76eaf18cb925b747cf7ed59ec5fe04c09caaf370054e18dcc51d"
+      },
+      {
+        "path": "rod/run_sensor_stage1.m",
+        "sha256": "30c856721db989011cc77a91cd8814dbe44cfa3dda5c0420cfddddb5d77598ee"
+      },
+      {
+        "path": "rod/run_submission_statistics.m",
+        "sha256": "6ac7e9dbcc5bcbef7a7b7b8f504b60bd3d9aea45d375262dbeb5939bef702955"
+      },
+      {
+        "path": "rod/sample_integrated_shape.m",
+        "sha256": "fc79e420717d0adb73674db04ba728e1b170225e1135cfa4a03d54e4ac1d52b0"
+      },
+      {
+        "path": "rod/save_result_checkpoint.m",
+        "sha256": "748e47cc83c44568c9a8176a33092f2b3c5559192f9c8c2cdf9fd01af1ccf1de"
+      },
+      {
+        "path": "rod/score_formulation_coverage.m",
+        "sha256": "7c76e1bb05ada35817ff197a926e0c1e5ada63dc91b994ffe449d168630547f8"
+      },
+      {
+        "path": "rod/score_formulation_window.m",
+        "sha256": "6286ed03c535fab7538e2563a073d2822295c23bf639e3d7024ca933ffa1b387"
+      },
+      {
+        "path": "rod/sensor_estimator_config.m",
+        "sha256": "3fd89d77cd7911f1f29a6ceeea871698d2bc3c0aa295a3c8d940342d21511d3a"
+      },
+      {
+        "path": "rod/simu_rod_plane_displacement_force_sensing.m",
+        "sha256": "78b778edbc62057a658a5cb8512bc8b203e4864e2304111ce89467bb3d1e364c"
+      },
+      {
+        "path": "rod/simu_rod_plane_senior_geometry_force_sensing.m",
+        "sha256": "bcb27f4f082c1e938d78bd47a68f4f25b07b4b16b9ad1cbe6fb0d726523a3433"
+      },
+      {
+        "path": "rod/simu_rod_plane_upward_force_sensing.m",
+        "sha256": "ea166b6d371da2a6eb81cd105c25390261155ae9c9c0d8a9d79bc5e759f4340a"
+      },
+      {
+        "path": "rod/simu_rod_plane_video_geometry_force_sensing.m",
+        "sha256": "f8cd8a9c287365561eff164f3aa09a1fb29628daadae86f6bd36be640d87833e"
+      },
+      {
+        "path": "rod/simulate_sensor_packet.m",
+        "sha256": "f29794d56739304700f4532d22f3204bccb0b4ebfb47afb5d9c07035a9428968"
+      },
+      {
+        "path": "rod/solve_contact_mode_map.m",
+        "sha256": "94cd0f4a0f7855eb0186202e8d3890091379ec9a28bff17b39d0137a7324e7fe"
+      },
+      {
+        "path": "rod/solve_contact_mpcc.m",
+        "sha256": "870ad7e4e41fb850633fd7a6bbade90a9fde551f2b842c53558e67fd21c13656"
+      },
+      {
+        "path": "rod/solve_cosserat_force_map.m",
+        "sha256": "b3a8e4b9b0d5fbbb402b6137a7a67786ebaa92c988f8d0e0afd0620b78062d19"
+      },
+      {
+        "path": "rod/solve_cosserat_multi_contact_map.m",
+        "sha256": "b64009a1a04a8f54cceabc74ddb83c94869f70306376e12fde91ae50efca6b11"
+      },
+      {
+        "path": "rod/solve_planar_contact_shooting.m",
+        "sha256": "9ca777fde8d8c3a24adc861cf0c19ae1ea94404eb7835e4d7acb57aec5c54ee4"
+      },
+      {
+        "path": "rod/solve_planar_energy_rod.m",
+        "sha256": "75806acf3033b3b7ab1987e66f3dcacf8861cedc8b1767db79aff5d7fe4bf526"
+      },
+      {
+        "path": "rod/solve_planar_multi_contact.m",
+        "sha256": "da289bc76e05915a809ffd152a0751ae2c99b4a56ae3d56c4a970243aa3e871e"
+      },
+      {
+        "path": "rod/subset_formulation_packet.m",
+        "sha256": "e6e89971b7c41ae7c9dda72af903f84409ab51528475b0dd341e5413ec8a8031"
+      },
+      {
+        "path": "rod/subset_sensor_packet.m",
+        "sha256": "f30bc76c30062eeec1cd8a4e5ecddcd755418362ac50e964d2b2a4c0c914a73a"
+      },
+      {
+        "path": "rod/test_body_load_curvature.m",
+        "sha256": "5201b6bc11c3b1d17b589576d1163f12d3c1152ca3772784e7362f964f83d8e2"
+      },
+      {
+        "path": "rod/test_contact_separation_gate.m",
+        "sha256": "c1b18b4203b11bbe1b1120466201f6166597a7421dc67a5ab8a6c66821cb8ace"
+      },
+      {
+        "path": "rod/test_contact_shooting.m",
+        "sha256": "f9d5dad0f56f44fe91511d45c76ad6c5742573338d8b524367e9d03a270119ea"
+      },
+      {
+        "path": "rod/test_cosserat_collision_geometry.m",
+        "sha256": "75881ba33b39b870a2852664d3cb1103ef4c9ab62800525568dc8a1383c4daf4"
+      },
+      {
+        "path": "rod/test_cosserat_work_budget.m",
+        "sha256": "017b1aaf1faaaee45a44bdf78e4c0aa1b75dd11beeddeabffe8930c0f0a61504"
+      },
+      {
+        "path": "rod/test_depth_plane.m",
+        "sha256": "506585ea0d2d7c2293c7e96d6673dd8a03a6f30ca077bb9911f3fb708dc62492"
+      },
+      {
+        "path": "rod/test_environment_covariance.m",
+        "sha256": "1f15a1aa56879bd1e0f4fa2fe51572e01440097fced655632722bc675bba631a"
+      },
+      {
+        "path": "rod/test_fbg_likelihood_calibration.m",
+        "sha256": "6f21ba644a3c343d8411f4d22690220033ce431ee75289177d820e2462592ac5"
+      },
+      {
+        "path": "rod/test_force_sensitivity.m",
+        "sha256": "6a5d37f84d52fe0666403c2a29804d46b8fac4108380fe1d01000ff8a5b2c588"
+      },
+      {
+        "path": "rod/test_formulation_factor_protocol.m",
+        "sha256": "8a35f2b24494bb16f04efd22679b36f178e679608cd104724c1038aca6fb3231"
+      },
+      {
+        "path": "rod/test_formulation_search_and_derivatives.m",
+        "sha256": "c1dad403a18dca08d4225846b97f57d173f8a6db7cd7c7fee236c00075b61ba7"
+      },
+      {
+        "path": "rod/test_formulation_window_mechanics.m",
+        "sha256": "ad2135d5b0f0c9c6e7713096e6c7d8c45e246956e95968c4d690339c6d401ce3"
+      },
+      {
+        "path": "rod/test_friction_basis.m",
+        "sha256": "7e91fffc45a18da4840d02cf7cc962990d1cd88d329d5d29d698eb08d179d0d1"
+      },
+      {
+        "path": "rod/test_friction_quality.m",
+        "sha256": "ad443dc29158cd0f80efa65f931312b0e30dc19a37ef1bc6ce690270aa707af8"
+      },
+      {
+        "path": "rod/test_friction_regression.m",
+        "sha256": "86496904e18fd6a8e7df0c85643f1167c0ac95e4b0d1bc9d419493b818d76aa1"
+      },
+      {
+        "path": "rod/test_history_resolution.m",
+        "sha256": "36721bb7f211d1e1956e353feea0cc3ce83bbff42436408e5a27460aaf7ac75d"
+      },
+      {
+        "path": "rod/test_integrated_history_point.m",
+        "sha256": "d1be424b1b9a951f4d5951bb73af5d236c8b5403703664e342791387210dfe93"
+      },
+      {
+        "path": "rod/test_intrinsic_curvature_reconstruction.m",
+        "sha256": "a56cab41a64f8a8a2e74754a24a7c02c028633b3c226f517f54aab54ab0628d1"
+      },
+      {
+        "path": "rod/test_latent_fbg_history.m",
+        "sha256": "711993de040b1ca3b35602ebf4f90c015a19327b2a03eaeb691842f8b154414e"
+      },
+      {
+        "path": "rod/test_lcp_dependency.m",
+        "sha256": "4d4a63eb977b18782851481f8c663b7493c50b40a333f0a21936b10f71a05b24"
+      },
+      {
+        "path": "rod/test_multi_contact_benchmark_protocol.m",
+        "sha256": "f987b6ed7aa0ad536bb88262a4a1d674c09301200428720203d4537cbf7f9094"
+      },
+      {
+        "path": "rod/test_multi_contact_map.m",
+        "sha256": "5e3e0da64f2356cc7737a88a64509846374d97a226cab53daf5ee2dbc40b6761"
+      },
+      {
+        "path": "rod/test_multi_contact_state_spec.m",
+        "sha256": "acec7b903ce049bb3b5c7088ffdd89015ef6a58b796e8e3cbf624f3333f591e2"
+      },
+      {
+        "path": "rod/test_noise_aware_contact.m",
+        "sha256": "df9fc9ab51b78b7adbf60214d0a85c5f1e9255c7e1e8c29d8d9bef4181027722"
+      },
+      {
+        "path": "rod/test_nonlinear_shape_seed.m",
+        "sha256": "5ceb546aa3658fbf5f00b0653fd26c7808ddf332ba8f2ae7d35ab08b14e315b2"
+      },
+      {
+        "path": "rod/test_observation_scaled_map.m",
+        "sha256": "4b742ceb7e735e4dccc7a7a2b74cec6cabed1d24d1e0e2e7c15d307cbecd1c22"
+      },
+      {
+        "path": "rod/test_planar_energy_rod.m",
+        "sha256": "cf35d5cafc6d2c0089842cf8195961f1b531ed3916b1dd0bb795b52c4b017f22"
+      },
+      {
+        "path": "rod/test_plane_contact_geometry.m",
+        "sha256": "cfbef5a1847b6d5d66e16014a1cebe6d2e2cd74c95e01a657f8d896c76bcc051"
+      },
+      {
+        "path": "rod/test_reduced_mode_bounds.m",
+        "sha256": "4dd292320cb1b709ebe24a822a1b8c52ffff77fa89e34abb8adf6ed031aa735e"
+      },
+      {
+        "path": "rod/test_result_integrity.m",
+        "sha256": "1f93b68ae21fe3a285abe833899939302faf8598bc0edb7288cf9818f2593aa4"
+      },
+      {
+        "path": "rod/test_result_lifecycle.m",
+        "sha256": "34009c2bf7c6c0f8adbb145520d2a6c60040f1bf24944239bcdb8ceccc672173"
+      },
+      {
+        "path": "rod/test_reverse_slide.m",
+        "sha256": "2dbf0b6dfaf1c6f1921637da48d5633be259838103628e069403d8a02351f0e3"
+      },
+      {
+        "path": "rod/test_rotation_equivariance.m",
+        "sha256": "599cff45106ae537b1a61b42cee47fe35df06f9ef5e1a4468f8c337cb714096a"
+      },
+      {
+        "path": "rod/test_sensor_config.m",
+        "sha256": "dd467dde3ced1778c85b0ecde78482065496117ea6739f1d40227d5e0a957e5b"
+      },
+      {
+        "path": "rod/test_sensor_contracts.m",
+        "sha256": "431b212c0bbb789017f5b111ebbbc619df8a201d83b4624942e4caa921a8eadd"
+      },
+      {
+        "path": "rod/test_sensor_history_boundary.m",
+        "sha256": "39407e7c42bc72f74a41cb2681f8b81d72172b1e7df711e3021aac5bfcc07205"
+      },
+      {
+        "path": "rod/test_sensor_replay.m",
+        "sha256": "2a5c9d94a9177f03370659d0c96260f14e4d29eed49ca35298d9322077ab0a61"
+      },
+      {
+        "path": "rod/track_formulation_candidates.m",
+        "sha256": "9e823315f8a847400910647e4336857d808a69ad6e85383a82034db96a758f34"
+      },
+      {
+        "path": "rod/validate_aloi_gaussian_baseline.m",
+        "sha256": "a6f95b36aa2576d6c4b62d02e9184b0bb43898f45f49162f5b6596ce920f2edd"
+      },
+      {
+        "path": "rod/validate_friction.m",
+        "sha256": "159f9b42329a6f5a80941903f575ca99ace43464400b0ebbf65638da2db4be28"
+      },
+      {
+        "path": "rod/validate_lcp_dependency.m",
+        "sha256": "bdea95e0822869411b005b1df853a8561d5f7c1b481b29fe54efcba9f84fdf0c"
+      },
+      {
+        "path": "rod/validate_plane_geometry_run.m",
+        "sha256": "22b08bdf679fe83032d0fcd2a8037a63baa15db46141720c04a068574e2f5696"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_forward.m",
+        "sha256": "3ca08e902c838d20e3a550c2cd06b4ba0e1db3995ce2195eac0e7117dbd460b2"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_inverse.m",
+        "sha256": "fa8d06d185de218b3073eb4aaec5a771ff29b819394a83442f0dafa441c6e305"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_results.m",
+        "sha256": "10b9fc97a2c00f28dd385174dc93512a4f67b705793cd341faedff33cae2cfe6"
+      },
+      {
+        "path": "rod/validate_sensor_config.m",
+        "sha256": "b4f492a607ee0cd905572b98950c79aa5fe2f801b7402efa0d1271a51f557628"
+      },
+      {
+        "path": "rod/write_formulation_window_csv.m",
+        "sha256": "32b7ab77c9fff1412256299eea0beb692231e2def093498d05e2caf80f64b9db"
+      },
+      {
+        "path": "force.m",
+        "sha256": "f1e2c555dadae6aedf4c1b2804f806a6ccdded85cbc0d7442b87c318e2b7b12e"
+      }
+    ],
+    "sourceScope": "Code present when this operation started; historical input provenance is separate.",
+    "dependency": {
+      "sourceRevision": "Jia0Shen/LCP-Continuum@56bfd089665efc95bba3e0e49ad11557cf206524",
+      "files": [
+        {
+          "path": "LCP-Continuum/tubeKinematics/CreatTube.m",
+          "sha256": "166fb545a48f113e6adcd2b18dc9ec0f51dc0576668a63ec0988267bddd76444"
+        },
+        {
+          "path": "LCP-Continuum/tubeKinematics/solveShape.m",
+          "sha256": "003d9650b33c7f3fc6b2b67e16b207a0879da7ffc8e6e9fc66ea76c2daa10931"
+        },
+        {
+          "path": "LCP-Continuum/tubeKinematics/computeJacobian.m",
+          "sha256": "03d4b8463ab9196775b920d1783b0daff3fed5c05a072bc4f320380f13348e6c"
+        },
+        {
+          "path": "LCP-Continuum/tubeKinematics/getTubeK.m",
+          "sha256": "cfff8cdcc45033f25767f6296a4684d682404d97cb5f2a88143582fab22e4846"
+        },
+        {
+          "path": "LCP-Continuum/LCP/LCPSolve.m",
+          "sha256": "b6bb02a38a6f42afad81954ea5c801d58d3de6839168cf59624ababbe4ea11fd"
+        },
+        {
+          "path": "LCP-Continuum/contactMechanics/getContactShape3.m",
+          "sha256": "fbb3283a2a5496f625972f21d54490e3fba422596485110c79b84e86a1293a95"
+        },
+        {
+          "path": "LCP-Continuum/contactMechanics/getFrictionalContactShape3.m",
+          "sha256": "0461e65e6579c959200fd655c90b7cdb0399f67920c54c44b57c3a5c42b804f6"
+        }
+      ],
+      "scope": "Required external functions including the rod constructor; hashes detect local edits beyond the Git revision."
+    }
+  },
+  "cases": [
+    {
+      "id": "noise_25_micro_per_mm/seed_11/full",
+      "sceneId": "serpentine_tip_load",
+      "method": "full",
+      "seed": 11,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 0.30376075000626895,
+        "tipForceRmseN": 0.29083331440684546,
+        "contactForceRmseN": 0.22325576044600681,
+        "contactMagnitudeMaeN": 0.17726505538514056,
+        "contactArcRmseMm": 0.010943050708430406,
+        "shapeRmseMm": 0.064755056656412985,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 145.8253315,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              145.42233595060316,
+              45.929049812835075,
+              12.784199234610155
+            ],
+            "contactVectorErrorN": [
+              0.12643551729889774,
+              0.055759867362542834,
+              0.041812023465259987
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              32.026998396539426,
+              103.09726636413467,
+              169.98270200710471
+            ],
+            "tipErrorN": 0.23211405662871298,
+            "totalErrorN": 0.23441189464919832,
+            "shapeRmseMm": 0.088580640851324915,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              90.192480316807945,
+              38.358225974391083,
+              11.711537659169331
+            ],
+            "contactVectorErrorN": [
+              0.35478601973804935,
+              0.29288057957863084,
+              0.2579986542385031
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.343643636419088,
+              103.59095503017747,
+              170.18297548317233
+            ],
+            "tipErrorN": 0.33954542885025657,
+            "totalErrorN": 0.35998923613868677,
+            "shapeRmseMm": 0.023235851426601478,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": true,
+        "nominalProbability": 0.95,
+        "coveredComponents": 24,
+        "eligibleComponents": 24,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": 1,
+        "meanIntervalWidthN": 0.85675603021596114,
+        "frameCoverage": [
+          {
+            "covered": 12,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          },
+          {
+            "covered": 12,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          }
+        ],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "5cbdc9f4f917060209e3abaa075ef343f64f7ea31e90cac14b93f3daf5a5bab4",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_11/full",
+      "wallSeconds": 149.2953387,
+      "estimateSha256": "69cf4614e90976845f7e1e0746eee5e1b442a75a5ac274570613bf4b02f4f4f2",
+      "csvSha256": "598dbba6857256fef2df5f3b6bc892adc822ff33b2a035f921e09d16f7241a23",
+      "quality": {
+        "finite": [
+          true,
+          true
+        ],
+        "equilibriumResidualNmm": [
+          2.8415741981646647E-11,
+          3.2051583609415957E-11
+        ],
+        "minimumRodGapMm": [
+          -3.3410774147313305E-15,
+          -8.7102634133140455E-14
+        ],
+        "complementarityResidual": [
+          2.5733181097250311E-12,
+          6.0665527436364876E-12
+        ],
+        "tangencyResidual": [
+          6.174248044067361E-14,
+          1.3886049278444572E-13
+        ],
+        "minimumArcSeparationMm": [
+          66.885435642970037,
+          66.592020452994859
+        ],
+        "configuredConstraintViolation": [
+          2.5733181097250311E-12,
+          6.0665527436364876E-12
+        ],
+        "curvatureResidualRms": [
+          1.1782910635287087,
+          0.85121980604010172
+        ],
+        "frictionHistoryAvailable": [
+          false,
+          true
+        ],
+        "requiresReview": [
+          false,
+          false
+        ],
+        "forceAccuracyCertified": false,
+        "uncertaintyCoverageValidated": false,
+        "forceSeparationAssessed": true,
+        "hasForceSeparationWarning": [
+          false,
+          false
+        ],
+        "hasObservationFitWarning": [
+          false,
+          false
+        ]
+      },
+      "solver": {
+        "seedExitflag": 0,
+        "seedIterations": 51,
+        "seedTrace": [
+          {
+            "curvatureFloorPerMm": 0.0001,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 140.63971224566529
+          },
+          {
+            "curvatureFloorPerMm": 1E-5,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 649.25817129815914
+          },
+          {
+            "curvatureFloorPerMm": 0,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 677.5111913766948
+          }
+        ],
+        "stages": [
+          {
+            "relaxation": 0.01,
+            "exitflag": 1,
+            "iterations": 58,
+            "functionCount": 406,
+            "objective": 71.575756842185626,
+            "constraintViolation": 7.2474665158139828E-13,
+            "seconds": 43.4722931,
+            "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the value of the optimality tolerance,\nand constraints are satisfied to within the value of the constraint tolerance.\n\n<stopping criteria details>\n\nOptimization completed: The relative first-order optimality measure, 5.832882e-08,\nis less than options.OptimalityTolerance = 1.000000e-05, and the relative maximum constraint\nviolation, 7.247467e-13, is less than options.ConstraintTolerance = 1.000000e-05.",
+            "firstOrderOptimality": 2.91884621728879E-5,
+            "sqpExitflag": 1,
+            "retry": [],
+            "unrelaxedViolation": 0.010000000000724747,
+            "accepted": false
+          }
+        ],
+        "exitflag": 1,
+        "selectedStage": 1,
+        "activeBranchPolish": [
+          {
+            "afterStage": 1,
+            "exitflag": 1,
+            "iterations": 32,
+            "objective": 71.5908405910236,
+            "unrelaxedViolation": 6.0665527436364876E-12,
+            "sideA": [
+              1,
+              2,
+              3,
+              19,
+              20,
+              21
+            ],
+            "sideB": [],
+            "constraintTolerance": 1E-8,
+            "stepTolerance": 1E-8,
+            "constraintViolation": 6.0663805619640465E-12,
+            "firstOrderOptimality": 0.0022554754168790749,
+            "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the value of the optimality tolerance,\nand constraints are satisfied to within the value of the constraint tolerance.\n\n<stopping criteria details>\n\nOptimization completed: The relative first-order optimality measure, 4.485169e-06,\nis less than options.OptimalityTolerance = 1.000000e-05, and the relative maximum constraint\nviolation, 6.066381e-12, is less than options.ConstraintTolerance = 1.000000e-08.",
+            "restoration": {
+              "exitflag": 3,
+              "iterations": 11,
+              "residualSquaredNorm": 1.4318742811835705E-6,
+              "initialMaxViolation": 0.056877445274053848,
+              "restoredMaxViolation": 1.0022532343112456E-5,
+              "accepted": true,
+              "initialResidualSquaredNorm": 0.0047697454921647765,
+              "candidateResidualSquaredNorm": 1.4318742811835707E-6,
+              "mapWeight": 0.0001,
+              "mapResidualSquaredNorm": 143.17005510437369,
+              "scope": "Initializer feasibility only; the original MAP is optimized and audited next."
+            },
+            "accepted": true
+          }
+        ],
+        "warmStateBoundCorrection": 0,
+        "mechanicalEvaluations": 13897,
+        "mechanicalCacheHits": 22307,
+        "derivativeBundleEvaluations": 8740,
+        "derivativeBundleCacheHits": 92,
+        "rejectedTrials": 0,
+        "lastRejection": ""
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_11/no_geometry",
+      "sceneId": "serpentine_tip_load",
+      "method": "no_geometry",
+      "seed": 11,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 0.33883663232769229,
+        "tipForceRmseN": 0.3404573569483002,
+        "contactForceRmseN": 0.28828020518414255,
+        "contactMagnitudeMaeN": 0.23479336184587604,
+        "contactArcRmseMm": 0.094419183693359929,
+        "shapeRmseMm": 0.058350283017497631,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 104.6275164,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              145.29497787578742,
+              45.959774807931574,
+              12.882862399461388
+            ],
+            "contactVectorErrorN": [
+              0.33549007697004962,
+              0.078198771869812722,
+              0.14155010870567258
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              32.041877094431342,
+              103.14123237705334,
+              170.07798554066886
+            ],
+            "tipErrorN": 0.31134070197553726,
+            "totalErrorN": 0.25498734028136993,
+            "shapeRmseMm": 0.078825167663821652,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              90.315463561080065,
+              38.335580313344785,
+              11.699623679944457
+            ],
+            "contactVectorErrorN": [
+              0.47592138371530224,
+              0.26986821451402249,
+              0.24616614426376549
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.299889865973839,
+              103.52504704789617,
+              170.37598392906838
+            ],
+            "tipErrorN": 0.36727291091751424,
+            "totalErrorN": 0.40571169949925806,
+            "shapeRmseMm": 0.024415241125464032,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": true,
+        "nominalProbability": 0.95,
+        "coveredComponents": 24,
+        "eligibleComponents": 24,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": 1,
+        "meanIntervalWidthN": 0.92642054986185285,
+        "frameCoverage": [
+          {
+            "covered": 12,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          },
+          {
+            "covered": 12,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          }
+        ],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "5cbdc9f4f917060209e3abaa075ef343f64f7ea31e90cac14b93f3daf5a5bab4",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_11/no_geometry",
+      "wallSeconds": 105.2239549,
+      "estimateSha256": "46e91bf81b9bd56e467e37c2a8ff713c2bfb1edbf4716024b11a681a9987d8d0",
+      "csvSha256": "7a657c0421d0d417f28d338136bcb7fa501d2f74fc96745da922c175b346b495",
+      "quality": {
+        "finite": [
+          true,
+          true
+        ],
+        "equilibriumResidualNmm": [
+          1.9528823003156504E-13,
+          1.8351986597053838E-13
+        ],
+        "minimumRodGapMm": [
+          -0.0420793436073102,
+          -0.017129962414292908
+        ],
+        "complementarityResidual": [
+          2.9525405423307736,
+          1.8479848651430848
+        ],
+        "tangencyResidual": [
+          0.25343696489453471,
+          0.057742746381706019
+        ],
+        "minimumArcSeparationMm": [
+          66.936753163615521,
+          66.850936881172217
+        ],
+        "configuredConstraintViolation": [
+          0,
+          1.9761969838327786E-14
+        ],
+        "curvatureResidualRms": [
+          1.1737782893086877,
+          0.84126803855081178
+        ],
+        "frictionHistoryAvailable": [
+          false,
+          true
+        ],
+        "requiresReview": [
+          false,
+          false
+        ],
+        "forceAccuracyCertified": false,
+        "uncertaintyCoverageValidated": false,
+        "forceSeparationAssessed": true,
+        "hasForceSeparationWarning": [
+          false,
+          false
+        ],
+        "hasObservationFitWarning": [
+          false,
+          false
+        ]
+      },
+      "solver": {
+        "seedExitflag": 0,
+        "seedIterations": 51,
+        "seedTrace": [
+          {
+            "curvatureFloorPerMm": 0.0001,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 122.52844049078124
+          },
+          {
+            "curvatureFloorPerMm": 1E-5,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 502.96336777852991
+          },
+          {
+            "curvatureFloorPerMm": 0,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 499.19782751310555
+          }
+        ],
+        "stages": [
+          {
+            "relaxation": 0.01,
+            "exitflag": 1,
+            "iterations": 59,
+            "functionCount": 654,
+            "objective": 69.233140756934887,
+            "constraintViolation": 1.9761969838327786E-14,
+            "seconds": 50.5364062,
+            "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the value of the optimality tolerance,\nand constraints are satisfied to within the value of the constraint tolerance.\n\n<stopping criteria details>\n\nOptimization completed: The relative first-order optimality measure, 7.294697e-07,\nis less than options.OptimalityTolerance = 1.000000e-05, and the relative maximum constraint\nviolation, 1.976197e-14, is less than options.ConstraintTolerance = 1.000000e-05.",
+            "firstOrderOptimality": 0.000315355313926035,
+            "sqpExitflag": 1,
+            "retry": [],
+            "unrelaxedViolation": 1.9761969838327786E-14,
+            "accepted": true
+          }
+        ],
+        "exitflag": 1,
+        "selectedStage": 1,
+        "activeBranchPolish": [],
+        "warmStateBoundCorrection": 0,
+        "mechanicalEvaluations": 10668,
+        "mechanicalCacheHits": 16900,
+        "derivativeBundleEvaluations": 5700,
+        "derivativeBundleCacheHits": 61,
+        "rejectedTrials": 0,
+        "lastRejection": ""
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_11/point",
+      "sceneId": "serpentine_tip_load",
+      "method": "point",
+      "seed": 11,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 3.4124795102816696,
+        "tipForceRmseN": 1.7401403926525492,
+        "contactForceRmseN": 3.1425958019584286,
+        "contactMagnitudeMaeN": 0.938102544927288,
+        "contactArcRmseMm": 1.0163756577779051,
+        "shapeRmseMm": 0.057252822859757621,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 46.9568191,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              146.8397542004258,
+              44.6707682189764,
+              13.523013005969391
+            ],
+            "contactVectorErrorN": [
+              4.19148773521247,
+              3.4473873578719529,
+              4.8430663488221093
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              31.979559830100222,
+              102.80365519745898,
+              172.43917753405532
+            ],
+            "tipErrorN": 2.3905118826278264,
+            "totalErrorN": 4.5231132239374983,
+            "shapeRmseMm": 0.07893108749557616,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              90.906244409629309,
+              38.92333081774111,
+              11.84895723419765
+            ],
+            "contactVectorErrorN": [
+              1.3277491261669221,
+              1.0562063611572639,
+              1.8624231363439674
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.279503208767807,
+              103.60097433368837,
+              169.89366215478844
+            ],
+            "tipErrorN": 0.58449132696482387,
+            "totalErrorN": 1.6827000860599535,
+            "shapeRmseMm": 0.018045910273169121,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": false,
+        "nominalProbability": 0.95,
+        "coveredComponents": 0,
+        "eligibleComponents": 0,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": null,
+        "meanIntervalWidthN": null,
+        "frameCoverage": [],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "5cbdc9f4f917060209e3abaa075ef343f64f7ea31e90cac14b93f3daf5a5bab4",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_11/point",
+      "wallSeconds": 46.995162,
+      "estimateSha256": "2463e61abb1604701ac344fab779a140f7ff118e35ac4a98161d82dd37d08250",
+      "csvSha256": "de2f77696c5871828a798f3cdd3375521b4058b8edace4734dee173488fbfe32",
+      "quality": {
+        "requiresReview": [
+          false,
+          false
+        ],
+        "hasHistory": [
+          false,
+          true
+        ]
+      },
+      "solver": {
+        "exitflag": [
+          3,
+          2
+        ],
+        "trace": [
+          [
+            {
+              "startIndex": 1,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 13566.270627442507,
+              "functionCount": 2542
+            },
+            {
+              "startIndex": 3,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 9514.3685721334386,
+              "functionCount": 2542
+            },
+            {
+              "startIndex": 2,
+              "exitflag": 3,
+              "iterations": 25,
+              "objective": 66.177642402082654,
+              "functionCount": 806
+            }
+          ],
+          [
+            {
+              "startIndex": 3,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 3543.6328056017119,
+              "functionCount": 2542
+            },
+            {
+              "startIndex": 2,
+              "exitflag": 2,
+              "iterations": 39,
+              "objective": 31.265188711911936,
+              "functionCount": 1240
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 5929.7775537004254,
+              "functionCount": 2542
+            },
+            {
+              "startIndex": 4,
+              "exitflag": 2,
+              "iterations": 30,
+              "objective": 31.265188706946521,
+              "functionCount": 961
+            }
+          ]
+        ],
+        "starts": [
+          3,
+          4
+        ],
+        "rejectedTrials": 0
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_11/gaussian",
+      "sceneId": "serpentine_tip_load",
+      "method": "gaussian",
+      "seed": 11,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 0.96445827803673123,
+        "tipForceRmseN": 0.94602687004520158,
+        "contactForceRmseN": 0.7220401204896274,
+        "contactMagnitudeMaeN": 0.69299632419574042,
+        "contactArcRmseMm": 0.27623894860754389,
+        "shapeRmseMm": 0.0584482394282979,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 99.6615299,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              146.06424652478262,
+              46.696621265536614,
+              13.776018925982498
+            ],
+            "contactVectorErrorN": [
+              0.55166646795689067,
+              0.81136562218484232,
+              1.0402743702921089
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              32.047941676634196,
+              103.14864969185807,
+              170.45736131041465
+            ],
+            "tipErrorN": 1.1603363196363201,
+            "totalErrorN": 1.2004622234948727,
+            "shapeRmseMm": 0.080664752790184618,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              90.4955957098954,
+              38.58789035788736,
+              12.0537244131363
+            ],
+            "contactVectorErrorN": [
+              0.64629530565480986,
+              0.52456475364870636,
+              0.62479194975608554
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.307874083352104,
+              103.53967605510796,
+              170.66935534929584
+            ],
+            "tipErrorN": 0.6659979752430788,
+            "totalErrorN": 0.64749516608921476,
+            "shapeRmseMm": 0.018044141482311607,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": false,
+        "nominalProbability": 0.95,
+        "coveredComponents": 0,
+        "eligibleComponents": 0,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": null,
+        "meanIntervalWidthN": null,
+        "frameCoverage": [],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "5cbdc9f4f917060209e3abaa075ef343f64f7ea31e90cac14b93f3daf5a5bab4",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_11/gaussian",
+      "wallSeconds": 99.6917725,
+      "estimateSha256": "6b6b8f1605a4ebbed2284ed772969e0bf5835248f5dea0f6d9ee82e0369f01e7",
+      "csvSha256": "2df12a6367d6c53688994a13a7c9b38d9b2e2dd8610d597dff2f80221ac8f63d",
+      "quality": {
+        "requiresReview": [
+          false,
+          false
+        ],
+        "hasHistory": [
+          false,
+          true
+        ]
+      },
+      "solver": {
+        "exitflag": [
+          3,
+          3
+        ],
+        "trace": [
+          [
+            {
+              "startIndex": 2,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 64.2190565952616,
+              "functionCount": 2542
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 3,
+              "iterations": 58,
+              "objective": 64.218398642588753,
+              "functionCount": 1829
+            },
+            {
+              "startIndex": 3,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 64.256034207028222,
+              "functionCount": 2542
+            }
+          ],
+          [
+            {
+              "startIndex": 2,
+              "exitflag": 3,
+              "iterations": 22,
+              "objective": 32.05168645835878,
+              "functionCount": 713
+            },
+            {
+              "startIndex": 4,
+              "exitflag": 3,
+              "iterations": 30,
+              "objective": 32.051686458315224,
+              "functionCount": 961
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 3,
+              "iterations": 32,
+              "objective": 32.051686458255375,
+              "functionCount": 1023
+            },
+            {
+              "startIndex": 3,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 140.40027279755498,
+              "functionCount": 2542
+            }
+          ]
+        ],
+        "starts": [
+          3,
+          4
+        ],
+        "rejectedTrials": 0
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_23/full",
+      "sceneId": "serpentine_tip_load",
+      "method": "full",
+      "seed": 23,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 0.24816687857281325,
+        "tipForceRmseN": 0.12713874433490005,
+        "contactForceRmseN": 0.13048319366792227,
+        "contactMagnitudeMaeN": 0.080621323851046547,
+        "contactArcRmseMm": 0.02163399053685883,
+        "shapeRmseMm": 0.056687359092747025,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 137.883084,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              145.4665078522892,
+              45.984573377339267,
+              12.879534355748255
+            ],
+            "contactVectorErrorN": [
+              0.21865167011506506,
+              0.098359717816550715,
+              0.13772095537604837
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              32.048950233852437,
+              103.11252655668531,
+              169.9819891191523
+            ],
+            "tipErrorN": 0.13972838283233779,
+            "totalErrorN": 0.27668233772541917,
+            "shapeRmseMm": 0.062369938735551418,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              89.994574399449263,
+              38.053397614580156,
+              11.502701195284052
+            ],
+            "contactVectorErrorN": [
+              0.1499753258315292,
+              0.028094440550274033,
+              0.049224369450777253
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.316182584251862,
+              103.58764418576084,
+              170.22258427760755
+            ],
+            "tipErrorN": 0.1131569690879435,
+            "totalErrorN": 0.21591776960672776,
+            "shapeRmseMm": 0.050367689086791151,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": true,
+        "nominalProbability": 0.95,
+        "coveredComponents": 22,
+        "eligibleComponents": 24,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": 0.91666666666666663,
+        "meanIntervalWidthN": 0.873312128918303,
+        "frameCoverage": [
+          {
+            "covered": 10,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          },
+          {
+            "covered": 12,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          }
+        ],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "fd3191a25310b5785e2ef52c14290dd1d9ae53cea8b3c6035ac23d2a8b40afe0",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_23/full",
+      "wallSeconds": 138.4408081,
+      "estimateSha256": "8b2f1ee61a28333d408c45e38b6f1f824fcb1d59aff985e208d0688c797bcd6c",
+      "csvSha256": "9b4a08fe647aeee9d1e9aac96ce97a223ff83c86b4287b1ef197beb04e30b970",
+      "quality": {
+        "finite": [
+          true,
+          true
+        ],
+        "equilibriumResidualNmm": [
+          6.0010240526819913E-10,
+          3.358561493152501E-10
+        ],
+        "minimumRodGapMm": [
+          -8.2707517050362167E-13,
+          -1.5763497278331595E-13
+        ],
+        "complementarityResidual": [
+          3.8032698866599178E-11,
+          2.4514613550368962E-11
+        ],
+        "tangencyResidual": [
+          8.8796918361589441E-13,
+          1.3416686634290958E-12
+        ],
+        "minimumArcSeparationMm": [
+          66.869462562466992,
+          66.634940091846715
+        ],
+        "configuredConstraintViolation": [
+          3.8032698866599178E-11,
+          2.4514613550368962E-11
+        ],
+        "curvatureResidualRms": [
+          1.0304258753581592,
+          1.0404294477030978
+        ],
+        "frictionHistoryAvailable": [
+          false,
+          true
+        ],
+        "requiresReview": [
+          false,
+          false
+        ],
+        "forceAccuracyCertified": false,
+        "uncertaintyCoverageValidated": false,
+        "forceSeparationAssessed": true,
+        "hasForceSeparationWarning": [
+          false,
+          false
+        ],
+        "hasObservationFitWarning": [
+          false,
+          false
+        ]
+      },
+      "solver": {
+        "seedExitflag": 0,
+        "seedIterations": 51,
+        "seedTrace": [
+          {
+            "curvatureFloorPerMm": 0.0001,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 136.38952627346347
+          },
+          {
+            "curvatureFloorPerMm": 1E-5,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 541.75732667824286
+          },
+          {
+            "curvatureFloorPerMm": 0,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 592.05064138938053
+          }
+        ],
+        "stages": [
+          {
+            "relaxation": 0.01,
+            "exitflag": 1,
+            "iterations": 63,
+            "functionCount": 422,
+            "objective": 73.216499649827441,
+            "constraintViolation": 3.3731611254195215E-12,
+            "seconds": 47.8401262,
+            "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the value of the optimality tolerance,\nand constraints are satisfied to within the value of the constraint tolerance.\n\n<stopping criteria details>\n\nOptimization completed: The relative first-order optimality measure, 7.584040e-06,\nis less than options.OptimalityTolerance = 1.000000e-05, and the relative maximum constraint\nviolation, 3.373161e-12, is less than options.ConstraintTolerance = 1.000000e-05.",
+            "firstOrderOptimality": 0.0076571914858332727,
+            "sqpExitflag": 1,
+            "retry": [],
+            "unrelaxedViolation": 0.010000000003373161,
+            "accepted": false
+          }
+        ],
+        "exitflag": 1,
+        "selectedStage": 1,
+        "activeBranchPolish": [
+          {
+            "afterStage": 1,
+            "exitflag": 1,
+            "iterations": 32,
+            "objective": 73.230688551515726,
+            "unrelaxedViolation": 3.8032698866599178E-11,
+            "sideA": [
+              1,
+              2,
+              3,
+              19,
+              20,
+              21
+            ],
+            "sideB": [],
+            "constraintTolerance": 1E-8,
+            "stepTolerance": 1E-8,
+            "constraintViolation": 3.803223174194849E-11,
+            "firstOrderOptimality": 0.003232123645295272,
+            "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the value of the optimality tolerance,\nand constraints are satisfied to within the value of the constraint tolerance.\n\n<stopping criteria details>\n\nOptimization completed: The relative first-order optimality measure, 3.185635e-06,\nis less than options.OptimalityTolerance = 1.000000e-05, and the relative maximum constraint\nviolation, 3.803223e-11, is less than options.ConstraintTolerance = 1.000000e-08.",
+            "restoration": {
+              "exitflag": 3,
+              "iterations": 11,
+              "residualSquaredNorm": 1.4645818611644782E-6,
+              "initialMaxViolation": 0.056473685541085283,
+              "restoredMaxViolation": 7.2090819038135771E-6,
+              "accepted": true,
+              "initialResidualSquaredNorm": 0.00477157232319103,
+              "candidateResidualSquaredNorm": 1.4645818611644782E-6,
+              "mapWeight": 0.0001,
+              "mapResidualSquaredNorm": 146.43976706431084,
+              "scope": "Initializer feasibility only; the original MAP is optimized and audited next."
+            },
+            "accepted": true
+          }
+        ],
+        "warmStateBoundCorrection": 0,
+        "mechanicalEvaluations": 14309,
+        "mechanicalCacheHits": 23043,
+        "derivativeBundleEvaluations": 9310,
+        "derivativeBundleCacheHits": 98,
+        "rejectedTrials": 0,
+        "lastRejection": ""
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_23/no_geometry",
+      "sceneId": "serpentine_tip_load",
+      "method": "no_geometry",
+      "seed": 23,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 0.27400321490730045,
+        "tipForceRmseN": 0.12830430671076834,
+        "contactForceRmseN": 0.14174163955272309,
+        "contactMagnitudeMaeN": 0.051409733430784144,
+        "contactArcRmseMm": 0.14669902947081695,
+        "shapeRmseMm": 0.080478662818431912,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 94.1130303,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              145.51736041591465,
+              45.924418371779559,
+              12.969434033324809
+            ],
+            "contactVectorErrorN": [
+              0.22838730947159738,
+              0.057226718892623887,
+              0.22722767362614921
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              31.968766493712202,
+              103.30968883336261,
+              169.74036898695547
+            ],
+            "tipErrorN": 0.10835152047806199,
+            "totalErrorN": 0.29241069903887129,
+            "shapeRmseMm": 0.095710779677358915,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              89.850110191894913,
+              38.0681450262858,
+              11.418128725570238
+            ],
+            "contactVectorErrorN": [
+              0.10607166077964972,
+              0.02765519496430055,
+              0.038210877051639724
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.375306829814278,
+              103.50332764979125,
+              170.13342559763205
+            ],
+            "tipErrorN": 0.14554703106265665,
+            "totalErrorN": 0.25426660544922375,
+            "shapeRmseMm": 0.0615879614181032,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": true,
+        "nominalProbability": 0.95,
+        "coveredComponents": 22,
+        "eligibleComponents": 24,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": 0.91666666666666663,
+        "meanIntervalWidthN": 0.9264822794509241,
+        "frameCoverage": [
+          {
+            "covered": 10,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          },
+          {
+            "covered": 12,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          }
+        ],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "fd3191a25310b5785e2ef52c14290dd1d9ae53cea8b3c6035ac23d2a8b40afe0",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_23/no_geometry",
+      "wallSeconds": 94.5877534,
+      "estimateSha256": "d301d26602d9f995198acf1b3539b3cf495c01119fe012face6a3ab0e115f1aa",
+      "csvSha256": "cde96ac0255d28f16f5c42a378b7f99c938fc8e383a59716709b6e80e81c649d",
+      "quality": {
+        "finite": [
+          true,
+          true
+        ],
+        "equilibriumResidualNmm": [
+          2.0783152976378005E-11,
+          7.7593487191052191E-13
+        ],
+        "minimumRodGapMm": [
+          -0.054253949192647838,
+          -0.084758208506907615
+        ],
+        "complementarityResidual": [
+          2.5740788064101077,
+          7.6155343740132553
+        ],
+        "tangencyResidual": [
+          0.22156743446550434,
+          0.14303905760278815
+        ],
+        "minimumArcSeparationMm": [
+          66.43068015359286,
+          66.63009794784081
+        ],
+        "configuredConstraintViolation": [
+          0,
+          0
+        ],
+        "curvatureResidualRms": [
+          0.97224369955709078,
+          1.0287063597748738
+        ],
+        "frictionHistoryAvailable": [
+          false,
+          true
+        ],
+        "requiresReview": [
+          false,
+          false
+        ],
+        "forceAccuracyCertified": false,
+        "uncertaintyCoverageValidated": false,
+        "forceSeparationAssessed": true,
+        "hasForceSeparationWarning": [
+          false,
+          false
+        ],
+        "hasObservationFitWarning": [
+          false,
+          false
+        ]
+      },
+      "solver": {
+        "seedExitflag": 0,
+        "seedIterations": 51,
+        "seedTrace": [
+          {
+            "curvatureFloorPerMm": 0.0001,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 108.72438319333391
+          },
+          {
+            "curvatureFloorPerMm": 1E-5,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 457.86993413094234
+          },
+          {
+            "curvatureFloorPerMm": 0,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 467.09685230962987
+          }
+        ],
+        "stages": [
+          {
+            "relaxation": 0.01,
+            "exitflag": 1,
+            "iterations": 56,
+            "functionCount": 636,
+            "objective": 67.624314061080185,
+            "constraintViolation": 2.1746198928945596E-14,
+            "seconds": 42.6978592,
+            "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the value of the optimality tolerance,\nand constraints are satisfied to within the value of the constraint tolerance.\n\n<stopping criteria details>\n\nOptimization completed: The relative first-order optimality measure, 3.407086e-06,\nis less than options.OptimalityTolerance = 1.000000e-05, and the relative maximum constraint\nviolation, 2.174620e-14, is less than options.ConstraintTolerance = 1.000000e-05.",
+            "firstOrderOptimality": 0.0011249323039359182,
+            "sqpExitflag": 1,
+            "retry": [],
+            "unrelaxedViolation": 2.1746198928945596E-14,
+            "accepted": true
+          }
+        ],
+        "exitflag": 1,
+        "selectedStage": 1,
+        "activeBranchPolish": [],
+        "warmStateBoundCorrection": 0,
+        "mechanicalEvaluations": 10435,
+        "mechanicalCacheHits": 16533,
+        "derivativeBundleEvaluations": 5415,
+        "derivativeBundleCacheHits": 58,
+        "rejectedTrials": 0,
+        "lastRejection": ""
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_23/point",
+      "sceneId": "serpentine_tip_load",
+      "method": "point",
+      "seed": 23,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 1.7632881131964142,
+        "tipForceRmseN": 1.4183301902594834,
+        "contactForceRmseN": 3.0611087420263825,
+        "contactMagnitudeMaeN": 0.58360920508613534,
+        "contactArcRmseMm": 0.74397139767587483,
+        "shapeRmseMm": 0.079783859037604793,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 26.9129778,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              145.68748818812489,
+              45.492075519750735,
+              13.017626869386907
+            ],
+            "contactVectorErrorN": [
+              3.3219343241593187,
+              4.3669855531153861,
+              3.8107316560575448
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              32.030812871797934,
+              102.89454981532464,
+              171.75875247809523
+            ],
+            "tipErrorN": 1.4875216845852757,
+            "totalErrorN": 1.6100649779542195,
+            "shapeRmseMm": 0.082265370339433361,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              90.984584753021053,
+              37.838901669377236,
+              10.154721784789331
+            ],
+            "contactVectorErrorN": [
+              1.442071481147285,
+              2.7216816093838641,
+              1.4517965469858323
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.350882104878274,
+              103.25616999300685,
+              170.3025938467174
+            ],
+            "tipErrorN": 1.3455854841263664,
+            "totalErrorN": 1.9042218114087492,
+            "shapeRmseMm": 0.077222646735142814,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": false,
+        "nominalProbability": 0.95,
+        "coveredComponents": 0,
+        "eligibleComponents": 0,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": null,
+        "meanIntervalWidthN": null,
+        "frameCoverage": [],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "fd3191a25310b5785e2ef52c14290dd1d9ae53cea8b3c6035ac23d2a8b40afe0",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_23/point",
+      "wallSeconds": 26.9206385,
+      "estimateSha256": "08a6f9c4291bfc56f4d7bfdfa0477935b0773a73abcf8844b886d2a119bedff3",
+      "csvSha256": "538f101d5778c73d466a16a03cce41f7455bf22bae6bc6dd0e17a2a2f7316bf7",
+      "quality": {
+        "requiresReview": [
+          false,
+          false
+        ],
+        "hasHistory": [
+          false,
+          true
+        ]
+      },
+      "solver": {
+        "exitflag": [
+          3,
+          3
+        ],
+        "trace": [
+          [
+            {
+              "startIndex": 3,
+              "exitflag": 3,
+              "iterations": 54,
+              "objective": 8145.0913549067864,
+              "functionCount": 1705
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 3,
+              "iterations": 29,
+              "objective": 13939.9045153988,
+              "functionCount": 930
+            },
+            {
+              "startIndex": 2,
+              "exitflag": 3,
+              "iterations": 32,
+              "objective": 51.499674679417268,
+              "functionCount": 1023
+            }
+          ],
+          [
+            {
+              "startIndex": 2,
+              "exitflag": 3,
+              "iterations": 33,
+              "objective": 45.786468465436286,
+              "functionCount": 1054
+            },
+            {
+              "startIndex": 3,
+              "exitflag": 2,
+              "iterations": 74,
+              "objective": 3590.1832093465196,
+              "functionCount": 2325
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 5986.16171629288,
+              "functionCount": 2542
+            },
+            {
+              "startIndex": 4,
+              "exitflag": 3,
+              "iterations": 19,
+              "objective": 45.786468465436727,
+              "functionCount": 620
+            }
+          ]
+        ],
+        "starts": [
+          3,
+          4
+        ],
+        "rejectedTrials": 0
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_23/gaussian",
+      "sceneId": "serpentine_tip_load",
+      "method": "gaussian",
+      "seed": 23,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 1.1692130217012537,
+        "tipForceRmseN": 1.1585912580868103,
+        "contactForceRmseN": 0.96430665040283337,
+        "contactMagnitudeMaeN": 0.77623016462724659,
+        "contactArcRmseMm": 0.15604607665270984,
+        "shapeRmseMm": 0.0785764056191383,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 60.0080071,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              146.57449693946768,
+              47.092940556377492,
+              14.386105379730646
+            ],
+            "contactVectorErrorN": [
+              1.0821565319058426,
+              1.2141167172810845,
+              1.6462104649047358
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              31.983705581270531,
+              103.32293415687973,
+              170.25725695834441
+            ],
+            "tipErrorN": 1.5777176519143268,
+            "totalErrorN": 1.584523545565627,
+            "shapeRmseMm": 0.083772701105830571,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              89.613578602552849,
+              37.817404419543124,
+              11.194335133515786
+            ],
+            "contactVectorErrorN": [
+              0.26238420623993886,
+              0.2720084798320701,
+              0.28519949823296303
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.378045355932016,
+              103.50736493528265,
+              170.25570221827326
+            ],
+            "tipErrorN": 0.44212488899438646,
+            "totalErrorN": 0.4726555974276479,
+            "shapeRmseMm": 0.073011215504741947,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": false,
+        "nominalProbability": 0.95,
+        "coveredComponents": 0,
+        "eligibleComponents": 0,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": null,
+        "meanIntervalWidthN": null,
+        "frameCoverage": [],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "fd3191a25310b5785e2ef52c14290dd1d9ae53cea8b3c6035ac23d2a8b40afe0",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_23/gaussian",
+      "wallSeconds": 60.0125828,
+      "estimateSha256": "68c8e93af07c0388caf0c66ce9a3fbd1158f2c611e89c6dbb2ec44bffa792980",
+      "csvSha256": "a8397443dd5f9a182cb5b897681542d60038dcf2a43ee172104263237e1da92f",
+      "quality": {
+        "requiresReview": [
+          false,
+          false
+        ],
+        "hasHistory": [
+          false,
+          true
+        ]
+      },
+      "solver": {
+        "exitflag": [
+          3,
+          3
+        ],
+        "trace": [
+          [
+            {
+              "startIndex": 2,
+              "exitflag": 3,
+              "iterations": 21,
+              "objective": 43.648918286123369,
+              "functionCount": 682
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 3,
+              "iterations": 77,
+              "objective": 42.053515999556211,
+              "functionCount": 2418
+            },
+            {
+              "startIndex": 3,
+              "exitflag": 3,
+              "iterations": 45,
+              "objective": 43.648931759021806,
+              "functionCount": 1426
+            }
+          ],
+          [
+            {
+              "startIndex": 2,
+              "exitflag": 3,
+              "iterations": 17,
+              "objective": 48.450024020790153,
+              "functionCount": 558
+            },
+            {
+              "startIndex": 4,
+              "exitflag": 3,
+              "iterations": 27,
+              "objective": 48.408127581956208,
+              "functionCount": 868
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 3,
+              "iterations": 37,
+              "objective": 48.4500240206841,
+              "functionCount": 1178
+            },
+            {
+              "startIndex": 3,
+              "exitflag": 3,
+              "iterations": 63,
+              "objective": 48.408127582500853,
+              "functionCount": 1984
+            }
+          ]
+        ],
+        "starts": [
+          3,
+          4
+        ],
+        "rejectedTrials": 0
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_37/full",
+      "sceneId": "serpentine_tip_load",
+      "method": "full",
+      "seed": 37,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 0.50315751078303672,
+        "tipForceRmseN": 0.43524761124513117,
+        "contactForceRmseN": 0.39306262376800222,
+        "contactMagnitudeMaeN": 0.36560618289660746,
+        "contactArcRmseMm": 0.056029910688928215,
+        "shapeRmseMm": 0.061967801172604718,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 114.9056821,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              145.59299112221362,
+              46.282956473294739,
+              13.212671218632554
+            ],
+            "contactVectorErrorN": [
+              0.13748257637110239,
+              0.39653676474690081,
+              0.46967369741469367
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              32.064131949411184,
+              103.10922685176754,
+              169.97608055279147
+            ],
+            "tipErrorN": 0.54450820192490945,
+            "totalErrorN": 0.5871220352632488,
+            "shapeRmseMm": 0.06556268875826568,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              90.260949357743741,
+              38.480791779227289,
+              11.879396398314048
+            ],
+            "contactVectorErrorN": [
+              0.41222371139829089,
+              0.42332147731325853,
+              0.42558624176762461
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.348040589328718,
+              103.74387420263608,
+              170.17750745674419
+            ],
+            "tipErrorN": 0.28703969102841459,
+            "totalErrorN": 0.40202322945708485,
+            "shapeRmseMm": 0.058151101512539945,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": true,
+        "nominalProbability": 0.95,
+        "coveredComponents": 23,
+        "eligibleComponents": 24,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": 0.95833333333333337,
+        "meanIntervalWidthN": 0.87423957593643864,
+        "frameCoverage": [
+          {
+            "covered": 12,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          },
+          {
+            "covered": 11,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          }
+        ],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "6d2e1c9f9de44fea04f04c4f017bbc384ec713259c52d15cb19d3b9c8af909cf",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_37/full",
+      "wallSeconds": 115.3503354,
+      "estimateSha256": "9617f916dbeb8d093085f710d57b291ed6726de77e2dc3f3ca602f7468101bee",
+      "csvSha256": "79475a81cf3e7e8a1fe9357be06cbd0f7384abcecbdb56d83b73ddfcf457b8d6",
+      "quality": {
+        "finite": [
+          true,
+          true
+        ],
+        "equilibriumResidualNmm": [
+          1.0055796906965897E-10,
+          4.5540887033679311E-11
+        ],
+        "minimumRodGapMm": [
+          -1.4100026701768797E-11,
+          -1.866666543559603E-13
+        ],
+        "complementarityResidual": [
+          4.1715609387066909E-10,
+          7.1830806583967E-12
+        ],
+        "tangencyResidual": [
+          3.3580862106464576E-12,
+          1.2857482907532292E-13
+        ],
+        "minimumArcSeparationMm": [
+          66.866853701023928,
+          66.433633254108116
+        ],
+        "configuredConstraintViolation": [
+          4.1715609387066909E-10,
+          7.1830806583967E-12
+        ],
+        "curvatureResidualRms": [
+          0.93928876972390873,
+          0.80455593441675166
+        ],
+        "frictionHistoryAvailable": [
+          false,
+          true
+        ],
+        "requiresReview": [
+          false,
+          false
+        ],
+        "forceAccuracyCertified": false,
+        "uncertaintyCoverageValidated": false,
+        "forceSeparationAssessed": true,
+        "hasForceSeparationWarning": [
+          false,
+          false
+        ],
+        "hasObservationFitWarning": [
+          false,
+          false
+        ]
+      },
+      "solver": {
+        "seedExitflag": 0,
+        "seedIterations": 51,
+        "seedTrace": [
+          {
+            "curvatureFloorPerMm": 0.0001,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 119.03710333557142
+          },
+          {
+            "curvatureFloorPerMm": 1E-5,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 563.78487402461633
+          },
+          {
+            "curvatureFloorPerMm": 0,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 551.46184050824513
+          }
+        ],
+        "stages": [
+          {
+            "relaxation": 0.01,
+            "exitflag": 1,
+            "iterations": 64,
+            "functionCount": 454,
+            "objective": 60.067211391727646,
+            "constraintViolation": 2.9573808679739244E-12,
+            "seconds": 37.1876751,
+            "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the value of the optimality tolerance,\nand constraints are satisfied to within the value of the constraint tolerance.\n\n<stopping criteria details>\n\nOptimization completed: The relative first-order optimality measure, 1.095004e-07,\nis less than options.OptimalityTolerance = 1.000000e-05, and the relative maximum constraint\nviolation, 2.957381e-12, is less than options.ConstraintTolerance = 1.000000e-05.",
+            "firstOrderOptimality": 8.5675939512205008E-5,
+            "sqpExitflag": 1,
+            "retry": [],
+            "unrelaxedViolation": 0.010000000002957381,
+            "accepted": false
+          }
+        ],
+        "exitflag": 1,
+        "selectedStage": 1,
+        "activeBranchPolish": [
+          {
+            "afterStage": 1,
+            "exitflag": 1,
+            "iterations": 37,
+            "objective": 60.073941245688459,
+            "unrelaxedViolation": 4.1715609387066909E-10,
+            "sideA": [
+              1,
+              2,
+              3,
+              19,
+              20,
+              21
+            ],
+            "sideB": [],
+            "constraintTolerance": 1E-8,
+            "stepTolerance": 1E-8,
+            "constraintViolation": 4.1715213130924253E-10,
+            "firstOrderOptimality": 0.0057049462349779371,
+            "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the value of the optimality tolerance,\nand constraints are satisfied to within the value of the constraint tolerance.\n\n<stopping criteria details>\n\nOptimization completed: The relative first-order optimality measure, 7.246719e-06,\nis less than options.OptimalityTolerance = 1.000000e-05, and the relative maximum constraint\nviolation, 4.171521e-10, is less than options.ConstraintTolerance = 1.000000e-08.",
+            "restoration": {
+              "exitflag": 3,
+              "iterations": 21,
+              "residualSquaredNorm": 1.201357189950622E-6,
+              "initialMaxViolation": 0.055097074759789914,
+              "restoredMaxViolation": 8.4992331273367535E-6,
+              "accepted": true,
+              "initialResidualSquaredNorm": 0.0030875918648887155,
+              "candidateResidualSquaredNorm": 1.2013571899506222E-6,
+              "mapWeight": 0.0001,
+              "mapResidualSquaredNorm": 120.12349721728788,
+              "scope": "Initializer feasibility only; the original MAP is optimized and audited next."
+            },
+            "accepted": true
+          }
+        ],
+        "warmStateBoundCorrection": 0,
+        "mechanicalEvaluations": 15566,
+        "mechanicalCacheHits": 24882,
+        "derivativeBundleEvaluations": 9785,
+        "derivativeBundleCacheHits": 103,
+        "rejectedTrials": 0,
+        "lastRejection": ""
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_37/no_geometry",
+      "sceneId": "serpentine_tip_load",
+      "method": "no_geometry",
+      "seed": 37,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 0.49405007562882663,
+        "tipForceRmseN": 0.50277313682178959,
+        "contactForceRmseN": 0.41019608457155537,
+        "contactMagnitudeMaeN": 0.35545731475725023,
+        "contactArcRmseMm": 0.17305356532120078,
+        "shapeRmseMm": 0.095072714559178886,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 74.967669,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              145.56126389330748,
+              46.348655943019729,
+              13.404655818194767
+            ],
+            "contactVectorErrorN": [
+              0.072378905775142222,
+              0.46531970875018575,
+              0.66157002559184475
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              32.034111603305213,
+              103.2974101484573,
+              169.7650138831122
+            ],
+            "tipErrorN": 0.63599843441485759,
+            "totalErrorN": 0.55564979837220363,
+            "shapeRmseMm": 0.087219553029913632,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              90.051600909559653,
+              38.449231468211934,
+              11.833455108296279
+            ],
+            "contactVectorErrorN": [
+              0.23046204455208738,
+              0.39077940065368755,
+              0.37987844992637504
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.470096694251481,
+              103.62628129133675,
+              170.4614992286715
+            ],
+            "tipErrorN": 0.31791138016921316,
+            "totalErrorN": 0.42358500448744418,
+            "shapeRmseMm": 0.10232493184246103,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": true,
+        "nominalProbability": 0.95,
+        "coveredComponents": 23,
+        "eligibleComponents": 24,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": 0.95833333333333337,
+        "meanIntervalWidthN": 0.926761770947698,
+        "frameCoverage": [
+          {
+            "covered": 12,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          },
+          {
+            "covered": 11,
+            "eligible": 12,
+            "unresolved": 0,
+            "countMatches": true
+          }
+        ],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "6d2e1c9f9de44fea04f04c4f017bbc384ec713259c52d15cb19d3b9c8af909cf",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_37/no_geometry",
+      "wallSeconds": 75.3322176,
+      "estimateSha256": "31545a2bb8a2ca7f794a0489d160db6a79e859a362dde2233c1b6c5cd9f67494",
+      "csvSha256": "991d618868cf3d9ecb73cc09b3faa2fe89dd402e357df97e3480d1dd54044d57",
+      "quality": {
+        "finite": [
+          true,
+          true
+        ],
+        "equilibriumResidualNmm": [
+          1.3229417561433365E-12,
+          6.7051919572236329E-13
+        ],
+        "minimumRodGapMm": [
+          -0.041295665432768552,
+          -0.1839699472992391
+        ],
+        "complementarityResidual": [
+          1.8938791471477356,
+          7.0735030869031954
+        ],
+        "tangencyResidual": [
+          0.17717247809942788,
+          0.15803387032572633
+        ],
+        "minimumArcSeparationMm": [
+          66.4676037346549,
+          66.835217937334747
+        ],
+        "configuredConstraintViolation": [
+          0,
+          0
+        ],
+        "curvatureResidualRms": [
+          0.90537389731706586,
+          0.730680300455056
+        ],
+        "frictionHistoryAvailable": [
+          false,
+          true
+        ],
+        "requiresReview": [
+          false,
+          false
+        ],
+        "forceAccuracyCertified": false,
+        "uncertaintyCoverageValidated": false,
+        "forceSeparationAssessed": true,
+        "hasForceSeparationWarning": [
+          false,
+          false
+        ],
+        "hasObservationFitWarning": [
+          false,
+          false
+        ]
+      },
+      "solver": {
+        "seedExitflag": 0,
+        "seedIterations": 51,
+        "seedTrace": [
+          {
+            "curvatureFloorPerMm": 0.0001,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 101.39146189930088
+          },
+          {
+            "curvatureFloorPerMm": 1E-5,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 438.16394190666335
+          },
+          {
+            "curvatureFloorPerMm": 0,
+            "exitflag": 0,
+            "iterations": 51,
+            "residualSquaredNorm": 437.5747824869469
+          }
+        ],
+        "stages": [
+          {
+            "relaxation": 0.01,
+            "exitflag": 1,
+            "iterations": 55,
+            "functionCount": 634,
+            "objective": 51.924889511350486,
+            "constraintViolation": 1.384243989985554E-15,
+            "seconds": 35.230016,
+            "message": "Local minimum found that satisfies the constraints.\n\nOptimization completed because the objective function is non-decreasing in \nfeasible directions, to within the value of the optimality tolerance,\nand constraints are satisfied to within the value of the constraint tolerance.\n\n<stopping criteria details>\n\nOptimization completed: The relative first-order optimality measure, 7.856195e-06,\nis less than options.OptimalityTolerance = 1.000000e-05, and the relative maximum constraint\nviolation, 1.384244e-15, is less than options.ConstraintTolerance = 1.000000e-05.",
+            "firstOrderOptimality": 0.0037270730925123598,
+            "sqpExitflag": 1,
+            "retry": [],
+            "unrelaxedViolation": 1.384243989985554E-15,
+            "accepted": true
+          }
+        ],
+        "exitflag": 1,
+        "selectedStage": 1,
+        "activeBranchPolish": [],
+        "warmStateBoundCorrection": 0,
+        "mechanicalEvaluations": 10364,
+        "mechanicalCacheHits": 16412,
+        "derivativeBundleEvaluations": 5320,
+        "derivativeBundleCacheHits": 57,
+        "rejectedTrials": 0,
+        "lastRejection": ""
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_37/point",
+      "sceneId": "serpentine_tip_load",
+      "method": "point",
+      "seed": 37,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 1.4513389175010487,
+        "tipForceRmseN": 4.2395912251496268,
+        "contactForceRmseN": 3.3585688633461217,
+        "contactMagnitudeMaeN": 1.2659661594749279,
+        "contactArcRmseMm": 1.16632668503159,
+        "shapeRmseMm": 0.09873560089194329,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 31.2746722,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              144.82619179808,
+              44.682936965964934,
+              16.542791438470228
+            ],
+            "contactVectorErrorN": [
+              0.7859387416014143,
+              1.7435682302806641,
+              7.3650852217232217
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              32.014360248205037,
+              103.07774606574998,
+              172.779811579066
+            ],
+            "tipErrorN": 5.9368115947325677,
+            "totalErrorN": 0.49729410108613054,
+            "shapeRmseMm": 0.087269356715750229,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              90.880197878840832,
+              38.064719397466853,
+              10.577551129997724
+            ],
+            "contactVectorErrorN": [
+              1.3506949928926819,
+              2.5701836922747789,
+              1.1608089768467107
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.452232083330522,
+              103.39199316154078,
+              170.73676338400304
+            ],
+            "tipErrorN": 0.838173968445918,
+            "totalErrorN": 1.9913482578221142,
+            "shapeRmseMm": 0.10900228045965535,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": false,
+        "nominalProbability": 0.95,
+        "coveredComponents": 0,
+        "eligibleComponents": 0,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": null,
+        "meanIntervalWidthN": null,
+        "frameCoverage": [],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "6d2e1c9f9de44fea04f04c4f017bbc384ec713259c52d15cb19d3b9c8af909cf",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_37/point",
+      "wallSeconds": 31.2862937,
+      "estimateSha256": "0d37650bba72fd4f8c621512e155d5ea7bcaac41d1e255ae34c043f1870e62ba",
+      "csvSha256": "93d746b13197c352cdecd852e79b78ba8c19b098a7425741ffd3800b6b8967d1",
+      "quality": {
+        "requiresReview": [
+          false,
+          false
+        ],
+        "hasHistory": [
+          false,
+          true
+        ]
+      },
+      "solver": {
+        "exitflag": [
+          2,
+          3
+        ],
+        "trace": [
+          [
+            {
+              "startIndex": 3,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 9299.7026218040737,
+              "functionCount": 2542
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 13514.316469145178,
+              "functionCount": 2542
+            },
+            {
+              "startIndex": 2,
+              "exitflag": 2,
+              "iterations": 27,
+              "objective": 38.977429523261534,
+              "functionCount": 868
+            }
+          ],
+          [
+            {
+              "startIndex": 2,
+              "exitflag": 3,
+              "iterations": 31,
+              "objective": 21.983903783428566,
+              "functionCount": 992
+            },
+            {
+              "startIndex": 3,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 3580.5400045983574,
+              "functionCount": 2542
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 5799.9953601258067,
+              "functionCount": 2542
+            },
+            {
+              "startIndex": 4,
+              "exitflag": 3,
+              "iterations": 24,
+              "objective": 21.983903783428616,
+              "functionCount": 775
+            }
+          ]
+        ],
+        "starts": [
+          3,
+          4
+        ],
+        "rejectedTrials": 0
+      }
+    },
+    {
+      "id": "noise_25_micro_per_mm/seed_37/gaussian",
+      "sceneId": "serpentine_tip_load",
+      "method": "gaussian",
+      "seed": 37,
+      "noiseStdPerMm": 2.5E-5,
+      "completed": true,
+      "error": "",
+      "metrics": {
+        "trueContactCount": 3,
+        "candidateCount": 3,
+        "candidateCountMatches": true,
+        "activeContactCount": [
+          3,
+          3
+        ],
+        "countMatches": true,
+        "matchedFrameCount": 2,
+        "totalForceRmseN": 0.98552214517136971,
+        "tipForceRmseN": 0.98764007892332228,
+        "contactForceRmseN": 0.76055407832008848,
+        "contactMagnitudeMaeN": 0.53589630109022046,
+        "contactArcRmseMm": 0.18576787642049691,
+        "shapeRmseMm": 0.12988731095893963,
+        "reviewCount": 0,
+        "frameCount": 2,
+        "optimizationSeconds": 76.3957513,
+        "perFrame": [
+          {
+            "frame": 1,
+            "trueForceN": [
+              145.51327626857338,
+              45.887101536311604,
+              12.743103687238479
+            ],
+            "estimatedForceN": [
+              146.19960437112604,
+              46.961954910279744,
+              14.012523849135713
+            ],
+            "contactVectorErrorN": [
+              0.71212462582325453,
+              1.0796179030504274,
+              1.2783763379796784
+            ],
+            "trueArcMm": [
+              32.031832165643706,
+              103.09109324078941,
+              169.98592850206023
+            ],
+            "estimatedArcMm": [
+              32.043879001597489,
+              103.26092011368263,
+              169.75596933338082
+            ],
+            "tipErrorN": 1.3808438179616915,
+            "totalErrorN": 1.3688675127662984,
+            "shapeRmseMm": 0.07382073458095445,
+            "requiresReview": false
+          },
+          {
+            "frame": 2,
+            "trueForceN": [
+              89.852852473260683,
+              38.065908398527192,
+              11.453876888135008
+            ],
+            "estimatedForceN": [
+              89.7402686550738,
+              38.120005091957459,
+              11.471972544641149
+            ],
+            "contactVectorErrorN": [
+              0.37373857044678077,
+              0.077279791390405736,
+              0.13438746333539839
+            ],
+            "trueArcMm": [
+              34.340367588275939,
+              103.61340941393891,
+              170.19445099039484
+            ],
+            "estimatedArcMm": [
+              34.477907583796814,
+              103.62271820514563,
+              170.52031416294454
+            ],
+            "tipErrorN": 0.2100861760999776,
+            "totalErrorN": 0.26212502692296386,
+            "shapeRmseMm": 0.16820203994665708,
+            "requiresReview": false
+          }
+        ]
+      },
+      "coverage": {
+        "computed": false,
+        "nominalProbability": 0.95,
+        "coveredComponents": 0,
+        "eligibleComponents": 0,
+        "unresolvedComponents": 0,
+        "unmatchedFrames": 0,
+        "empiricalCoverage": null,
+        "meanIntervalWidthN": null,
+        "frameCoverage": [],
+        "scope": "Local Gaussian 1.95996398454005 SD intervals, active arc-order pairing; fixed synthetic trajectory, no candidate/mode marginalization."
+      },
+      "inputSha256": "6d2e1c9f9de44fea04f04c4f017bbc384ec713259c52d15cb19d3b9c8af909cf",
+      "truthSha256": "2823cce8094020b43881883d0afd98a56b85d18f7fda613826e9a777b6a29a57",
+      "artifactFolder": "noise_25_micro_per_mm/seed_37/gaussian",
+      "wallSeconds": 76.3994124,
+      "estimateSha256": "964faa4e6c5693a748dfdbcc1105776ecf574b8d06d651c25d569ce5f48c50f1",
+      "csvSha256": "f6fa57d334d1c5f83ddff074ce1b1401fdd2da5ad4b227b3a1769df9050ddfc2",
+      "quality": {
+        "requiresReview": [
+          false,
+          false
+        ],
+        "hasHistory": [
+          false,
+          true
+        ]
+      },
+      "solver": {
+        "exitflag": [
+          3,
+          3
+        ],
+        "trace": [
+          [
+            {
+              "startIndex": 2,
+              "exitflag": 3,
+              "iterations": 18,
+              "objective": 36.576107530048546,
+              "functionCount": 589
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 3,
+              "iterations": 71,
+              "objective": 36.576107529975388,
+              "functionCount": 2232
+            },
+            {
+              "startIndex": 3,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 39.825264941687834,
+              "functionCount": 2542
+            }
+          ],
+          [
+            {
+              "startIndex": 2,
+              "exitflag": 3,
+              "iterations": 59,
+              "objective": 23.931741157507076,
+              "functionCount": 1860
+            },
+            {
+              "startIndex": 4,
+              "exitflag": 3,
+              "iterations": 42,
+              "objective": 23.962046039793982,
+              "functionCount": 1333
+            },
+            {
+              "startIndex": 1,
+              "exitflag": 3,
+              "iterations": 55,
+              "objective": 23.962046285624581,
+              "functionCount": 1736
+            },
+            {
+              "startIndex": 3,
+              "exitflag": 0,
+              "iterations": 81,
+              "objective": 23.962043458002363,
+              "functionCount": 2542
+            }
+          ]
+        ],
+        "starts": [
+          3,
+          4
+        ],
+        "rejectedTrials": 0
+      }
+    }
+  ],
+  "referenceComparisonSha256": "ba217f996e935e37f935935a4215193c8ecfbfca881bf913595be06a42a701f2",
+  "failureCount": 0,
+  "sotaEstablished": false,
+  "scope": "New fixed two-state configurations, not new trajectories per seed. Shape and plane measurements are sampled independently within each packet. All methods read identical bytes; literature adaptations omit environment/time factors and are not official implementations. Spatial sparse is a sensor-density control on the existing 3-D sliding trajectory. All unfavorable and nonpositive exits are retained."
+}

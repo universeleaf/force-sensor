@@ -1,6 +1,6 @@
 # 完整三维软件实验与论文结果
 
-更新：2026-10-04。
+更新：2026-10-05。
 
 本轮仍然研究：从稀疏形状与环境信息分离杆身接触力和独立末端力。全部统计来自完整三维 Cosserat 时间窗口，历史二维结果单独保留。
 
@@ -155,3 +155,7 @@ python scripts/sync_publication_website.py
 - [论文编译来源记录](../out/benchmarks/publication/manuscript_build.json)
 - [导数性能对照](../out/benchmarks/formulation_derivatives/comparison.json)
 - [总技术文档](TECHNICAL_OVERVIEW.md)
+
+## 新配置比较
+
+新增 72 次六配置同观测比较：曲率和平面观测同时采样，包含非平行通道、壁距/末端载荷、几何尺度与空间稀疏观测。全部逐种子指标、真实力大小、退出码、场景定义和代码对应见[新配置比较报告](GENERALIZATION_RESULTS.md)。既有冻结协议未改写；基线仍为文献思想适配。

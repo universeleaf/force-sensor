@@ -1,0 +1,641 @@
+{
+  "state": "complete",
+  "caseCount": 72,
+  "failureCount": 0,
+  "sotaEstablished": false,
+  "options": {
+    "seeds": [
+      11,
+      23,
+      37
+    ],
+    "methods": [
+      "full",
+      "no_geometry",
+      "point",
+      "gaussian"
+    ],
+    "noiseLevelsPerMm": 2.5e-05,
+    "sampleEnvironment": true,
+    "solverOptions": {}
+  },
+  "sceneDefinitions": {
+    "parallel_channel": {
+      "id": "parallel_channel",
+      "title": "S 形杆双侧通道",
+      "description": "S 形杆同时压住左右两壁，基座横移使两个接触反力重新分配。",
+      "lengthMm": 140,
+      "segmentLengthMm": 70,
+      "intrinsicCurvature": 0.02,
+      "baseAngleRad": -0.7,
+      "planePointXZ": [
+        [
+          -10,
+          10
+        ],
+        [
+          35,
+          105
+        ]
+      ],
+      "planeNormalXZ": [
+        [
+          1,
+          -1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "contactPlaneIndex": [
+        1,
+        2
+      ],
+      "baseMotionMm": [
+        -0.6,
+        0.6
+      ],
+      "baseOriginXZ": [
+        0,
+        0
+      ],
+      "tipForceXZ": [
+        0.1,
+        -0.08
+      ],
+      "curvatureNoiseStd": 0,
+      "seed": 601,
+      "shapeObservationCount": 24,
+      "scope": "Independent planar shooting equilibrium embedded in 3-D; two fully solved base states specified in baseMotionMm. Longer serpentine scales all geometry consistently."
+    },
+    "tapered_channel": {
+      "id": "tapered_channel",
+      "title": "收窄通道双接触",
+      "description": "两侧壁法向不同，通道向前收窄；同时求解两个接触点和反力。",
+      "lengthMm": 140,
+      "segmentLengthMm": 70,
+      "intrinsicCurvature": 0.02,
+      "baseAngleRad": -0.7,
+      "planePointXZ": [
+        [
+          -10,
+          10
+        ],
+        [
+          35,
+          105
+        ]
+      ],
+      "planeNormalXZ": [
+        [
+          1,
+          -1
+        ],
+        [
+          -0.05,
+          -0.05
+        ]
+      ],
+      "contactPlaneIndex": [
+        1,
+        2
+      ],
+      "baseMotionMm": [
+        -0.6,
+        0.6
+      ],
+      "baseOriginXZ": [
+        0,
+        0
+      ],
+      "tipForceXZ": [
+        0.1,
+        -0.08
+      ],
+      "curvatureNoiseStd": 0,
+      "seed": 602,
+      "shapeObservationCount": 24,
+      "scope": "Independent planar shooting equilibrium embedded in 3-D; two fully solved base states specified in baseMotionMm. Longer serpentine scales all geometry consistently."
+    },
+    "wider_channel": {
+      "id": "wider_channel",
+      "title": "S 形杆双侧通道",
+      "description": "S 形杆同时压住左右两壁，基座横移使两个接触反力重新分配。",
+      "lengthMm": 140,
+      "segmentLengthMm": 70,
+      "intrinsicCurvature": 0.02,
+      "baseAngleRad": -0.7,
+      "planePointXZ": [
+        [
+          -11,
+          11
+        ],
+        [
+          35,
+          105
+        ]
+      ],
+      "planeNormalXZ": [
+        [
+          1,
+          -1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "contactPlaneIndex": [
+        1,
+        2
+      ],
+      "baseMotionMm": [
+        -0.6,
+        0.6
+      ],
+      "baseOriginXZ": [
+        0,
+        0
+      ],
+      "tipForceXZ": [
+        0.15,
+        -0.1
+      ],
+      "curvatureNoiseStd": 0,
+      "seed": 601,
+      "shapeObservationCount": 24,
+      "scope": "Independent planar shooting equilibrium embedded in 3-D; two fully solved base states specified in baseMotionMm. Longer serpentine scales all geometry consistently."
+    },
+    "serpentine_tip_load": {
+      "id": "serpentine_tip_load",
+      "title": "蛇形杆三接触",
+      "description": "蛇形杆依次接触左壁、右壁和左壁；每个接触独立报告力和位置。",
+      "lengthMm": 210,
+      "segmentLengthMm": 70,
+      "intrinsicCurvature": 0.02,
+      "baseAngleRad": -0.7,
+      "planePointXZ": [
+        [
+          -10,
+          10
+        ],
+        [
+          35,
+          105
+        ]
+      ],
+      "planeNormalXZ": [
+        [
+          1,
+          -1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "contactPlaneIndex": [
+        1,
+        2,
+        1
+      ],
+      "baseMotionMm": [
+        -0.6,
+        0.6
+      ],
+      "baseOriginXZ": [
+        0,
+        0
+      ],
+      "tipForceXZ": [
+        0.25,
+        -0.15
+      ],
+      "curvatureNoiseStd": 0,
+      "seed": 603,
+      "shapeObservationCount": 24,
+      "scope": "Independent planar shooting equilibrium embedded in 3-D; two fully solved base states specified in baseMotionMm. Longer serpentine scales all geometry consistently."
+    },
+    "longer_serpentine": {
+      "id": "longer_serpentine",
+      "title": "蛇形杆三接触",
+      "description": "蛇形杆依次接触左壁、右壁和左壁；每个接触独立报告力和位置。",
+      "lengthMm": 240,
+      "segmentLengthMm": 80,
+      "intrinsicCurvature": 0.0175,
+      "baseAngleRad": -0.7,
+      "planePointXZ": [
+        [
+          -11.428571428571427,
+          11.428571428571427
+        ],
+        [
+          40,
+          120
+        ]
+      ],
+      "planeNormalXZ": [
+        [
+          1,
+          -1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "contactPlaneIndex": [
+        1,
+        2,
+        1
+      ],
+      "baseMotionMm": [
+        -0.6857142857142856,
+        0.6857142857142856
+      ],
+      "baseOriginXZ": [
+        0,
+        0
+      ],
+      "tipForceXZ": [
+        -0.061250000000000006,
+        -0.03828125
+      ],
+      "curvatureNoiseStd": 0,
+      "seed": 603,
+      "shapeObservationCount": 24,
+      "scope": "Independent planar shooting equilibrium embedded in 3-D; two fully solved base states specified in baseMotionMm. Longer serpentine scales all geometry consistently."
+    },
+    "spatial_sparse": {
+      "id": "spatial_sparse",
+      "lengthMm": 140,
+      "shapeObservationCount": 12,
+      "frictionMu": 0.03,
+      "baseTranslationMm": [
+        0,
+        0.5,
+        0
+      ],
+      "tipForceN": [
+        0.1,
+        0.3,
+        -0.08
+      ],
+      "scope": "Existing intrinsically spatial sliding truth; only observation density changes."
+    }
+  },
+  "sourceLedgers": [
+    {
+      "path": "out/benchmarks/generalization/v1/parallel_channel/comparison.json",
+      "sha256": "e0b89bbaf6831e167169719ff1165c42941711bf4164487cecc64ece33421be9",
+      "runId": "c6b67065-cc94-4536-acb9-2019469fc213",
+      "state": "complete"
+    },
+    {
+      "path": "out/benchmarks/generalization/v1/tapered_channel/comparison.json",
+      "sha256": "37660fd5a5d8257fb7aada824c7520b20e4209751858471c8d503facfeb11097",
+      "runId": "8fe9f3b5-56cc-4179-8c47-b518d698c288",
+      "state": "complete"
+    },
+    {
+      "path": "out/benchmarks/generalization/v1/wider_channel/comparison.json",
+      "sha256": "45d8b061f2aa429151957b020097b3c4c0e683636d87e6a1070e0f4866f518e7",
+      "runId": "b2db7162-33b2-4f49-bfd2-4cf575249583",
+      "state": "complete"
+    },
+    {
+      "path": "out/benchmarks/generalization/v1/serpentine_tip_load/comparison.json",
+      "sha256": "849727197e23e73b6276a538c5c3694f4cacddeba3b946337dcfee971621cb77",
+      "runId": "0af1161d-d8f9-492c-85e3-1581adaba3fb",
+      "state": "complete"
+    },
+    {
+      "path": "out/benchmarks/generalization/v1/longer_serpentine/comparison.json",
+      "sha256": "46a857e6d97ed828d507c1431e0059d06653783ba4d0a8b038b6d8707c419f9f",
+      "runId": "7633410d-8834-4ece-a8c2-f4d883abcb1c",
+      "state": "complete"
+    },
+    {
+      "path": "out/benchmarks/generalization/v1/spatial_sparse/comparison.json",
+      "sha256": "eca302e938aac7c71f54667ab82a45bc7b4ca427c9e776401972db956c3f7115",
+      "runId": "8b61a077-14ba-4a19-ab4e-aeb57ed1c4ea",
+      "state": "complete"
+    }
+  ],
+  "summary": [
+    {
+      "scene": "parallel_channel",
+      "method": "full",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.34313688332898057,
+      "magnitudeMaeN": 0.3040997646670334,
+      "tipRmseN": 0.3342547972099723,
+      "totalRmseN": 0.3775225390265387,
+      "arcRmseMm": 0.03941062965803896
+    },
+    {
+      "scene": "parallel_channel",
+      "method": "no_geometry",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.42956763764947836,
+      "magnitudeMaeN": 0.37567479681547483,
+      "tipRmseN": 0.4219337463128781,
+      "totalRmseN": 0.47384577782652476,
+      "arcRmseMm": 0.15382245838028355
+    },
+    {
+      "scene": "parallel_channel",
+      "method": "point",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 1.7149414136786543,
+      "magnitudeMaeN": 0.5003568054841235,
+      "tipRmseN": 0.5907806531588717,
+      "totalRmseN": 1.5480089508499084,
+      "arcRmseMm": 0.11796224324295825
+    },
+    {
+      "scene": "parallel_channel",
+      "method": "gaussian",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 1,
+      "contactRmseN": 0.7831892515755619,
+      "magnitudeMaeN": 0.6984406960369481,
+      "tipRmseN": 0.882650439173512,
+      "totalRmseN": 0.89222827543649,
+      "arcRmseMm": 0.15693180313353808
+    },
+    {
+      "scene": "tapered_channel",
+      "method": "full",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.4205203416755274,
+      "magnitudeMaeN": 0.3795713789102056,
+      "tipRmseN": 0.44852011494991134,
+      "totalRmseN": 0.45154167489833785,
+      "arcRmseMm": 0.03951499486248772
+    },
+    {
+      "scene": "tapered_channel",
+      "method": "no_geometry",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.4354435148398607,
+      "magnitudeMaeN": 0.37314913198493516,
+      "tipRmseN": 0.4590283862372199,
+      "totalRmseN": 0.46520850339044933,
+      "arcRmseMm": 0.17655319115988286
+    },
+    {
+      "scene": "tapered_channel",
+      "method": "point",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 1,
+      "contactRmseN": 2.5380310956175722,
+      "magnitudeMaeN": 0.7777418490847122,
+      "tipRmseN": 1.377115669929853,
+      "totalRmseN": 2.675929549856374,
+      "arcRmseMm": 0.4441097349617092
+    },
+    {
+      "scene": "tapered_channel",
+      "method": "gaussian",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.7111122182363855,
+      "magnitudeMaeN": 0.6401103862530904,
+      "tipRmseN": 0.796984351898936,
+      "totalRmseN": 0.8045868242296512,
+      "arcRmseMm": 0.15106986360788177
+    },
+    {
+      "scene": "wider_channel",
+      "method": "full",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.36433522565309334,
+      "magnitudeMaeN": 0.3251915941025075,
+      "tipRmseN": 0.3714010763206009,
+      "totalRmseN": 0.3802024863533262,
+      "arcRmseMm": 0.04230082792040854
+    },
+    {
+      "scene": "wider_channel",
+      "method": "no_geometry",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.422065253484938,
+      "magnitudeMaeN": 0.3656191261432487,
+      "tipRmseN": 0.43536756997068843,
+      "totalRmseN": 0.4442520749388934,
+      "arcRmseMm": 0.44628865120901756
+    },
+    {
+      "scene": "wider_channel",
+      "method": "point",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 1,
+      "contactRmseN": 2.60753532133707,
+      "magnitudeMaeN": 0.8870038197890752,
+      "tipRmseN": 1.3616851153264413,
+      "totalRmseN": 2.7997418758573125,
+      "arcRmseMm": 1.1302687892982035
+    },
+    {
+      "scene": "wider_channel",
+      "method": "gaussian",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 1.2453987042586976,
+      "magnitudeMaeN": 1.0288346391658387,
+      "tipRmseN": 1.323202282111982,
+      "totalRmseN": 1.3121712573390578,
+      "arcRmseMm": 0.37658575794205346
+    },
+    {
+      "scene": "serpentine_tip_load",
+      "method": "full",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.24893385929397707,
+      "magnitudeMaeN": 0.20783085404426485,
+      "tipRmseN": 0.2844065566622922,
+      "totalRmseN": 0.3516950464540396,
+      "arcRmseMm": 0.029535650644739148
+    },
+    {
+      "scene": "serpentine_tip_load",
+      "method": "no_geometry",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.28007264310280705,
+      "magnitudeMaeN": 0.21388680334463683,
+      "tipRmseN": 0.32384493349361937,
+      "totalRmseN": 0.3689633076212731,
+      "arcRmseMm": 0.1380572594951259
+    },
+    {
+      "scene": "serpentine_tip_load",
+      "method": "point",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 3.187424469110311,
+      "magnitudeMaeN": 0.9292259698294503,
+      "tipRmseN": 2.46602060268722,
+      "totalRmseN": 2.209035513659711,
+      "arcRmseMm": 0.9755579134951233
+    },
+    {
+      "scene": "serpentine_tip_load",
+      "method": "gaussian",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.8156336164041832,
+      "magnitudeMaeN": 0.6683742633044024,
+      "tipRmseN": 1.0307527356851114,
+      "totalRmseN": 1.0397311483031182,
+      "arcRmseMm": 0.20601763389358352
+    },
+    {
+      "scene": "longer_serpentine",
+      "method": "full",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.21950029208824126,
+      "magnitudeMaeN": 0.1850084795273211,
+      "tipRmseN": 0.2686923846797855,
+      "totalRmseN": 0.3125636685423176,
+      "arcRmseMm": 0.034051851989182376
+    },
+    {
+      "scene": "longer_serpentine",
+      "method": "no_geometry",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.2512786330202385,
+      "magnitudeMaeN": 0.20005340449805234,
+      "tipRmseN": 0.3087256583844276,
+      "totalRmseN": 0.3342761708644906,
+      "arcRmseMm": 0.17071074800939057
+    },
+    {
+      "scene": "longer_serpentine",
+      "method": "point",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 2.6652982474110627,
+      "magnitudeMaeN": 0.8063901410572853,
+      "tipRmseN": 2.1589186396392352,
+      "totalRmseN": 1.933032559245074,
+      "arcRmseMm": 1.1424342350682855
+    },
+    {
+      "scene": "longer_serpentine",
+      "method": "gaussian",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 1,
+      "contactRmseN": 0.7200674919319021,
+      "magnitudeMaeN": 0.5921512843942593,
+      "tipRmseN": 0.9030219161800206,
+      "totalRmseN": 0.907306394055702,
+      "arcRmseMm": 0.2597426044007636
+    },
+    {
+      "scene": "spatial_sparse",
+      "method": "full",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.554950499747815,
+      "magnitudeMaeN": 0.5280397033875235,
+      "tipRmseN": 0.5866317956950722,
+      "totalRmseN": 0.6410575242352828,
+      "arcRmseMm": 0.048846489179808404
+    },
+    {
+      "scene": "spatial_sparse",
+      "method": "no_geometry",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 0.5695703564296705,
+      "magnitudeMaeN": 0.5356550566353824,
+      "tipRmseN": 0.517214118002848,
+      "totalRmseN": 0.6595471913297595,
+      "arcRmseMm": 0.29407013793640263
+    },
+    {
+      "scene": "spatial_sparse",
+      "method": "point",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 6.360485609659309,
+      "magnitudeMaeN": 1.917581817180895,
+      "tipRmseN": 4.277564492714538,
+      "totalRmseN": 3.4601059662567457,
+      "arcRmseMm": 1.823565568347983
+    },
+    {
+      "scene": "spatial_sparse",
+      "method": "gaussian",
+      "attempted": 3,
+      "completed": 3,
+      "matched": 3,
+      "nonpositiveExits": 0,
+      "contactRmseN": 1.0613472783941598,
+      "magnitudeMaeN": 0.8435068408839957,
+      "tipRmseN": 1.0817389861207227,
+      "totalRmseN": 1.1275895229113087,
+      "arcRmseMm": 0.34304166093702776
+    }
+  ],
+  "scope": "Fixed configurations, three sensor realizations each. Point/Gaussian are disclosed adaptations, not official implementations. No across-paper hardware ranking or real-time claim."
+}

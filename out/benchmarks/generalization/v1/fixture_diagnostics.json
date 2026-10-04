@@ -1,0 +1,18 @@
+{
+  "sceneId": "longer_serpentine",
+  "stage": "clean truth preparation; no inference or accuracy scores",
+  "lengthMm": 240,
+  "segmentLengthMm": 80,
+  "intrinsicCurvature": 0.0185,
+  "wallXmm": [
+    -10,
+    10
+  ],
+  "baseMotionMm": [
+    -0.6,
+    0.6
+  ],
+  "recipeSha256": "5830f0ea807912b07a74be22cd21e607aed79a9d3782f2aa541dc7dc366da1c8",
+  "rejection": "rod:InvalidMultiContactTruth: penetration 1.95 mm; gap 7.03e-13 mm; moment 3.25e-12 N mm; tangency 3.91e-15.",
+  "resolution": "Use an exact geometric scaling of the 210 mm configuration. Scale length/positions by 8/7, intrinsic curvature by 7/8 and loads by (7/8)^2 at constant bending stiffness. Keep this rejected preparation distinct from inference results."
+}

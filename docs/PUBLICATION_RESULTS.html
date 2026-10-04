@@ -6,7 +6,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid 
 th{background:#e8f1f6}pre{padding:16px;background:#edf3f6;overflow:auto}code{font-family:Consolas,monospace}
 @media(max-width:750px){main{margin:0;padding:16px}table{display:block;overflow:auto}}
 </style></head><body><main><h1>完整三维软件实验与论文结果</h1>
-<p>更新：2026-10-04。</p>
+<p>更新：2026-10-05。</p>
 <p>本轮仍然研究：从稀疏形状与环境信息分离杆身接触力和独立末端力。全部统计来自完整三维 Cosserat 时间窗口，历史二维结果单独保留。</p>
 <p>完整协议 run <code>3ee78967-a1c8-4565-a3d0-b4c97cda85da</code>：108 次因素运行、36 次同输入基线、2 次导数对照、36 项工程检查全部完成。因素/基线异常为 0/0，非正最终退出窗口为 3/2；复核帧为 48/8。</p>
 <h2>1. 实验究竟重复了什么</h2>
@@ -570,4 +570,6 @@ python scripts/sync_publication_website.py
 <li><a href="../out/benchmarks/publication/manuscript_build.json">论文编译来源记录</a></li>
 <li><a href="../out/benchmarks/formulation_derivatives/comparison.json">导数性能对照</a></li>
 <li><a href="TECHNICAL_OVERVIEW.html">总技术文档</a></li>
-</ul></main></body></html>
+</ul>
+<h2>新配置比较</h2>
+<p>新增 72 次六配置同观测比较：曲率和平面观测同时采样，包含非平行通道、壁距/末端载荷、几何尺度与空间稀疏观测。全部逐种子指标、真实力大小、退出码、场景定义和代码对应见<a href="GENERALIZATION_RESULTS.html">新配置比较报告</a>。既有冻结协议未改写；基线仍为文献思想适配。</p></main></body></html>

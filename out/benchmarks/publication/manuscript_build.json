@@ -1,6 +1,6 @@
 {
   "state": "complete",
-  "startedAtUtc": "2026-10-03T21:39:51.659398+00:00",
+  "startedAtUtc": "2026-10-04T18:08:25.075727+00:00",
   "source": [
     {
       "path": "EnFiRCE_overleaf/figs/baseline_table.tex",
@@ -21,6 +21,10 @@
     {
       "path": "EnFiRCE_overleaf/figs/factor_accuracy.pdf",
       "sha256": "c5baa4c94435b98adb66bd7139fcf238683aebe4867b3f5997028cf4571f83a1"
+    },
+    {
+      "path": "EnFiRCE_overleaf/figs/generalization_accuracy.pdf",
+      "sha256": "ede2a1a892d55c8e1b20d68abd2fd78d758a0302560b8a6b315ebc62242d93bb"
     },
     {
       "path": "EnFiRCE_overleaf/figs/local_uncertainty.pdf",
@@ -56,7 +60,7 @@
     },
     {
       "path": "EnFiRCE_overleaf/main.tex",
-      "sha256": "7f73b24754fb34d3a59894057c4e94a354a7f721f7c0747d1d235e7ac40396f2"
+      "sha256": "4749f1cd1fc80fee81dbe2db5136844aa7c92897826bd6a50365ad1f087af9cf"
     },
     {
       "path": "EnFiRCE_overleaf/refs.bib",
@@ -71,10 +75,10 @@
     "-halt-on-error",
     "main.tex"
   ],
-  "seconds": 5.053959000040777,
+  "seconds": 4.7553183999843895,
   "exitCode": 0,
-  "pageCount": 7,
+  "pageCount": 8,
   "pdfPath": "out/benchmarks/publication/EnFiRCE_draft.pdf",
-  "pdfSha256": "5d70480606c7464ecbdc55b680826749a6f7cc762a1954acb9cf797a04a11d0a",
-  "completedAtUtc": "2026-10-03T21:39:56.754832+00:00"
+  "pdfSha256": "c5fe19914a60250c8b095ff670238153e0bd26012dcd12ff7af293afdbb9de44",
+  "completedAtUtc": "2026-10-04T18:08:29.873085+00:00"
 }
