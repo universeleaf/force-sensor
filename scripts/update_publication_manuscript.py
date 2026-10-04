@@ -72,6 +72,34 @@ def replace_once(source: str, pattern: str, replacement: str) -> str:
     return result
 
 
+def replace_results_section(source: str, tail: str) -> str:
+    # The paired float precedes the replaced section. Remove its old copy
+    # explicitly so a second update cannot leave two figures with one label.
+    figure_pattern = r"\\begin\{(figure\*?)\}.*?\\end\{\1\}"
+    for block in reversed(list(re.finditer(figure_pattern, source, flags=re.S))):
+        if r"\label{fig:paired}" in block.group():
+            source = source[:block.start()] + source[block.end():].lstrip("\n")
+    source = replace_once(source, r"\\section\{Simulation and Comparison Protocols\}.*?(?=% Author, affiliation)", tail)
+    # Declare wide floats before their discussion: the double-column
+    # template normally queues them until the following page.
+    placements = (
+        ("fig:paired", r"\section{Simulation and Comparison Protocols}"),
+        ("fig:factors", r"\subsection{Factors, scoring, and provenance}"),
+        ("fig:magnitude", r"\subsection{Multicontact force separation}"),
+        ("fig:uncertainty", r"\subsection{Factor ablations and local uncertainty}"),
+    )
+    for label, marker in placements:
+        blocks = list(re.finditer(figure_pattern, source, flags=re.S))
+        matching = [b for b in blocks if "\\label{" + label + "}" in b.group()]
+        if len(matching) != 1 or source.count(marker) != 1:
+            raise ValueError(f"Figure placement marker is not unique: {label}")
+        block = matching[0]
+        figure = block.group()
+        source = source[:block.start()] + source[block.end():]
+        source = source.replace(marker, figure + "\n\n" + marker, 1)
+    return source
+
+
 def update_project_docs(completion: dict, factors: dict, baselines: dict, derivatives: dict,
                         nominal_rows: list, covered: int, eligible: int, width: float) -> None:
     """Keep the entry points and detailed code map tied to the same release."""
@@ -88,6 +116,7 @@ def update_project_docs(completion: dict, factors: dict, baselines: dict, deriva
                f"| 工程检查与归档重放 | {checks}/{checks} 通过；包括 JSON 恢复、搜索域、导数和原始传感器重放 |",
                f"| 求导对照 | 2 次顺序冷启动；ODE {derivatives['cases'][0]['solver']['mechanicalEvaluations']} → {derivatives['cases'][1]['solver']['mechanicalEvaluations']}，最大力差 {derivatives['maxForceDifferenceN']:.3g} N |", "",
                "接触力、末端力与总合力分别计分；各方法的非正退出、review 和不利结果在报告中完整列出。三个种子重复传感器噪声，而非独立机器人轨迹。因素计时共享并行资源，不能作为独立速度排名。对比是文献思想适配，未运行官方完整因子图系统，当前不宣称 SOTA。", "",
+               "发布脚本回归 8/8 通过：论文重复更新保持字节一致；重复完成步骤、未完成案例及缺失检查不能通过发布核验。当前缺陷与 SOTA 证据边界见[技术说明 26.3–26.4](docs/TECHNICAL_OVERVIEW.md)。", "",
                "完整三维路径从形状与环境生成候选，联合优化各帧 Cosserat 平衡、未知接触弧长、力、环境参数和摩擦历史；见[完整 formulation 工作流](docs/FORMULATION_WORKFLOW.md)。它是直接非线性窗口 MAP，递归预测后验/迭代 EKF 的原式仍单独列为差异。真实传感器尚未接入。", "",
                "历史 396 次二维多接触及 54 次平面偏移实验见[二维软件报告](docs/SOFTWARE_BENCHMARK_2026-09-30.md)；历史七窗口与缓存结果见[文献比较说明](docs/LITERATURE_COMPARISON.md)。这些历史记录未改写成当前源码结果。", "", ""]
     readme = ROOT / "README.md"
@@ -108,6 +137,7 @@ def update_project_docs(completion: dict, factors: dict, baselines: dict, deriva
               "- JSON 往返的数组方向/字段顺序不再误报源码或依赖改变；真实校验值改变仍拒绝恢复。",
               "- 因素单线程与历史归档默认线程分开调度；同一旧 wall 输入在默认线程下状态/合力差均为 0，保留严格重放阈值与实际执行脚本归档。",
               "- 六个独立场景/种子目录并行求解并校验合并；图、论文、网站只接收完整数据。", "",
+              "- 修复论文重复更新时旧比较图残留、导致标签重复而中断的问题。发布核验增加步骤唯一性、逐案例完成状态/数量及工程检查非空/数量检查；8 项 Python 回归通过，真实稿件连续更新两次字节相同。此次未修改 MATLAB 求解器或实验数值。", "",
               "## 阅读和复现", "",
               "- [完整技术说明](TECHNICAL_OVERVIEW.md)：所有模块、公式、接口和代码地图。",
               "- [PDF 公式逐项对应](FORMULATION_WORKFLOW.md)：包括保留内容及直接窗口 MAP 与递归形式的差异。",
@@ -139,7 +169,25 @@ def update_project_docs(completion: dict, factors: dict, baselines: dict, deriva
                "| 编译与网站 | `compile_publication_manuscript.py` / `sync_publication_website.py` | 实际 TeX/参考文献/模板/图表 SHA → 对应 PDF、编译记录及真实 MP4 字节副本 |", "",
                "### 26.2 适合发送给学长的材料", "",
                "先发送完整软件实验报告、同输入比较/消融/逐接触力大小图，再发送本技术说明和 `FORMULATION_WORKFLOW` 的逐式对应。需要复算时附 `input.mat/truth.mat/estimate.mat/forces.csv/comparison.json`。视频提供运动直观理解，统计图提供可配对的力精度；它们的求解版本与状态数分别说明。", "",
-               "讨论重点仍是实际杆刚度与高反力是否合理、环境观测精度、怎样构造信息充分的摩擦转变、末端/接触力真值获取以及官方图方法的输入匹配。已有不利结果也随报告提供。完成软件流程不自动构成 SOTA、硬件准确性或全局概率校准证据。", ""]
+               "讨论重点仍是实际杆刚度与高反力是否合理、环境观测精度、怎样构造信息充分的摩擦转变、末端/接触力真值获取以及官方图方法的输入匹配。已有不利结果也随报告提供。完成软件流程不自动构成 SOTA、硬件准确性或全局概率校准证据。", "",
+               "### 26.3 当前代码问题、修复和检查范围", "",
+               "2026-10-04 的后续排错检查了候选生成/跨帧关联、有序弧长域、状态初始化、每帧积分缓存、前驱材料点位移、共享导数、分支恢复、局部协方差、评分及发布脚本。以下是实际复现后修复的程序问题；它们不改变力学模型或已完成的实验数值。", "",
+               "| 问题及原行为 | 根因与修改位置 | 修复后行为 |", "|---|---|---|",
+               "| 论文第二次同步报 `fig:paired` 标签不唯一 | [update_publication_manuscript.py](../scripts/update_publication_manuscript.py) 的 `replace_results_section`：比较图曾移到章节替换范围前，旧图未被删除 | 替换前删除旧比较图，再生成和放置同一批图；真实稿件及生成文档连续运行两次，第二次字节完全相同 |",
+               "| 完成步骤重复仍可通过发布核验 | [verify_publication_release.py](../scripts/verify_publication_release.py) 的 `verify`：按名字构造字典会静默覆盖重复项 | 同时校验四个必需名字和列表/字典数量相等，拒绝重复步骤 |",
+               "| 未完成基线记录仍可通过核验 | 同一 `verify`：原先只检查账本总状态与异常数 | 每项必须 `completed=true`，案例总数必须与完成步骤声明相符 |",
+               "| 空工程检查列表仍可被解释为全部通过 | 同一 `verify`：Python 的 `all([])` 为真 | 要求检查列表非空、数量匹配、状态完成且逐项通过 |", "",
+               "[test_publication_serialization.py](../scripts/test_publication_serialization.py) 复用现有检查文件，包含 3 个 JSON 往返身份用例、2 个文稿替换用例、3 个完成状态用例，共 8/8 实际通过。错误完成状态只在内存中注入，原始实验文件未改写；真实发布核验仍通过全部 589 个源码/数据/图文件。36 项 MATLAB 工程检查来自同一冻结源码的既有完成记录，本轮校验其字节及逐项通过状态，未将它们写成新执行。", "",
+               "本轮未发现需要修改当前完整方法的新增力学实现错误，但这只描述已审查范围，不是任意输入均无缺陷的证明。已归档完整方法 18 个窗口均为正退出；3 个旧分区消融窗口和 2 个 Gaussian 窗口的非正退出继续保留，不能改退出码或删除后声称所有方法收敛。首次空间状态缺少真实前驱时的 review 也保留。", "",
+               "复杂度控制：仍使用原来的 Cosserat 积分、`lsqnonlin/fmincon`、联合窗口和图表流程，没有新增估计器、候选枚举策略或实验框架。论文放置逻辑提取成一个小函数用于回归；发布核验只增加直接条件。后续修复应以可复现错误为依据，不用增加模型分支代替诊断。", "",
+               "### 26.4 为什么仍不能宣称 SOTA", "",
+               "现在能成立的结论是：在两条指定的两状态仿真配置、标称曲率噪声和三个传感器种子下，完整方法的接触向量 RMSE 均值为三接触 0.215 N、空间滑动 0.288 N，均优于这里实现的 Point/Gaussian 适配。这不是对所有论文和场景的排名。", "",
+               "| 尚缺的比较依据 | 与程序 bug 的区别 |", "|---|---|",
+               "| 原作者完整算法或官方实现的复现 | 当前是自实现的点载荷和 Gaussian 思想适配；修好发布脚本不会将它们变成原方法 |",
+               "| 匹配信息预算的对照 | 输入包字节相同，但 EnFiRCE 使用环境/时间信息，两个基线只拟合曲率；该实验比较完整估计器，不能将差距全部归因于优化算法 |",
+               "| 独立轨迹、形状、几何和接触模式的泛化 | 三个种子只重复噪声，两状态配置固定；干净种子重复不增加独立轨迹数量。有限候选和已选分支也不保证任意接触拓扑全局最优 |",
+               "| 成本和任务范围匹配 | 现有完整调用以秒至分钟计，尚非实时；真实硬件和全局不确定性校准未完成。硬件并非任何软件排名的必需条件，但限制了对真实机器人性能的声明 |", "",
+               "既有反例也不能回避：历史三接触总合力 RMSE 曾为 EnFiRCE 0.820 N、Point 0.632 N；当前因素消融并非每个删除项都显著变差。接触分离、末端力、总合力、区间与速度必须分别报告。更大范围的优势需要相应实验依据，不能通过修复 bug、换一个指标或过滤不利结果产生。", ""]
     if "## 26. 当前完整软件实验与交付" in content:
         content = content.split("## 26. 当前完整软件实验与交付")[0]
     technical.write_text(content.rstrip() + "\n\n" + "\n".join(section), encoding="utf-8")
@@ -392,24 +440,7 @@ Finite candidates and temporal association may miss reactions or confuse identit
 The present experiments assess two fixed full-window configurations under repeated sensor noise. Broader validation should include independent trajectories, informative friction transitions, and input-matched official implementations. Recursive marginalization and analytical sparse sensitivities may improve computational cost. Hardware validation requires calibrated FBG channels, synchronized geometry, measured stiffness, and independent contact/tip force truth.
 
 """
-    source = replace_once(source, r"\\section\{Simulation and Comparison Protocols\}.*?(?=% Author, affiliation)", tail)
-    # Declare wide floats early enough to stay near their discussion. The
-    # template queues double-column figures until the following page.
-    placements = (
-        ("fig:paired", r"\section{Simulation and Comparison Protocols}"),
-        ("fig:factors", r"\subsection{Factors, scoring, and provenance}"),
-        ("fig:magnitude", r"\subsection{Multicontact force separation}"),
-        ("fig:uncertainty", r"\subsection{Factor ablations and local uncertainty}"),
-    )
-    for label, marker in placements:
-        blocks = list(re.finditer(r"\\begin\{(figure\*?)\}.*?\\end\{\1\}", source, flags=re.S))
-        matching = [b for b in blocks if "\\label{" + label + "}" in b.group()]
-        if len(matching) != 1 or source.count(marker) != 1:
-            raise ValueError(f"Figure placement marker is not unique: {label}")
-        block = matching[0]
-        figure = block.group()
-        source = source[:block.start()] + source[block.end():]
-        source = source.replace(marker, figure + "\n\n" + marker, 1)
+    source = replace_results_section(source, tail)
     (paper / "main.tex").write_text(source, encoding="utf-8", newline="\n")
     print(f"Updated actual results document and manuscript: {contact_wins}/4 contact comparisons; {covered}/{eligible} local components.")
 

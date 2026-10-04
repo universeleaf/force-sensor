@@ -43,6 +43,10 @@ def verify(staged: bool = False) -> dict[str, str]:
     completion = read(publication / "completion.json")
     if completion["state"] != "complete" or completion["quickMode"]:
         raise ValueError("Only a complete, non-smoke run is publishable.")
+    steps = {s["name"]: s for s in completion["completedSteps"]}
+    if (len(steps) != len(completion["completedSteps"]) or
+            set(steps) != {"factors", "literature", "derivatives", "engineering"}):
+        raise ValueError("Four distinct completed steps are required.")
     expected: dict[str, str] = {}
 
     def record(path: str | Path, digest: str) -> None:
@@ -56,9 +60,6 @@ def verify(staged: bool = False) -> dict[str, str]:
             raise ValueError(f"Working-tree checksum mismatch: {name}")
         expected[name] = digest
 
-    steps = {s["name"]: s for s in completion["completedSteps"]}
-    if set(steps) != {"factors", "literature", "derivatives", "engineering"}:
-        raise ValueError("Four completed steps are required.")
     for s in completion["runRecord"]["source"]:
         record(s["path"], s["sha256"])
     # External mechanics are pinned separately and are not staged in this repo.
@@ -72,7 +73,9 @@ def verify(staged: bool = False) -> dict[str, str]:
     for name in ("factors", "literature"):
         ledger_path = ROOT / steps[name]["path"]
         ledger = read(ledger_path)
-        if ledger["state"] != "complete" or ledger["failureCount"]:
+        if (ledger["state"] != "complete" or ledger["failureCount"] or
+                len(ledger["cases"]) != steps[name]["caseCount"] or
+                any(not c.get("completed", False) for c in ledger["cases"])):
             raise ValueError(f"Incomplete inference ledger: {name}")
         if ledger["runRecord"]["source"] != completion["runRecord"]["source"]:
             raise ValueError(f"Inference ledger used different source: {name}")
@@ -149,7 +152,9 @@ def verify(staged: bool = False) -> dict[str, str]:
     if (checks["runRecord"]["source"] != completion["runRecord"]["source"] or
             checks["runRecord"]["dependency"] != completion["runRecord"]["dependency"]):
         raise ValueError("Engineering checks belong to different code/dependencies.")
-    if not checks["allPassed"] or not all(c["passed"] for c in checks["checks"]):
+    if (checks["state"] != "complete" or not checks["allPassed"] or
+            not checks["checks"] or len(checks["checks"]) != steps["engineering"]["caseCount"] or
+            not all(c["passed"] for c in checks["checks"])):
         raise ValueError("Engineering checks failed.")
     if staged:
         from compile_publication_manuscript import verify_build
