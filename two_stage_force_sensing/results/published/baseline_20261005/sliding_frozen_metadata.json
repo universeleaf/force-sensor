@@ -1,0 +1,18 @@
+{
+  "matlab": "25.2.0.2998904 (R2025b)",
+  "computer": "PCWIN64",
+  "task": "sliding_frozen",
+  "started": "05-Oct-2026 12:37:04",
+  "counterNames": [
+    "mapCalls",
+    "mapCacheMisses",
+    "wholeRodIVPs",
+    "ode45Segments",
+    "rhsEvaluations",
+    "mapSeconds",
+    "failedMapCalls",
+    "planarIVPs",
+    "planarOde45Segments",
+    "planarSeconds"
+  ]
+}

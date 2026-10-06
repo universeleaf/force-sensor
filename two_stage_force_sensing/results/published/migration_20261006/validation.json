@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-06",
+  "branch": "codex/two-stage-force-sensing",
+  "baseRevision": "13bdb7d4d65b819229905781e6c4aede1f9ab64a",
+  "unchangedEstimatorFiles": 15,
+  "noCopiedBaselineAlgorithms": true,
+  "originalGitStatusUnchanged": true,
+  "reconstructionComparisonRows": 96,
+  "maximumReconstructionRmsDifferenceMm": 0.0,
+  "unitTests": {
+    "passed": true,
+    "checks": [
+      "sliding maximum dissipation",
+      "zero force apex",
+      "separated contact has zero force",
+      "zero friction",
+      "projection generalized derivative away from switches",
+      "augmented IVP and constraint derivatives",
+      "ODE tolerance refinement",
+      "3D mechanics coordinate invariance",
+      "no-contact and no-surface state",
+      "diagnostics cannot mutate state",
+      "numerical failure retains output and continues sequence",
+      "contact activation and separation branches"
+    ],
+    "projectionDerivativeError": 8.719482841917599e-11,
+    "mechanicsDerivativeError": 5.703010119964209e-09,
+    "odeRefinementPositionMm": 5.011302306456855e-08,
+    "rigidRotationPositionMm": 4.659776919879732e-08
+  },
+  "spatialTests": {
+    "passed": true,
+    "relativeJacobianError": 4.592217256978278e-09,
+    "rigidRotationPositionMm": 3.874112763924131e-08,
+    "contacts": 2,
+    "nonplanarContactForceN": 3.080531014558382
+  },
+  "baselinePlanarFirstFrame": [
+    {
+      "frame": 1,
+      "elapsedSeconds": 0.278556,
+      "iterations": 6,
+      "exitflag": 3,
+      "contactErrorN": [
+        2.8421709430404007e-13,
+        3.907985046680551e-14
+      ],
+      "tipErrorN": 3.499954973750459e-15,
+      "audit": {
+        "contactGapMm": [
+          -1.7553958286953275e-11,
+          -5.128342195348523e-12
+        ],
+        "minGapByPlaneMm": [
+          -1.7553958286953275e-11,
+          -5.128342195348523e-12
+        ],
+        "maxPenetrationMm": 1.7553958286953275e-11,
+        "maxAbsGapMm": 1.7553958286953275e-11,
+        "maxTangencyResidual": 2.447694824603275e-15,
+        "tipMomentResidualNmm": 3.6692870963861424e-14,
+        "minNormalForceN": 17.236403803366773,
+        "maxComplementarityNmm": 2.0843635519367234e-09,
+        "orderedContacts": true,
+        "passed": true
+      },
+      "maxScaledResidual": 1.7553958286953275e-08
+    }
+  ],
+  "reportGenerators": "Both executed successfully after fixing a migrated default path",
+  "legacyInstrumentation": "Historical evidence preserved; shadow solvers and frozen-geometry solver bodies are not shipped",
+  "baselineSingleContactFirstFrame": {
+    "elapsedSeconds": 143.0257206,
+    "frameSeconds": 142.5388362,
+    "contactRmseN": 1.884314982179056e-05,
+    "tipRmseN": 1.282705998500164e-05,
+    "quality": {
+      "scope": "Numerical and observation consistency only; force accuracy and calibrated uncertainty are not certified.",
+      "hasOptimizationWarning": false,
+      "shapeConsistencyMm": 0.00029766340248798086,
+      "complementarityResidual": 4.185288200044776e-14,
+      "shapeConsistent": true,
+      "finite": true,
+      "frictionKinematicsEnforced": true,
+      "frictionKinematicsConsistent": true,
+      "frictionDirectionResolutionAssessed": true,
+      "frictionDirectionResolved": true,
+      "hasFrictionObservationWarning": false,
+      "activeConstraintResidual": 4.185288200044776e-14,
+      "minimumSampledRodGapMm": -1.1375818500082915e-14,
+      "rodGeometryEnforced": true,
+      "hasRodPenetration": false,
+      "numericalChecksPassed": true,
+      "forceComponentsLocallySeparable": true,
+      "forceSeparationApplicable": true,
+      "hasForceSeparationWarning": false,
+      "requiresReview": false,
+      "forceUncertaintyCoverageValidated": false,
+      "forceAccuracyCertified": false,
+      "historyUncertaintyModeled": false,
+      "historyStateOptimized": false,
+      "historyModeResolutionModeled": false,
+      "historyNoiseCalibrationAvailable": false,
+      "contactModeOptimized": true,
+      "environmentCovarianceUsed": true,
+      "environmentCalibrationUncertaintyModeled": false,
+      "uncertaintyScope": "Local first-order observation covariance conditional on reconstructed history. Full contact mode optimized; history noise is not included in the MAP likelihood, and history states and mode mixtures are not marginalized."
+    }
+  },
+  "profiledPlanarCaller": "Completed separately; profile MAT artifact produced; timings excluded from benchmark claims",
+  "actualSourceHashCaptureFiles": 240,
+  "smokeChecks": {
+    "sliding_clean": "Finite estimate; no flags on first frame",
+    "s_channel_two_contact": "Finite estimate; known iteration-limit, penetration, tangency, FBG mismatch, unobserved twist and one-channel warnings retained"
+  },
+  "scope": "Migration checks, not a new full benchmark or changed scientific formulation."
+}

@@ -1,0 +1,63 @@
+{
+  "projectRoot": "D:\\GT learning\\research\\force sensing\\two_stage_force_sensing",
+  "originalRoot": "D:\\GT learning\\research\\force sensing\\code_Tongyu_new",
+  "originalHead": "13bdb7d4d65b819229905781e6c4aede1f9ab64a",
+  "originalStatusUnchanged": true,
+  "originalStatus": [
+    "?? docs/2_STAGE_FORCE_SENSING.md",
+    "?? docs/2_STAGE_FORCE_SENSING_IMPLEMENTATION_PLAN.md",
+    "?? docs/CURRENT_SOLVER_BOTTLENECK_AUDIT_2026-10-05.md",
+    "?? scripts/analyze_bottleneck_audit.m",
+    "?? scripts/prepare_bottleneck_audit.py",
+    "?? scripts/run_bottleneck_audit.m",
+    "?? scripts/summarize_bottleneck_audit.py"
+  ],
+  "identicalReferenceMatlabFiles": 240,
+  "newSourceSHA256": {
+    "matlab\\make_validation_fixtures.m": "59db737b3881a73f2a157fa55b093deb97172f1676d7675d56f92d8fcb0ba397",
+    "matlab\\run_ablations.m": "3bc8a3bd20c0740eb0c8bc1d7f6c82590b21fa9d8af69fd8c8fc8f9370df3b4c",
+    "matlab\\run_benchmarks.m": "bea0c0e27aea79efff28fae5ce16f583fbda71627b7477037f03822c32f9ba1d",
+    "matlab\\run_smoke.m": "41fc158553cc5c2c3068d54250372c2b366ae1019ab337c9d267bf232eae156e",
+    "matlab\\setup_tsfs.m": "00107e85024c68c50bdca8aef488fde8c2327e72ce125679891260a4a2e10fb0",
+    "matlab\\+tsfs\\basis.m": "4d7d83ff78a96d4e8ccecbbbd7de9c202fd889665e4760ee046c7aece88b3db0",
+    "matlab\\+tsfs\\defaults.m": "72e0eeea2dcca23b19e1a20bba2370ed8aa72cb27c1590ec6206a925286d342d",
+    "matlab\\+tsfs\\diagnose.m": "bc475c0071e0e9d067fbdc5b32aba82080c994bc4470432f735573e83638e7dd",
+    "matlab\\+tsfs\\estimate.m": "c1e26f0da05427a1272a0e7bbefc8d3f0d0ca4729df66b14f3538d6849fc8e07",
+    "matlab\\+tsfs\\evaluate.m": "29234e204b5be9b5144ab046173f37853d941bd3ff52bed5e0a0b14e1cad713c",
+    "matlab\\+tsfs\\geometry.m": "fd33ea03bd708370dbff8e147ec3130e1a4974c91edf6349f6bddad0e1869943",
+    "matlab\\+tsfs\\hat.m": "1ec347cd2aed3484d248c639b00de29d53083057db6fc0aed5e826c9f0614534",
+    "matlab\\+tsfs\\initialize.m": "227c9ea91960fc901b0197ddf8712a3ae0e551eda0874c3b9370617b95bedfc0",
+    "matlab\\+tsfs\\ivp.m": "84aae6ef67f11ec69e901a49f72a7879cc3d37d37c3f000ad9a8e41b5fbafa4c",
+    "matlab\\+tsfs\\project_contact.m": "7f7f57658ae9015d63846e7c318e0037e794f0e794ffbfe717883399bbf8ffe6",
+    "matlab\\+tsfs\\read_input.m": "079db864058fa03e3fcf5cdee907439f0dd1155f67f5196e9dc92c7f08a7aa8b",
+    "matlab\\+tsfs\\reconstruct.m": "4ec743a493d60b230e4c0492d747058db10d8ff33b99dcffabbb86605abb901c",
+    "matlab\\+tsfs\\shape_at.m": "fe89a629291121f4d07d7c2853e86714cb9798c722828a03049000dd335cf91b",
+    "matlab\\+tsfs\\sqp.m": "1e3d9aa9e4840da8f37fd0c0bdc51e41ff404909dbe8b190104a918e1625193b",
+    "matlab\\+tsfs\\step.m": "d02d1877f81923dcd1980578bb69fc5879e403f3f41109f8347acca27bfc9303"
+  },
+  "fixtureSHA256": {
+    "datasets\\sliding_clean.mat": "a92bc61f4e1a03b2e202b02640234d856eec1ad712d2665aa1e2c7a34bfc863b",
+    "datasets\\s_channel_two_contact.mat": "e4f06e1f98862e96ba674f7fa320cd6daa5ba81ad8d71456cdbbfb9e94ed29d9",
+    "datasets\\free_space\\estimate.mat": "93ef93f77fbec6548475f83f23ab46428b58fae723aeef0e20a18fe0e0cf2df9",
+    "datasets\\free_space\\input.mat": "9a58e1fa2154311183769a885cf82c2add3bca97a08e5c859b1fd0cf77f67445",
+    "datasets\\free_space\\truth.mat": "33e842f593a3d4898a8470a2954c0577b6478c1c17aba345add979525ccedd9c",
+    "datasets\\spatial_sliding\\estimate.mat": "49e45faf40239b7518927673177e06fe2ae0ed95d20527312172ca9ba172e8e9",
+    "datasets\\spatial_sliding\\input.mat": "e1b2d6a0577dab30de54f5accc9011dd5aacc5dc3304f8b7ffce84715585bd1d",
+    "datasets\\spatial_sliding\\truth.mat": "ef00a057bf6c56680599953fe0d096c9f4688538dcb9fc2064d4d3f1f88446e8",
+    "datasets\\spatial_sliding_noisy\\estimate.mat": "5dde517518fc9c543750c2e0a815373b753b991f936d4b4b3f0c6067a8e9638d",
+    "datasets\\spatial_sliding_noisy\\input.mat": "cd607b64671e29b1f994abfe568f4246c7eab12c0c8b23062e6e458f120328b9",
+    "datasets\\spatial_sliding_noisy\\truth.mat": "8e998a082cf582f66c32c05ac79a638d3a7e9c81df90dcc8f889478dc843ef42",
+    "datasets\\spatial_three_channel\\input.mat": "5c5e518cf6c9dca3ef7bb25572302aabec4fb9e61e1c4882ad08f7fffe78545b",
+    "datasets\\spatial_three_channel\\truth.mat": "198acf6e136d437232595caa50bfe2c0a946e975773c81257548b9fab0b535f7",
+    "datasets\\three_contact\\estimate.mat": "58d9625bb65429272fbd5cdd279df2368a1834028213630041da22a268f861dc",
+    "datasets\\three_contact\\input.mat": "ebe3f09bc1bd870bd7b13cdaa42e875488c55b1c1eb28f3f2022fa94cd4c02e9",
+    "datasets\\three_contact\\truth.mat": "e977f92dcf3f3e058edc3126ad3239e38bd1b8c0e7a269a13b817ade7713d159",
+    "datasets\\two_contact\\estimate.mat": "551c3c8a56624dad1aa029d7857e3417658562c55ee9c94b180611c652d8879b",
+    "datasets\\two_contact\\input.mat": "be2d15bade27f51e60ddd49bfd7b34cba908ea357a1baf37f43a9285d0e023e7",
+    "datasets\\two_contact\\truth.mat": "0affb2760ef9ba477e5b91e75c7523bd85654f461d69c489b1151f3f1d601957"
+  },
+  "testSHA256": {
+    "tests\\test_spatial_derivatives.m": "dd620ab476bb3831490715dbc63ddbc67b73b625e3704838e789f7efbb24831c",
+    "tests\\test_tsfs.m": "eba8841c098c3dafab88e12c992cf37e9994e146719778a7cde2d7f18eae436b"
+  }
+}

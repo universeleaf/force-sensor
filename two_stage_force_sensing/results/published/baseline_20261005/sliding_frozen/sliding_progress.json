@@ -1,0 +1,133 @@
+[
+  {
+    "index": 1,
+    "seconds": 55.4703436,
+    "counts": [
+      8501,
+      3869,
+      65761,
+      197283,
+      1.7278665E+7,
+      46.865839099999896,
+      0,
+      0,
+      0,
+      0
+    ],
+    "trace": [
+      {
+        "coordinates": "full-mpcc-scaled",
+        "exitflag": 1,
+        "iterations": 2,
+        "constraintViolation": 2.6257360003964062E-13,
+        "firstOrderOptimality": 2.9237889823095195E-7,
+        "objective": 0.068547770749992,
+        "seconds": 53.2826747,
+        "independentVariables": 21,
+        "homotopyTrace": [
+          {
+            "relaxation": 0.01,
+            "exitflag": 1,
+            "iterations": 83,
+            "objective": 0.068547770429263452,
+            "constraintViolation": 1.3342556226536573E-12,
+            "functionCount": 3615,
+            "seconds": 48.4681872,
+            "rejectedMechanicsTrials": 0
+          },
+          {
+            "relaxation": 0.0001,
+            "exitflag": 1,
+            "iterations": 2,
+            "objective": 0.068547770429164948,
+            "constraintViolation": 0,
+            "functionCount": 87,
+            "seconds": 0.5997151,
+            "rejectedMechanicsTrials": 0
+          },
+          {
+            "relaxation": 1E-6,
+            "exitflag": 1,
+            "iterations": 2,
+            "objective": 0.0685477704291081,
+            "constraintViolation": 0,
+            "functionCount": 131,
+            "seconds": 1.2689331,
+            "rejectedMechanicsTrials": 0
+          },
+          {
+            "relaxation": 1E-8,
+            "exitflag": 1,
+            "iterations": 4,
+            "objective": 0.068547770523015555,
+            "constraintViolation": 6.2103100439969694E-16,
+            "functionCount": 215,
+            "seconds": 2.3295109,
+            "rejectedMechanicsTrials": 0
+          }
+        ],
+        "finalRelaxation": 1E-8,
+        "acceptedAlpha": 1,
+        "acceptedCost": 0.068547770749992,
+        "polish": {
+          "coordinates": "mode-reduced",
+          "exitflag": 1,
+          "iterations": 2,
+          "functionCount": 43,
+          "constraintViolation": 7.1368781991523224E-14,
+          "firstOrderOptimality": 2.9237889823095195E-7,
+          "objective": 0.068547770749992,
+          "seconds": 0.5858202,
+          "independentVariables": 10,
+          "rejectedMechanicsTrials": 0
+        },
+        "polishAccepted": true,
+        "finalStateSource": "polish",
+        "totalIterations": 93,
+        "rejectedMechanicsTrials": 0,
+        "lastMechanicsRejection": "",
+        "stateScaling": {
+          "observationScaled": true,
+          "scale": [
+            0.029999789064724704,
+            0.029999789064724704,
+            0.029786305157278252,
+            0.00015593147238247943,
+            0.0001215056612989418,
+            0.011720309761392118,
+            0.0011853777960634589,
+            0.00050924204603440527,
+            0.00049897439654254306,
+            0.00047644110355163426,
+            0.0004567012458056586,
+            0.00044920155158377733,
+            0.00045666520621332715,
+            0.00047637362959942721,
+            0.000498885269296028,
+            0.00050919353391650022,
+            0.0004988852692960281,
+            0.00047637362959936363,
+            0.000456665206213393,
+            0.00044920155158377733,
+            0.0004567012458056586,
+            0.00047644110355163404,
+            0.00049897439654243573,
+            10,
+            0.00064542405316222226,
+            0.00054163727566604357,
+            0.00066275811996540778
+          ]
+        }
+      }
+    ],
+    "seedInfo": {
+      "accepted": true,
+      "exitflag": 1,
+      "initialSquaredResidual": 0.49998335434186891,
+      "finalSquaredResidual": 0.13703488185969648,
+      "rejectedMechanicsTrials": 0,
+      "seconds": 0.8744572,
+      "iterations": 3
+    }
+  }
+]

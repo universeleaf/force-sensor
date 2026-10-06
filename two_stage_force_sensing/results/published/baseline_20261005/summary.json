@@ -1,0 +1,50 @@
+{
+  "sliding": {
+    "total_seconds": 918.6650275,
+    "mean_seconds": 76.49483149166667,
+    "median_seconds": 54.4942339,
+    "p95_seconds": 181.0299007899998,
+    "max_seconds": 326.0324465,
+    "total_ivps": 880271,
+    "total_map_misses": 51791,
+    "total_iterations": 1088,
+    "mechanics_fraction": 0.8603573013797224,
+    "condition_range": [
+      98.1547447494857,
+      111.75016653209266
+    ],
+    "errors": {
+      "contactRmseN": 5.5578627234182295e-06,
+      "tipRmseN": 3.792510724617066e-06,
+      "totalRmseN": 2.257974224196364e-06
+    }
+  },
+  "planar": {
+    "total_seconds": 3.0494161999999996,
+    "mean_seconds": 0.2541180166666666,
+    "median_seconds": 0.18473835,
+    "range_seconds": [
+      0.0774492,
+      0.9366695
+    ],
+    "total_ivps": 1377,
+    "contact_rmse": 9.669699205390852e-11,
+    "tip_rmse": 1.5009447662948697e-10,
+    "total_rmse": 1.546452097546868e-10
+  },
+  "window": {
+    "seconds": 57.1819073,
+    "ivps": 5110
+  },
+  "frozen_window": {
+    "seconds": 22.6318518,
+    "ivps": 2997
+  },
+  "frozen_sliding": {
+    "seconds": 55.9566057,
+    "frame_seconds": 55.4703436,
+    "ivps": 65761,
+    "contact_rmse": 1.936476754760404e-05,
+    "tip_rmse": 1.3177903077331004e-05
+  }
+}

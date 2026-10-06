@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "checks": [
+    "sliding maximum dissipation",
+    "zero force apex",
+    "separated contact has zero force",
+    "zero friction",
+    "projection generalized derivative away from switches",
+    "augmented IVP and constraint derivatives",
+    "ODE tolerance refinement",
+    "3D mechanics coordinate invariance",
+    "no-contact and no-surface state",
+    "diagnostics cannot mutate state",
+    "numerical failure retains output and continues sequence",
+    "contact activation and separation branches"
+  ],
+  "projectionDerivativeError": 8.7194828419175992E-11,
+  "mechanicsDerivativeError": 5.703010119964209E-9,
+  "odeRefinementPositionMm": 5.0113023064568551E-8,
+  "rigidRotationPositionMm": 4.6597769198797323E-8
+}

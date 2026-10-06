@@ -1,0 +1,17 @@
+{
+  "baselineRepository": "https://github.com/universeleaf/force-sensor.git",
+  "baselineRevision": "13bdb7d4d65b819229905781e6c4aede1f9ab64a",
+  "lcpRepository": "https://github.com/Jia0Shen/LCP-Continuum.git",
+  "lcpRevision": "56bfd089665efc95bba3e0e49ad11557cf206524",
+  "baselinePath": "../rod",
+  "lcpPath": "../LCP-Continuum",
+  "baselineFiles": {
+    "rod/integrate_curvature_field.m": "a2206c98453892866091f3052ccc9ee7bd218385f5e600b0f6808eea6bd1e681",
+    "rod/formulation_window_observations.m": "4d7575f7fbb94cd3f7b8c7c35c986828e1ffc00c79f99925fbf8ac79da73cfd8",
+    "rod/estimate_sensor_forces.m": "37160c7f54a0634b7b4a22c15255999e7cd66c58ad32fecdd8c3abb4f7168ef5",
+    "rod/estimate_planar_multi_contact.m": "5b921d5c83a7283e24f325ce8959235da5bd835b78933f9c5b52f76b5e22b668",
+    "rod/estimate_formulation_window.m": "95096e60a60441c759e81345719d64c165e68322b591b59501fcab1f959c19cb",
+    "rod/build_contact_demo_truth.m": "3baf23ac277957ebf27da6e7d4cdcdaf3330c66cca853b6e679be3a5816674d7",
+    "rod/build_multi_contact_demo_truth.m": "f459b59da4fb6b32f0ef342deaa08b215022fc8a1819b772187801521aeb7844"
+  }
+}

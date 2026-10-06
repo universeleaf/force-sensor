@@ -1,0 +1,22 @@
+{
+  "solve_cosserat_force_map": {
+    "source_sha256": "3b76fe717935e5d8fc6326cd5154ba26c1c5853c33ed8c5e31bf5670b09ff4fb",
+    "instrumented_sha256": "e804cb85b56bb97ab3d555426c8942b560e13a1fbf1330ecdc18a396e6738cbc"
+  },
+  "integrate_planar_multi_contact": {
+    "source_sha256": "a9cc665277092a00d0e63a2d086fa2dd0a0c889425ea248beeb7995b996b7665",
+    "instrumented_sha256": "fe8a0dbaa561eaf9b1f1c14818ea90968fc03db9781cc9d86ef49e58f24b98a9"
+  },
+  "run_rod_plane_force_sensing_experiment": {
+    "source_sha256": "a2fa9b7a7ba233dd93a4541ac07bca68ae5464032a22a8883e3ef5dc648684a9",
+    "instrumented_sha256": "a438a90f28d3a751511809e1dd6b51172202eb32cf040d692560087750b9ced4"
+  },
+  "solve_contact_mpcc": {
+    "source_sha256": "0353c01291e10c1a70b62bb337616e647be9e19dc6831c0062ed640b26008e3e",
+    "instrumented_sha256": "6e5f1b80c3c1c794f93fe643f0ebed9f593155e5d0a93c154723ee700c481b92"
+  },
+  "audit_formulation_window": {
+    "source_sha256": "95096e60a60441c759e81345719d64c165e68322b591b59501fcab1f959c19cb",
+    "instrumented_sha256": "391851f89a7ef29e639fc1e725b8872f7694827947f939044a19883f4a04a407"
+  }
+}

@@ -1,0 +1,1093 @@
+{
+  "sliding": [
+    {
+      "frame": 1,
+      "seconds": 326.0324465,
+      "contactErrorN": 1.8843149821790559E-5,
+      "tipErrorN": 1.282705998500164E-5,
+      "arcErrorMm": -3.7248321120841865E-6,
+      "shapeTruthRmseMm": 1.7570550766526937E-7,
+      "denseMinGapMm": -3.3684362387773562E-7,
+      "tangency": -1.5837671443018015E-9,
+      "terminalMomentNmm": 5.0917048355358929E-12,
+      "slipMm": [
+        -0.019818004258794337,
+        -6.52468612562767E-8,
+        -2.4410239078622222E-9
+      ],
+      "frictionN": [
+        1.1037328522815932,
+        -2.7029023178954187E-15,
+        1.3594894943125269E-7
+      ],
+      "frictionWorkNmm": -0.021873782367088167,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 1.1855447179520695E-13,
+      "curvatureRmsePerMm": 1.4310043135277444E-10,
+      "forceSingularValues": [
+        0.0029566526025080211,
+        0.0028838817770956283,
+        0.00070385014883118989,
+        0.0002176827145180346,
+        0.00011074830977763959,
+        2.645770198166929E-5
+      ],
+      "forceCondition": 111.75016653209266,
+      "weakForceDirection": [
+        0.4554573978509554,
+        -1.9789673235245908E-9,
+        -0.58820056828243772,
+        -0.47641900093046896,
+        1.9674319972862E-9,
+        0.46861880645943738
+      ],
+      "weakTotalNorm": 0.12140505164265553,
+      "contactToTipMm": 39.944191548009627,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.017951275078862686,
+        0.0029405635711487839,
+        0.02314922039451631,
+        0.018407479991920307,
+        0.0035463656431670332,
+        0.017755155333849384
+      ]
+    },
+    {
+      "frame": 2,
+      "seconds": 56.2393807,
+      "contactErrorN": 6.2092893622314489E-7,
+      "tipErrorN": 4.9934298266642973E-7,
+      "arcErrorMm": 4.345429118757238E-6,
+      "shapeTruthRmseMm": 6.7429046800830168E-8,
+      "denseMinGapMm": -3.3827367416019152E-7,
+      "tangency": -1.5315634798560427E-9,
+      "terminalMomentNmm": 8.6335383286950673E-12,
+      "slipMm": [
+        -0.019806351816962567,
+        1.9170989404253588E-8,
+        2.9314404748111076E-9
+      ],
+      "frictionN": [
+        1.1704504641983855,
+        1.0158194573025723E-16,
+        -1.7323260204094026E-7
+      ],
+      "frictionWorkNmm": -0.023182353678240879,
+      "circularConeViolationN": 2.2204460492503131E-16,
+      "circularDissipationResidualNmm": 1.0859368959614812E-14,
+      "curvatureRmsePerMm": 1.6835183635459377E-11,
+      "forceSingularValues": [
+        0.0029731426643254621,
+        0.0029073776001381771,
+        0.00070477521137618667,
+        0.00021875632117817671,
+        0.00011122682624561893,
+        2.6915588446449956E-5
+      ],
+      "forceCondition": 110.46173745154013,
+      "weakForceDirection": [
+        -0.4513761658847501,
+        4.7333368059916536E-11,
+        0.59216143460536008,
+        0.47330165385253142,
+        -3.0630287366680796E-11,
+        -0.47073340299766675
+      ],
+      "weakTotalNorm": 0.12339162809017594,
+      "contactToTipMm": 40.223870362854655,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.017530948261941612,
+        0.0029227515943557325,
+        0.022911402159988777,
+        0.017992204793219134,
+        0.0035316537140279132,
+        0.017530875893084569
+      ]
+    },
+    {
+      "frame": 3,
+      "seconds": 52.6804956,
+      "contactErrorN": 9.4679829217333844E-7,
+      "tipErrorN": 8.2976365945312724E-7,
+      "arcErrorMm": 6.4381444815353461E-6,
+      "shapeTruthRmseMm": 6.45290031947493E-8,
+      "denseMinGapMm": -3.238660596063191E-7,
+      "tangency": -1.3661590785510114E-9,
+      "terminalMomentNmm": 1.4205303600078878E-11,
+      "slipMm": [
+        -0.019794838532493444,
+        2.71634520587029E-8,
+        4.3065681290708157E-9
+      ],
+      "frictionN": [
+        1.2362839344752703,
+        1.6484653463975734E-16,
+        -2.689661231514151E-7
+      ],
+      "frictionWorkNmm": -0.02447204086325484,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 2.3040597207923952E-14,
+      "curvatureRmsePerMm": 2.5896128913807532E-11,
+      "forceSingularValues": [
+        0.0029892780493068964,
+        0.0029307122188896172,
+        0.00070568618328606077,
+        0.00021983594020008672,
+        0.00011171626879176556,
+        2.7383217103258289E-5
+      ],
+      "forceCondition": 109.16460392636651,
+      "weakForceDirection": [
+        -0.44738845826822832,
+        4.8692579184860241E-11,
+        0.59595369596950931,
+        0.47027274915274314,
+        -2.5101208401319358E-11,
+        -0.47278568196697807
+      ],
+      "weakTotalNorm": 0.12527589729319372,
+      "contactToTipMm": 40.500663029200979,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.017123232531143024,
+        0.0029050241006203436,
+        0.022667819111137071,
+        0.01758796087259289,
+        0.0035169971036502516,
+        0.01730578319377956
+      ]
+    },
+    {
+      "frame": 4,
+      "seconds": 48.6651868,
+      "contactErrorN": 1.6177713536675547E-6,
+      "tipErrorN": 1.3818263215353419E-6,
+      "arcErrorMm": 4.7634781878969079E-6,
+      "shapeTruthRmseMm": 7.4638800011613364E-8,
+      "denseMinGapMm": -3.1129983482162103E-7,
+      "tangency": -1.1832555267956938E-9,
+      "terminalMomentNmm": 2.3135715565558712E-11,
+      "slipMm": [
+        -0.019783397538194709,
+        -1.3365512376059473E-8,
+        3.2035962450495826E-9
+      ],
+      "frictionN": [
+        1.30125708410502,
+        -2.6099703958724336E-17,
+        -2.1071720812670947E-7
+      ],
+      "frictionWorkNmm": -0.025743286194242352,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 5.8807125835613761E-15,
+      "curvatureRmsePerMm": 1.9693948828801534E-11,
+      "forceSingularValues": [
+        0.0030050574346108705,
+        0.002953885050352979,
+        0.00070658347548891939,
+        0.00022092149227251397,
+        0.00011221618263239355,
+        2.7859902323753481E-5
+      ],
+      "forceCondition": 107.86317194115733,
+      "weakForceDirection": [
+        0.44349325226810971,
+        5.4453401103660582E-12,
+        -0.59958375221638127,
+        -0.46732990386831991,
+        5.8281931756231165E-12,
+        0.474779759700439
+      ],
+      "weakTotalNorm": 0.12705991699756922,
+      "contactToTipMm": 40.774641895772163,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.016728275963424518,
+        0.0028873824457464848,
+        0.0224197485545898,
+        0.017194929634631363,
+        0.0035023971509060771,
+        0.01708071797179635
+      ]
+    },
+    {
+      "frame": 5,
+      "seconds": 53.0496276,
+      "contactErrorN": 1.2507138664529139E-6,
+      "tipErrorN": 1.1219750179123054E-6,
+      "arcErrorMm": 4.4290373750754952E-6,
+      "shapeTruthRmseMm": 7.62070928578152E-8,
+      "denseMinGapMm": -3.0041466645863463E-7,
+      "tangency": -1.0513769370566029E-9,
+      "terminalMomentNmm": 3.5594194258692369E-11,
+      "slipMm": [
+        -0.019772082134123164,
+        -1.2344445871440388E-8,
+        2.9783474167704468E-9
+      ],
+      "frictionN": [
+        1.3653994509682994,
+        6.2605699516059976E-16,
+        -2.0567555569783735E-7
+      ],
+      "frictionWorkNmm": -0.026996790090432505,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 5.2596815791616791E-15,
+      "curvatureRmsePerMm": 1.8892999550145258E-11,
+      "forceSingularValues": [
+        0.0030204820661560061,
+        0.0029768972423307848,
+        0.00070746763475197389,
+        0.00022201300361944214,
+        0.00011272614419097693,
+        2.8344973358181831E-5
+      ],
+      "forceCondition": 106.56147134053094,
+      "weakForceDirection": [
+        0.43968938577348116,
+        -3.7716199329505623E-10,
+        -0.60305781395491831,
+        -0.46447067746612636,
+        3.7389837380285394E-10,
+        0.47671952638864262
+      ],
+      "weakTotalNorm": 0.12874577788469391,
+      "contactToTipMm": 41.045873886057109,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.016346135837548004,
+        0.0028698263662654548,
+        0.022168351562087237,
+        0.016813208750484365,
+        0.0034878536427584653,
+        0.016856426707173772
+      ]
+    },
+    {
+      "frame": 6,
+      "seconds": 62.3914543,
+      "contactErrorN": 9.475485529639349E-7,
+      "tipErrorN": 6.4525653319433357E-7,
+      "arcErrorMm": 4.8318358381038706E-6,
+      "shapeTruthRmseMm": 6.89713950928562E-8,
+      "denseMinGapMm": -2.8982607192468764E-7,
+      "tangency": -9.2442719701076057E-10,
+      "terminalMomentNmm": 5.489431131877609E-11,
+      "slipMm": [
+        -0.019760924492469436,
+        -2.4639442288024665E-8,
+        3.2376008560467849E-9
+      ],
+      "frictionN": [
+        1.4287381993962256,
+        -3.7313622943696894E-16,
+        -2.3408236593525089E-7
+      ],
+      "frictionWorkNmm": -0.028233187677776311,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 2.1947721418058563E-14,
+      "curvatureRmsePerMm": 2.3355544914831317E-11,
+      "forceSingularValues": [
+        0.0030355528355521339,
+        0.0029997496054733996,
+        0.00070833913785900047,
+        0.00022311049492615865,
+        0.00011324573853011123,
+        2.8837791225258081E-5
+      ],
+      "forceCondition": 105.26301448820367,
+      "weakForceDirection": [
+        -0.4359755899463908,
+        -1.9134618742979715E-10,
+        0.60638191770979444,
+        0.46169261593868322,
+        1.6399211470134368E-10,
+        -0.47860859084766139
+      ],
+      "weakTotalNorm": 0.13033567617235786,
+      "contactToTipMm": 41.314429200152546,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.015976783020483463,
+        0.0028523557213826958,
+        0.021914667647713406,
+        0.016442815037339541,
+        0.0034733664224996298,
+        0.016633556148062119
+      ]
+    },
+    {
+      "frame": 7,
+      "seconds": 51.7167314,
+      "contactErrorN": 8.9810791586631432E-7,
+      "tipErrorN": 8.4602156028502446E-7,
+      "arcErrorMm": 3.8088768690158759E-6,
+      "shapeTruthRmseMm": 7.7455770357897243E-8,
+      "denseMinGapMm": -2.8032066014015057E-7,
+      "tangency": -7.9939076618245268E-10,
+      "terminalMomentNmm": 9.10908015683276E-11,
+      "slipMm": [
+        -0.019749877565558408,
+        -1.6125269295062998E-8,
+        2.5613985337822624E-9
+      ],
+      "frictionN": [
+        1.4912986597206095,
+        6.263051509987269E-16,
+        -1.9340931434186359E-7
+      ],
+      "frictionWorkNmm": -0.029452965943163885,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 9.8150654270767745E-15,
+      "curvatureRmsePerMm": 1.792736703257408E-11,
+      "forceSingularValues": [
+        0.0030502704161490322,
+        0.0030224427282486374,
+        0.00070919843093488779,
+        0.00022421397720132224,
+        0.00011377457209896035,
+        2.933774295485455E-5
+      ],
+      "forceCondition": 103.97086172725842,
+      "weakForceDirection": [
+        0.43235049194887315,
+        -4.5059194858784837E-10,
+        -0.60956192230767481,
+        -0.45899324675392028,
+        4.4986154187804422E-10,
+        0.48045032461060366
+      ],
+      "weakTotalNorm": 0.13183186657061413,
+      "contactToTipMm": 41.580377255295588,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.015620117002299636,
+        0.002834970517161358,
+        0.021659626020175952,
+        0.016083698547307346,
+        0.0034589354671181365,
+        0.016412665849500217
+      ]
+    },
+    {
+      "frame": 8,
+      "seconds": 55.9388402,
+      "contactErrorN": 1.1083318253462931E-6,
+      "tipErrorN": 6.7676787669205023E-7,
+      "arcErrorMm": 4.4792179494379525E-6,
+      "shapeTruthRmseMm": 7.2347919524655666E-8,
+      "denseMinGapMm": -2.7189864683439294E-7,
+      "tangency": -6.8397560517094444E-10,
+      "terminalMomentNmm": 1.2250178649253485E-10,
+      "slipMm": [
+        -0.019739017371213988,
+        2.9033550477726651E-8,
+        2.9972980063652509E-9
+      ],
+      "frictionN": [
+        1.5531076661201781,
+        1.790783102548108E-16,
+        -2.3583374897384601E-7
+      ],
+      "frictionWorkNmm": -0.030656819200912518,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 3.3167912860676552E-14,
+      "curvatureRmsePerMm": 2.4187656386626109E-11,
+      "forceSingularValues": [
+        0.0030646365454867356,
+        0.0030449779414446249,
+        0.00071004597490809313,
+        0.00022532348938617431,
+        0.00011431226193192252,
+        2.9844231795062908E-5
+      ],
+      "forceCondition": 102.68773431768193,
+      "weakForceDirection": [
+        -0.4288126295898908,
+        8.8884242133943263E-11,
+        0.61260347717417618,
+        0.45637007408693864,
+        -5.928112898278451E-11,
+        -0.48224792787133297
+      ],
+      "weakTotalNorm": 0.13323656398021475,
+      "contactToTipMm": 41.843779932135277,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.015275981559135995,
+        0.0028176703186755933,
+        0.021404058440017658,
+        0.015735757159090771,
+        0.003444560391085406,
+        0.016194242733236195
+      ]
+    },
+    {
+      "frame": 9,
+      "seconds": 57.552555,
+      "contactErrorN": 1.4299861649811914E-6,
+      "tipErrorN": 8.15453561469642E-7,
+      "arcErrorMm": 3.869694410241209E-6,
+      "shapeTruthRmseMm": 7.7610745695700976E-8,
+      "denseMinGapMm": -2.6432968120934392E-7,
+      "tangency": -5.701536866592597E-10,
+      "terminalMomentNmm": 1.7890244841112235E-10,
+      "slipMm": [
+        -0.019728281310565681,
+        -1.7910766246591013E-8,
+        2.5909268389266437E-9
+      ],
+      "frictionN": [
+        1.6141887241757964,
+        -2.0796022545050928E-16,
+        -2.1199235700208874E-7
+      ],
+      "frictionWorkNmm": -0.031845169238883773,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 1.3121448372288569E-14,
+      "curvatureRmsePerMm": 2.3811155067474393E-11,
+      "forceSingularValues": [
+        0.003078652123316684,
+        0.0030673558774754325,
+        0.00071088218258302262,
+        0.00022643904695790229,
+        0.00011485844826729262,
+        3.0356696503458368E-5
+      ],
+      "forceCondition": 101.41591404604748,
+      "weakForceDirection": [
+        -0.42536047098569368,
+        -1.3617026637229385E-10,
+        0.61551206706810013,
+        0.45382062071161444,
+        1.1530719877086954E-10,
+        -0.48400434836198342
+      ],
+      "weakTotalNorm": 0.13455207245415787,
+      "contactToTipMm": 42.104703034503075,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.014944165374331634,
+        0.0028004550710713249,
+        0.02114869470744098,
+        0.015398836318976613,
+        0.0034302411155380948,
+        0.015978694152933626
+      ]
+    },
+    {
+      "frame": 10,
+      "seconds": 51.6176006,
+      "contactErrorN": 1.2279593358637006E-6,
+      "tipErrorN": 6.9901115274171012E-7,
+      "arcErrorMm": 3.8778174484832562E-6,
+      "shapeTruthRmseMm": 8.30659379053481E-8,
+      "denseMinGapMm": -2.566982956685274E-7,
+      "tangency": -4.4888818049191836E-10,
+      "terminalMomentNmm": 2.5753343901868675E-10,
+      "slipMm": [
+        -0.019717705791824174,
+        3.3246581049098118E-11,
+        2.5981504975121281E-9
+      ],
+      "frictionN": [
+        1.6745654058722699,
+        -9.7253873308354689E-17,
+        -2.2065310112395764E-7
+      ],
+      "frictionWorkNmm": -0.033018588002156631,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 0,
+      "curvatureRmsePerMm": 2.3424655370082451E-11,
+      "forceSingularValues": [
+        0.0030923185207845064,
+        0.0030895775109436104,
+        0.0007117074676772511,
+        0.00022756066662661998,
+        0.00011541278542033687,
+        3.0874592810257246E-5
+      ],
+      "forceCondition": 100.15738635934876,
+      "weakForceDirection": [
+        -0.42199241085211819,
+        -7.2306753509434612E-11,
+        0.61829298245437891,
+        0.45134239847158691,
+        7.079541971256992E-11,
+        -0.48572238199696166
+      ],
+      "weakTotalNorm": 0.1357806535516129,
+      "contactToTipMm": 42.363205409109412,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.014624419278383677,
+        0.0027833246606788053,
+        0.02089418143075937,
+        0.015072745584576445,
+        0.0034159775722331425,
+        0.015766367974946443
+      ]
+    },
+    {
+      "frame": 11,
+      "seconds": 56.8217305,
+      "contactErrorN": 1.6007302785420241E-6,
+      "tipErrorN": 9.2629335003186511E-7,
+      "arcErrorMm": 4.6974847407454945E-6,
+      "shapeTruthRmseMm": 7.7044954915654453E-8,
+      "denseMinGapMm": -2.4898590308976418E-7,
+      "tangency": -3.1343374902273179E-10,
+      "terminalMomentNmm": 3.6704239647633585E-10,
+      "slipMm": [
+        -0.019707286666122564,
+        3.69556077026806E-9,
+        3.1310989630959145E-9
+      ],
+      "frictionN": [
+        1.734260767451594,
+        4.3044157491472854E-17,
+        -2.7553981318817478E-7
+      ],
+      "frictionWorkNmm": -0.034177574097979141,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 6.106226635438361E-16,
+      "curvatureRmsePerMm": 2.9169787849952185E-11,
+      "forceSingularValues": [
+        0.003111643883337744,
+        0.0031056373210813135,
+        0.000712522231172208,
+        0.00022868837758683843,
+        0.00011597494145805203,
+        3.1397405036046943E-5
+      ],
+      "forceCondition": 99.10512922215409,
+      "weakForceDirection": [
+        0.41870679544416373,
+        -2.1407221270193893E-11,
+        -0.620951335282916,
+        -0.44893294309527509,
+        1.6681678756583907E-11,
+        0.48740462786380806
+      ],
+      "weakTotalNorm": 0.13692458896893431,
+      "contactToTipMm": 42.619345599797327,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.014316459137882119,
+        0.0027662788079647165,
+        0.020641081869399128,
+        0.014757260708585242,
+        0.0034017695179012607,
+        0.015557550706005936
+      ]
+    },
+    {
+      "frame": 12,
+      "seconds": 45.2319287,
+      "contactErrorN": 1.0499451568800543E-6,
+      "tipErrorN": 5.9693929565528532E-7,
+      "arcErrorMm": 3.2596059043044079E-6,
+      "shapeTruthRmseMm": 8.4609893386318251E-8,
+      "denseMinGapMm": -2.4158313531270833E-7,
+      "tangency": -1.908392041605794E-10,
+      "terminalMomentNmm": 5.1781501309022815E-10,
+      "slipMm": [
+        -0.019696972501760859,
+        2.9962923887532361E-9,
+        2.1828948298908038E-9
+      ],
+      "frictionN": [
+        1.7932962473754241,
+        -7.8184137079750588E-17,
+        -1.9874003953646024E-7
+      ],
+      "frictionWorkNmm": -0.035322506872065104,
+      "circularConeViolationN": 0,
+      "circularDissipationResidualNmm": 4.0939474033052647E-16,
+      "curvatureRmsePerMm": 2.0662600559530966E-11,
+      "forceSingularValues": [
+        0.0031335557777780652,
+        0.0031186098910632376,
+        0.00071332683620158358,
+        0.00022982220595488273,
+        0.00011654459821309538,
+        3.1924649040407026E-5
+      ],
+      "forceCondition": 98.1547447494857,
+      "weakForceDirection": [
+        -0.4155019375676518,
+        -6.39232712888303E-11,
+        0.62349206274918434,
+        0.44658982894890453,
+        6.35340152356539E-11,
+        -0.48905348607865334
+      ],
+      "weakTotalNorm": 0.13798618730775486,
+      "contactToTipMm": 42.87318348423446,
+      "sensorsAfterContact": 5,
+      "conditionalForceStdN": [
+        0.014019972117666271,
+        0.0027493173045607289,
+        0.020389881403646424,
+        0.014452129234330677,
+        0.0033876167381593847,
+        0.015352471993422894
+      ]
+    }
+  ],
+  "slidingDerivativeSteps": {
+    "forceStepN": [
+      1E-8,
+      1E-7,
+      1E-6,
+      0.0001,
+      0.001
+    ],
+    "relativeDifferenceFrom1e4": [
+      2.561404342631553E-7,
+      3.3851914809174528E-8,
+      2.9105063203289253E-9,
+      0,
+      1.3297897442336914E-9
+    ]
+  },
+  "planarSensitivity": {
+    "frame": 6,
+    "forceSingularValues": [
+      0.0023844998030593256,
+      0.00031504690281679504,
+      0.00016526075152696045,
+      2.2750176748072623E-5
+    ],
+    "forceCondition": 104.81236385389131,
+    "weakForceDirection": [
+      -0.49652282442931728,
+      -0.55779161145572742,
+      -0.30606059309236644,
+      0.59047482280475327
+    ],
+    "forceStdAtDeclaredNoiseN": [
+      0.0022401211828588057,
+      0.0024607883892763132,
+      0.0013543841813802705,
+      0.0026233032505182307
+    ],
+    "forceStdAt2p5e5NoiseN": [
+      0.56003029571470142,
+      0.61519709731907835,
+      0.33859604534506771,
+      0.65582581262955775
+    ],
+    "forceAndArcDataSingularValues": [
+      26199.23638860189,
+      6734.5210722833181,
+      2550.4089056395273,
+      1365.1275305868894,
+      757.72662440022577,
+      206.59099671104698
+    ],
+    "forceAndArcWithGeometrySingularValues": [
+      26424.245841683351,
+      6738.0742059538234,
+      2551.3836726171357,
+      1366.8475625123954,
+      781.29286851164488,
+      207.18738139933228
+    ],
+    "scope": "Local equilibrated derivative, fixed normals and planes, no force prior; singular values depend on stated units."
+  },
+  "geometryPerturbations": [
+    {
+      "offsetMm": 0,
+      "latentOffsetStdMm": 0,
+      "declaredFbgStdPerMm": 1E-7,
+      "seconds": 0.3518709,
+      "contactRmseN": 3.1386677058685785E-11,
+      "tipErrorN": 4.8240242524582038E-11,
+      "totalErrorN": 4.9841027927985253E-11,
+      "arcErrorMm": [
+        -1.0444978215673473E-12,
+        8.9528384705772623E-12
+      ],
+      "offsetEstimateMm": [
+        0,
+        0
+      ],
+      "maxScaledResidual": 1.9081958235744878E-8,
+      "audit": {
+        "contactGapMm": [
+          -1.2176926134088717E-11,
+          -8.8711260559648508E-12
+        ],
+        "minGapByPlaneMm": [
+          -1.2176926134088717E-11,
+          -8.8711260559648508E-12
+        ],
+        "maxPenetrationMm": 1.2176926134088717E-11,
+        "maxAbsGapMm": 1.2176926134088717E-11,
+        "maxTangencyResidual": 1.0352829704629585E-14,
+        "tipMomentResidualNmm": 1.295304141724074E-12,
+        "minNormalForceN": 14.749416557623496,
+        "maxComplementarityNmm": 1.127856999102169E-9,
+        "orderedContacts": true,
+        "passed": true
+      },
+      "exitflag": 3,
+      "iterations": 6,
+      "requiresReview": false
+    },
+    {
+      "offsetMm": 0.1,
+      "latentOffsetStdMm": 0,
+      "declaredFbgStdPerMm": 1E-7,
+      "seconds": 0.112391,
+      "contactRmseN": 0.0009019551772260797,
+      "tipErrorN": 0.00051992897400990432,
+      "totalErrorN": 0.0010840170626880855,
+      "arcErrorMm": [
+        4.8093176232555379E-5,
+        5.3380520370183149E-5
+      ],
+      "offsetEstimateMm": [
+        0,
+        0
+      ],
+      "maxScaledResidual": 99.945688248070041,
+      "audit": {
+        "contactGapMm": [
+          -0.099945688248070041,
+          -0.00022540034206031123
+        ],
+        "minGapByPlaneMm": [
+          -0.099945688248070041,
+          -0.00022540034206031123
+        ],
+        "maxPenetrationMm": 0.099945688248070041,
+        "maxAbsGapMm": 0.099945688248070041,
+        "maxTangencyResidual": 3.489339738760169E-6,
+        "tipMomentResidualNmm": 6.0839934362677539E-6,
+        "minNormalForceN": 14.749873307788729,
+        "maxComplementarityNmm": 9.257335737716847,
+        "orderedContacts": true,
+        "passed": false
+      },
+      "exitflag": 3,
+      "iterations": 6,
+      "requiresReview": true
+    },
+    {
+      "offsetMm": 0.1,
+      "latentOffsetStdMm": 1,
+      "declaredFbgStdPerMm": 1E-7,
+      "seconds": 0.1304808,
+      "contactRmseN": 8.7189240133738336E-10,
+      "tipErrorN": 4.7627009035071045E-10,
+      "totalErrorN": 1.0539319253704172E-9,
+      "arcErrorMm": [
+        4.6831871713948203E-11,
+        6.3238303482648917E-11
+      ],
+      "offsetEstimateMm": [
+        -0.09999989995740452,
+        -2.3829814664170567E-10
+      ],
+      "maxScaledResidual": 0.09999989995740452,
+      "audit": {
+        "contactGapMm": [
+          -9.9999898139913057E-8,
+          -1.7763568394002505E-14
+        ],
+        "minGapByPlaneMm": [
+          -9.9999898139913057E-8,
+          -1.7763568394002505E-14
+        ],
+        "maxPenetrationMm": 9.9999898139913057E-8,
+        "maxAbsGapMm": 9.9999898139913057E-8,
+        "maxTangencyResidual": 3.5214123283999754E-12,
+        "tipMomentResidualNmm": 8.6682258593207E-12,
+        "minNormalForceN": 14.749416558078787,
+        "maxComplementarityNmm": 9.2622377590283285E-6,
+        "orderedContacts": true,
+        "passed": true
+      },
+      "exitflag": 3,
+      "iterations": 6,
+      "requiresReview": false
+    },
+    {
+      "offsetMm": 1,
+      "latentOffsetStdMm": 0,
+      "declaredFbgStdPerMm": 1E-7,
+      "seconds": 0.0845609,
+      "contactRmseN": 0.00902272220127147,
+      "tipErrorN": 0.0052060881048768236,
+      "totalErrorN": 0.010840998789620427,
+      "arcErrorMm": [
+        0.000482543153644599,
+        0.00053244166285537631
+      ],
+      "offsetEstimateMm": [
+        0,
+        0
+      ],
+      "maxScaledResidual": 999.45683886682525,
+      "audit": {
+        "contactGapMm": [
+          -0.99945683886682524,
+          -0.0022540478350734361
+        ],
+        "minGapByPlaneMm": [
+          -0.99945683886682524,
+          -0.0022540478350734361
+        ],
+        "maxPenetrationMm": 0.99945683886682524,
+        "maxAbsGapMm": 0.99945683886682524,
+        "maxTangencyResidual": 3.4923063870747847E-5,
+        "tipMomentResidualNmm": 6.0920712620829431E-5,
+        "minNormalForceN": 14.753991164523418,
+        "maxComplementarityNmm": 92.584068380600016,
+        "orderedContacts": true,
+        "passed": false
+      },
+      "exitflag": 3,
+      "iterations": 5,
+      "requiresReview": true
+    },
+    {
+      "offsetMm": 1,
+      "latentOffsetStdMm": 1,
+      "declaredFbgStdPerMm": 1E-7,
+      "seconds": 0.1756757,
+      "contactRmseN": 8.9882393169165443E-9,
+      "tipErrorN": 5.1709931873611186E-9,
+      "totalErrorN": 1.083612323941077E-8,
+      "arcErrorMm": [
+        4.77776040952449E-10,
+        5.5185012115543941E-10
+      ],
+      "offsetEstimateMm": [
+        -0.99999899946458171,
+        -2.3019187605321936E-9
+      ],
+      "maxScaledResidual": 0.99999899946458171,
+      "audit": {
+        "contactGapMm": [
+          -9.9999900626812632E-7,
+          3.1974423109204508E-14
+        ],
+        "minGapByPlaneMm": [
+          -9.9999900626812632E-7,
+          3.1974423109204508E-14
+        ],
+        "maxPenetrationMm": 9.9999900626812632E-7,
+        "maxAbsGapMm": 9.9999900626812632E-7,
+        "maxTangencyResidual": 3.519065594481674E-11,
+        "tipMomentResidualNmm": 6.370699107138833E-11,
+        "minNormalForceN": 14.749416562177098,
+        "maxComplementarityNmm": 9.2622379904432872E-5,
+        "orderedContacts": true,
+        "passed": true
+      },
+      "exitflag": 2,
+      "iterations": 6,
+      "requiresReview": false
+    },
+    {
+      "offsetMm": 0,
+      "latentOffsetStdMm": 0,
+      "declaredFbgStdPerMm": 2.5E-5,
+      "seconds": 0.5660785,
+      "contactRmseN": 3.9306723854949436E-10,
+      "tipErrorN": 9.5541459691425962E-11,
+      "totalErrorN": 5.1714296547899238E-10,
+      "arcErrorMm": [
+        -1.8360424292040989E-11,
+        -2.319211489520967E-11
+      ],
+      "offsetEstimateMm": [
+        0,
+        0
+      ],
+      "maxScaledResidual": 1.8486601138789638E-9,
+      "audit": {
+        "contactGapMm": [
+          -9.467981954003335E-13,
+          -1.1368683772161603E-13
+        ],
+        "minGapByPlaneMm": [
+          -9.467981954003335E-13,
+          -1.1368683772161603E-13
+        ],
+        "maxPenetrationMm": 9.467981954003335E-13,
+        "maxAbsGapMm": 9.467981954003335E-13,
+        "maxTangencyResidual": 9.63812363252714E-15,
+        "tipMomentResidualNmm": 5.1660065114589315E-13,
+        "minNormalForceN": 14.749416557654534,
+        "maxComplementarityNmm": 8.769478928158836E-11,
+        "orderedContacts": true,
+        "passed": true
+      },
+      "exitflag": 3,
+      "iterations": 46,
+      "requiresReview": false
+    },
+    {
+      "offsetMm": 0.1,
+      "latentOffsetStdMm": 0,
+      "declaredFbgStdPerMm": 2.5E-5,
+      "seconds": 0.4239593,
+      "contactRmseN": 3.2496512791526393,
+      "tipErrorN": 0.2371340022621056,
+      "totalErrorN": 4.1153999534006385,
+      "arcErrorMm": [
+        -0.15995509660339025,
+        -0.18179867013614626
+      ],
+      "offsetEstimateMm": [
+        0,
+        0
+      ],
+      "maxScaledResidual": 14.665014871071829,
+      "audit": {
+        "contactGapMm": [
+          -0.0070443341597723474,
+          -0.00090063292549480423
+        ],
+        "minGapByPlaneMm": [
+          -0.0070443341597723474,
+          -0.00090063292549480423
+        ],
+        "maxPenetrationMm": 0.0070443341597723474,
+        "maxAbsGapMm": 0.0070443341597723474,
+        "maxTangencyResidual": 8.2783721353220317E-5,
+        "tipMomentResidualNmm": 1.2505242438440312E-7,
+        "minNormalForceN": 15.040031119152456,
+        "maxComplementarityNmm": 0.68477250298214454,
+        "orderedContacts": true,
+        "passed": false
+      },
+      "exitflag": 3,
+      "iterations": 36,
+      "requiresReview": true
+    },
+    {
+      "offsetMm": 0.1,
+      "latentOffsetStdMm": 1,
+      "declaredFbgStdPerMm": 2.5E-5,
+      "seconds": 0.8517534,
+      "contactRmseN": 4.4465803075376376E-5,
+      "tipErrorN": 1.3114924046380896E-5,
+      "totalErrorN": 7.2534520332510511E-5,
+      "arcErrorMm": [
+        -8.1883083282718871E-6,
+        7.8332986532814175E-6
+      ],
+      "offsetEstimateMm": [
+        -0.0999969040846469,
+        -1.2808424136085933E-5
+      ],
+      "maxScaledResidual": 0.0999969040846469,
+      "audit": {
+        "contactGapMm": [
+          -9.9996903202281828E-8,
+          -1.2811085525754606E-11
+        ],
+        "minGapByPlaneMm": [
+          -9.9996903202281828E-8,
+          -1.2811085525754606E-11
+        ],
+        "maxPenetrationMm": 9.9996903202281828E-8,
+        "maxAbsGapMm": 9.9996903202281828E-8,
+        "maxTangencyResidual": 1.9636442159798317E-9,
+        "tipMomentResidualNmm": 1.5881809756201903E-12,
+        "minNormalForceN": 14.749398483696719,
+        "maxComplementarityNmm": 9.2619663832779455E-6,
+        "orderedContacts": true,
+        "passed": true
+      },
+      "exitflag": 3,
+      "iterations": 59,
+      "requiresReview": false
+    },
+    {
+      "offsetMm": 1,
+      "latentOffsetStdMm": 0,
+      "declaredFbgStdPerMm": 2.5E-5,
+      "seconds": 1.1412649,
+      "contactRmseN": 33.936872976045557,
+      "tipErrorN": 4.7937321978340863,
+      "totalErrorN": 44.368525216135474,
+      "arcErrorMm": [
+        -1.7240777846263562,
+        -1.8120880770093635
+      ],
+      "offsetEstimateMm": [
+        0,
+        0
+      ],
+      "maxScaledResidual": 155.35210088216857,
+      "audit": {
+        "contactGapMm": [
+          -0.0736660279982626,
+          -0.0092872850911227545
+        ],
+        "minGapByPlaneMm": [
+          -0.0736660279982626,
+          -0.0092872850911227545
+        ],
+        "maxPenetrationMm": 0.0736660279982626,
+        "maxAbsGapMm": 0.0736660279982626,
+        "maxTangencyResidual": 9.4453068569890121E-5,
+        "tipMomentResidualNmm": 7.5695562407052108E-7,
+        "minNormalForceN": 15.403107217636428,
+        "maxComplementarityNmm": 10.358327973557044,
+        "orderedContacts": true,
+        "passed": false
+      },
+      "exitflag": 3,
+      "iterations": 99,
+      "requiresReview": true
+    },
+    {
+      "offsetMm": 1,
+      "latentOffsetStdMm": 1,
+      "declaredFbgStdPerMm": 2.5E-5,
+      "seconds": 0.7296852,
+      "contactRmseN": 0.00044465448823573022,
+      "tipErrorN": 0.00013115657415800191,
+      "totalErrorN": 0.00072534184948845159,
+      "arcErrorMm": [
+        -8.188265073272305E-5,
+        7.8332581438189663E-5
+      ],
+      "offsetEstimateMm": [
+        -0.999969040918854,
+        -0.00012808367666626309
+      ],
+      "maxScaledResidual": 0.999969040918854,
+      "audit": {
+        "contactGapMm": [
+          -9.999690373518888E-7,
+          -1.2807888083443686E-10
+        ],
+        "minGapByPlaneMm": [
+          -9.999690373518888E-7,
+          -1.2807888083443686E-10
+        ],
+        "maxPenetrationMm": 9.999690373518888E-7,
+        "maxAbsGapMm": 9.999690373518888E-7,
+        "maxTangencyResidual": 1.9636464263644848E-8,
+        "tipMomentResidualNmm": 1.780563196884799E-11,
+        "minNormalForceN": 14.749235811958105,
+        "maxComplementarityNmm": 9.2620206379576492E-5,
+        "orderedContacts": true,
+        "passed": true
+      },
+      "exitflag": 3,
+      "iterations": 50,
+      "requiresReview": false
+    }
+  ]
+}

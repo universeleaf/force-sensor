@@ -1,0 +1,85 @@
+{
+  "noise": {
+    "injectedCurvatureStd": 0,
+    "actualCurvatureErrorMean": 0,
+    "actualCurvatureErrorStd": 0,
+    "actualCurvatureErrorMax": 0,
+    "likelihoodCurvatureStd": 1E-7,
+    "environmentPointPriorStdMm": 0.05,
+    "environmentNormalPriorStd": 0.001,
+    "normalPriorApproxDegrees": 0.057295779513082318
+  },
+  "baselineFirstFrame": {
+    "iterations": 6,
+    "seconds": 0.1949726,
+    "s": [
+      31.418698574828039,
+      99.414187185396955
+    ],
+    "sErrorMm": [
+      -2.4868995751603507E-14,
+      1.4210854715202004E-14
+    ],
+    "tipErrorN": 3.4999549737504588E-15,
+    "contactErrorN": 2.8689125362607255E-13,
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 1.7553958286953275E-8
+  },
+  "reconstruction": {
+    "sparseRmsMm": 0.083966803595533226,
+    "exactNodalCurvatureRmsMm": 0.0012626958313609027,
+    "sparseFineIntegrationRmsMm": 0.085834029130701581
+  },
+  "conditioning": {
+    "forceOrder": [
+      "tipX",
+      "tipZ",
+      "normal1",
+      "normal2"
+    ],
+    "planarForceSingularValuesPerN": [
+      0.0024209961487597904,
+      0.00031831638292614594,
+      0.00016121132839440059,
+      2.3830118413945743E-5
+    ],
+    "planarForceCondition": 101.59396217448031,
+    "threeDForceSingularValuesPerN": [
+      0.0024209961487597904,
+      0.000318316382926146,
+      0.00016121132839440051,
+      2.3830118413945767E-5,
+      2.584098722703725E-21
+    ],
+    "unobservedTipYJacobianNorm": 0,
+    "localForceStdNAtDeclaredNoise": [
+      0.0013033368791872287,
+      0.0025112632975938173,
+      0.0021379436717501297,
+      0.0023492051260627336
+    ],
+    "forceSensitivityToArc_NperMm": [
+      [
+        0.50184120038200131,
+        0.74100097566215783
+      ],
+      [
+        -0.58271877377851444,
+        -0.8854205918598852
+      ],
+      [
+        -3.5738403188237218,
+        0.43625047244235354
+      ],
+      [
+        1.2160669155948949,
+        0.95734155335804716
+      ]
+    ],
+    "unexplainedCurvatureDerivativeNorm": [
+      0.00048949511803680012,
+      8.8385589111268883E-5
+    ]
+  }
+}

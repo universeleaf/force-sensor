@@ -1,0 +1,58 @@
+[
+  {
+    "scenario": "sliding_clean",
+    "parameter": 1,
+    "step": 0.005,
+    "positionDerivativeRelativeError": 5.09016051683057e-09,
+    "arcDerivativeRelativeError": 6.33600183430616e-09
+  },
+  {
+    "scenario": "sliding_clean",
+    "parameter": 2,
+    "step": 0.0005,
+    "positionDerivativeRelativeError": 1.2921146619401418e-06,
+    "arcDerivativeRelativeError": 0.0
+  },
+  {
+    "scenario": "sliding_clean",
+    "parameter": 3,
+    "step": 0.005,
+    "positionDerivativeRelativeError": 9.515294155230523e-08,
+    "arcDerivativeRelativeError": 0.0
+  },
+  {
+    "scenario": "s_channel_two_contact",
+    "parameter": 1,
+    "step": 0.005,
+    "positionDerivativeRelativeError": 1.2163725278987641e-07,
+    "arcDerivativeRelativeError": 1.0719017002747828e-07
+  },
+  {
+    "scenario": "s_channel_two_contact",
+    "parameter": 2,
+    "step": 0.005,
+    "positionDerivativeRelativeError": 6.304402749846005e-09,
+    "arcDerivativeRelativeError": 6.173440626378818e-09
+  },
+  {
+    "scenario": "s_channel_two_contact",
+    "parameter": 3,
+    "step": 0.0005,
+    "positionDerivativeRelativeError": 6.165437336391584e-07,
+    "arcDerivativeRelativeError": 0.0
+  },
+  {
+    "scenario": "s_channel_two_contact",
+    "parameter": 4,
+    "step": 0.0005,
+    "positionDerivativeRelativeError": 7.832220788954016e-07,
+    "arcDerivativeRelativeError": 0.0
+  },
+  {
+    "scenario": "s_channel_two_contact",
+    "parameter": 5,
+    "step": 0.005,
+    "positionDerivativeRelativeError": 2.2348944619239307e-08,
+    "arcDerivativeRelativeError": 0.0
+  }
+]

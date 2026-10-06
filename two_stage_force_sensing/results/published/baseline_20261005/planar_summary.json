@@ -1,0 +1,602 @@
+[
+  {
+    "frame": 1,
+    "elapsedSeconds": 0.9366695,
+    "reportedSeconds": 0.3671794,
+    "iterations": 6,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      106,
+      424,
+      0.21704309999999993
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      2.8421709430404007E-13,
+      3.907985046680551E-14
+    ],
+    "tipErrorN": 3.4999549737504588E-15,
+    "totalErrorN": 2.4160984176434156E-13,
+    "arcErrorMm": [
+      -2.4868995751603507E-14,
+      1.4210854715202004E-14
+    ],
+    "audit": {
+      "contactGapMm": [
+        -1.7553958286953275E-11,
+        -5.1283421953485231E-12
+      ],
+      "minGapByPlaneMm": [
+        -1.7553958286953275E-11,
+        -5.1283421953485231E-12
+      ],
+      "maxPenetrationMm": 1.7553958286953275E-11,
+      "maxAbsGapMm": 1.7553958286953275E-11,
+      "maxTangencyResidual": 2.4476948246032748E-15,
+      "tipMomentResidualNmm": 3.6692870963861424E-14,
+      "minNormalForceN": 17.236403803366773,
+      "maxComplementarityNmm": 2.0843635519367234E-9,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 1.7553958286953275E-8
+  },
+  {
+    "frame": 2,
+    "elapsedSeconds": 0.1547147,
+    "reportedSeconds": 0.1297373,
+    "iterations": 8,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      136,
+      544,
+      0.10752120000000001
+    ],
+    "exitflag": 2,
+    "contactErrorN": [
+      5.6843418860808015E-14,
+      8.8817841970012523E-14
+    ],
+    "tipErrorN": 1.0211758434346236E-13,
+    "totalErrorN": 9.0799450247412415E-14,
+    "arcErrorMm": [
+      0,
+      1.4210854715202004E-14
+    ],
+    "audit": {
+      "contactGapMm": [
+        9.0594198809412774E-14,
+        2.4868995751603507E-14
+      ],
+      "minGapByPlaneMm": [
+        9.0594198809412774E-14,
+        2.4868995751603507E-14
+      ],
+      "maxPenetrationMm": 0,
+      "maxAbsGapMm": 9.0594198809412774E-14,
+      "maxTangencyResidual": 1.0408340855860843E-16,
+      "tipMomentResidualNmm": 7.7991779701136466E-13,
+      "minNormalForceN": 16.742558702264464,
+      "maxComplementarityNmm": 1.0261929754226245E-11,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 7.7991779701136466E-10
+  },
+  {
+    "frame": 3,
+    "elapsedSeconds": 0.1577424,
+    "reportedSeconds": 0.1315345,
+    "iterations": 9,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      151,
+      604,
+      0.11459500000000002
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      8.1001871876651421E-13,
+      7.1409544943890069E-13
+    ],
+    "tipErrorN": 1.1341592806271006E-12,
+    "totalErrorN": 1.1540132204770034E-12,
+    "arcErrorMm": [
+      -7.815970093361102E-14,
+      2.1316282072803006E-13
+    ],
+    "audit": {
+      "contactGapMm": [
+        1.6731505070310959E-11,
+        4.8281378894898808E-12
+      ],
+      "minGapByPlaneMm": [
+        1.6731505070310959E-11,
+        4.8281378894898808E-12
+      ],
+      "maxPenetrationMm": 0,
+      "maxAbsGapMm": 1.6731505070310959E-11,
+      "maxTangencyResidual": 1.1596626436904955E-15,
+      "tipMomentResidualNmm": 2.7784025080634933E-13,
+      "minNormalForceN": 16.246864129516673,
+      "maxComplementarityNmm": 1.8058943745126552E-9,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 1.6731505070310959E-8
+  },
+  {
+    "frame": 4,
+    "elapsedSeconds": 0.0990569,
+    "reportedSeconds": 0.0918568,
+    "iterations": 6,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      106,
+      424,
+      0.080604
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      3.0161118047544733E-10,
+      2.4592772263076768E-10
+    ],
+    "tipErrorN": 4.2337763682670663E-10,
+    "totalErrorN": 4.3653588557449596E-10,
+    "arcErrorMm": [
+      -9.2512664195965044E-12,
+      7.2716943577688653E-11
+    ],
+    "audit": {
+      "contactGapMm": [
+        1.0658851579137263E-10,
+        -1.4543033444169851E-11
+      ],
+      "minGapByPlaneMm": [
+        1.0658851579137263E-10,
+        -1.4543033444169851E-11
+      ],
+      "maxPenetrationMm": 1.4543033444169851E-11,
+      "maxAbsGapMm": 1.0658851579137263E-10,
+      "maxTangencyResidual": 3.0107860649053464E-14,
+      "tipMomentResidualNmm": 1.3283575628353361E-11,
+      "minNormalForceN": 15.749394231197236,
+      "maxComplementarityNmm": 1.0948282045234061E-8,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 1.6753959330984003E-7
+  },
+  {
+    "frame": 5,
+    "elapsedSeconds": 0.1488098,
+    "reportedSeconds": 0.1055805,
+    "iterations": 5,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      91,
+      364,
+      0.068246099999999976
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      2.0502000097621931E-10,
+      1.6792078838534508E-10
+    ],
+    "tipErrorN": 2.9646224922332525E-10,
+    "totalErrorN": 3.0494565272566856E-10,
+    "arcErrorMm": [
+      -5.8832938520936295E-12,
+      5.31770183442859E-11
+    ],
+    "audit": {
+      "contactGapMm": [
+        -6.9986860751214408E-10,
+        -2.397477771864942E-10
+      ],
+      "minGapByPlaneMm": [
+        -6.9986860751214408E-10,
+        -2.397477771864942E-10
+      ],
+      "maxPenetrationMm": 6.9986860751214408E-10,
+      "maxAbsGapMm": 6.9986860751214408E-10,
+      "maxTangencyResidual": 5.8578142336784822E-14,
+      "tipMomentResidualNmm": 9.9366626038488448E-12,
+      "minNormalForceN": 15.250221444567863,
+      "maxComplementarityNmm": 6.831646708017793E-8,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 6.9986860751214408E-7
+  },
+  {
+    "frame": 6,
+    "elapsedSeconds": 0.0892797,
+    "reportedSeconds": 0.0865159,
+    "iterations": 6,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      106,
+      424,
+      0.076995299999999975
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      3.4575009522086475E-11,
+      2.7835511673401925E-11
+    ],
+    "tipErrorN": 4.8240242524582038E-11,
+    "totalErrorN": 4.9841027927985253E-11,
+    "arcErrorMm": [
+      -1.0444978215673473E-12,
+      8.9528384705772623E-12
+    ],
+    "audit": {
+      "contactGapMm": [
+        -1.2176926134088717E-11,
+        -8.8711260559648508E-12
+      ],
+      "minGapByPlaneMm": [
+        -1.2176926134088717E-11,
+        -8.8711260559648508E-12
+      ],
+      "maxPenetrationMm": 1.2176926134088717E-11,
+      "maxAbsGapMm": 1.2176926134088717E-11,
+      "maxTangencyResidual": 1.0352829704629585E-14,
+      "tipMomentResidualNmm": 1.295304141724074E-12,
+      "minNormalForceN": 14.749416557623496,
+      "maxComplementarityNmm": 1.127856999102169E-9,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 1.9081958235744878E-8
+  },
+  {
+    "frame": 7,
+    "elapsedSeconds": 0.0774492,
+    "reportedSeconds": 0.0757163,
+    "iterations": 5,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      91,
+      364,
+      0.066061699999999987
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      5.6843418860808015E-14,
+      6.7501559897209518E-14
+    ],
+    "tipErrorN": 7.49475028231224E-14,
+    "totalErrorN": 7.9753434554840964E-14,
+    "arcErrorMm": [
+      -7.1054273576010019E-15,
+      4.2632564145606011E-14
+    ],
+    "audit": {
+      "contactGapMm": [
+        0,
+        5.3290705182007514E-15
+      ],
+      "minGapByPlaneMm": [
+        0,
+        5.3290705182007514E-15
+      ],
+      "maxPenetrationMm": 0,
+      "maxAbsGapMm": 5.3290705182007514E-15,
+      "maxTangencyResidual": 1.078998002057574E-15,
+      "tipMomentResidualNmm": 4.274705589502048E-13,
+      "minNormalForceN": 14.247048683033489,
+      "maxComplementarityNmm": 7.59235271081246E-14,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 4.274705589502048E-10
+  },
+  {
+    "frame": 8,
+    "elapsedSeconds": 0.2117343,
+    "reportedSeconds": 0.2096926,
+    "iterations": 6,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      106,
+      424,
+      0.19739560000000003
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      2.0079937712580431E-11,
+      1.5710099887655815E-11
+    ],
+    "tipErrorN": 2.7122397639767707E-11,
+    "totalErrorN": 2.8183220145369869E-11,
+    "arcErrorMm": [
+      -5.9685589803848416E-13,
+      5.5138116294983774E-12
+    ],
+    "audit": {
+      "contactGapMm": [
+        3.1105784614737786E-11,
+        6.2652105725646834E-12
+      ],
+      "minGapByPlaneMm": [
+        3.1105784614737786E-11,
+        6.2652105725646834E-12
+      ],
+      "maxPenetrationMm": 0,
+      "maxAbsGapMm": 3.1105784614737786E-11,
+      "maxTangencyResidual": 1.3496148643099559E-14,
+      "tipMomentResidualNmm": 4.5392856140580307E-13,
+      "minNormalForceN": 13.743185342734897,
+      "maxComplementarityNmm": 2.5804261065460575E-9,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 3.1105784614737786E-8
+  },
+  {
+    "frame": 9,
+    "elapsedSeconds": 0.2636822,
+    "reportedSeconds": 0.2606725,
+    "iterations": 6,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      106,
+      424,
+      0.24250770000000002
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      4.2632564145606011E-14,
+      1.4210854715202004E-14
+    ],
+    "tipErrorN": 3.9729011379325861E-14,
+    "totalErrorN": 5.8191634490868684E-14,
+    "arcErrorMm": [
+      -7.1054273576010019E-15,
+      -1.4210854715202004E-14
+    ],
+    "audit": {
+      "contactGapMm": [
+        5.3290705182007514E-15,
+        -5.3290705182007514E-15
+      ],
+      "minGapByPlaneMm": [
+        5.3290705182007514E-15,
+        -5.3290705182007514E-15
+      ],
+      "maxPenetrationMm": 5.3290705182007514E-15,
+      "maxAbsGapMm": 5.3290705182007514E-15,
+      "maxTangencyResidual": 1.7694179454963432E-16,
+      "tipMomentResidualNmm": 3.5539626797032042E-13,
+      "minNormalForceN": 13.237892472779798,
+      "maxComplementarityNmm": 4.1712076711432928E-13,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 3.5539626797032042E-10
+  },
+  {
+    "frame": 10,
+    "elapsedSeconds": 0.3269246,
+    "reportedSeconds": 0.3237027,
+    "iterations": 8,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      136,
+      544,
+      0.30638990000000005
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      1.4210854715202004E-14,
+      1.7763568394002505E-14
+    ],
+    "tipErrorN": 3.9676605050681518E-14,
+    "totalErrorN": 3.25105951637316E-14,
+    "arcErrorMm": [
+      -1.4210854715202004E-14,
+      -9.9475983006414026E-14
+    ],
+    "audit": {
+      "contactGapMm": [
+        -3.5527136788005009E-15,
+        -7.1054273576010019E-15
+      ],
+      "minGapByPlaneMm": [
+        -3.5527136788005009E-15,
+        -7.1054273576010019E-15
+      ],
+      "maxPenetrationMm": 7.1054273576010019E-15,
+      "maxAbsGapMm": 7.1054273576010019E-15,
+      "maxTangencyResidual": 2.2204460492503131E-15,
+      "tipMomentResidualNmm": 3.2179814368760162E-13,
+      "minNormalForceN": 12.731234461850883,
+      "maxComplementarityNmm": 2.6177494323639226E-13,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 3.2179814368760162E-10
+  },
+  {
+    "frame": 11,
+    "elapsedSeconds": 0.3274262,
+    "reportedSeconds": 0.3243965,
+    "iterations": 8,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      136,
+      544,
+      0.3076785
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      2.1174173525650986E-12,
+      1.6875389974302379E-12
+    ],
+    "tipErrorN": 3.0876794997066455E-12,
+    "totalErrorN": 3.1847714329915446E-12,
+    "arcErrorMm": [
+      -5.6843418860808015E-14,
+      7.673861546209082E-13
+    ],
+    "audit": {
+      "contactGapMm": [
+        -1.4617640431424661E-11,
+        -4.6416204213528545E-12
+      ],
+      "minGapByPlaneMm": [
+        -1.4617640431424661E-11,
+        -4.6416204213528545E-12
+      ],
+      "maxPenetrationMm": 1.4617640431424661E-11,
+      "maxAbsGapMm": 1.4617640431424661E-11,
+      "maxTangencyResidual": 4.8364090510233382E-15,
+      "tipMomentResidualNmm": 7.9825035470548755E-14,
+      "minNormalForceN": 12.223274181152986,
+      "maxComplementarityNmm": 1.011305410525601E-9,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 1.4617640431424661E-8
+  },
+  {
+    "frame": 12,
+    "elapsedSeconds": 0.2559267,
+    "reportedSeconds": 0.2530846,
+    "iterations": 6,
+    "counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      106,
+      424,
+      0.23965869999999992
+    ],
+    "exitflag": 3,
+    "contactErrorN": [
+      7.759126674500294E-12,
+      6.1639582327188691E-12
+    ],
+    "tipErrorN": 1.1320320318015417E-11,
+    "totalErrorN": 1.1674176129998358E-11,
+    "arcErrorMm": [
+      -2.0605739337042905E-13,
+      2.8563817977556027E-12
+    ],
+    "audit": {
+      "contactGapMm": [
+        -6.397193885732122E-11,
+        -2.0195400907141448E-11
+      ],
+      "minGapByPlaneMm": [
+        -6.397193885732122E-11,
+        -2.0195400907141448E-11
+      ],
+      "maxPenetrationMm": 6.397193885732122E-11,
+      "maxAbsGapMm": 6.397193885732122E-11,
+      "maxTangencyResidual": 1.6642937028521487E-14,
+      "tipMomentResidualNmm": 8.898784487065825E-13,
+      "minNormalForceN": 11.714073017681319,
+      "maxComplementarityNmm": 4.1435634485030425E-9,
+      "orderedContacts": true,
+      "passed": true
+    },
+    "rank": 7,
+    "unknownCount": 7,
+    "maxScaledResidual": 6.397193885732122E-8
+  }
+]

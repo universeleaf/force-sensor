@@ -1,0 +1,10 @@
+{
+  "injectedCurvatureStd": 0,
+  "actualCurvatureErrorMean": 0,
+  "actualCurvatureErrorStd": 0,
+  "actualCurvatureErrorMax": 0,
+  "likelihoodCurvatureStd": 1E-7,
+  "environmentPointPriorStdMm": 0.05,
+  "environmentNormalPriorStd": 0.001,
+  "normalPriorApproxDegrees": 0.057295779513082318
+}

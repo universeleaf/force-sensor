@@ -1,0 +1,5 @@
+results/runs/
+*.asv
+__pycache__/
+*.pyc
+.local.json
