@@ -37,6 +37,7 @@ Set `TSFS_RUN_ID` to a simple name to separate runs (default `current`). Generat
 | Our benchmark / geometry ablations | `run_benchmarks` / `run_ablations` |
 | S-channel diagnosis | `audit_s_channel`, `audit_s_channel_two_axis` |
 | Plane sensitivity, then condition analysis | `audit_plane_sensitivity`, `audit_plane_condition` |
+| Noiseless sliding / friction ablation / Aloi | `run_single_contact_comparison`, `analyze_single_contact_mu`, `export_single_contact_evidence` |
 | Reconstruction-only comparison | `audit_fbg_integration` |
 | Historical bottleneck report | `experiments/bottleneck_audit/README.md` |
 
@@ -50,6 +51,7 @@ Set `TSFS_RUN_ID` to a simple name to separate runs (default `current`). Generat
 - [Curvature fitting versus reconstructed shape fitting](docs/formulation/CURVATURE_VS_SHAPE_OBJECTIVE.md)
 - [Current decisions and pending ideas](docs/decisions/STATUS.md)
 - [Deferred physics](docs/decisions/DEFERRED_WORK.md)
+- [Noiseless single-contact comparison and friction sensitivity](docs/reports/SINGLE_CONTACT_MU_COMPARISON.md)
 - [Historical benchmark results](docs/reports/IMPLEMENTATION_AND_RESULTS.md)
 - [Migration handoff](handoff/2026-10-06_mentor-to-collaborator_folder-migration.md)
 

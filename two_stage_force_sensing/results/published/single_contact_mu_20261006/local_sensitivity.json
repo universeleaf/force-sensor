@@ -1,0 +1,782 @@
+[
+  {
+    "frame": 1,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.0029566075757363548,
+      0.00288384119642725,
+      0.00070384804199172463,
+      0.00021768072456750687,
+      0.00011074796966272554,
+      2.6457299724105213E-5
+    ],
+    "condition": 111.75016371918686,
+    "weakForceDirection": [
+      0.4764207763350351,
+      -2.2204460492503131E-16,
+      -0.46861808417861278,
+      -0.45545983319291206,
+      2.0232899487021111E-17,
+      0.58819781995938591
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.00069134985171227033,
+      0.00027903516158718505,
+      4.5266341487719087E-5
+    ],
+    "feasibleForceCondition": 15.272934127001093,
+    "tipXContactXCorrelation": 0.97773245470671544,
+    "contactTangentRemovedN": [
+      -1.103622146255868,
+      -1.2345598299978948E-16,
+      -3.628669335231649E-6
+    ],
+    "linearTipChangeN": [
+      1.1254396874885129,
+      1.4874068172485261E-16,
+      -1.0340753326074517
+    ],
+    "linearNormalChangeN": -1.1986132617815528,
+    "linearResidualFbgRms": 8.8735769251980674,
+    "curvatureMismatchReductionFactor": 35.256124627829188,
+    "linearGapChangeMm": -6.6613381477509392E-16,
+    "linearShapeChangeRmsMm": 0.0043913621498986172,
+    "actualTipChangeN": [
+      1.1254162747189469,
+      1.1662694267059767E-16,
+      -1.0334630286085797
+    ],
+    "actualContactChangeN": [
+      -1.1036260841392451,
+      -1.2347349098731694E-16,
+      1.1976627612702719
+    ],
+    "actualShapeChangeRmsMm": 0.0043604663563894131,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 2,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.0029733632943491463,
+      0.0029075737717401077,
+      0.00070479184281606127,
+      0.00021876198948954891,
+      0.00011122956396746243,
+      2.6914018692381478E-5
+    ],
+    "condition": 110.47637769497474,
+    "weakForceDirection": [
+      0.47328573880970082,
+      -1.1102230246251565E-16,
+      -0.47075588069977981,
+      -0.4513611576572541,
+      5.1196533024329461E-17,
+      0.59216772588873379
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.0006918597038082548,
+      0.00028109789479377657,
+      4.5026823402013184E-5
+    ],
+    "feasibleForceCondition": 15.365501084345231,
+    "tipXContactXCorrelation": 0.97716255794615847,
+    "contactTangentRemovedN": [
+      -1.1710112597611069,
+      1.9077102563559379E-15,
+      1.9011980445515775E-5
+    ],
+    "linearTipChangeN": [
+      1.1946223392215387,
+      -2.3051002383027152E-15,
+      -1.1072363684419244
+    ],
+    "linearNormalChangeN": -1.2818608640920095,
+    "linearResidualFbgRms": 9.6409240736410577,
+    "curvatureMismatchReductionFactor": 34.557396753372061,
+    "linearGapChangeMm": 2.2204460492503131E-16,
+    "linearShapeChangeRmsMm": 0.0048841548078393726,
+    "actualTipChangeN": [
+      1.1945810452816903,
+      -2.0638627154919663E-15,
+      -1.1064602542146966
+    ],
+    "actualContactChangeN": [
+      -1.170990467953777,
+      1.9077017229271866E-15,
+      1.2806557433458576
+    ],
+    "actualShapeChangeRmsMm": 0.0048491824778574173,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 3,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.0029900705846571708,
+      0.002931421904905143,
+      0.00070574222654775352,
+      0.00021985873879929862,
+      0.00011172547871337004,
+      2.737935073125361E-5
+    ],
+    "condition": 109.20896605645204,
+    "weakForceDirection": [
+      -0.47021911806591782,
+      -2.2204460492503131E-16,
+      0.47285588346927115,
+      0.44733596853742125,
+      4.1395283071507962E-17,
+      -0.59597971922414672
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.00069239634481270038,
+      0.00028344031885369305,
+      4.4820354550961569E-5
+    ],
+    "feasibleForceCondition": 15.448256751861098,
+    "tipXContactXCorrelation": 0.9765807353550815,
+    "contactTangentRemovedN": [
+      -1.2382742962045084,
+      5.8620350744015238E-16,
+      7.2219551219276923E-5
+    ],
+    "linearTipChangeN": [
+      1.2635758185459609,
+      -7.104043998644281E-16,
+      -1.1810873440961152
+    ],
+    "linearNormalChangeN": -1.3652357694399875,
+    "linearResidualFbgRms": 10.436979923759173,
+    "curvatureMismatchReductionFactor": 33.876273775224973,
+    "linearGapChangeMm": -1.3322676295501878E-15,
+    "linearShapeChangeRmsMm": 0.0054126622069845774,
+    "actualTipChangeN": [
+      1.2634972251672991,
+      -5.9743493023600305E-16,
+      -1.180068039517661
+    ],
+    "actualContactChangeN": [
+      -1.238194768832197,
+      5.861596103308116E-16,
+      1.3636462007722483
+    ],
+    "actualShapeChangeRmsMm": 0.0053756219427056112,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 4,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.0030052697975280914,
+      0.0029540737579097525,
+      0.00070660141380104774,
+      0.00022092580683333627,
+      0.00011221901906924846,
+      2.78570411950091E-5
+    ],
+    "condition": 107.88187361644565,
+    "weakForceDirection": [
+      -0.46731146180325023,
+      1.1102230246251565E-16,
+      0.47480744195301328,
+      0.443477105610168,
+      9.3228921051808821E-18,
+      -0.59958814825926365
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.0006928819834641414,
+      0.00028457933560960936,
+      4.4647328795547132E-5
+    ],
+    "feasibleForceCondition": 15.519001968450249,
+    "tipXContactXCorrelation": 0.97598882292112032,
+    "contactTangentRemovedN": [
+      -1.3018019960225815,
+      -5.1440500721346553E-17,
+      2.018783064983154E-5
+    ],
+    "linearTipChangeN": [
+      1.3287259464436199,
+      6.2519566538519819E-17,
+      -1.2516544639527738
+    ],
+    "linearNormalChangeN": -1.4443439468165682,
+    "linearResidualFbgRms": 11.231626794339814,
+    "curvatureMismatchReductionFactor": 33.1954324401038,
+    "linearGapChangeMm": -1.5543122344752192E-15,
+    "linearShapeChangeRmsMm": 0.0059630243192818856,
+    "actualTipChangeN": [
+      1.3286817803444297,
+      4.30566239952057E-17,
+      -1.2506243794568177
+    ],
+    "actualContactChangeN": [
+      -1.3017796221716016,
+      -5.1469909666354835E-17,
+      1.442786593464378
+    ],
+    "actualShapeChangeRmsMm": 0.0059121145316061051,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 5,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.003020390427329718,
+      0.0029768117348565539,
+      0.00070746635243503333,
+      0.00022200711411677349,
+      0.00011272574143020849,
+      2.8342322536253525E-5
+    ],
+    "condition": 106.56820461577364,
+    "weakForceDirection": [
+      -0.46446953888817505,
+      1.6653345369377348E-16,
+      0.4767271765205961,
+      0.43969142860103927,
+      -8.6708389121352649E-17,
+      -0.60305115390527431
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.00069339170941526114,
+      0.00028603036406888452,
+      4.4505812763703692E-5
+    ],
+    "feasibleForceCondition": 15.579801072203997,
+    "tipXContactXCorrelation": 0.97538420531159753,
+    "contactTangentRemovedN": [
+      -1.3651991453624748,
+      -5.925072319811606E-16,
+      -8.9678782391189316E-6
+    ],
+    "linearTipChangeN": [
+      1.3935920607654042,
+      7.2216562473898117E-16,
+      -1.3226785467785951
+    ],
+    "linearNormalChangeN": -1.5232071788102006,
+    "linearResidualFbgRms": 12.053955077709086,
+    "curvatureMismatchReductionFactor": 32.533677721218879,
+    "linearGapChangeMm": 2.2204460492503131E-16,
+    "linearShapeChangeRmsMm": 0.0065513106043020653,
+    "actualTipChangeN": [
+      1.3935605500616426,
+      6.463584576802979E-16,
+      -1.3215431003086251
+    ],
+    "actualContactChangeN": [
+      -1.3652091401120998,
+      -5.9242767653643911E-16,
+      1.521512988699758
+    ],
+    "actualShapeChangeRmsMm": 0.0064890221423745476,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 6,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.003035936384737974,
+      0.0030000939485919091,
+      0.00070837051547592989,
+      0.00022311906419138306,
+      0.00011325056265294358,
+      2.8832796150678164E-5
+    ],
+    "condition": 105.29455308019327,
+    "weakForceDirection": [
+      -0.4616590613532679,
+      -1.1102230246251565E-16,
+      0.47865610524231589,
+      0.43594576538462654,
+      7.8028040753085031E-17,
+      -0.60639140299635608
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.00069395044911382212,
+      0.0002881927851001335,
+      4.4394026647659538E-5
+    ],
+    "feasibleForceCondition": 15.631617618772758,
+    "tipXContactXCorrelation": 0.974765678298755,
+    "contactTangentRemovedN": [
+      -1.4297122506658009,
+      -8.2526953915893463E-16,
+      4.0243082810142994E-5
+    ],
+    "linearTipChangeN": [
+      1.4593612922094783,
+      1.008898613616416E-15,
+      -1.3954911673024966
+    ],
+    "linearNormalChangeN": -1.6031995721291332,
+    "linearResidualFbgRms": 12.914867252258956,
+    "curvatureMismatchReductionFactor": 31.897289008924563,
+    "linearGapChangeMm": 8.8817841970012523E-16,
+    "linearShapeChangeRmsMm": 0.00718493611020404,
+    "actualTipChangeN": [
+      1.459306153223169,
+      8.8364481041114446E-16,
+      -1.3941114941964143
+    ],
+    "actualContactChangeN": [
+      -1.4296671828168852,
+      -8.25151821852905E-16,
+      1.6011615092946334
+    ],
+    "actualShapeChangeRmsMm": 0.0071154606038124962,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 7,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.0030508801003161909,
+      0.0030229949501050365,
+      0.00070924595817175543,
+      0.00022422912086980917,
+      0.00011378190819623421,
+      2.9330990904930926E-5
+    ],
+    "condition": 104.01558236490735,
+    "weakForceDirection": [
+      -0.45894214391657767,
+      1.6653345369377348E-16,
+      0.48051925790201694,
+      0.43230392213637286,
+      -2.255594566900916E-17,
+      -0.60957909267629851
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.00069450420402131772,
+      0.00029011086889900727,
+      4.4312056887217408E-5
+    ],
+    "feasibleForceCondition": 15.673030159465689,
+    "tipXContactXCorrelation": 0.97413428780512468,
+    "contactTangentRemovedN": [
+      -1.4928280086219889,
+      5.8172118908068556E-16,
+      6.7233844560199429E-5
+    ],
+    "linearTipChangeN": [
+      1.5235414316045255,
+      -7.1327629679824374E-16,
+      -1.4672638422338307
+    ],
+    "linearNormalChangeN": -1.6811983944235993,
+    "linearResidualFbgRms": 13.792497038992396,
+    "curvatureMismatchReductionFactor": 31.274262288553704,
+    "linearGapChangeMm": 0,
+    "linearShapeChangeRmsMm": 0.007853826820757609,
+    "actualTipChangeN": [
+      1.523471794772135,
+      -6.2718856625406855E-16,
+      -1.4656513348473705
+    ],
+    "actualContactChangeN": [
+      -1.4927524003369737,
+      5.8174533461173281E-16,
+      1.6788372981640771
+    ],
+    "actualShapeChangeRmsMm": 0.0077747898309647985,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 8,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.0030647008243678631,
+      0.0030450256882368744,
+      0.00071005860991185514,
+      0.0002253206976213979,
+      0.00011431347502091471,
+      2.9838368626992349E-5
+    ],
+    "condition": 102.71006644765014,
+    "weakForceDirection": [
+      -0.45635282956590822,
+      5.5511151231257827E-17,
+      0.48227779162035039,
+      0.4288010443540195,
+      2.1910477255156463E-17,
+      -0.61260092312849923
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.00069502527407170537,
+      0.00029135727886695986,
+      4.4260028777917779E-5
+    ],
+    "feasibleForceCondition": 15.70322689031932,
+    "tipXContactXCorrelation": 0.97349096358705312,
+    "contactTangentRemovedN": [
+      -1.5533246448726412,
+      -1.9294387848953142E-16,
+      4.832038312585496E-6
+    ],
+    "linearTipChangeN": [
+      1.5849252146755304,
+      2.3726597092372012E-16,
+      -1.5364776956321973
+    ],
+    "linearNormalChangeN": -1.7555402065740711,
+    "linearResidualFbgRms": 14.674918868125447,
+    "curvatureMismatchReductionFactor": 30.659096386814078,
+    "linearGapChangeMm": 1.3322676295501878E-15,
+    "linearShapeChangeRmsMm": 0.00855254941999345,
+    "actualTipChangeN": [
+      1.5849075762163491,
+      2.1818563633698123E-16,
+      -1.5348235453170171
+    ],
+    "actualContactChangeN": [
+      -1.5533191910842385,
+      -1.929261942321741E-16,
+      1.7531995263611431
+    ],
+    "actualShapeChangeRmsMm": 0.00845352498291646,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 9,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.0030786279125845284,
+      0.0030673181275574822,
+      0.00071089016380040818,
+      0.00022643284699605572,
+      0.00011485857592829411,
+      3.0350191108526433E-5
+    ],
+    "condition": 101.43685427139316,
+    "weakForceDirection": [
+      0.45380701562400022,
+      -2.2204460492503131E-16,
+      -0.48403064050303624,
+      -0.42535337831089759,
+      2.2794336183045278E-17,
+      0.61550632424384144
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.00069557694660841356,
+      0.00029300444032018047,
+      4.4235048588575565E-5
+    ],
+    "feasibleForceCondition": 15.724566125786009,
+    "tipXContactXCorrelation": 0.97283267303871668,
+    "contactTangentRemovedN": [
+      -1.6142060672878717,
+      2.2266593620520712E-16,
+      -7.0729247747536306E-6
+    ],
+    "linearTipChangeN": [
+      1.6464077534739943,
+      -2.7462444697622106E-16,
+      -1.6064670731424489
+    ],
+    "linearNormalChangeN": -1.8297615646165002,
+    "linearResidualFbgRms": 15.588551189593602,
+    "curvatureMismatchReductionFactor": 30.065944935184266,
+    "linearGapChangeMm": -4.4408920985006262E-16,
+    "linearShapeChangeRmsMm": 0.0092967436200058883,
+    "actualTipChangeN": [
+      1.6464093034928475,
+      -1.3955708947091195E-17,
+      -1.6046402214015238
+    ],
+    "actualContactChangeN": [
+      -1.6142140736345614,
+      2.2278244601630764E-16,
+      1.827227602744899
+    ],
+    "actualShapeChangeRmsMm": 0.0091813789634249583,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 10,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.0030927928289628086,
+      0.0030900039014139817,
+      0.0007117494581680119,
+      0.00022757001194875591,
+      0.00011541833990785616,
+      3.0865140048907594E-5
+    ],
+    "condition": 100.20342768774417,
+    "weakForceDirection": [
+      0.45129178488014543,
+      3.8857805861880479E-16,
+      -0.48579136658506478,
+      -0.42194904105710057,
+      -2.0651037387250402E-16,
+      0.61830532894525658
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.00069616534352727336,
+      0.00029512493094711265,
+      4.4235466878240311E-5
+    ],
+    "feasibleForceCondition": 15.737718908754667,
+    "tipXContactXCorrelation": 0.97215834800665124,
+    "contactTangentRemovedN": [
+      -1.6757893924581415,
+      5.2299474116334795E-16,
+      5.6419283433584155E-5
+    ],
+    "linearTipChangeN": [
+      1.7082588084649317,
+      -6.4700805785681815E-16,
+      -1.6775906598741219
+    ],
+    "linearNormalChangeN": -1.9041886325043915,
+    "linearResidualFbgRms": 16.5364095764886,
+    "curvatureMismatchReductionFactor": 29.495957181115863,
+    "linearGapChangeMm": -8.8817841970012523E-16,
+    "linearShapeChangeRmsMm": 0.010089507605905806,
+    "actualTipChangeN": [
+      1.7082284122695444,
+      -5.4578023292594123E-16,
+      -1.6754066872793449
+    ],
+    "actualContactChangeN": [
+      -1.6757253874285643,
+      5.2294646014503533E-16,
+      1.9011608485199516
+    ],
+    "actualShapeChangeRmsMm": 0.0099636874042824085,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 11,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.0031121231467578312,
+      0.0031061691737309756,
+      0.00071256920302159815,
+      0.00022869914645886415,
+      0.00011598095672701087,
+      3.1386562902154793E-5
+    ],
+    "condition": 99.154633671091574,
+    "weakForceDirection": [
+      0.44887514342504559,
+      -2.2204460492503131E-16,
+      -0.4874817013432885,
+      -0.4186571210876987,
+      1.1035473579480302E-16,
+      0.62096611134035107
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.0006967368898280887,
+      0.000296881725427701,
+      4.4262307932248044E-5
+    ],
+    "feasibleForceCondition": 15.741088126145121,
+    "tipXContactXCorrelation": 0.97147004864095043,
+    "contactTangentRemovedN": [
+      -1.7356328217529493,
+      -1.0406321919110671E-15,
+      6.504666133011483E-5
+    ],
+    "linearTipChangeN": [
+      1.7680926472164058,
+      1.2913416384983982E-15,
+      -1.7469253248568755
+    ],
+    "linearNormalChangeN": -1.9756767840507115,
+    "linearResidualFbgRms": 17.495064841575925,
+    "curvatureMismatchReductionFactor": 28.93777992126731,
+    "linearGapChangeMm": 4.4408920985006262E-16,
+    "linearShapeChangeRmsMm": 0.010918589362559667,
+    "actualTipChangeN": [
+      1.7680745245278318,
+      1.1160293191356962E-15,
+      -1.7444956437701022
+    ],
+    "actualContactChangeN": [
+      -1.7355589055387133,
+      -1.0405685913156529E-15,
+      1.9723631610086318
+    ],
+    "actualShapeChangeRmsMm": 0.010775131366408602,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  },
+  {
+    "frame": 12,
+    "forceOrder": [
+      "tipX",
+      "tipY",
+      "tipZ",
+      "contactX",
+      "contactY",
+      "contactZ"
+    ],
+    "singularValuesPerMmPerN": [
+      0.0031335682670048364,
+      0.0031186542120845815,
+      0.00071334308011978826,
+      0.00022981661108425485,
+      0.00011654490971113735,
+      3.1914631415073675E-5
+    ],
+    "condition": 98.185945695265445,
+    "weakForceDirection": [
+      0.44656354088265071,
+      -5.5511151231257827E-17,
+      -0.48909535022562978,
+      -0.41548469616141,
+      -4.1539785917155925E-17,
+      0.62348954249263711
+    ],
+    "feasibleForceTangentDimension": 3,
+    "feasibleForceSingularValues": [
+      0.0006972859449212431,
+      0.00029822283987102083,
+      4.4315132974186063E-5
+    ],
+    "feasibleForceCondition": 15.734714038371903,
+    "tipXContactXCorrelation": 0.97076787824207755,
+    "contactTangentRemovedN": [
+      -1.7935263885968791,
+      1.8739373131878921E-16,
+      -3.838948567036482E-6
+    ],
+    "linearTipChangeN": [
+      1.8256930413571546,
+      -2.3326173013901923E-16,
+      -1.8141014498045549
+    ],
+    "linearNormalChangeN": -2.0438238414473737,
+    "linearResidualFbgRms": 18.461240997065374,
+    "curvatureMismatchReductionFactor": 28.390453363509138,
+    "linearGapChangeMm": -1.7763568394002505E-15,
+    "linearShapeChangeRmsMm": 0.011782680640920702,
+    "actualTipChangeN": [
+      1.8257503232294368,
+      -2.1574835790062361E-16,
+      -1.8115875450282695
+    ],
+    "actualContactChangeN": [
+      -1.7935307562214089,
+      1.874212079195804E-16,
+      2.0405157747824325
+    ],
+    "actualShapeChangeRmsMm": 0.011612170536511254,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "scope": "Shape-change RMS uses the same collision mesh for linear and nonlinear differences. Local FBG-only force sensitivity; terminal moment eliminated, normal gap held for compensation. Linear prediction from removing the full tangential force is a finite-change approximation, not an exact nonlinear solution."
+  }
+]

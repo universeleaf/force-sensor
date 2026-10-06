@@ -1,0 +1,1097 @@
+{
+  "trueMu": 0.3,
+  "noiseMaximumPerMm": 0,
+  "frames": 12,
+  "axes": [
+    1,
+    2
+  ],
+  "fbgStdPerMm": [
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6,
+    1E-6
+  ],
+  "options": {
+    "geometryMaxIterations": 30,
+    "geometryMaxEvaluations": 300,
+    "geometryFunctionTolerance": 1E-8,
+    "geometryOptimalityTolerance": 1E-6,
+    "geometryStepTolerance": 1E-8,
+    "maxIterations": 60,
+    "maxTrials": 300,
+    "qpMaxIterations": 200,
+    "odeRelativeTolerance": 2E-8,
+    "odeAbsoluteTolerance": 2E-10,
+    "collisionStepMm": 0.5,
+    "diagnosticStepMm": 0.1,
+    "rhoNormal": 1,
+    "rhoTangent": 1,
+    "stationarityTolerance": 1E-5,
+    "momentTolerance": 1E-5,
+    "projectionTolerance": 1E-6,
+    "gapTolerance": 1E-5,
+    "coneTolerance": 1E-6,
+    "productTolerance": 1E-5,
+    "normalTolerance": 1E-8,
+    "tangencyWarning": 0.001,
+    "fbgRmsWarning": 4,
+    "forcePriorStd": 35,
+    "tipPriorStd": 4,
+    "forceProcessStd": 10,
+    "tipProcessStd": 2,
+    "referencePeriodSeconds": 0.02,
+    "initialDamping": 1E-6,
+    "candidateDistanceMm": 2,
+    "endpointMarginMm": 1,
+    "maxContacts": 16,
+    "geometryPositionModelStdMm": 0.001,
+    "geometryTangentModelStd": 1E-5,
+    "geometryNormalChartBound": 0.25,
+    "initialTrustRadius": 1,
+    "initialMeritPenalty": 0.01,
+    "useForceTracking": true,
+    "verbose": false
+  },
+  "aloiOptions": {
+    "numCenterCandidates": 15,
+    "sigmaCandidatesMm": [
+      3,
+      8,
+      16,
+      30
+    ],
+    "amplitudeBoundN": 100,
+    "positionStdMm": 0.2,
+    "maxEquilibriumIterations": 15,
+    "equilibriumToleranceMm": 0.001,
+    "equilibriumRelaxation": 0.5,
+    "maxIterations": 25,
+    "maxFunctionEvaluations": 180,
+    "numOptimizationStarts": 2,
+    "showProgress": true
+  },
+  "scope": "Same recorded input/truth. Only estimator friction coefficient changes. No contact count, geometry, forces or modes from truth are estimator inputs.",
+  "provenance": {
+    "baselineRoot": "D:\\GT learning\\research\\force sensing\\code_Tongyu_new",
+    "lcpRoot": "D:\\GT learning\\research\\force sensing\\code_Tongyu_new\\LCP-Continuum",
+    "files": [
+      {
+        "path": "rod/atomic_write_artifact.m",
+        "sha256": "db199c40f1da1225430eb45dfbf3a8b1fdebc4cdb51f1b4b8e14bab1883efc2d"
+      },
+      {
+        "path": "rod/attach_depth_environment.m",
+        "sha256": "11e95c48155f2504a05d23d0d0f448acfe329f1974fcb9b4bd449e596735f816"
+      },
+      {
+        "path": "rod/audit_accuracy_run.m",
+        "sha256": "187453632e754c408936f90405f570b34026587c31a393e7f96cb94267ccfd2b"
+      },
+      {
+        "path": "rod/audit_force_identifiability.m",
+        "sha256": "136c6246a3a9df90ca24bc9058a23054dc4c77b69af17b261a87fd95d4bc3c64"
+      },
+      {
+        "path": "rod/audit_formulation_window_fit.m",
+        "sha256": "2a4fc76b455e3345061fe9ffad2d7b35861aae1465b63ea0862ef6cf8c1f2db5"
+      },
+      {
+        "path": "rod/audit_friction_quality.m",
+        "sha256": "50d7169e8e44109704d44856753743d8d3399359b159aed75445affecade489d"
+      },
+      {
+        "path": "rod/audit_history_uncertainty.m",
+        "sha256": "a3c8b4b1608ecd33cdb4dd6a422af2f52e0ca7aba13314765cf156817dd7d6c4"
+      },
+      {
+        "path": "rod/audit_independent_mesh.m",
+        "sha256": "73d5314282546e93bff0cc1ebbe2948fe29239dd70e7e5e9625e7b7d2418af4c"
+      },
+      {
+        "path": "rod/audit_noise_attribution.m",
+        "sha256": "6fe6d51bec237fb627d03438fa4675b9a23c2db7f2772c38c127c1c4df3cb023"
+      },
+      {
+        "path": "rod/audit_planar_multi_contact.m",
+        "sha256": "5c9d13643fb139d2d92634e65f9d6889aad50a5300620dc2b3b5bc37fd6e89a7"
+      },
+      {
+        "path": "rod/audit_sensor_stage1.m",
+        "sha256": "94441c63e7b1a9dfdcf46b9c1a3e780adbab8f0e6b266585c48717ad281d680f"
+      },
+      {
+        "path": "rod/begin_result_run.m",
+        "sha256": "3f64074fba5a8e2d56f69155d319a86dee2afc063f9e49f694247dfee6adc699"
+      },
+      {
+        "path": "rod/build_contact_demo_truth.m",
+        "sha256": "3baf23ac277957ebf27da6e7d4cdcdaf3330c66cca853b6e679be3a5816674d7"
+      },
+      {
+        "path": "rod/build_formulation_free_packet.m",
+        "sha256": "d2a5d42f2187fe4267caee2355ffe19af940cd055dcf8c5d07745d8240aa5d98"
+      },
+      {
+        "path": "rod/build_formulation_multi_packet.m",
+        "sha256": "9ed8c8d37c7da31136e32da90e7d2c748880d0f4acbc2fa6879645882d329932"
+      },
+      {
+        "path": "rod/build_multi_contact_demo_truth.m",
+        "sha256": "f459b59da4fb6b32f0ef342deaa08b215022fc8a1819b772187801521aeb7844"
+      },
+      {
+        "path": "rod/build_multi_contact_truth.m",
+        "sha256": "6964dec7a7ee66cc0b9dc253f33d400a39ef1d0023c41c32f01c472d129c9cc8"
+      },
+      {
+        "path": "rod/build_spatial_friction_packet.m",
+        "sha256": "d7033db3233bf65dd6e8dca7047d802b968af7fa5955a6a9f53da9a273890aa2"
+      },
+      {
+        "path": "rod/calibrate_fbg_likelihood.m",
+        "sha256": "c03b08efa4fffbd834ad247ec3e7bd524d4e03423dbd02ef7f991eba055f51ef"
+      },
+      {
+        "path": "rod/compute_aloi_comparison_metrics.m",
+        "sha256": "0bf6f7cfbd3f9e1a3c02a4dd4175ac4b902645475933d1b9afb2bf216bd957d8"
+      },
+      {
+        "path": "rod/contact_demo_scenes.m",
+        "sha256": "8657845717ac90642b3f42102dcc778271decc57e3e429d94e9a67dfc982d71e"
+      },
+      {
+        "path": "rod/contact_tangent.m",
+        "sha256": "e5d270f2e62604d1122bbe6b5c65120b95259cd6dedaeaf7d2aba7cfbbc95953"
+      },
+      {
+        "path": "rod/cosserat_state_at_arc.m",
+        "sha256": "02cd54244437901148658fe9984ebffb106757a141e3a354208d13d5b94cc941"
+      },
+      {
+        "path": "rod/decode_multi_contact_state.m",
+        "sha256": "f7374e28bf520bf3f69b7690e92b18691f88fcdf4115c66cf58ee041e7792c41"
+      },
+      {
+        "path": "rod/estimate_aloi_gaussian_baseline.m",
+        "sha256": "b3f6f64d14569872178502ad8b556b92b573b20d1ed82cf1fcab77a5404747e5"
+      },
+      {
+        "path": "rod/estimate_formulation_forces.m",
+        "sha256": "d66bd5c1d7ee9dc314207bf3fb7d70283da477daddb1d34500aea749ddb07cac"
+      },
+      {
+        "path": "rod/estimate_formulation_window.m",
+        "sha256": "95096e60a60441c759e81345719d64c165e68322b591b59501fcab1f959c19cb"
+      },
+      {
+        "path": "rod/estimate_literature_curvature_baseline.m",
+        "sha256": "c69d7c272ec72ed298fa23ee77997d42d538a15e4427ceb7d4b1f79bd2e2f289"
+      },
+      {
+        "path": "rod/estimate_planar_multi_contact.m",
+        "sha256": "5b921d5c83a7283e24f325ce8959235da5bd835b78933f9c5b52f76b5e22b668"
+      },
+      {
+        "path": "rod/estimate_planar_shape_only_point_loads.m",
+        "sha256": "bd03decf904aa7f0cf540cb8f4f5abc7d11bc0f7eac6f69fa244976b1f0374e3"
+      },
+      {
+        "path": "rod/estimate_sensor_forces.m",
+        "sha256": "37160c7f54a0634b7b4a22c15255999e7cd66c58ad32fecdd8c3abb4f7168ef5"
+      },
+      {
+        "path": "rod/estimate_shape_only_point_loads.m",
+        "sha256": "e42b6254d593356b3bd55872f3bafb81c3607cda0f864799ca88c28deb42c39d"
+      },
+      {
+        "path": "rod/estimate_temporal_window_forces.m",
+        "sha256": "96a97f084712a56c933db6a6cd79ed0f43bbc3f9dc39d38a85866ee3fed11063"
+      },
+      {
+        "path": "rod/evaluate_multi_contact_state.m",
+        "sha256": "fbc218daa120294bcd49d8d61d28206e40a6af2aacc3f90ecad4bc580f0ade45"
+      },
+      {
+        "path": "rod/export_inverse_audit.m",
+        "sha256": "c613b8496512a15cfd0680933b5d15c3f93cc7013f3d7b96676d46ae5c22f7f2"
+      },
+      {
+        "path": "rod/export_literature_geometry.m",
+        "sha256": "fa54e670ae217d734e99c751bf94d211e68613c2784f762cc3ae2452de895d32"
+      },
+      {
+        "path": "rod/file_sha256.m",
+        "sha256": "bc5e12daca5fb3b2b36301adf4d0c841638ed1435e38dc24d4c4e183471354de"
+      },
+      {
+        "path": "rod/force_sensitivity_diagnostic.m",
+        "sha256": "388e884da54c755bd2d4b3122ed2e96c09b302e36d4b4ada72e13114dc0599f1"
+      },
+      {
+        "path": "rod/formulation_contact_candidates.m",
+        "sha256": "346d0e38c237aa8fc50fc3f2c5e8f3fffb11c489f4fbede0f5a4d5d231101db7"
+      },
+      {
+        "path": "rod/formulation_contact_frame.m",
+        "sha256": "1b7042466577f490380e2bb86868f90c39e546378c4913039e358339c155c55b"
+      },
+      {
+        "path": "rod/formulation_solver_config.m",
+        "sha256": "705d53285fbc90044f4c2b83bac98757b024827f96b6188e667b8b130ab60eb9"
+      },
+      {
+        "path": "rod/formulation_window_observations.m",
+        "sha256": "4d7575f7fbb94cd3f7b8c7c35c986828e1ffc00c79f99925fbf8ac79da73cfd8"
+      },
+      {
+        "path": "rod/formulation_window_spec.m",
+        "sha256": "54546aae96a0e2dec04bcc6bd1954166e6e1920a2c00f68a1f6c9c63c343acf0"
+      },
+      {
+        "path": "rod/friction_direction_quality.m",
+        "sha256": "199e4ca4ac9e0f7d16333ebf2d483ca4c88f67d588a4f9c1fefdc9b67ad38f6f"
+      },
+      {
+        "path": "rod/friction_mode_resolution.m",
+        "sha256": "48178d124ebb104922581436883c55326e934fc683b796863ebb67c9100e1329"
+      },
+      {
+        "path": "rod/integrate_body_load_curvature.m",
+        "sha256": "0c45381ad8194b01fbdfa1a81abafec29955d3148648dbfe363a10f56676f421"
+      },
+      {
+        "path": "rod/integrate_cosserat_load_state.m",
+        "sha256": "118a7a48da686e2794b75290f9f8a274cb5c0ccaf990fa91636d21fbeb953386"
+      },
+      {
+        "path": "rod/integrate_curvature_field.m",
+        "sha256": "a2206c98453892866091f3052ccc9ee7bd218385f5e600b0f6808eea6bd1e681"
+      },
+      {
+        "path": "rod/integrate_planar_multi_contact.m",
+        "sha256": "a9cc665277092a00d0e63a2d086fa2dd0a0c889425ea248beeb7995b996b7665"
+      },
+      {
+        "path": "rod/latent_fbg_history.m",
+        "sha256": "b5923b7e04d1f65bcd3b8afeb8949765816c65d8c61a394837fc11ef76424811"
+      },
+      {
+        "path": "rod/make_experiment_tube.m",
+        "sha256": "c021113fa4d99c96b394be6eaa5ebbdc3c5c160da5ad8909cf00ddd003e5befd"
+      },
+      {
+        "path": "rod/measurements_from_sensor_packet.m",
+        "sha256": "50d48ef472013c689260579ae1f7dcdb725864cbd1c1cba36c9f0a5860bafd08"
+      },
+      {
+        "path": "rod/multi_contact_constraints.m",
+        "sha256": "a4d446f7ca45aadbe8ec8c7e409c10f2f6211b3aae7408a27b9b058b879478c6"
+      },
+      {
+        "path": "rod/multi_contact_demo_scenes.m",
+        "sha256": "8f141723380945b961cf21f959206357fbbd38ea24a5209fe8c6e8626c79c9bc"
+      },
+      {
+        "path": "rod/multi_contact_state_spec.m",
+        "sha256": "7ec0836081e9623fa9ed25efbcb908c10e70237df6cda7e14a8060e82f5dfb13"
+      },
+      {
+        "path": "rod/new_run_record.m",
+        "sha256": "b654751abcaa1586a5639a17f77d80b407a41e034ada3678d8b28f16e4e85b8a"
+      },
+      {
+        "path": "rod/nonlinear_force_sensitivity.m",
+        "sha256": "a47fe7655f79c0e1c6f070617a748e4d99516bc660ed10741f2d3f2131564de4"
+      },
+      {
+        "path": "rod/paired_contact_uncertainty.m",
+        "sha256": "25eb336e2cb248c1ade63462af474e7e46874c57621bc4b571664d00bded2171"
+      },
+      {
+        "path": "rod/plane_contact_constraints.m",
+        "sha256": "c2debfefcb16aecc630d5075445ea7f06737d093297cbc1a25ea796572d47722"
+      },
+      {
+        "path": "rod/plane_from_depth.m",
+        "sha256": "ee9030222b193c48877c238d3388b21462a36425096c025534fe63d592b8ed28"
+      },
+      {
+        "path": "rod/plot_depth_observations.m",
+        "sha256": "275e06120957ce2bd0729c1c6364735dbe28d001336d780f0f8a4a782a68c514"
+      },
+      {
+        "path": "rod/plot_friction.m",
+        "sha256": "a49314384dd3acf5da19acfa6a9f3fc070c0c2894f156cd1991cec1d2ff96031"
+      },
+      {
+        "path": "rod/plot_sensor_stage1.m",
+        "sha256": "7759810cf3f04cbd29c696483f1eddce57dbf49afd2341a55f9c53a1c7cd1660"
+      },
+      {
+        "path": "rod/reconstruct_sensor_curvature.m",
+        "sha256": "ebc1f8604dd2c5b501c80f9bba164da75983ea6391711f6058fa3461c0961416"
+      },
+      {
+        "path": "rod/refine_cosserat_shape_seed.m",
+        "sha256": "ad2873c2a2f2348090e9e36f69ec1bb35e6d0f58503ecca6016e3998e076c211"
+      },
+      {
+        "path": "rod/render_contact_demo_video.m",
+        "sha256": "72bcd138f889b61786334be021bd60e1a362ae917c13cb90888c49af14146450"
+      },
+      {
+        "path": "rod/render_multi_contact_demo_video.m",
+        "sha256": "8a06d40d682e401ee7d1e4eb424c70762facdd4b6b954cda19dafe217271e619"
+      },
+      {
+        "path": "rod/rerun_aloi_saved_result.m",
+        "sha256": "7faa39b0c58554b0dfa65cd159bad248409ced50591a3857846a4cbda4dd96e8"
+      },
+      {
+        "path": "rod/resolve_result_file.m",
+        "sha256": "a596cc2ba2ca1562f8b0ac65b07985ad816ed28dc43d723475b0675d00606ec8"
+      },
+      {
+        "path": "rod/review_formulation_artifacts.m",
+        "sha256": "d9652c5d92a5619cc79b80a3dac522f78d73493f8c755f62e319db9564617c6b"
+      },
+      {
+        "path": "rod/run_accuracy_benchmark.m",
+        "sha256": "6681f7b27e36aab383e54c9a170632425e2bc6854ff16bbba028fc73c951d157"
+      },
+      {
+        "path": "rod/run_contact_demo_suite.m",
+        "sha256": "37427d104df443f3ed4e9ea51e2ed2264616c3780b24a8c00be7b58f7fae0407"
+      },
+      {
+        "path": "rod/run_depth_protocol.m",
+        "sha256": "3ff8d2ae0aca192d9207c5f85f6c439cf2c5967a4fed972ff846cb919869ed6b"
+      },
+      {
+        "path": "rod/run_fair_baseline_protocol.m",
+        "sha256": "592c43f8aca83cef4ee96d1595af1950a096c12b68bf2227f77dca604fbb9727"
+      },
+      {
+        "path": "rod/run_formulation_benchmark.m",
+        "sha256": "0f49ed564aca2b0bd574c26049844c8eb3bc38f7a4541dc2f7615550f234927d"
+      },
+      {
+        "path": "rod/run_formulation_cache_benchmark.m",
+        "sha256": "ed56cb1c2f529aa8e6a6a2b2f942557eced3c2d6d07a56be287b94411c9cba3d"
+      },
+      {
+        "path": "rod/run_formulation_sliding.m",
+        "sha256": "42bccda350a28c473cc055b6b962a19d513aafaba45d4d4aee1f0f9f6921be50"
+      },
+      {
+        "path": "rod/run_formulation_window_protocol.m",
+        "sha256": "c8f5fd7df1ed3479a9973065f6f5f01b2606370e60752f0390a4e3b0d0036fe3"
+      },
+      {
+        "path": "rod/run_formulation_workflow.m",
+        "sha256": "c17340bef9dd06bf5149576634aaf9a9d6f7c6d99c4c4a60d9a3c01a0b6462d2"
+      },
+      {
+        "path": "rod/run_history_map_benchmark.m",
+        "sha256": "635022add018e8d519cb615404595f9eedcfc20475e9a77bc92e40a7ae85e1bd"
+      },
+      {
+        "path": "rod/run_independent_truth_benchmark.m",
+        "sha256": "b57c205c4c4f84077c8bf8826f786eb2fa4a3d129d0f7f9d964920f915914c1a"
+      },
+      {
+        "path": "rod/run_literature_baseline_protocol.m",
+        "sha256": "c3510be6d66f49e1ad70b60c9b461a136580cbb879e3f9801ea87213c8dfdd8c"
+      },
+      {
+        "path": "rod/run_literature_strain_scenarios.m",
+        "sha256": "0588c439e92de8a1c88da48b6c8511c4e162569a9f4ef0ce2d4f105559b1280a"
+      },
+      {
+        "path": "rod/run_mesh_convergence.m",
+        "sha256": "e72381289d47b3f912089f6a65b3f372c18aa78c358e29a6c233072520511a38"
+      },
+      {
+        "path": "rod/run_model_mismatch_protocol.m",
+        "sha256": "37cdb87c3c6abd0180b5d9cf47a7bb53e0311ebda24f221257822216993fc89b"
+      },
+      {
+        "path": "rod/run_multi_contact_benchmark.m",
+        "sha256": "4bb7068cca70fb63c372405abe444fae630268a38def6f9dc5125d0fbafc9cc0"
+      },
+      {
+        "path": "rod/run_multi_contact_demo_suite.m",
+        "sha256": "0060db02b5e7ac25fc4487ca6fbe70e621f573cdc91a1c562b5233e52d064b9b"
+      },
+      {
+        "path": "rod/run_multi_contact_plane_uncertainty.m",
+        "sha256": "8e53617ccbef24a3a05fa3de675bc8585991a1daad9329269799c43443df2864"
+      },
+      {
+        "path": "rod/run_noise_attribution.m",
+        "sha256": "8467acc2627385ec86dd5f242a8df72d7788a83c0dc785639ccd41e56e01473d"
+      },
+      {
+        "path": "rod/run_noise_aware_protocol.m",
+        "sha256": "ba687fb0f132a2fa80afa1dc91a21e5d1aa709f5e26375adeacc152c2dbd7df7"
+      },
+      {
+        "path": "rod/run_plane_geometry_benchmark.m",
+        "sha256": "94b7bdfb5e3b7e53f993e1aa8cd191aba926f7b704a1c1dcab0bf8c2e2437c24"
+      },
+      {
+        "path": "rod/run_project_checks.m",
+        "sha256": "e34902901c147922acd1ab0b4e435031271b87316cc8c785363e0dc3bd548754"
+      },
+      {
+        "path": "rod/run_realtime_benchmark.m",
+        "sha256": "f52e2f929a97d8ff77259727ddf1548303803ed2d73a7f2ad19750417229e7a4"
+      },
+      {
+        "path": "rod/run_rod_plane_force_sensing_experiment.m",
+        "sha256": "a2fa9b7a7ba233dd93a4541ac07bca68ae5464032a22a8883e3ef5dc648684a9"
+      },
+      {
+        "path": "rod/run_sensor_noise_protocol.m",
+        "sha256": "56b6adce34f5c31e63aebd759ac0af77197258d41f2dbbb66a9fc4bdd2e7d52b"
+      },
+      {
+        "path": "rod/run_sensor_seeded_replay.m",
+        "sha256": "4853737e137993066273d49a9a44bc4006acc94eda88806c725b0df5a131612a"
+      },
+      {
+        "path": "rod/run_sensor_stage1.m",
+        "sha256": "f7ee9af3913941f41bcb4a20605a44467449de23ed145dc31ec9f4cd01d295a8"
+      },
+      {
+        "path": "rod/run_submission_statistics.m",
+        "sha256": "da25a9cd1e788edadb4f2249df35ecb5487c1e3b8a47074575b9137e6ab7f4b4"
+      },
+      {
+        "path": "rod/sample_integrated_shape.m",
+        "sha256": "f2e17ff42d2ca30605d8d105ea0b32e04642a56ae3b84b28ec32afeb9708cd30"
+      },
+      {
+        "path": "rod/save_result_checkpoint.m",
+        "sha256": "bb69a8a6c08d5fdc65a9c8b71f5287d5da0ae996649998af7363bc682ff5f4d8"
+      },
+      {
+        "path": "rod/score_formulation_window.m",
+        "sha256": "42b6d5c163e80ecf299ed474f39ee665553399e29e9c7eb358c065704cc9d898"
+      },
+      {
+        "path": "rod/sensor_estimator_config.m",
+        "sha256": "26536144ca52a82e15d777ffe443dfa691c797d91cd7f6ef8a52042aa1138ffa"
+      },
+      {
+        "path": "rod/simu_rod_plane_displacement_force_sensing.m",
+        "sha256": "78b778edbc62057a658a5cb8512bc8b203e4864e2304111ce89467bb3d1e364c"
+      },
+      {
+        "path": "rod/simu_rod_plane_senior_geometry_force_sensing.m",
+        "sha256": "bcb27f4f082c1e938d78bd47a68f4f25b07b4b16b9ad1cbe6fb0d726523a3433"
+      },
+      {
+        "path": "rod/simu_rod_plane_upward_force_sensing.m",
+        "sha256": "d300ee119516f0173aad17e5ba2b9dac0270ef6bcf1f744fdee6b8c5eab2fff4"
+      },
+      {
+        "path": "rod/simu_rod_plane_video_geometry_force_sensing.m",
+        "sha256": "e069c930fc474bb1e15557010a0e821bc765fe5545d77eca42b42d739e9afbc3"
+      },
+      {
+        "path": "rod/simulate_sensor_packet.m",
+        "sha256": "0d88bca768fffb68095009334dc96eb3bf6aa213c4e67122a8c40766799529ec"
+      },
+      {
+        "path": "rod/solve_contact_mode_map.m",
+        "sha256": "7cace4bf2b775ad43783d4e77fef8ff3ab0c21ca454682e159f6bc4d127829c2"
+      },
+      {
+        "path": "rod/solve_contact_mpcc.m",
+        "sha256": "0353c01291e10c1a70b62bb337616e647be9e19dc6831c0062ed640b26008e3e"
+      },
+      {
+        "path": "rod/solve_cosserat_force_map.m",
+        "sha256": "3b76fe717935e5d8fc6326cd5154ba26c1c5853c33ed8c5e31bf5670b09ff4fb"
+      },
+      {
+        "path": "rod/solve_cosserat_multi_contact_map.m",
+        "sha256": "b379433e9cbbd32122b3d29c3bc9eaad360cdf5fc4f04dbec00e133651e5b20f"
+      },
+      {
+        "path": "rod/solve_planar_contact_shooting.m",
+        "sha256": "e155de9525dd2fc5018343b8ce6453e2d0410c6f86d85c7c4cb8bc7a6404d564"
+      },
+      {
+        "path": "rod/solve_planar_energy_rod.m",
+        "sha256": "6ca400988942df31bc4901c2b37d45b6969fc43966745afbe3f5b1e7b310330f"
+      },
+      {
+        "path": "rod/solve_planar_multi_contact.m",
+        "sha256": "4c5becedd090062957cd0d6c542eef828a88cbd6bf6fc4aa642623070530f423"
+      },
+      {
+        "path": "rod/subset_formulation_packet.m",
+        "sha256": "1f4d3e730b1721403e2cbd6a9ff557338c347586be4a0108f0e15bdc2c8349d3"
+      },
+      {
+        "path": "rod/subset_sensor_packet.m",
+        "sha256": "cc90f1674206352165faaab0fd4d4a9847bb62df4d789714478099d1e9ed528f"
+      },
+      {
+        "path": "rod/test_body_load_curvature.m",
+        "sha256": "f53196db42ce16b95aef133966bc92ea48b28f41347b1632cea4cb04c6095d9c"
+      },
+      {
+        "path": "rod/test_contact_separation_gate.m",
+        "sha256": "657bdbb0f64ad86466353aeffaadde5013b817ebbe016d6d400056c3207c6be6"
+      },
+      {
+        "path": "rod/test_contact_shooting.m",
+        "sha256": "c226e9e7cd86fad4a5344e07a0f38b50c5369f8d20ce465abb6bac1cd73cbbe3"
+      },
+      {
+        "path": "rod/test_cosserat_collision_geometry.m",
+        "sha256": "456780012e9cf196fac1264fe0279bef050f551a369dafc41e706c4c36b61aad"
+      },
+      {
+        "path": "rod/test_cosserat_work_budget.m",
+        "sha256": "b72bc2ebbcd1c3e6d43b30bac1c46ecad791baaf622009586367122ac1658865"
+      },
+      {
+        "path": "rod/test_depth_plane.m",
+        "sha256": "a9c1c6ba3b09f8190f4b6cd465ce74be6d5eceaf163d59147917b478fb0e6aff"
+      },
+      {
+        "path": "rod/test_environment_covariance.m",
+        "sha256": "d623a37ee1354cddd3615bc83e0e29729b1fdb162d76e1c2144092c0d8749b48"
+      },
+      {
+        "path": "rod/test_fbg_likelihood_calibration.m",
+        "sha256": "4a6dcd91abe0e2669ff970fad23e64c148b99f0ff3ed535583ccd20905e745d5"
+      },
+      {
+        "path": "rod/test_force_sensitivity.m",
+        "sha256": "9f6e7f1e140f14473000b7d07def6d43d0e7a8b68bfc60caae1731f57e0011a6"
+      },
+      {
+        "path": "rod/test_formulation_window_mechanics.m",
+        "sha256": "48dba61376be6b2e7fa8a8a91230ee5c5456f59f9fa3e49b72b679f4db868108"
+      },
+      {
+        "path": "rod/test_friction_basis.m",
+        "sha256": "7e91fffc45a18da4840d02cf7cc962990d1cd88d329d5d29d698eb08d179d0d1"
+      },
+      {
+        "path": "rod/test_friction_quality.m",
+        "sha256": "8e370d348bf399df85e7f0df0ffb17955ba45ad6764d1226e7fbd33301769ec8"
+      },
+      {
+        "path": "rod/test_friction_regression.m",
+        "sha256": "915fe376ac41234537736baabc61410de245128d837e86f50014617eeb978a8f"
+      },
+      {
+        "path": "rod/test_history_resolution.m",
+        "sha256": "fc92c1d2d4d9c16db4863c9986a50d853e4163eaf26833d787adcba256f5fa68"
+      },
+      {
+        "path": "rod/test_integrated_history_point.m",
+        "sha256": "ecbb0d61c481740b741fde39f47bef308071bad79121b71e1b2d11ff81c7a6df"
+      },
+      {
+        "path": "rod/test_intrinsic_curvature_reconstruction.m",
+        "sha256": "b4bc95e77b884c66b8f0c442292eed4b2532eb3b1e790f4ad6bee3435e59b85b"
+      },
+      {
+        "path": "rod/test_latent_fbg_history.m",
+        "sha256": "437865a5b188ee4dea240508e17a8336fa5f3cb6182f072acb3c561df3327df1"
+      },
+      {
+        "path": "rod/test_lcp_dependency.m",
+        "sha256": "59af64eefb6e6565592456ea3482e7a0cb4e9e71495b415c0dd721a29ebfc9b0"
+      },
+      {
+        "path": "rod/test_multi_contact_benchmark_protocol.m",
+        "sha256": "07a0e072470b1fe2cf8b639b32526a8cf4636beb554b49abc10e07e218c30902"
+      },
+      {
+        "path": "rod/test_multi_contact_map.m",
+        "sha256": "8dae4d70c4e1c71d9daa6e23f3537534e2802e75c97c295832863a1e9f516ed8"
+      },
+      {
+        "path": "rod/test_multi_contact_state_spec.m",
+        "sha256": "c9054642cbba8b0f0d56d3888be1e5ea4dd5d32bb944352c90c8739fa61ff068"
+      },
+      {
+        "path": "rod/test_noise_aware_contact.m",
+        "sha256": "eee5c6e7275bedcc51f014da83b048fa673f8ca84cb2d6a5f7cde99249b52c03"
+      },
+      {
+        "path": "rod/test_nonlinear_shape_seed.m",
+        "sha256": "b293e76b2ee02c9bab136899432fdd6ed9335694fc6b3dc4b00898394347d6fe"
+      },
+      {
+        "path": "rod/test_observation_scaled_map.m",
+        "sha256": "30c84a1a8aeca15da7d3b76b95218c86097805b2bb1a0dafe37b83093edd6c68"
+      },
+      {
+        "path": "rod/test_planar_energy_rod.m",
+        "sha256": "ba28f3bb26f4f23ea447570af0c9f5da7df0bf7bbffc256558893af4c0011317"
+      },
+      {
+        "path": "rod/test_plane_contact_geometry.m",
+        "sha256": "354ba915dc446978abbbf85766e3b4617c500267f054d14195a08c11c5439993"
+      },
+      {
+        "path": "rod/test_reduced_mode_bounds.m",
+        "sha256": "2cd10f123e823ab42ad0d1776f6547f2f7d681a101f54a9d2d21e661923d9dc5"
+      },
+      {
+        "path": "rod/test_result_integrity.m",
+        "sha256": "242e2019cafb252bf88e3d32555d1f17c7706f603e6304ef384a50d7153cad40"
+      },
+      {
+        "path": "rod/test_result_lifecycle.m",
+        "sha256": "afc67dfd385d6bad411ca2e0460f9847a46401f5374589004fbce77f9dcb7624"
+      },
+      {
+        "path": "rod/test_reverse_slide.m",
+        "sha256": "37738c9f4a11e9d5d9080d7b4a927e6c2773751c1016063761b67e434bb385d3"
+      },
+      {
+        "path": "rod/test_rotation_equivariance.m",
+        "sha256": "59d6b60ade84f5d783f8043e2cb883f726d1917aff9d0f0f4bf0bc7f6319216f"
+      },
+      {
+        "path": "rod/test_sensor_config.m",
+        "sha256": "2bfdf4ede12c0a7e1e6022808259da29eecacfd428f9b408c9951598b3caeeff"
+      },
+      {
+        "path": "rod/test_sensor_contracts.m",
+        "sha256": "3574b5f836f9e148f60f1b31162f08f71bd712df940e628fd04a863fd2be55af"
+      },
+      {
+        "path": "rod/test_sensor_history_boundary.m",
+        "sha256": "b9a93433b631b2853918588f2c3ebfdabe30e8e5618fcfc9d990960b823ad954"
+      },
+      {
+        "path": "rod/test_sensor_replay.m",
+        "sha256": "abe37362f15f8b6b43881637b3e0488726170da238167c38011baaefa1bb0e2e"
+      },
+      {
+        "path": "rod/validate_aloi_gaussian_baseline.m",
+        "sha256": "a6f95b36aa2576d6c4b62d02e9184b0bb43898f45f49162f5b6596ce920f2edd"
+      },
+      {
+        "path": "rod/validate_friction.m",
+        "sha256": "70c8933363173e587f8d628eb4e302fed00bf405681d949e8caa0050e1a432d1"
+      },
+      {
+        "path": "rod/validate_lcp_dependency.m",
+        "sha256": "d0692576402605fa7bbb1b68f947b759ceaad488407a3b09af92b365c676d0af"
+      },
+      {
+        "path": "rod/validate_plane_geometry_run.m",
+        "sha256": "51494aacf0e8cda44ebd5949f9dcf30da9bc9cf2bceabf6d6bbd14fffcb99f6f"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_forward.m",
+        "sha256": "3ca08e902c838d20e3a550c2cd06b4ba0e1db3995ce2195eac0e7117dbd460b2"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_inverse.m",
+        "sha256": "fa8d06d185de218b3073eb4aaec5a771ff29b819394a83442f0dafa441c6e305"
+      },
+      {
+        "path": "rod/validate_rod_plane_displacement_results.m",
+        "sha256": "122e384657a4c55be13d98ed6c2e4e68b78ab63314a0403e65677ca3144dcfb2"
+      },
+      {
+        "path": "rod/validate_sensor_config.m",
+        "sha256": "986d87a055ed9c04cb1c6a58c8dd33396eb2e0032a0cd7cd321cd279add92695"
+      },
+      {
+        "path": "rod/write_formulation_window_csv.m",
+        "sha256": "56ad0e741b02aaf30b74b4129b8172612b123bc3eaab544df1e1d276601a15e2"
+      },
+      {
+        "path": "LCP-Continuum/LCP/LCPSolve.m",
+        "sha256": "b6bb02a38a6f42afad81954ea5c801d58d3de6839168cf59624ababbe4ea11fd"
+      },
+      {
+        "path": "LCP-Continuum/contactMechanics/computePenetrationDepth.m",
+        "sha256": "525cabd38cc725ce05cf28e1beb55edb201855633be3c84956dfd7c1862b091b"
+      },
+      {
+        "path": "LCP-Continuum/contactMechanics/detectAdditionalContacts.m",
+        "sha256": "dd0ae36bd8c25d98812d716577dc48e876fc5e5309f761b2c6ee99946ad2a390"
+      },
+      {
+        "path": "LCP-Continuum/contactMechanics/getContactShape3.m",
+        "sha256": "fbb3283a2a5496f625972f21d54490e3fba422596485110c79b84e86a1293a95"
+      },
+      {
+        "path": "LCP-Continuum/contactMechanics/getFrictionalContactShape3.m",
+        "sha256": "0461e65e6579c959200fd655c90b7cdb0399f67920c54c44b57c3a5c42b804f6"
+      },
+      {
+        "path": "LCP-Continuum/contactMechanics/getFrictionalTipContactCTR.m",
+        "sha256": "6a653366f74429aceaede3d8f0f828f18c2bef64c59cfd6ac2aed894b444b4cf"
+      },
+      {
+        "path": "LCP-Continuum/contactMechanics/getInitialShape3.m",
+        "sha256": "150a492af2d73fe68a5b3f65e337c6ec61d07319242595f468a62557631b2669"
+      },
+      {
+        "path": "LCP-Continuum/contactMechanics/getInitialShapeEnergy.m",
+        "sha256": "4cadbf96690f091004a3ee465a3abc4df900bb146df1f4f7af9ab74bffbd8558"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/createAddedObject.m",
+        "sha256": "5a8dc0c03e358f815df8af8a67105225b621614f9d3fd5157bcffb8a632b06d1"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/createCapsule.m",
+        "sha256": "3e1e3ca366dfede375cf09ed2c268383fbd20fe1dbdb4434535eab6174250b12"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/createCyliner.m",
+        "sha256": "6841deed714de58d64ec51381612a216f6f63a684a544218804a8a11451c4a50"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/createCylinerCut.m",
+        "sha256": "6dfeb0375c05d26908d51440f88d5a5031ec50fa94525fb33a0d39142e5b6768"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/createLineEdge.m",
+        "sha256": "33918d29bad08afef660a3f560704cd0c711908f92b4838430ac7539c132f62f"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/createPipe.m",
+        "sha256": "1102c731acf28bd7a6fd880feb1f864ce4478c77dfd80d4bdf673c390b25ac03"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/createPlane.m",
+        "sha256": "140d4873197bdeee4d9733ea232b9264320aeb3f705b885960c3fcf77598e47a"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/createSphere.m",
+        "sha256": "be751a43d557d23a4a01f6a0b9f55e6b058b11d4bfd252272fc8e54e3b00ca8d"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/objCurvedPipe.m",
+        "sha256": "93a81ab7e8a7a1f0287c5877b76a1d0d731691caefa17c0ef17a347be282bd62"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/objCylinderCut.m",
+        "sha256": "7b08d90928d9041c3a2c3ef4006a2475d03859f0a9e33bff94e081fe9c5e81bc"
+      },
+      {
+        "path": "LCP-Continuum/contactObject/objPlane.m",
+        "sha256": "507e7b715d1b31bffc8bfec23d733ef0368bf5bb16cdafa3fd33d22b2f871a73"
+      },
+      {
+        "path": "LCP-Continuum/ctr_related/build_ctr.m",
+        "sha256": "dacafbe71633c05d96e4cae613b233159991baeb76ad4c73b37cce356f3f788b"
+      },
+      {
+        "path": "LCP-Continuum/ctr_related/cal_Hessian_ivpforward.m",
+        "sha256": "17e8124da2e821dd053467b4b46d1d8172855c59397b8faf91332ca2c793e78f"
+      },
+      {
+        "path": "LCP-Continuum/ctr_related/cal_Jacobian_ivp_one.m",
+        "sha256": "a3823e8cb868a25a19d3010bb63e297f28d506cbdaa836884b4563f70ca760cd"
+      },
+      {
+        "path": "LCP-Continuum/ctr_related/three_tube_fk.m",
+        "sha256": "1bd312fbf025dee6c08e48dc61b6d43a64bfe13d04cd96cae9fa9ac8cd26ff57"
+      },
+      {
+        "path": "LCP-Continuum/ctr_related/three_tube_ivp_forward.m",
+        "sha256": "44a30445b74c53b0dc39ffa388eeef258fba9edadae14155c257c2ae61a5bdd2"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/Adj.m",
+        "sha256": "8af2d8000f44d02c09bb99cdcfa08f1b7952ca0ad47000c1ab4a550294199b22"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/LargeSE3.m",
+        "sha256": "cbba9e50024b2e346acebf5476a444fbacf1d41795c08f5ab928fc13ba09b14f"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/LargeSO3.m",
+        "sha256": "50809b195c8fa3cd2ee96a25ace859225f9f6a5eac907cabdd598afabf2c5e6a"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/LinearInterpl.m",
+        "sha256": "bb0cae3c1962a4b0e949df4040d0b23231e6a781f2468d5a7c164d739c5b5aa3"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/LinearInterplNdim.m",
+        "sha256": "16e97f0725facc30d58823ade6ff5e8525f35d03dfad4ce5f6d27a4a176df605"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/LogSO3.m",
+        "sha256": "461eeba4536d8554ae228df28f0f549f5f6067c8c4254ea4cb65900a8526a55a"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/RotX.m",
+        "sha256": "1081e06f22b31f01a12e918225204e865a303d3e52d157f0dd729cae940e7835"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/RotY.m",
+        "sha256": "b7e4bb75d766cba375921986da3a3e92e318f76e57a748f86eb4f34c4cfeb49d"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/RotZ.m",
+        "sha256": "b7ada1e5ead031f93f69a9c5592982057e5fae857cce7eb8bc8a0712b7b171f2"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/RotZ2D.m",
+        "sha256": "acfa6d289fe690898b2dd4bddfb66cb44d0a99ce361a3b07bad6cfac81f67799"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/geneLineTraj.m",
+        "sha256": "e806a0e7bcd209b79fe9b920482abded9cb3115c0e1e99227b57fa51531e8ec5"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/hat.m",
+        "sha256": "a34e6013cfd561315b81b6f4210c7f1acc49d5b2c0128343e4e8e21ecc257ccb"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/hat_mat.m",
+        "sha256": "4aebbdb6d68a2acaa1067e41e03889f635aaa8a29718b14fcc5eeeff0af89d48"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/invSE3.m",
+        "sha256": "b9a630b586981b30893eb63ec865bca1f488a109c85e57a30a7c2cc56fb2674c"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/inv_hat.m",
+        "sha256": "50d514e74a93bfe7492321715b36627ba6f5918713bc5cf38d2f42f1190c141e"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/inv_hat_se.m",
+        "sha256": "cbf274c331ca9cebebb3611c0740cbccfd3f33c17c17d7aec211927b883b26e5"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/joint_hard_limit.m",
+        "sha256": "872ab7dacc06b5a25f1d797d2357b9c1e8bcf9b612e63d94b9eb6f0085194875"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/lowPassPadding.m",
+        "sha256": "1029d8f4a92c303a3747ec727e5107d7f5ddc20c75db87cc2705f51d3a563ef1"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/normalize_trash.m",
+        "sha256": "59e6c1bfefab7d5922481d08759866d920334d2e4ae56be85ce6ae348deb6354"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/removeConsective.m",
+        "sha256": "5a8ec43c8e07c1da443804d67680fafc0dbe05802626f806680e176be2dbe597"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/search2D.m",
+        "sha256": "4077025823b9d000258e1d2d9e0c552fee42e95e016f21ca9ec62de88389b239"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/select_xy.m",
+        "sha256": "c1510f6b1da209217a453988aff6546d9a65df12c69a9162ba6585400ef99bfb"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/so3.m",
+        "sha256": "a34e6013cfd561315b81b6f4210c7f1acc49d5b2c0128343e4e8e21ecc257ccb"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/unso3.m",
+        "sha256": "cc5a044c9489407a96702b9a54ba673f2e3f61de1c74eec87f88d717a7548ee6"
+      },
+      {
+        "path": "LCP-Continuum/mathUtilities/uy2u.m",
+        "sha256": "39d2c2274a57e69d2cf113062c5f21d8dd8713a7fafd9e5a6b633bea9022b669"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/genePlotClock.m",
+        "sha256": "83c5a67d7d08bf44e74a138ee04fb4d8ea3a6c8984b23ff7b1129a70dc1b0bef"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/makeVid2D.m",
+        "sha256": "008f0c71c0ba1320328525d4cfe5d2771b28da07fce3013cdc670a59d9e1897c"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/plot3Mat.m",
+        "sha256": "873399d2ddd7518336faf3b427e14af9a01c7f0089c26cee89c5186c9dc63eb6"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/plotConfig1tube.m",
+        "sha256": "44a5709edb5b1f44130a78e6ce447aa4b6ee309d2cc85a243c6fc0b86f8f49fb"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/plotConfig2D.m",
+        "sha256": "cdcc2bf295290c91cd646a78c6f3ac86f7b44934e826fc86433f95381f9bf8b5"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/plotConfig2contact.m",
+        "sha256": "4e6a99f3b39efca5dc53472c22b08bdd174f51cea7125b009875e8f4a675275b"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/plotConfig3D.m",
+        "sha256": "46c29b7d34b41a8a9b4b61c112338622a2ef56c1e348ee0b0252b53b7cbbbe54"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/plotConfigCylinder.m",
+        "sha256": "94c4eea3a4b9b6f818cd8acb1a68ffe3f60d3473695507687a5f9d47cfaa74c7"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/plotPlane.m",
+        "sha256": "69791d289f95b1dae12d8cf91eff1c5cda01ee0b6d953bd3f4d9bd4889d11e55"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/plotSection.m",
+        "sha256": "2ae5e43c27735f881ef6ede6ede92c54af86aef82958dfd72b45f1472079f45b"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/plot_three_tube.m",
+        "sha256": "2194fb4d97128137af379ac0d203eefbb134a019ffe123b4268605b6b846b4dc"
+      },
+      {
+        "path": "LCP-Continuum/plotFuncitons/simple_plot_ctr.m",
+        "sha256": "033b17fb6d6f2b4486884a34c64a8ddb659b9daddd11c70c1ff171b3ae2e8989"
+      },
+      {
+        "path": "LCP-Continuum/simulations/simu_CTR_pid2.m",
+        "sha256": "8de200b1a9e7e54e0ba1729e22c108a6996147ad7e443b08944af16a004a3872"
+      },
+      {
+        "path": "LCP-Continuum/simulations/simu_ctr.m",
+        "sha256": "b1bdada9714f27fdeb83afdda45c4d3f0caa9ea6920ad742be442da836f823a8"
+      },
+      {
+        "path": "LCP-Continuum/simulations/simu_ctr_Varying_m.m",
+        "sha256": "886590ddea10c490b51b35805290cdd463ccc4d3a33aaec395dcdce70897b0e9"
+      },
+      {
+        "path": "LCP-Continuum/simulations/simu_rod_pipe.m",
+        "sha256": "fdc943e7d6768752ffde3f536ee617221cd0ba619a3c0169c0347cb07ccb9f30"
+      },
+      {
+        "path": "LCP-Continuum/simulations/simu_rod_plane.m",
+        "sha256": "b26f1f91be4e6a1c2881f72b904e52bd202e2374beb7f8c4bafbaf5ec306451f"
+      },
+      {
+        "path": "LCP-Continuum/simulations/simu_rod_ring_plane.m",
+        "sha256": "90d49be5fe76c92469637a04bbdec577d83d3675961922ee652e29bf3b297d1a"
+      },
+      {
+        "path": "LCP-Continuum/simulations/outdated simulations/getPath1tube.m",
+        "sha256": "01277d637dae230900adbb396af369e8ad94982b2668dd12b42aa5c9c3494dcd"
+      },
+      {
+        "path": "LCP-Continuum/simulations/outdated simulations/getPath2contact.m",
+        "sha256": "ff19d10461ab8509c76f62051744b3427c350acbc6a7c8e391b8a1c04c8eb78d"
+      },
+      {
+        "path": "LCP-Continuum/simulations/outdated simulations/getPathCylinder.m",
+        "sha256": "bb59aa0475b41802fe07f0be1dd9b4faeda48d2281fe12f1cfb6e2b900c0958d"
+      },
+      {
+        "path": "LCP-Continuum/simulations/outdated simulations/simu_CTR_pid.m",
+        "sha256": "5eb5534b25b782b5a54d0b8d8e8296b4732659b82fef9dc0af71030cad3d3894"
+      },
+      {
+        "path": "LCP-Continuum/simulations/outdated simulations/simu_elbow.m",
+        "sha256": "a9e1cab9fc56a43172bc8ba8081397f1934170546b7a9a6f76f3e0b84c49c806"
+      },
+      {
+        "path": "LCP-Continuum/simulations/outdated simulations/simu_polygon_circleBase.m",
+        "sha256": "812cf13b786d740b4f5bd959007b401ee7fd35bb2a693f87dda1b1d437c45a39"
+      },
+      {
+        "path": "LCP-Continuum/tubeKinematics/CreatTube.m",
+        "sha256": "166fb545a48f113e6adcd2b18dc9ec0f51dc0576668a63ec0988267bddd76444"
+      },
+      {
+        "path": "LCP-Continuum/tubeKinematics/changeTubeK.m",
+        "sha256": "edede6ef3e4e87950a1f88156ccd4b8c3847d08b66c733bd0a1ada61d569bff4"
+      },
+      {
+        "path": "LCP-Continuum/tubeKinematics/compareMultiShapes.m",
+        "sha256": "99c377be147fde85a175e52425ef191c4d703990bb0dcf97f8ba05bdc583ae28"
+      },
+      {
+        "path": "LCP-Continuum/tubeKinematics/compareShapes.m",
+        "sha256": "ca9813b932dddb011fb0a89792bb1a050ce0f21957c26e6a1e32ee0b9bf6aa03"
+      },
+      {
+        "path": "LCP-Continuum/tubeKinematics/computeJacobian.m",
+        "sha256": "03d4b8463ab9196775b920d1783b0daff3fed5c05a072bc4f320380f13348e6c"
+      },
+      {
+        "path": "LCP-Continuum/tubeKinematics/getTubeK.m",
+        "sha256": "cfff8cdcc45033f25767f6296a4684d682404d97cb5f2a88143582fab22e4846"
+      },
+      {
+        "path": "LCP-Continuum/tubeKinematics/solveShape.m",
+        "sha256": "003d9650b33c7f3fc6b2b67e16b207a0879da7ffc8e6e9fc66ea76c2daa10931"
+      }
+    ]
+  },
+  "environmentPointMaximumErrorMm": 0,
+  "environmentNormalMaximumError": 0,
+  "environmentPriorStd": [
+    0.03,
+    0.03,
+    0.03,
+    0.001,
+    0.001,
+    0.001
+  ],
+  "packetProvenance": "Synthetic sparse bending observations; paired prior sensor sample, no dense truth or true loads. Third curvature is calibrated torsion imposed as a planar-model assumption, not a measured channel.",
+  "fbgCount": 24
+}

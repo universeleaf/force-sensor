@@ -1,0 +1,7 @@
+{
+  "sequenceSeconds": 84.4808778,
+  "meanFrameSeconds": 7.0400731500000004,
+  "preparationSeconds": 0.0394843,
+  "frames": 12,
+  "note": "Unprofiled full-sequence call preserves previous-frame warm starts. Per-frame timing and total iterations across both starts are not exposed by the API."
+}

@@ -14,6 +14,7 @@ Updated 2026-10-06. This is an index, not permission to implement every discusse
 | Shape-matching measurement objective | Discussed alternative; no objective change approved |
 | Profile objective/constraints against fixed tip Fy | Deferred by user; not run |
 | Baseline robustness to realistic sensor/environment noise | Follow-up investigation; clean results are not robustness evidence |
+| Noiseless sliding: current method, mu=0 ablation, Tongyu Aloi | Completed; correct friction separates loads accurately; zero friction converges with biased forces and FBG warnings. See SINGLE_CONTACT_MU_COMPARISON.md |
 | Folder migration and no copied baseline algorithms | Approved and implemented in this contribution |
 
 The filter currently uses recurrent constrained MAP with stated priors, not a calibrated full joint Kalman covariance. Keep proposals, implemented behavior, and measured validation distinct.

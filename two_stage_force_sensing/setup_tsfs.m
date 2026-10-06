@@ -10,7 +10,7 @@ assert(isfolder(fullfile(baseline,'LCP-Continuum')),'tsfs:MissingDependency', ..
 addpath(fullfile(baseline,'rod'));
 lcp=validate_lcp_dependency(baseline);
 addpath(root,fullfile(root,'matlab'),fullfile(root,'tests'),fullfile(root,'baseline'));
-folders={'benchmarks','bottleneck_audit','s_channel','plane_sensitivity','fbg_reconstruction'};
+folders={'benchmarks','bottleneck_audit','s_channel','plane_sensitivity','fbg_reconstruction','single_contact'};
 for k=1:numel(folders),addpath(fullfile(root,'experiments',folders{k}));end
 names={'integrate_curvature_field','formulation_window_observations','estimate_sensor_forces','estimate_planar_multi_contact','estimate_formulation_window'};
 for k=1:numel(names)

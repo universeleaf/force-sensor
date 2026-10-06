@@ -1,0 +1,21 @@
+{
+  "baselineSourcesVerified": 240,
+  "estimatorCoreFilesMatchingParentGitBlobs": 15,
+  "pythonSyntaxCheck": "passed",
+  "pairedRepeatOutcomeCheck": "passed, maximum difference 0",
+  "statusChecks": "passed",
+  "plotsVisuallyInspected": true,
+  "ode45SegmentCallsMean": {
+    "0.3": 14.5,
+    "0": 21.0
+  },
+  "baselineGitStatus": [
+    "?? docs/2_STAGE_FORCE_SENSING.md",
+    "?? docs/2_STAGE_FORCE_SENSING_IMPLEMENTATION_PLAN.md",
+    "?? docs/CURRENT_SOLVER_BOTTLENECK_AUDIT_2026-10-05.md",
+    "?? scripts/analyze_bottleneck_audit.m",
+    "?? scripts/prepare_bottleneck_audit.py",
+    "?? scripts/run_bottleneck_audit.m",
+    "?? scripts/summarize_bottleneck_audit.py"
+  ]
+}

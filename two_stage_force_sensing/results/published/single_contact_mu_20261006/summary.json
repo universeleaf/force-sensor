@@ -1,0 +1,63 @@
+{
+  "runId": "single_contact_mu_20261006",
+  "frames": 12,
+  "oursMu03": {
+    "totalErrorN": 0.0020223328384061682,
+    "shapeRmsMm": 0.002538254678099699,
+    "contactErrorN": 0.0033940834667513247,
+    "tipErrorN": 0.0017496263053312533,
+    "seconds": 0.15195405,
+    "geometrySeconds": 0.10331696666666668,
+    "mechanicsSeconds": 0.046267691666666666,
+    "diagnosticSeconds": 0.0018322333333333331,
+    "geometryIterations": 4.583333333333333,
+    "sqpIterations": 2.9166666666666665,
+    "qpIterations": 50.916666666666664,
+    "stateIVPs": 1.9166666666666667,
+    "augmentedIVPs": 2.9166666666666665,
+    "totalIVPs": 4.833333333333333,
+    "rhsEvaluations": 1801.0,
+    "ode45SegmentCalls": 14.5
+  },
+  "oursMu0": {
+    "totalErrorN": 0.20670931546043073,
+    "shapeRmsMm": 0.007144618911552463,
+    "contactErrorN": 2.2114760481183477,
+    "tipErrorN": 2.084279100979709,
+    "seconds": 0.16398019166666664,
+    "geometrySeconds": 0.10180083333333335,
+    "mechanicsSeconds": 0.060037258333333336,
+    "diagnosticSeconds": 0.0016185333333333333,
+    "geometryIterations": 4.583333333333333,
+    "sqpIterations": 4.0,
+    "qpIterations": 67.0,
+    "stateIVPs": 3.0,
+    "augmentedIVPs": 4.0,
+    "totalIVPs": 7.0,
+    "rhsEvaluations": 2594.5,
+    "ode45SegmentCalls": 21.0
+  },
+  "aloi": {
+    "totalErrorN": 1.21819394076441,
+    "shapeRmsMm": 0.05232940305112068,
+    "sequenceSeconds": 84.4808778,
+    "meanFrameSeconds": 7.0400731500000004,
+    "preparationSeconds": 0.0394843,
+    "frames": 12,
+    "note": "Unprofiled full-sequence call preserves previous-frame warm starts. Per-frame timing and total iterations across both starts are not exposed by the API.",
+    "winningStartIterationsMean": 7.083333333333333,
+    "shapeIntegrationsTotal": 32105,
+    "shapeIntegrationsMean": 2675.4166666666665
+  },
+  "repeatNumericalMaximumDifference": 0.0,
+  "linearTipPredictionMaximumErrorN": 0.002514557304402283,
+  "conditionRange": [
+    98.18594569526545,
+    111.75016371918686
+  ],
+  "feasibleConditionRange": [
+    15.272934127001093,
+    15.74108812614512
+  ],
+  "timingScope": "Ours: full second replay, mean per frame including stages and diagnosis; Aloi: one unprofiled sequence / 12, preparation separate. Profile used for counts only."
+}
