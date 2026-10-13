@@ -1,0 +1,21 @@
+{
+  "configuration": {
+    "sensorStd": 0.0001,
+    "forcePriors": false,
+    "constraintTolerance": 1E-6,
+    "deduplicateGap": true
+  },
+  "matlabVersion": "25.2.0.2998904 (R2025b)",
+  "epsilon": 1E-6,
+  "objectiveScale": 0.0001,
+  "maxIterations": 300,
+  "optimalityTolerance": 1E-8,
+  "stepTolerance": 1E-12,
+  "gapDiagnosticMm": 1E-6,
+  "terminalMomentDiagnosticNmm": 0.0002,
+  "squaredConeTolerance": 1E-6,
+  "productAndDualityUpperNmm": 2E-6,
+  "exactLawWarnings": "Original diagnostic thresholds retained in exactLawFlags; flags use revised relaxed-feasibility criteria.",
+  "samplingSeconds": 0.02,
+  "injectedNoiseStd": 0
+}

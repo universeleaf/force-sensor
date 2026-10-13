@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "relativeObservationJacobianError": 1.3914358076288812E-10,
+  "analyticHelixPositionMaxMm": 8.1283668828416144E-6,
+  "worldRotationObservationErrorPerMm": 2.6032995203983944E-14,
+  "independentTruthPredictionMaxPerMm": 7.2708676839700059E-10,
+  "independentTruthPositionMaxMm": 6.2489638558574929E-9,
+  "sensorCount": 24
+}

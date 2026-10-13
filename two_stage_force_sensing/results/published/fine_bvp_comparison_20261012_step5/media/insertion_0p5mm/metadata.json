@@ -1,0 +1,14 @@
+{
+  "scenario": "insertion",
+  "noiseTargetMm": 0.5,
+  "sourceFrames": 201,
+  "encodedFrames": 402,
+  "fps": 10,
+  "durationSeconds": 40.2,
+  "width": 1600,
+  "height": 1000,
+  "omittedFrames": 0,
+  "bvpFailedFrames": [],
+  "shapeSource": "Saved post-correction IVP; pre-correction fallback for BVP exception",
+  "sourceStamp": "20261012_step5"
+}

@@ -1,0 +1,28 @@
+{
+  "constraintTolerance": 1E-6,
+  "sensorStd": 0.0001,
+  "forcePriors": false,
+  "solver": "enumerative-MINLP/fmincon-SQP",
+  "exactCircularFriction": true,
+  "modeInitialization": "previous chosen assignment first",
+  "continuousInitialization": "existing previous-state seed; sliding direction from current geometric shape and previous estimated shape",
+  "allAssignments": false,
+  "globalContinuousCertificate": false,
+  "maxIterationsPerAssignment": 300,
+  "maxEvaluationsPerAssignment": 5000,
+  "optimalityTolerance": 1E-8,
+  "stepTolerance": 1E-12,
+  "objectiveScale": 0.0001,
+  "modeSearch": "first-acceptable",
+  "fbgRmsAcceptance": 0.01,
+  "mechanicsApproximation": "successive-linearization",
+  "linearization": {
+    "maxOuterIterations": 40,
+    "initialRadius": 4,
+    "maxRadius": 64,
+    "minRadius": 1E-6,
+    "stepTolerance": 0.0001
+  },
+  "comparisonScenario": "insertion",
+  "comparisonVariant": "linearized"
+}

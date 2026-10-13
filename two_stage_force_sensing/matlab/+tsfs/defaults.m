@@ -15,5 +15,6 @@ o.candidateDistanceMm=2; o.endpointMarginMm=1; o.maxContacts=16;
 % Midpoint kinematics on a 1 mm grid has O(ds^2) position error.
 o.geometryPositionModelStdMm=1e-3; o.geometryTangentModelStd=1e-5;
 o.geometryNormalChartBound=0.25; o.initialTrustRadius=1; o.initialMeritPenalty=0.01;
+o.bishopWarmStart=true; % Reuse a converged material state; never interpret Bishop roll as measured.
 o.useForceTracking=true; o.verbose=false;
 end

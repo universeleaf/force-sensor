@@ -1,0 +1,11 @@
+{
+  "run": "inclined_wall_modes_conditional_1e6_20261010",
+  "frames": 41,
+  "encodedFrames": 328,
+  "fps": 12,
+  "durationSeconds": 27.333333333333332,
+  "projection": "XZ; full-3D Y error shown",
+  "thresholdRawRmsPerMm": 1e-06,
+  "sourceCsvSha256": "27750d893ddfaddb1af8d632292b532b993c811fab2ffb831a228d5eb98c9f43",
+  "notes": "Saved estimates only. Mu=0 fit failures displayed as fallback in red. Playback is illustrative, not real time."
+}

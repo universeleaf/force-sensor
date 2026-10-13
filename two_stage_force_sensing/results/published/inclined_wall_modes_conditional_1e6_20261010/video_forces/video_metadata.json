@@ -1,0 +1,12 @@
+{
+  "frames": 41,
+  "encodedFrames": 328,
+  "fps": 12,
+  "durationSeconds": 27.333333333333332,
+  "size": [
+    1920,
+    1440
+  ],
+  "forcePlots": "World XYZ components: reference, mu=0.3 estimate, mu=0 estimate",
+  "sourceRun": "inclined_wall_modes_conditional_1e6_20261010"
+}

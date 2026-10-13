@@ -1,0 +1,42 @@
+[
+  {
+    "run": "singlepass_polygon_insertion_0mm_20261012_unbounded",
+    "correctedFields": 42,
+    "stateArraysSHA256": "5783c362b4314680e47cfdbff38e206d620f6d3074d70c4871bc939126a8a4b0"
+  },
+  {
+    "run": "singlepass_polygon_insertion_0p5mm_20261012_unbounded",
+    "correctedFields": 42,
+    "stateArraysSHA256": "05c090356bdffe6615a11392be588945acfb5d722522cf282e47a577e9dbb50d"
+  },
+  {
+    "run": "singlepass_polygon_insertion_1mm_20261012_unbounded",
+    "correctedFields": 42,
+    "stateArraysSHA256": "dacc4bcf42dfd33baa81616307533eb535efab7e00e12573935ebeee94cf6667"
+  },
+  {
+    "run": "singlepass_polygon_insertion_2mm_20261012_unbounded",
+    "correctedFields": 42,
+    "stateArraysSHA256": "aaa9d63811830122dd58bad25f0c84b1b80a810375b3c5389393d1a1ba7df981"
+  },
+  {
+    "run": "singlepass_polygon_rotation_0mm_20261012_unbounded",
+    "correctedFields": 26,
+    "stateArraysSHA256": "9d37c1b294f420f0edf063a219a51bc05c84928ddeb196539390e6b3651e1cc8"
+  },
+  {
+    "run": "singlepass_polygon_rotation_0p5mm_20261012_unbounded",
+    "correctedFields": 26,
+    "stateArraysSHA256": "6010c8b3e2f9b1912ed88fc6deed2b9a2391945441d332b93f8214db3313e723"
+  },
+  {
+    "run": "singlepass_polygon_rotation_1mm_20261012_unbounded",
+    "correctedFields": 26,
+    "stateArraysSHA256": "ebe3fce436dbba8a76af9d4743fcaa72d2c5b13be36343eb9ea08e1f8c6b9114"
+  },
+  {
+    "run": "singlepass_polygon_rotation_2mm_20261012_unbounded",
+    "correctedFields": 26,
+    "stateArraysSHA256": "8c7b051ced72fa8d249fe77faa7c96b3b2ea64d7354cde9abfa9bfa43b0b48b4"
+  }
+]

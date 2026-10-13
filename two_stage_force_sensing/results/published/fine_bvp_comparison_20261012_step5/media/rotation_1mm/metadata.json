@@ -1,0 +1,14 @@
+{
+  "scenario": "rotation",
+  "noiseTargetMm": 1.0,
+  "sourceFrames": 121,
+  "encodedFrames": 242,
+  "fps": 10,
+  "durationSeconds": 24.200000000000003,
+  "width": 1600,
+  "height": 1000,
+  "omittedFrames": 0,
+  "bvpFailedFrames": [],
+  "shapeSource": "Saved post-correction IVP; pre-correction fallback for BVP exception",
+  "sourceStamp": "20261012_step5"
+}

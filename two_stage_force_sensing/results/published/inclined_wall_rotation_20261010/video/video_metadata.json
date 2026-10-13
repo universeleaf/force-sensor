@@ -1,0 +1,12 @@
+{
+  "frames": 25,
+  "encodedFrames": 200,
+  "fps": 12,
+  "durationSeconds": 16.666666666666668,
+  "size": [
+    1920,
+    1440
+  ],
+  "forcePlots": "World XYZ components: reference, mu=0.3 estimate, mu=0 estimate",
+  "sourceRun": "inclined_wall_rotation_20261010"
+}

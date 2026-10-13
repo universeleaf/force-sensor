@@ -1,0 +1,77 @@
+EST mu 0.3 frame 1/41 d 80: 1.29s 9 it 10 IVP C0 tip 0.0000 contact 0.0000 shape 0.00000 fmincon-exit-1
+EST mu 0.3 frame 2/41 d 78: 0.19s 0 it 1 IVP C0 tip 0.0000 contact 0.0000 shape 0.00000 fmincon-exit-1
+EST mu 0.3 frame 3/41 d 76: 0.39s 9 it 10 IVP C1 tip 0.0002 contact 0.0000 shape 0.00006 fmincon-exit-2
+EST mu 0.3 frame 4/41 d 74: 0.76s 38 it 60 IVP C1 tip 0.1233 contact 0.2021 shape 0.00355 fmincon-exit-2
+EST mu 0.3 frame 5/41 d 72: 1.82s 107 it 158 IVP C1 tip 0.0000 contact 0.0000 shape 0.00000 fmincon-exit-1
+EST mu 0.3 frame 6/41 d 70: 2.43s 81 it 238 IVP C1 tip 1.4616 contact 2.2588 shape 0.03349 fmincon-exit-2
+EST mu 0.3 frame 7/41 d 68: 40.73s 300 it 4395 IVP C1 tip 2.0159 contact 3.0671 shape 0.04270 fmincon-exit-0
+EST mu 0.3 frame 8/41 d 66: 0.43s 28 it 30 IVP C1 tip 0.0002 contact 0.0007 shape 0.00125 fmincon-exit-2
+EST mu 0.3 frame 9/41 d 64: 0.75s 40 it 65 IVP C1 tip 0.0001 contact 0.0002 shape 0.00003 fmincon-exit-2
+EST mu 0.3 frame 10/41 d 62: 23.12s 247 it 2348 IVP C1 tip 0.0006 contact 0.0002 shape 0.00009 fmincon-exit-2
+EST mu 0.3 frame 11/41 d 60: 48.87s 145 it 4857 IVP C1 tip 0.8131 contact 1.1614 shape 0.01508 fmincon-exit-0
+EST mu 0.3 frame 12/41 d 58: 0.51s 33 it 38 IVP C1 tip 0.0005 contact 0.0013 shape 0.00234 fmincon-exit-1
+EST mu 0.3 frame 13/41 d 56: 39.43s 283 it 3756 IVP C1 tip 0.0001 contact 0.0004 shape 0.00077 fmincon-exit-1
+EST mu 0.3 frame 14/41 d 54: 1.22s 48 it 104 IVP C1 tip 0.0024 contact 0.0021 shape 0.00020 fmincon-exit-1
+EST mu 0.3 frame 15/41 d 52: 16.62s 171 it 1233 IVP C1 tip 23.5467 contact 30.7577 shape 5.69768 fmincon-exit--2
+EST mu 0.3 frame 16/41 d 50: 0.53s 33 it 34 IVP C1 tip 0.0025 contact 0.0152 shape 0.03370 fmincon-exit-1
+EST mu 0.3 frame 17/41 d 48: 0.68s 40 it 49 IVP C1 tip 0.0032 contact 0.0118 shape 0.02595 fmincon-exit-2
+EST mu 0.3 frame 18/41 d 46: 0.68s 38 it 44 IVP C1 tip 0.0023 contact 0.0090 shape 0.02016 fmincon-exit-1
+EST mu 0.3 frame 19/41 d 44: 0.73s 41 it 50 IVP C1 tip 0.0151 contact 0.0172 shape 0.01578 fmincon-exit-1
+EST mu 0.3 frame 20/41 d 42: 1.03s 51 it 59 IVP C1 tip 0.0053 contact 0.0059 shape 0.01235 fmincon-exit-1
+EST mu 0.3 frame 21/41 d 40: 1.31s 62 it 81 IVP C1 tip 0.0194 contact 0.0147 shape 0.00981 fmincon-exit-2
+EST mu 0.3 frame 22/41 d 42: 0.56s 36 it 37 IVP C1 tip 0.0013 contact 0.0038 shape 0.00658 fmincon-exit-1
+EST mu 0.3 frame 23/41 d 44: 52.64s 226 it 4776 IVP C1 tip 0.1392 contact 0.1505 shape 0.00818 fmincon-exit-0
+EST mu 0.3 frame 24/41 d 46: 0.53s 31 it 33 IVP C1 tip 0.0002 contact 0.0013 shape 0.00233 fmincon-exit-1
+EST mu 0.3 frame 25/41 d 48: 0.99s 43 it 78 IVP C1 tip 0.0036 contact 0.0030 shape 0.00082 fmincon-exit-1
+EST mu 0.3 frame 26/41 d 50: 0.84s 46 it 67 IVP C1 tip 0.0010 contact 0.0008 shape 0.00005 fmincon-exit-2
+EST mu 0.3 frame 27/41 d 52: 52.85s 280 it 4722 IVP C1 tip 0.1837 contact 0.1995 shape 0.09734 fmincon-exit-0
+EST mu 0.3 frame 28/41 d 54: 0.40s 26 it 27 IVP C1 tip 0.0023 contact 0.0143 shape 0.02640 fmincon-exit-1
+EST mu 0.3 frame 29/41 d 56: 0.65s 43 it 51 IVP C1 tip 0.0017 contact 0.0084 shape 0.01544 fmincon-exit-2
+EST mu 0.3 frame 30/41 d 58: 0.60s 41 it 47 IVP C1 tip 0.0012 contact 0.0045 shape 0.00814 fmincon-exit-2
+EST mu 0.3 frame 31/41 d 60: 0.78s 43 it 68 IVP C1 tip 0.0004 contact 0.0019 shape 0.00356 fmincon-exit-1
+EST mu 0.3 frame 32/41 d 62: 1.04s 49 it 93 IVP C1 tip 0.0012 contact 0.0012 shape 0.00092 fmincon-exit-2
+EST mu 0.3 frame 33/41 d 64: 3.83s 103 it 388 IVP C1 tip 0.0001 contact 0.0001 shape 0.00002 fmincon-exit-2
+EST mu 0.3 frame 34/41 d 66: 31.24s 300 it 3340 IVP C1 tip 3.1204 contact 3.1353 shape 0.14008 fmincon-exit-0
+EST mu 0.3 frame 35/41 d 68: 0.35s 23 it 24 IVP C1 tip 0.0270 contact 0.0329 shape 0.03296 fmincon-exit-1
+EST mu 0.3 frame 36/41 d 70: 1.15s 46 it 113 IVP C1 tip 0.0025 contact 0.0049 shape 0.00713 fmincon-exit-2
+EST mu 0.3 frame 37/41 d 72: 30.83s 300 it 3361 IVP C1 tip 0.8977 contact 0.9002 shape 0.00938 fmincon-exit-0
+EST mu 0.3 frame 38/41 d 74: 0.25s 11 it 14 IVP C1 tip 0.0052 contact 0.0052 shape 0.00005 fmincon-exit-2
+EST mu 0.3 frame 39/41 d 76: 1.14s 32 it 109 IVP C1 tip 0.0000 contact 0.0000 shape 0.00000 fmincon-exit-1
+EST mu 0.3 frame 40/41 d 78: 0.16s 4 it 5 IVP C0 tip 0.0000 contact 0.0000 shape 0.00000 fmincon-exit-1
+EST mu 0.3 frame 41/41 d 80: 0.12s 1 it 3 IVP C0 tip 0.0000 contact 0.0000 shape 0.00000 fmincon-exit-1
+EST mu 0.0 frame 1/41 d 80: 0.18s 9 it 10 IVP C0 tip 0.0000 contact 0.0000 shape 0.00000 fmincon-exit-1
+EST mu 0.0 frame 2/41 d 78: 0.10s 0 it 1 IVP C0 tip 0.0000 contact 0.0000 shape 0.00000 fmincon-exit-1
+EST mu 0.0 frame 3/41 d 76: 0.23s 9 it 11 IVP C1 tip 0.0002 contact 0.0000 shape 0.00006 fmincon-exit-2
+{Error using tsfs.ivp/rhs (line 59)
+IVP RHS budget exceeded.
+
+Error in ode45 (line 298)
+        f4 = ode(t4, y4, odeArgs{:});
+             ^^^^^^^^^^^^^^^^^^^^^^^
+Error in tsfs.ivp (line 22)
+ pieces{k}=ode45(@rhs,edges(k:k+1),y,odeOpts);y=pieces{k}.y(:,end);
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in tsfs.evaluate (line 2)
+sh=tsfs.ivp(fr,g,z,scale,o,derivatives);x=sh.x;nx=numel(z);C=numel(g.s);P=size(g.normal,2);
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in tsfs.relaxed_solve/mechanics (line 41)
+  e=tsfs.evaluate(fr,g,zz,scale,prior,history,o,true);e.relaxedHasHistory=~isempty(history);
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in tsfs.relaxed_solve/allvalues (line 48)
+  e=mechanics(y(1:nx));[con,Dcon]=tsfs.relaxed_constraints(e,g,scale,y(nx+1:end),epsilon,cfg.deduplicateGap);
+    ^^^^^^^^^^^^^^^^^^
+Error in tsfs.relaxed_solve/objective (line 51)
+ function [f,df]=objective(y),[v,J]=allvalues(y);f=v(1);df=J(1,:)';end
+                                    ^^^^^^^^^^^^
+Error in sqpInterface
+
+Error in fmincon (line 671)
+                [X,FVAL,EXITFLAG,OUTPUT,LAMBDA,GRAD,HESSIAN] = sqpInterface(funfcn,X,full(A),full(B),full(Aeq),full(Beq), ...
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in tsfs.relaxed_solve (line 21)
+ [y,~,exitflag,output,multipliers]=fmincon(@objective,y0,[],[],[],[],lb,ub,@constraints,opts);solveSeconds=toc(solveClock);
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in run_inclined_comparison (line 8)
+  clock=tic;g=tsfs.geometry(fr,o);sol=tsfs.relaxed_solve(fr,g,previous,o,'fmincon',cfg);d=tsfs.diagnose_relaxed(fr,g,sol,o);sh=sol.evaluation.shape;
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+} 

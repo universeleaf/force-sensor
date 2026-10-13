@@ -1,0 +1,19 @@
+{
+  "matlabVersion": "25.2.0.2998904 (R2025b)",
+  "casadiVersion": "3.8.0",
+  "epsilon": 1E-6,
+  "objectiveScale": 0.0001,
+  "forceScaleN": 1,
+  "momentScaleNmm": 200,
+  "gapScaleMm": 1,
+  "slipScaleMm": 1,
+  "maxIterations": 300,
+  "optimalityTolerance": 1E-8,
+  "constraintTolerance": 1E-9,
+  "fminconStepTolerance": 1E-12,
+  "ipoptAcceptableIter": 0,
+  "injectedNoiseStd": 0,
+  "sensorDeclaredStdPerMm": 1E-6,
+  "samplePeriodSeconds": 0.02,
+  "scope": "Direct relaxation; no continuation/restarts. Native solver statuses retained. Previous finite states persist for history/priors even after nonconvergence, as in the existing method."
+}

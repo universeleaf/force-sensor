@@ -22,8 +22,8 @@ if any(abs(fn(:)'.*e.gap)>o.productTolerance),flags{end+1}='normal-complementari
 if any(e.work>1e-8),flags{end+1}='positive-friction-work';end
 if e.fbgRms>o.fbgRmsWarning,flags{end+1}='fbg-mismatch';end
 if isempty(fr.previous)&&C>0&&any(g.mu>0),flags{end+1}='slip-history-unavailable';end
-missing=setdiff(1:3,fr.axes);unobservedDelta=sh.u(missing,:)-fr.tube.uhat(missing,:);unobservedMismatch=max([0;abs(unobservedDelta(:))]);
-if ismember(3,missing)&&max(abs(sh.u(3,:)-fr.tube.uhat(3,:)))>1e-5,flags{end+1}='stage1-unobserved-twist';end
+missing=setdiff(1:3,fr.axes);if tsfs.is_bishop(fr),missing=[];end;unobservedDelta=sh.u(missing,:)-fr.tube.uhat(missing,:);unobservedMismatch=max([0;abs(unobservedDelta(:))]);
+if ~tsfs.is_bishop(fr)&&ismember(3,missing)&&max(abs(sh.u(3,:)-fr.tube.uhat(3,:)))>1e-5,flags{end+1}='stage1-unobserved-twist';end
 if numel(fr.axes)<2,flags{end+1}='one-channel-observability';end
 J=e.J(1:numel(fr.u),:);E=sh.JtipMoment;
 if rcond(E(:,1:3))>1e-12,Jforce=J(:,4:end)-J(:,1:3)*(E(:,1:3)\E(:,4:end));else,Jforce=J(:,4:end);flags{end+1}='singular-moment-elimination';end

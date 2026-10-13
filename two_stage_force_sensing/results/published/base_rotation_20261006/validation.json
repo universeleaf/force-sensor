@@ -1,0 +1,24 @@
+{
+  "baselineSourcesVerified": 240,
+  "priorCoreAndSlidingFilesPreserved": 29,
+  "sourceHashes": {
+    "experiments\\base_rotation\\analyze_rotation.m": "8f4a21df2e8261de4de13546509e6fc1fbfee501bf7fc9cbd46ad72eb0cc26b6",
+    "experiments\\base_rotation\\build_rotation_truth.m": "e6ff1bf4c78c219f65d427ab4f3f21fd3b4ee1e315007377cecb1323e1af6979",
+    "experiments\\base_rotation\\run_rotation_comparison.m": "84b8baa472156bbd20caa829be4639fa27fdd55b3241525921fde766e374bbbc",
+    "experiments\\base_rotation\\summarize_rotation.py": "af8ef51315029a0bec7ac2e363d48fe42a3afe22ac8a9a1b556560aba7d090aa"
+  },
+  "pythonSyntax": "passed",
+  "referenceFramesPhysicallyAudited": 52,
+  "pairedRepeatNumericalMaxDifference": 0.0,
+  "noCommitOrPush": true,
+  "plotsVisuallyInspected": true,
+  "baselineGitStatus": [
+    "?? docs/2_STAGE_FORCE_SENSING.md",
+    "?? docs/2_STAGE_FORCE_SENSING_IMPLEMENTATION_PLAN.md",
+    "?? docs/CURRENT_SOLVER_BOTTLENECK_AUDIT_2026-10-05.md",
+    "?? scripts/analyze_bottleneck_audit.m",
+    "?? scripts/prepare_bottleneck_audit.py",
+    "?? scripts/run_bottleneck_audit.m",
+    "?? scripts/summarize_bottleneck_audit.py"
+  ]
+}

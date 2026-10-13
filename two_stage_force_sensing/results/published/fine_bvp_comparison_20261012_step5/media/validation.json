@@ -1,0 +1,50 @@
+[
+  {
+    "case": "insertion_0mm",
+    "decodedFrames": 402,
+    "seconds": 40.2,
+    "sha256": "72f4b499df5f2ec2922861ae604e665297649291f3572169ed02269cfdf6be49"
+  },
+  {
+    "case": "insertion_0p5mm",
+    "decodedFrames": 402,
+    "seconds": 40.2,
+    "sha256": "56a83338f6d4391e4389c78a3a28c2bcf36cd33ad19a97787ca287d9fac63f30"
+  },
+  {
+    "case": "insertion_1mm",
+    "decodedFrames": 402,
+    "seconds": 40.2,
+    "sha256": "f1bcc464aac0ae8c41ce39f2532d7c14c50fb36b1833b145fe8a30c173727221"
+  },
+  {
+    "case": "insertion_2mm",
+    "decodedFrames": 402,
+    "seconds": 40.2,
+    "sha256": "b93c4a79459684bb1bcfcf76f117ac9d7d9410681307848cd133b58338bed825"
+  },
+  {
+    "case": "rotation_0mm",
+    "decodedFrames": 242,
+    "seconds": 24.2,
+    "sha256": "ddcee832e62877a869efbf7e7f301eb8eded29386b1b58ea0b341f8dbda5dd62"
+  },
+  {
+    "case": "rotation_0p5mm",
+    "decodedFrames": 242,
+    "seconds": 24.2,
+    "sha256": "867e8cc635e010042068d991764a9e8e75cb8cf64795c2aaac34e99985557750"
+  },
+  {
+    "case": "rotation_1mm",
+    "decodedFrames": 242,
+    "seconds": 24.2,
+    "sha256": "9bfd07a8cb4db169cbe3b95f79265b4e7bdb2f2ae96c8645a51242699425bb2b"
+  },
+  {
+    "case": "rotation_2mm",
+    "decodedFrames": 242,
+    "seconds": 24.2,
+    "sha256": "41465a8f9ae99af65dfd40b06674453c1bdac18f71dd7515029876a148407d17"
+  }
+]

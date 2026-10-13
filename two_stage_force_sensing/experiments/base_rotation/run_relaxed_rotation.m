@@ -1,0 +1,36 @@
+function run_relaxed_rotation(solver,maxFrames,cfg)
+if nargin<2,maxFrames=Inf;end
+if nargin<3,cfg=struct;end
+[root,paths]=setup_tsfs;assert(startsWith(getenv('TSFS_RUN_ID'),'base_rotation_relaxed_'));
+addpath(fullfile(root,'results','runs','_dependencies','casadi'));
+folder=fullfile(paths.results,'rotation');a=load(fullfile(folder,'truth_mu_300.mat'));input=a.input;t=a.truth;frames=tsfs.read_input(input);o=tsfs.defaults;
+if isfield(cfg,'sensorStd')
+ for j=1:numel(frames),frames{j}.CU=eye(numel(frames{j}.u))*cfg.sensorStd^2;frames{j}.previous.CU=frames{j}.CU;end
+end
+previous=[];runs=cell(1,min(numel(frames),maxFrames));rows=[];
+for k=1:min(numel(frames),maxFrames)
+ clock=tic;fr=frames{k};g=tsfs.geometry(fr,o);sol=tsfs.relaxed_solve(fr,g,previous,o,solver,cfg);
+ if isfield(cfg,'sensorStd'),d=tsfs.diagnose_relaxed(fr,g,sol,o);else,d=tsfs.diagnose(fr,g,sol,o);end
+ out=struct('valid',true,'time',fr.time,'geometry',g,'mechanics',sol,'diagnostics',d,'contactForce',sol.evaluation.shape.force,'tipForce',sol.evaluation.shape.x(4:6),'seconds',toc(clock));previous=out;
+ sh=sol.evaluation.shape;fc=sum(out.contactForce,2);tip=out.tipForce;err=sh.p-t.p(:,:,k);ge=g.kinematicShape.p-t.p(:,:,k);n=t.planeNormal;
+ row=struct('solver',solver,'frame',k,'angleDeg',t.angleDeg(k),'seconds',out.seconds,'geometrySeconds',g.seconds,'mechanicsSeconds',sol.seconds, ...
+ 'setupSeconds',sol.setupSeconds,'solveSeconds',sol.solveSeconds,'diagnosticSeconds',d.seconds,'iterations',sol.iterations,'ivps',sol.counts.augmentedIVPs,'rhsEvaluations',sol.counts.rhsEvaluations, ...
+ 'converged',sol.converged,'reason',sol.reason,'stationarity',sol.stationarity,'objective',sol.evaluation.objective,'fbgRms',d.fbgRms,'relaxedViolation',sol.relaxed.violation, ...
+ 'tipErrorN',norm(tip-t.tipForce(:,k)),'contactErrorN',norm(fc-t.contactForce(:,k)),'totalErrorN',norm(fc+tip-t.totalForce(:,k)), ...
+ 'tipFx',tip(1),'tipFy',tip(2),'tipFz',tip(3),'contactFx',fc(1),'contactFy',fc(2),'contactFz',fc(3), ...
+ 'shapeRmsMm',sqrt(mean(sum(err.^2,1))),'shapeTipErrorMm',norm(err(:,end)),'stage1ShapeRmsMm',sqrt(mean(sum(ge.^2,1))), ...
+ 'arcErrorMm',g.s(1)-t.contactS(k),'normalErrorDeg',rad2deg(acos(max(-1,min(1,n'*g.normal(:,1))))), ...
+ 'projectionN',max(abs(d.projectionN),[],'all'),'normalProductNmm',max(abs(d.normalProductNmm)), ...
+ 'frictionDualityGapNmm',max(sol.relaxed.frictionGap),'slipMm',max(vecnorm(sol.evaluation.slip)),'frictionMagnitudeN',norm(fc-n*(n'*fc)), ...
+ 'coneExcessN',max(d.coneExcessN),'frictionWorkNmm',max(d.frictionWorkNmm),'tipMomentNmm',norm(d.tipMomentNmm,inf), ...
+ 'penetrationMm',d.maximumPenetrationMm,'truthPlanePenetrationMm',max(0,-min(n'*(sh.collisionP-t.planePoint))), ...
+ 'tangency',max(abs(d.tangency)),'flags',strjoin(d.flags,';'));
+ if isfield(cfg,'sensorStd')
+  row.exactLawFlags=strjoin(d.exactLawFlags,';');row.relaxedFeasible=d.relaxedFeasible;row.curvatureRmsPerMm=sqrt(mean((sh.prediction(:)-fr.u(:)).^2));row.objectiveTerms=numel(sol.evaluation.r);
+  row.forceConeSquared=max(d.forceConeSquaredExcess);row.slipConeSquared=max(d.slipConeSquaredExcess);
+ end
+ rows=[rows;row];out.mechanics.evaluation.shape.pieces={};out.geometry.kinematicShape.Jp=[];out.geometry.kinematicShape.Jt=[];runs{k}=out;
+ writetable(struct2table(rows,'AsArray',true),fullfile(folder,[solver '_frames.csv']));save(fullfile(folder,[solver '.mat']),'runs','rows','o','cfg','-v7.3');
+ fprintf('%s angle %.2f: %.3fs iter %d IVP %d success %d tip %.5g shape %.5g violation %.2g flags %s\n',solver,t.angleDeg(k),row.seconds,row.iterations,row.ivps,row.converged,row.tipErrorN,row.shapeRmsMm,row.relaxedViolation,row.flags);
+end
+end

@@ -1,0 +1,23 @@
+{
+  "failure": "tsfs:RHSBudget",
+  "lastAcceptedIteration": 77.0,
+  "lastAcceptedObjective": 0.05530098202367,
+  "lastAcceptedViolation": 2.1402685262636446e-06,
+  "completedAugmentedIVPs": 1292.0,
+  "failedTrialBaseMomentNmm": [
+    -1555426.1056846927,
+    423.0059874210896,
+    731680.955381226
+  ],
+  "failedTrialTipForceN": [
+    1.5570556843952232,
+    10230.201927251248,
+    3.125367323909238
+  ],
+  "failedTrialLocalContactForceN": [
+    0.0,
+    5.437374883279893,
+    1.5668939697752065
+  ],
+  "note": "Isolated replay of unchanged mu=0 formulation; diagnostic logging only. No reduction implemented."
+}

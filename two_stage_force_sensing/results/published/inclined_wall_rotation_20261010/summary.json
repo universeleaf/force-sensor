@@ -1,0 +1,201 @@
+{
+  "statisticsScope": "24 newly actuated frames per method; saved frame 1 excluded from aggregates",
+  "shapeBoundsMm": {
+    "minimum": [
+      0.0,
+      -1.4310968639306911,
+      56.568542494923804
+    ],
+    "maximum": [
+      127.29469415947447,
+      46.736975504073655,
+      175.25300401309119
+    ]
+  },
+  "mu_0.3": {
+    "solves": 24,
+    "solverSuccess": 24,
+    "accepted": 10,
+    "totalSeconds": 115.1280049,
+    "meanSeconds": 4.797000204166667,
+    "medianSeconds": 3.1859778,
+    "maxSeconds": 36.8111018,
+    "meanIterations": 57.666666666666664,
+    "meanIVPs": 121.04166666666667,
+    "totalIVPs": 2905,
+    "tipRMSE_N": 0.09754799225281416,
+    "contactRMSE_N": 0.3450734744665487,
+    "shapeRMS_mm": 0.01554487677269,
+    "maxTipError_N": 0.36881541690005,
+    "maxContactError_N": 1.17726660247837,
+    "maxShapeRMS_mm": 0.0429477746654054,
+    "maxFBGrmsPerMm": 1.09041142262974e-05,
+    "failedIVPs": 0,
+    "attemptedModes": 52,
+    "modeCounts": {
+      "2": 12,
+      "1": 12
+    },
+    "noAcceptableModeFrames": [
+      8,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "flags": {
+      "penetration": 14,
+      "no-acceptable-contact-mode": 14
+    },
+    "maxDensePenetrationMm": 2.39981833085537e-05,
+    "maxProjectionN": 1.58006940864652e-12,
+    "maxTangency": 0.000798946512245713,
+    "stage1MaxArcErrorMm": 0.0472561664946056,
+    "stage1MaxNormalErrorDeg": 0.00133972320474521,
+    "stage1MaxShapeRmsMm": 0.0477291935478715,
+    "seed": {
+      "tipErrorN": 0.0194119255185811,
+      "contactErrorN": 0.0140464206363943,
+      "shapeRmsMm": 0.00208425572698249
+    },
+    "forward": {
+      "accepted": 10,
+      "tipRMSE_N": 0.05519940408979489,
+      "contactRMSE_N": 0.09906966990419934,
+      "shapeRMS_mm": 0.017436611577871255,
+      "meanSeconds": 1.9549706166666665
+    },
+    "reverse": {
+      "accepted": 0,
+      "tipRMSE_N": 0.126428823348324,
+      "contactRMSE_N": 0.4778457973718139,
+      "shapeRMS_mm": 0.013388463856569959,
+      "meanSeconds": 7.639029791666666
+    },
+    "stickingAttempts": {
+      "count": 14,
+      "nativePositive": 14,
+      "feasible": 14,
+      "accepted": 0,
+      "seconds": 12.1840013
+    }
+  },
+  "mu_0": {
+    "solves": 24,
+    "solverSuccess": 24,
+    "accepted": 0,
+    "totalSeconds": 49.04840390000001,
+    "meanSeconds": 2.043683495833333,
+    "medianSeconds": 2.022253,
+    "maxSeconds": 3.8516556,
+    "meanIterations": 38.333333333333336,
+    "meanIVPs": 46.166666666666664,
+    "totalIVPs": 1108,
+    "tipRMSE_N": 1.5585206751553056,
+    "contactRMSE_N": 5.50778030122135,
+    "shapeRMS_mm": 0.2963044571017201,
+    "maxTipError_N": 2.16362607509855,
+    "maxContactError_N": 7.73436318396654,
+    "maxShapeRMS_mm": 0.558808465789729,
+    "maxFBGrmsPerMm": 0.000110513298827057,
+    "failedIVPs": 0,
+    "attemptedModes": 48,
+    "modeCounts": {
+      "3": 24
+    },
+    "noAcceptableModeFrames": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "flags": {
+      "penetration": 18,
+      "active-contact-tangency": 18,
+      "no-acceptable-contact-mode": 24
+    },
+    "maxDensePenetrationMm": 0.000297390616637006,
+    "maxProjectionN": 4.12114786740858e-13,
+    "maxTangency": 0.00268389697018423,
+    "stage1MaxArcErrorMm": 0.0472561664946056,
+    "stage1MaxNormalErrorDeg": 0.00133972320474521,
+    "stage1MaxShapeRmsMm": 0.0477291935478715,
+    "seed": {
+      "tipErrorN": 0.69776539795235,
+      "contactErrorN": 7.83321112678219,
+      "shapeRmsMm": 0.072074782863608
+    },
+    "forward": {
+      "accepted": 0,
+      "tipRMSE_N": 1.684124845320788,
+      "contactRMSE_N": 7.051278853600088,
+      "shapeRMS_mm": 0.3835570153282919,
+      "meanSeconds": 2.0238336916666664
+    },
+    "reverse": {
+      "accepted": 0,
+      "tipRMSE_N": 1.42186388066732,
+      "contactRMSE_N": 3.30919238211019,
+      "shapeRMS_mm": 0.16875034396747937,
+      "meanSeconds": 2.0635333
+    },
+    "stickingAttempts": {
+      "count": 0,
+      "nativePositive": 0,
+      "feasible": 0,
+      "accepted": 0,
+      "seconds": 0
+    }
+  },
+  "truth": {
+    "passed": 25,
+    "modeCounts": {
+      "saved-insertion-state": 1,
+      "sliding": 12,
+      "sticking": 12
+    },
+    "maxGapMm": 1.34546240815325e-09,
+    "maxTangency": 3.7838010502611e-11,
+    "maxPenetrationMm": 0.0,
+    "maxProjectionN": 7.23865412055602e-13,
+    "maxTipMomentNmm": 5.199507491227e-12,
+    "maxIntegratedTwistDeg": 3.75515396495058,
+    "totalReferenceSeconds": 163.450583
+  },
+  "sourceHashes": {
+    "matlab\\+tsfs\\mode_solve.m": "c96bc08f5e5dd91eacb247e0b1e8624303bb3d8a7ef8bfafd0fe992a15e111a6",
+    "matlab\\+tsfs\\mode_branch.m": "4b90431473a7f5fd753060058fbbb29d7c3624e98b6cfd5b1db3542828ee2fdf",
+    "experiments\\inclined_wall\\run_inclined_modes.m": "5d84878d45680d0ee55d34b544ba31d897a444d7e32d1ed0b714cc9d7344ecba",
+    "experiments\\inclined_wall\\build_inclined_rotation_truth.m": "85b281a6ae21a692f869de406726b9403e1a2d414b5d88b1ffb792f449371b9b",
+    "experiments\\inclined_wall\\run_inclined_rotation_modes.m": "546b75d0424e64049617789b99bfdec8688b478142281972cbef4d54a933acbe"
+  }
+}

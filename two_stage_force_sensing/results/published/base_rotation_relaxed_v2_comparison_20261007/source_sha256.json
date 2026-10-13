@@ -1,0 +1,11 @@
+{
+  "matlab/+tsfs/relaxed_solve.m": "caa8b765b746177ac92116b755f7c9109bebcf9b5ee0ab8b956b9e6397d94d06",
+  "matlab/+tsfs/relaxed_constraints.m": "6eb4c0409050ac2e6b5257190fa6e0a3ecb549afe29bbe74b68566775442263b",
+  "matlab/+tsfs/diagnose_relaxed.m": "6cb0258860031885b07ad5649d49f01cf6d53ab9c64e83ad36eb5f186df6c91c",
+  "experiments/base_rotation/run_relaxed_rotation.m": "61ebe2eeaaf89e0dde1ff7c750faa3a86d6ecae007b00fb912c362a79baa02fc",
+  "experiments/base_rotation/run_relaxed_rotation_v2.m": "fa38039e8ced8d25a04b1a383abca7bd3ea7e54273236ec5b267b067434b2c74",
+  "experiments/base_rotation/export_relaxed_rotation_v2.m": "3f3e02f033b8c83ee62c85042346c067583b949c0dea801e338794d321a107c4",
+  "experiments/base_rotation/summarize_relaxed_v2.py": "6b7d8d84c3a00a938844cc635b0bec5e455bc3fa6e026afac784a235ff525adb",
+  "experiments/base_rotation/report_relaxed_v2.py": "bf4192719ec0920b682e3a1027d42a4928db0aeffdbef96afdcb7d817bf9897c",
+  "tests/test_relaxed_v2.m": "233c0cbf9d90e5d5cf8f7a503d0f612856cac9857dcbc44c0cae64f140c2bdc7"
+}

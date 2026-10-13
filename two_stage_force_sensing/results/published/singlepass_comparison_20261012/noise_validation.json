@@ -1,0 +1,50 @@
+[
+  {
+    "scenario": "insertion",
+    "targetMm": 0,
+    "sigmaPerMm": 0.0,
+    "realizationTipRMSMm": 0.0
+  },
+  {
+    "scenario": "insertion",
+    "targetMm": 0.5,
+    "sigmaPerMm": 9.268141721060984e-05,
+    "realizationTipRMSMm": 0.5054191016592308
+  },
+  {
+    "scenario": "insertion",
+    "targetMm": 1,
+    "sigmaPerMm": 0.00018536283442121968,
+    "realizationTipRMSMm": 1.0106551045054148
+  },
+  {
+    "scenario": "insertion",
+    "targetMm": 2,
+    "sigmaPerMm": 0.00037072566884243936,
+    "realizationTipRMSMm": 2.029210285070779
+  },
+  {
+    "scenario": "rotation",
+    "targetMm": 0,
+    "sigmaPerMm": 0.0,
+    "realizationTipRMSMm": 0.0
+  },
+  {
+    "scenario": "rotation",
+    "targetMm": 0.5,
+    "sigmaPerMm": 9.268141721060984e-05,
+    "realizationTipRMSMm": 0.5159916919050901
+  },
+  {
+    "scenario": "rotation",
+    "targetMm": 1,
+    "sigmaPerMm": 0.00018536283442121968,
+    "realizationTipRMSMm": 1.0241841565438665
+  },
+  {
+    "scenario": "rotation",
+    "targetMm": 2,
+    "sigmaPerMm": 0.00037072566884243936,
+    "realizationTipRMSMm": 2.049489306557952
+  }
+]

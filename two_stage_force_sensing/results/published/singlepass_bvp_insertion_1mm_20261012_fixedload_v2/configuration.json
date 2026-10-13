@@ -1,0 +1,40 @@
+{
+  "constraintTolerance": 1E-6,
+  "sensorStd": 0.00018536283442121968,
+  "forcePriors": false,
+  "solver": "enumerative-MINLP/fmincon-SQP",
+  "exactCircularFriction": true,
+  "modeInitialization": "previous chosen assignment first",
+  "continuousInitialization": "existing previous-state seed; sliding direction from current geometric shape and previous estimated shape",
+  "allAssignments": true,
+  "globalContinuousCertificate": false,
+  "maxIterationsPerAssignment": 100,
+  "maxEvaluationsPerAssignment": 5000,
+  "optimalityTolerance": 1E-8,
+  "stepTolerance": 1E-12,
+  "objectiveScale": 0.0001,
+  "modeSearch": "exhaustive",
+  "fbgRmsAcceptance": 1.24,
+  "mechanicsApproximation": "successive-linearization",
+  "linearization": {
+    "maxOuterIterations": 40,
+    "initialRadius": null,
+    "maxRadius": 64,
+    "minRadius": 1E-6,
+    "stepTolerance": 0.0001
+  },
+  "estimatorMus": 0.3,
+  "reportFrameStart": true,
+  "targetNoiseTipRmsMm": 1,
+  "noiseSeed": 33001,
+  "solverFunction": "tsfs.single_pass_bvp_solve",
+  "singlePassMethod": "full-cone-sqp",
+  "selectionPolicy": "lowest affine-feasible objective, then fixed-load BVP; no reselection",
+  "bvp": {
+    "relativeTolerance": 1E-7,
+    "absoluteTolerance": 1E-9,
+    "maxMeshNodes": 4000,
+    "meshStepMm": 5,
+    "loadPolicy": "all tip/contact forces fixed; base moment free; wall constraints diagnostic only"
+  }
+}

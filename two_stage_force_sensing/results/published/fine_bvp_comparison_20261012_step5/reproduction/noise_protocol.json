@@ -1,0 +1,14 @@
+{
+  "seedAddedFrames": 33005,
+  "originalSeed": 33001,
+  "refinementFactor": 5,
+  "coarseIndices": "1:5:end in MATLAB",
+  "noise": "iid zero-mean Gaussian Bishop channels, identical coarse-frame draws retained; independent added draws; restored rotation seed shares insertion endpoint draw",
+  "sigma2": 0.00037072566884243936,
+  "sigmaTargets": [
+    0,
+    0.5,
+    1,
+    2
+  ]
+}

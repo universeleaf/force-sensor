@@ -23,14 +23,24 @@ end
 p=input.packet;
 if p.schemaVersion==1
  T=numel(p.timeSeconds);frames=cell(1,T);axes=input.config.forceSensor.curvatureObservedAxes;
+ bishop=isfield(p,'observationType')&&strcmp(p.observationType,'bishop-curvature');
+ if bishop,currentData=p.bishopCurvaturePerMm;previousData=p.previousBishopCurvaturePerMm;
+ else,currentData=p.curvaturePerMm;previousData=p.previousCurvaturePerMm;end
  for k=1:T
   sigma=input.config.forceSensor.measurementStd.curvature;
   if isfield(p,'curvatureNoiseStdPerMm'),sigma=max(p.curvatureNoiseStdPerMm,1e-7);end
   fr=struct('tube',input.tube,'arcs',p.sFbgMm(:)','axes',axes(:)', ...
-   'u',p.curvaturePerMm(axes,:,k),'base',p.basePose(:,:,k),'point',p.planePointMm(:,k), ...
+   'u',currentData(axes,:,k),'base',p.basePose(:,:,k),'point',p.planePointMm(:,k), ...
    'normal',p.planeNormal(:,k),'mu',p.frictionMu(k),'CU',eye(numel(axes)*numel(p.sFbgMm))*sigma^2, ...
    'CE',p.planeCovariance(:,:,k),'time',p.timeSeconds(k),'previous',[],'historySource','paired-fbg-reconstruction','notes',{{}});
-  prev=fr;prev.u=p.previousCurvaturePerMm(axes,:,k);prev.base=p.previousBasePose(:,:,k);prev.time=p.previousTimeSeconds(k);prev.historySource='missing';
+  if bishop
+   assert(isequal(axes(:)',[1 2])&&size(p.bishopCurvaturePerMm,1)==2);
+   fr.observationType='bishop-curvature';fr.u=p.bishopCurvaturePerMm(:,:,k);
+   fr.notes={'Ideal geometric sensor: t''=w1*b1+w2*b2, B(base)=R(base). No true twist supplied.'};
+  end
+  prev=fr;prev.u=previousData(axes,:,k);
+  if tsfs.is_bishop(fr),prev.u=p.previousBishopCurvaturePerMm(:,:,k);end
+  prev.base=p.previousBasePose(:,:,k);prev.time=p.previousTimeSeconds(k);prev.historySource='missing';
   fr.previous=prev;frames{k}=fr;
  end
 else

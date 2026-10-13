@@ -1,0 +1,366 @@
+[
+  {
+    "frame": 1,
+    "angleDeg": 0,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 127.64919112261238,
+    "singularValuesPerMmPerN": [
+      0.0034079727897692153,
+      0.0034016312273817571,
+      0.00071393100699145712,
+      0.00021551756300278231,
+      0.00011197346604713242,
+      2.6697958363838868E-5
+    ],
+    "weakForceDirection": [
+      -0.47497925917673905,
+      -1.1102230246251565E-16,
+      0.46964238225681615,
+      0.45478989401515157,
+      6.564331345780846E-17,
+      -0.58906441790499142
+    ],
+    "tipYContactYCorrelation": 0.99176434475683994,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 10.569501960631284
+  },
+  {
+    "frame": 2,
+    "angleDeg": 3.75,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 128.12134452344145,
+    "singularValuesPerMmPerN": [
+      0.0034176423735537056,
+      0.0033929800842976148,
+      0.000713933757815951,
+      0.00021550807171587878,
+      0.0001119734647295482,
+      2.6675042993545886E-5
+    ],
+    "weakForceDirection": [
+      -0.47407956599915024,
+      -0.035197652473691117,
+      0.46933841556010714,
+      0.45388197841889388,
+      0.0363105782550619,
+      -0.58856081556221562
+    ],
+    "tipYContactYCorrelation": 0.99177931195202829,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 10.578620363782935
+  },
+  {
+    "frame": 3,
+    "angleDeg": 7.5,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 128.96031761971454,
+    "singularValuesPerMmPerN": [
+      0.0034311687768171007,
+      0.0033828563603035418,
+      0.0007139462899230113,
+      0.00021547938738773642,
+      0.00011197417262754307,
+      2.6606392106873716E-5
+    ],
+    "weakForceDirection": [
+      -0.47137851585035595,
+      -0.070325850237276333,
+      0.46842788521378037,
+      0.45115740025075024,
+      0.072537813326968972,
+      -0.58704953093754486
+    ],
+    "tipYContactYCorrelation": 0.99182522675374374,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 10.606071802885083
+  },
+  {
+    "frame": 4,
+    "angleDeg": 11.25,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 130.10730320777844,
+    "singularValuesPerMmPerN": [
+      0.0034468431863287053,
+      0.0033741857372478938,
+      0.00071397804562617557,
+      0.00021542326074371044,
+      0.00011197806667748132,
+      2.6492311356451482E-5
+    ],
+    "weakForceDirection": [
+      -0.46686859837273237,
+      -0.10531241480422422,
+      0.46691702006520369,
+      0.44661224429562157,
+      0.1085949261524503,
+      -0.58453070815328856
+    ],
+    "tipYContactYCorrelation": 0.99190622594601208,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 10.651803248579473
+  },
+  {
+    "frame": 5,
+    "angleDeg": 15,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 125.51822661335747,
+    "singularValuesPerMmPerN": [
+      0.0033065243644517881,
+      0.0032577759445541385,
+      0.00070936131580324438,
+      0.000212125967112762,
+      0.00011191588245001736,
+      2.6342981841490682E-5
+    ],
+    "weakForceDirection": [
+      -0.45744417340267729,
+      -0.14764471819206912,
+      0.46532169205498125,
+      0.43711158017892177,
+      0.15192879322793484,
+      -0.58161215304943914
+    ],
+    "tipYContactYCorrelation": 0.99161355862293477,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 12.893762235957837
+  },
+  {
+    "frame": 6,
+    "angleDeg": 18.75,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 133.76803138540728,
+    "singularValuesPerMmPerN": [
+      0.0034959828154474226,
+      0.0033939886336948606,
+      0.00071422392775889884,
+      0.00021446123616300684,
+      0.00011206688039539546,
+      2.613466595299539E-5
+    ],
+    "weakForceDirection": [
+      -0.45081113241380966,
+      -0.17827122066225784,
+      0.46225768471773482,
+      0.43050367339716461,
+      0.18339427902648345,
+      -0.57648907475048516
+    ],
+    "tipYContactYCorrelation": 0.992316364110488,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 10.766103550171506
+  },
+  {
+    "frame": 7,
+    "angleDeg": 22.5,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 135.65411185196746,
+    "singularValuesPerMmPerN": [
+      0.0035124859818948316,
+      0.0033839152883645383,
+      0.00071418196357255089,
+      0.00021425818689902468,
+      0.00011207096933874141,
+      2.5892956239526539E-5
+    ],
+    "weakForceDirection": [
+      -0.44062114248756895,
+      -0.21229930260183669,
+      0.4588795027685,
+      0.4202634868456564,
+      0.2183222070433142,
+      -0.57089896862993572
+    ],
+    "tipYContactYCorrelation": 0.99246957179255646,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 10.861207267468849
+  },
+  {
+    "frame": 8,
+    "angleDeg": 26.25,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 148.74324434834656,
+    "singularValuesPerMmPerN": [
+      0.0038209698547524728,
+      0.0035359774987452856,
+      0.00072809861925324628,
+      0.0002265046181074877,
+      0.00011283039208944926,
+      2.5688358967107248E-5
+    ],
+    "weakForceDirection": [
+      -0.42345441326749145,
+      -0.25083487548311206,
+      0.45668114201536125,
+      0.4033280421075191,
+      0.25764956295141,
+      -0.56582130820062326
+    ],
+    "tipYContactYCorrelation": 0.992440599367731,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 11.627714110136916
+  },
+  {
+    "frame": 9,
+    "angleDeg": 30,
+    "converged": false,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 158.53544397463631,
+    "singularValuesPerMmPerN": [
+      0.0040158631269170573,
+      0.0038402872481370165,
+      0.00072233675947531626,
+      0.00021180362285412458,
+      0.00011322292257606083,
+      2.5331011326145749E-5
+    ],
+    "weakForceDirection": [
+      -0.41065773598262212,
+      -0.27987685768470355,
+      0.45359132069865143,
+      0.3908083910609893,
+      0.28731845057566768,
+      -0.55857048940320408
+    ],
+    "tipYContactYCorrelation": 0.99451133634252131,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 14.822256431679447
+  },
+  {
+    "frame": 10,
+    "angleDeg": 33.75,
+    "converged": false,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 169.42080809532604,
+    "singularValuesPerMmPerN": [
+      0.0042343002884022542,
+      0.0040075337107086462,
+      0.0007255045739750104,
+      0.00021140597606169735,
+      0.00011368078178217804,
+      2.4992799503233332E-5
+    ],
+    "weakForceDirection": [
+      -0.39452752469310132,
+      -0.31020412855027552,
+      0.45007361990989092,
+      0.37482318140928911,
+      0.31827790129393541,
+      -0.55114601311925793
+    ],
+    "tipYContactYCorrelation": 0.9951163848226644,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 13.348423462773297
+  },
+  {
+    "frame": 11,
+    "angleDeg": 37.5,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 161.59916607552125,
+    "singularValuesPerMmPerN": [
+      0.0040272409041525294,
+      0.0037813256086029531,
+      0.00072209785007848817,
+      0.00021248843077947111,
+      0.00011304452150943919,
+      2.4921173802780955E-5
+    ],
+    "weakForceDirection": [
+      -0.37865132396307372,
+      -0.33247354436724758,
+      0.44774676259603724,
+      0.35849723391454946,
+      0.33936792622912415,
+      -0.54946928728020794
+    ],
+    "tipYContactYCorrelation": 0.99450356011687568,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 18.522405127725072
+  },
+  {
+    "frame": 12,
+    "angleDeg": 41.25,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 161.43676344394135,
+    "singularValuesPerMmPerN": [
+      0.0040167997080670283,
+      0.0037701567203302878,
+      0.00072051265651181255,
+      0.00021088115597223865,
+      0.00011295700948619773,
+      2.4881567385125727E-5
+    ],
+    "weakForceDirection": [
+      -0.358374402909286,
+      -0.35447953836496537,
+      0.44769830911368552,
+      0.337857077388764,
+      0.36004668950151836,
+      -0.54926973781015842
+    ],
+    "tipYContactYCorrelation": 0.994481502949513,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 14.651027028462245
+  },
+  {
+    "frame": 13,
+    "angleDeg": 45,
+    "converged": true,
+    "contactCount": 1,
+    "stage1ArcDifferenceMm": 0,
+    "stage1NormalDifference": 0,
+    "forceCondition": 162.06709629200557,
+    "singularValuesPerMmPerN": [
+      0.0040211092947146469,
+      0.0037641308640695573,
+      0.00072066579888892886,
+      0.00021109582656688675,
+      0.00011295946761343616,
+      2.481138606611168E-5
+    ],
+    "weakForceDirection": [
+      -0.33539727514178658,
+      -0.37764186416838719,
+      0.44690102044100466,
+      0.31462157954475611,
+      0.38217556843577505,
+      -0.5478410944418407
+    ],
+    "tipYContactYCorrelation": 0.994364612379448,
+    "feasibleTangentDimension": 3,
+    "feasibleTangentCondition": 15.248206847938846
+  }
+]

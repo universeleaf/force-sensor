@@ -1,0 +1,58 @@
+{
+  "sameBaselineInputMaxMm": 0,
+  "injectedNoiseStd": 0,
+  "likelihoodStdPerMm": 1E-6,
+  "environmentCovariance": [
+    [
+      0.0009,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0.0009,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0.0009,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1E-6,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1E-6,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1E-6
+    ]
+  ],
+  "observationType": "bishop-curvature",
+  "baseFrameConvention": "B(base)=R(base), psi(base)=0",
+  "referenceSource": "D:\\GT learning\\research\\force sensing\\force_sensor_collaboration\\two_stage_force_sensing\\results\\runs\\base_rotation_20261006\\rotation\\truth_mu_300.mat"
+}

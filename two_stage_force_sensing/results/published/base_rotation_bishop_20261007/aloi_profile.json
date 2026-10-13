@@ -1,0 +1,47 @@
+{
+  "profiledSeconds": 140.3180082,
+  "functions": [
+    {
+      "name": "solveShape",
+      "calls": 43307,
+      "seconds": 63.980477091166733,
+      "file": "D:\\GT learning\\research\\force sensing\\code_Tongyu_new\\LCP-Continuum\\tubeKinematics\\solveShape.m"
+    },
+    {
+      "name": "estimate_aloi_gaussian_baseline>fitGaussianToSparsePositions",
+      "calls": 13,
+      "seconds": 140.30632569992457,
+      "file": "D:\\GT learning\\research\\force sensing\\code_Tongyu_new\\rod\\estimate_aloi_gaussian_baseline.m"
+    },
+    {
+      "name": "estimate_aloi_gaussian_baseline>predictGaussianShapeLinearized",
+      "calls": 1560,
+      "seconds": 2.6570548037860773,
+      "file": "D:\\GT learning\\research\\force sensing\\code_Tongyu_new\\rod\\estimate_aloi_gaussian_baseline.m"
+    },
+    {
+      "name": "estimate_aloi_gaussian_baseline>predictGaussianShape",
+      "calls": 2775,
+      "seconds": 136.94652779513717,
+      "file": "D:\\GT learning\\research\\force sensing\\code_Tongyu_new\\rod\\estimate_aloi_gaussian_baseline.m"
+    },
+    {
+      "name": "lsqnonlin",
+      "calls": 26,
+      "seconds": 136.25260329414837,
+      "file": "D:\\Apps\\Matlab2025b\\toolbox\\shared\\optimlib\\lsqnonlin.m"
+    },
+    {
+      "name": "estimate_aloi_gaussian_baseline>positionResidual",
+      "calls": 2762,
+      "seconds": 136.33173889426115,
+      "file": "D:\\GT learning\\research\\force sensing\\code_Tongyu_new\\rod\\estimate_aloi_gaussian_baseline.m"
+    },
+    {
+      "name": "estimate_aloi_gaussian_baseline>@(theta)positionResidual(theta,model)",
+      "calls": 2750,
+      "seconds": 135.73876179341622,
+      "file": "D:\\GT learning\\research\\force sensing\\code_Tongyu_new\\rod\\estimate_aloi_gaussian_baseline.m"
+    }
+  ]
+}

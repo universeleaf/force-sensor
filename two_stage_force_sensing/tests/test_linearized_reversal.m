@@ -1,0 +1,5 @@
+function test_linearized_reversal
+[root,~]=setup_tsfs;addpath(fullfile(root,'experiments','inclined_wall'));a=load(fullfile(root,'results','runs','inclined_wall_bidirectional_20261008','inclined_wall','truth.mat'));b=load(fullfile(root,'results','runs','inclined_insertion_full_20261011','comparison.mat'),'runs');frames=tsfs.read_input(a.input);o=tsfs.defaults;cfg=linearized_mode_settings;fr=frames{22};fr.CU=eye(numel(fr.u))*1e-8;fr.previous.CU=fr.CU;previous=b.runs{1,21};g=tsfs.geometry(fr,o);sol=tsfs.mode_solve(fr,g,previous,o,cfg);d=tsfs.diagnose(fr,g,sol,o);assert(sol.converged&&sol.modeAccepted&&isequal(sol.mode,2));assert(norm(sol.evaluation.shape.x(4:6)-a.truth.tipForce(:,22))<.01);
+fprintf('REVERSAL %.3fs mode%s success%d accepted%d IVP%d outer%d FBG%.3g tiperror%.4g flags%s\n',sol.seconds,mat2str(sol.mode),sol.converged,sol.modeAccepted,sol.counts.augmentedIVPs,sol.outerIterations,d.fbgRms,norm(sol.evaluation.shape.x(4:6)-a.truth.tipForce(:,22)),strjoin(d.flags,';'));
+save(fullfile(root,'results','runs','linearized_modes_20261011','reversal_check.mat'),'sol','d','-v7.3');
+end

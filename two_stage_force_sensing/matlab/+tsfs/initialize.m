@@ -2,6 +2,8 @@ function [z,scale,prior]=initialize(fr,g,previous,o)
 C=numel(g.s);nx=6+3*C;L=fr.tube.s(end)-fr.tube.s(1);Fscale=1;
 scale=[repmat(L*Fscale,3,1);repmat(Fscale,nx-3,1)];
 sh=g.kinematicShape;K=reshape(getTubeK(fr.tube),3,[]);p=sh.p;N=numel(sh.s);
+% For Bishop observations the zero-roll material interpretation is a seed only;
+% the likelihood and every mechanical IVP retain full material twist.
 % Linear inverse moment balance on observed kinematics supplies a start only.
 A=zeros(3*N,3+3*C);b=zeros(3*N,1);
 for k=1:N
@@ -22,6 +24,14 @@ if ~isempty(previous)&&o.useForceTracking&&previous.valid
   pool=find(previous.geometry.plane==g.plane(i));if isempty(pool),continue,end
   [d,j]=min(abs(previous.geometry.s(pool)-g.s(i)));j=pool(j);
   if d<10&&~ismember(j,prior.matched),prior.force(:,i)=previous.contactForce(:,j);prior.matched(i)=j;end
+ end
+end
+% Bishop geometry does not provide material roll. On subsequent frames use the
+% preceding converged MATERIAL solution as a numerical seed, not an observation.
+if tsfs.is_bishop(fr)&&o.bishopWarmStart&&~isempty(previous)&&previous.valid&&previous.mechanics.converged&&all(prior.matched>0)
+ x(1:3)=previous.mechanics.evaluation.shape.x(1:3);x(4:6)=previous.tipForce;
+ for i=1:C
+  cols=6+3*i-2:6+3*i;A=[g.normal(:,g.plane(i)) g.B(:,:,i)];x(cols)=A'*previous.contactForce(:,prior.matched(i));x(cols(1))=max(0,x(cols(1)));
  end
 end
 z=x./scale;

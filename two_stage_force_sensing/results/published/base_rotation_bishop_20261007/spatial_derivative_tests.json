@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "relativeJacobianError": 4.5922172569782781E-9,
+  "rigidRotationPositionMm": 3.8741127639241313E-8,
+  "contacts": 2,
+  "nonplanarContactForceN": 3.0805310145583822
+}

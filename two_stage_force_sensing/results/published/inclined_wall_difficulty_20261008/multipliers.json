@@ -1,0 +1,46 @@
+[
+  {
+    "frame": 4,
+    "maxInequalityMultiplier": 8.419289168550982e-05
+  },
+  {
+    "frame": 5,
+    "maxInequalityMultiplier": 4.7735019512469875e-09
+  },
+  {
+    "frame": 6,
+    "maxInequalityMultiplier": 908.3000073702726
+  },
+  {
+    "frame": 7,
+    "maxInequalityMultiplier": 62.925137979500796
+  },
+  {
+    "frame": 11,
+    "maxInequalityMultiplier": 0.05856167601769635
+  },
+  {
+    "frame": 15,
+    "maxInequalityMultiplier": 12748692.151895482
+  },
+  {
+    "frame": 21,
+    "maxInequalityMultiplier": 0.018569762440056654
+  },
+  {
+    "frame": 23,
+    "maxInequalityMultiplier": 1.3432162727805743e-05
+  },
+  {
+    "frame": 27,
+    "maxInequalityMultiplier": 4.815534010318211
+  },
+  {
+    "frame": 34,
+    "maxInequalityMultiplier": 520.6635273432192
+  },
+  {
+    "frame": 37,
+    "maxInequalityMultiplier": 0.2645451646587441
+  }
+]

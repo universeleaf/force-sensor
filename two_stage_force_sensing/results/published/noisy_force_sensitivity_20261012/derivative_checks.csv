@@ -1,0 +1,5 @@
+scenario,frame,h,relativeError
+insertion,24,0.01,8.54779027954418e-09
+insertion,24,0.001,8.19473888920891e-09
+rotation,13,0.01,1.60107109272773e-08
+rotation,13,0.001,1.47246375703649e-08

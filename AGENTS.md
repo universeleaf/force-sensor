@@ -9,6 +9,8 @@ We are research collaborators: provide meaningful feedback, diagnose failures, t
 - Other paths, including `rod/`, `legacy/`, `scripts/`, `docs/`, and the separate `LCP-Continuum/` repository, are read-only unless the user explicitly authorizes changes there. This includes generated files and tool side effects.
 - Before editing or committing, verify the repository, branch, changed paths, and existing user changes. Stage only our intended files; preserve others' work. Never merge to main, force-push, or rewrite shared history without explicit instruction.
 
+- Do not commit or push automatically. Each requires an explicit user request covering that action and the current changes; a request to commit does not authorize pushing. Earlier commit/push requests are not standing authorization for future work. Otherwise leave changes local and uncommitted.
+
 ## Decisions and assumptions
 - We may use different formulations and assumptions from the original implementation; document the differences and their implications.
 - Before implementing an important unplanned decision or assumption, explain the options, recommendation, and scientific or interface consequences, and obtain the user's approval. This includes changes to physics, observations, noise models, constraints, solver strategy, or validation criteria.
