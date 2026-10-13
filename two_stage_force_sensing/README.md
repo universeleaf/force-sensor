@@ -94,3 +94,5 @@ Gaussian FBG noise follow-up: [2 mm and 5 mm integrated tip-noise experiments](d
 Five-times-finer actuation (2026-10-13): [accuracy, convergence and failure comparison](docs/reports/FINE_STEP_FIXED_LOAD_BVP_RESULTS.md). Same one-pass rod plus fixed-load BVP, all four noise levels and both motions; no outer correction loop.
 
 Fine-step media (2026-10-13): [all eight videos and diagnostic plots](results/published/fine_bvp_comparison_20261012_step5/media/README.md). Includes failed frames; compact rendering inputs and exact noise payload are published.
+
+Consolidated research handoff (2026-10-13): [current method, full-cone mathematics, single-pass rod/BVP, noise evidence and future work](handoff/2026-10-13_mentor-to-collaborator_current-method-and-next-steps.md). Includes alternatives to fmincon SQP and proposed stability/regularization experiments.
