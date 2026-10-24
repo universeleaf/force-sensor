@@ -20,5 +20,16 @@ catch err
  if info.seconds==0,info.seconds=toc(bvpClock);end
  failed=true;exception=[err.identifier ': ' err.message];info.converged=false;if sol.counts.augmentedIVPs>2,sol.counts.failedIVPs=sol.counts.failedIVPs+1;end
 end
-info.exception=exception;info.failed=failed;sol.converged=sol.affineConverged&&info.converged;info.finalAuditSeconds=auditSeconds;sol.bvpCorrection=info;sol.modeAccepted=sol.affineConverged&&info.converged&&sol.modeFeasible&&sol.evaluation.fbgRms<=cfg.fbgRmsAcceptance;sol.reason=['fixed-load-BVP/' sol.reason];sol.solver=['fixed-load-BVP/' sol.solver];sol.seconds=toc(clock);
+info.exception=exception;info.failed=failed;info.rejected=false;info.trustReason='';
+% Opt-in history policy (absent or 'propagate' keeps the original behavior):
+% an unconverged or fit-degrading correction is not passed to later frames.
+if isfield(cfg,'bvpTrust')&&~strcmp(cfg.bvpTrust.policy,'propagate')&&~failed
+ worse=sol.evaluation.fbgRms>cfg.bvpTrust.fbgRatio*before.fbgRms+cfg.bvpTrust.fbgSlack;
+ if ~info.converged||worse
+  info.rejected=true;info.trustReason=sprintf('converged=%d fbg %.4g->%.4g',info.converged,before.fbgRms,sol.evaluation.fbgRms);
+  info.rejectedEvaluation=struct('fbgRms',sol.evaluation.fbgRms,'tipMomentNmm',norm(sol.evaluation.shape.tipMoment,inf));
+  sol.z=zBefore;sol.modeY(1:3)=zBefore(1:3);sol.evaluation=before;sol.modeViolation=sol.beforeBvp.modeViolation;sol.modeFeasible=sol.modeViolation<=cfg.constraintTolerance;
+ end
+end
+sol.converged=sol.affineConverged&&info.converged;info.finalAuditSeconds=auditSeconds;sol.bvpCorrection=info;sol.modeAccepted=sol.affineConverged&&info.converged&&sol.modeFeasible&&sol.evaluation.fbgRms<=cfg.fbgRmsAcceptance;sol.reason=['fixed-load-BVP/' sol.reason];sol.solver=['fixed-load-BVP/' sol.solver];sol.seconds=toc(clock);
 end

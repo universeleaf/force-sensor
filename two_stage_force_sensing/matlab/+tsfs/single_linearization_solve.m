@@ -9,11 +9,14 @@ first=find(all(assignments==preferred,2),1);order=[first setdiff(1:size(assignme
 innerCfg=cfg;innerCfg.mechanicalModel=model;innerCfg.trustRadius=cfg.linearization.initialRadius;
 for j=1:numel(order)
  modes=assignments(order(j),:);
- if polygon,s=tsfs.polygon_qp_branch(fr,g,o,innerCfg,modes,z0,scale,prior);else,s=tsfs.mode_branch(fr,g,previous,o,innerCfg,modes,z0,scale,prior);end
+ if polygon,s=tsfs.polygon_qp_branch(fr,g,o,innerCfg,modes,z0,scale,prior);
+ elseif strcmp(cfg.singlePassMethod,'profiled-qp'),s=tsfs.qp_branch(fr,g,previous,o,innerCfg,modes,z0,scale,prior);
+ else,s=tsfs.mode_branch(fr,g,previous,o,innerCfg,modes,z0,scale,prior);end
+ objective=s.evaluation.objective;if isfield(s,'selectionObjective'),objective=s.selectionObjective;end % includes optional prior/slip rows
  s.enumeratedMode=modes;s.affineViolation=s.modeViolation;s.affineFeasible=s.modeFeasible;s.affineFbgRms=s.evaluation.fbgRms;s.affineEvaluation=s.evaluation;
  s.affineEvaluation.shape.p=interp1(s.evaluation.shape.collisionS,s.evaluation.shape.collisionP',s.evaluation.shape.s,'linear')';
  s.trustStep=norm(s.z-z0,inf);s.atTrustBoundary=s.trustStep>=.99*innerCfg.trustRadius;
- attempts{j}=s;summary=[summary;struct('attempt',j,'modes',mat2str(modes),'reason',s.reason,'nativePositive',s.converged,'feasible',s.modeFeasible,'violation',s.modeViolation,'objective',s.evaluation.objective,'seconds',s.seconds,'iterations',s.iterations,'ivps',0,'failedIVPs',0,'initialViolation',s.initialViolation,'stationarity',s.stationarity,'fbgRms',s.evaluation.fbgRms,'acceptable',s.converged&&s.modeFeasible&&s.evaluation.fbgRms<=cfg.fbgRmsAcceptance)];
+ attempts{j}=s;summary=[summary;struct('attempt',j,'modes',mat2str(modes),'reason',s.reason,'nativePositive',s.converged,'feasible',s.modeFeasible,'violation',s.modeViolation,'objective',objective,'seconds',s.seconds,'iterations',s.iterations,'ivps',0,'failedIVPs',0,'initialViolation',s.initialViolation,'stationarity',s.stationarity,'fbgRms',s.evaluation.fbgRms,'acceptable',s.converged&&s.modeFeasible&&s.evaluation.fbgRms<=cfg.fbgRmsAcceptance)];
 end
 feasible=find([summary.feasible]);if ~isempty(feasible),[~,j]=min([summary(feasible).objective]);chosen=feasible(j);else,[~,chosen]=min([summary.violation]);end
 sol=attempts{chosen};sol.affineConverged=sol.converged;sol.affineObjective=sol.evaluation.objective;t0=tic;exception='';

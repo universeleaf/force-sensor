@@ -96,3 +96,5 @@ Five-times-finer actuation (2026-10-13): [accuracy, convergence and failure comp
 Fine-step media (2026-10-13): [all eight videos and diagnostic plots](results/published/fine_bvp_comparison_20261012_step5/media/README.md). Includes failed frames; compact rendering inputs and exact noise payload are published.
 
 Consolidated research handoff (2026-10-13): [current method, full-cone mathematics, single-pass rod/BVP, noise evidence and future work](handoff/2026-10-13_mentor-to-collaborator_current-method-and-next-steps.md). Includes alternatives to fmincon SQP and proposed stability/regularization experiments.
+
+Exact QP branch solves, uncertain slip history and the existing force prior (2026-10-25): [results on held-out noise seeds](docs/reports/QP_BRANCHES_HISTORY_PRIOR_RESULTS.md), [switch definitions](docs/formulation/PROFILED_QP_BRANCHES.md) and [handoff](handoff/2026-10-25_collaborator-to-mentor_qp-branches-history-prior.md). Same framework; opt-in `singlePassMethod='profiled-qp'` plus `bvpTrust` is proposed as default, uncertain history and the force prior remain optional with documented 2 mm failures.

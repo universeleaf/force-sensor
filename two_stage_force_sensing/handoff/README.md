@@ -43,3 +43,5 @@ Rotation follow-up: [base rotation and friction/twist comparison](2026-10-06_men
 - [2026-10-13: Five-times-finer one-pass rod plus BVP](2026-10-13_mentor-to-collaborator_fine-step-bvp.md): all noise levels, matched samples, runtime and physical consistency.
 
 - [2026-10-13: Videos, plots and branch publication](2026-10-13_mentor-to-collaborator_media-publication.md).
+
+- [2026-10-25 (collaborator to mentor): exact QP branch solves, uncertain slip history and the existing force prior](2026-10-25_collaborator-to-mentor_qp-branches-history-prior.md): identical-input solver comparison, named-spike diagnoses, held-out multi-seed results, failures.

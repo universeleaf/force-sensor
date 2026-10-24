@@ -1,5 +1,5 @@
 function g=geometry(fr,o)
-clock=tic;sh=tsfs.reconstruct(fr,true);P=size(fr.point,2);s=sh.s;
+clock=tic;sh=tsfs.reconstruct(fr,true,isfield(o,'batchedReconstruction')&&o.batchedReconstruction);P=size(fr.point,2);s=sh.s;
 candidateS=[];plane=[];lower=[];upper=[];flags={};
 for j=1:P
  gap=fr.normal(:,j)'*(sh.p-fr.point(:,j));

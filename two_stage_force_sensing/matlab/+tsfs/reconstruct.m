@@ -1,5 +1,7 @@
-function sh=reconstruct(fr,withSensitivity)
+function sh=reconstruct(fr,withSensitivity,batched)
 % Sparse elastic curvature interpolation preserves calibrated intrinsic jumps.
+% batched=true (Bishop only) evaluates the same central differences in one pass.
+if nargin<3,batched=false;end
 if tsfs.is_bishop(fr)
  sh=tsfs.reconstruct_bishop(fr);
 else
@@ -9,7 +11,9 @@ u(fr.axes,:)=u(fr.axes,:)+interp1(fr.arcs(:),e',s(:),'pchip','extrap')';
 [R,p]=integrate_curvature_field(fr.tube,u,fr.base);
 sh=struct('s',s,'p',p,'t',reshape(R(:,3,:),3,[]),'R',R,'u',u,'Jp',[],'Jt',[]);
 end
-if withSensitivity
+if withSensitivity&&batched&&tsfs.is_bishop(fr)
+ [sh.Jp,sh.Jt]=tsfs.reconstruct_bishop_sensitivity(fr,1e-7);
+elseif withSensitivity
  s=fr.tube.s;nu=numel(fr.u);sh.Jp=zeros(3,numel(s),nu);sh.Jt=sh.Jp;
  for j=1:nu
   h=1e-7;fp=fr;fm=fr;fp.u(j)=fp.u(j)+h;fm.u(j)=fm.u(j)-h;
