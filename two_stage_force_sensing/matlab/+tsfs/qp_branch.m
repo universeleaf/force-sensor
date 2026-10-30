@@ -14,7 +14,7 @@ function sol=qp_branch(fr,g,previous,o,cfg,modes,z0,scale,prior)
 %   cfg.slipStd='stage1'  weights the slip-history equations as residuals with
 %       the Stage 1 position covariance J_p C_w J_p' (plus Stage 1 model floor)
 %       instead of treating the noisy previous shape as exact.
-clock=tic;model=cfg.mechanicalModel;pc=struct('gridSize',36,'refineCount',3,'angleTolerance',1e-7,'collisionMarginMm',1,'coordinateSweeps',3,'constraintTolerance',cfg.constraintTolerance);
+clock=tic;model=cfg.mechanicalModel;pc=struct('gridSize',36,'refineCount',3,'angleTolerance',1e-7,'collisionMarginMm',1,'coordinateSweeps',3,'multiStarts',2,'jointLimit',2500,'constraintTolerance',cfg.constraintTolerance);
 A=affine_problem(fr,g,model,z0,scale,pc);
 if isfield(cfg,'trustRadius')&&isfinite(cfg.trustRadius),A.box=cfg.trustRadius;end
 if isfield(cfg,'forcePriors')&&cfg.forcePriors
@@ -82,23 +82,56 @@ if ~any(modes==2)
  boundary=over; % convex problem: a violated cone is active at the optimum
 end
 for pass=1:3
- K=find(modes==2|boundary);init=initial_angles(A,modes,K);angles(K)=init;
- if numel(K)==1
+ % A frictionless cone edge is tau=0 for every angle: fix it, do not profile.
+ fixed=boundary&A.mu==0;angles(fixed)=0;
+ K=find(modes==2|(boundary&~fixed));init=initial_angles(A,modes,K);angles(K)=init;
+ if isempty(K)
+  q=qp_at(A,modes,angles,boundary,pc);qps=qps+1;
+ elseif numel(K)==1
   [angles(K),q,n]=profile1(@(t)qp_at(A,modes,setangle(angles,K,t),boundary,pc),init,pc);qps=qps+n;
  else
-  certificate=false;q=qp_at(A,modes,angles,boundary,pc);qps=qps+1;
-  for sweep=1:pc.coordinateSweeps
-   for k=K,[angles(k),q,n]=profile1(@(t)qp_at(A,modes,setangle(angles,k,t),boundary,pc),angles(k),pc);qps=qps+n;end
+  % Several angles: coarse joint grid, then coordinate descent from the two
+  % best grid points. Not certified, but not limited to one start.
+  certificate=false;[starts,n]=joint_starts(A,modes,angles,boundary,K,init,pc);qps=qps+n;best=[];
+  for st=1:numel(starts)
+   a=starts{st};
+   for sweep=1:pc.coordinateSweeps
+    for k=K,[a(k),qk,n]=profile1(@(t)qp_at(A,modes,setangle(a,k,t),boundary,pc),a(k),pc);qps=qps+n;end
+   end
+   if isempty(best)||better(qk,best.q),best=struct('q',qk,'angles',a);end
   end
+  q=best.q;angles=best.angles;
  end
  over=cone_excess(A,modes,q.u,boundary)>1e-10;
  if ~any(over),break,end
- boundary=boundary|over;certificate=false;
+ % A frictional edge added after an angle profile is a heuristic step; a
+ % frictionless edge (tau=0) is exact for every angle.
+ if any(over&A.mu>0),certificate=false;end
+ boundary=boundary|over;
 end
 b=finish(q,modes,angles,boundary,qps,certificate);
 end
 
 function a=setangle(a,k,t),a(k)=t;end
+
+function [starts,count]=joint_starts(A,modes,angles,boundary,K,init,pc)
+% All combinations of a coarse per-angle grid plus the initial direction.
+m=12;if numel(K)==3,m=8;elseif numel(K)>3,m=4;end
+grids=cell(1,numel(K));for j=1:numel(K),grids{j}=[2*pi*(0:m-1)/m init(j)];end
+G=cell(1,numel(K));[G{:}]=ndgrid(grids{:});combos=reshape(cat(numel(K)+1,G{:}),[],numel(K));
+combos=combos(1:min(size(combos,1),pc.jointLimit),:);vals=inf(size(combos,1),1);viol=vals;
+for c=1:size(combos,1)
+ a=angles;a(K)=combos(c,:);q=qp_at(A,modes,a,boundary,pc);viol(c)=q.violation;if q.feasible,vals(c)=q.objective;end
+end
+count=size(combos,1);
+if all(~isfinite(vals)),[~,o]=sort(viol);else,[~,o]=sort(vals);end
+starts={};for c=o(1:min(pc.multiStarts,numel(o)))',a=angles;a(K)=combos(c,:);starts{end+1}=a;end
+end
+
+function tf=better(q,ref)
+% Feasible beats infeasible; then lower objective, or lower violation.
+if q.feasible~=ref.feasible,tf=q.feasible;elseif q.feasible,tf=q.objective<ref.objective;else,tf=q.violation<ref.violation;end
+end
 
 function init=initial_angles(A,modes,K)
 % Starting candidates only; the full angle grid is always evaluated.

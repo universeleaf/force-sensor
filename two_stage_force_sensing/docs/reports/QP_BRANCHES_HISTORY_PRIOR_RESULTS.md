@@ -228,9 +228,30 @@ Solo run (no other process), one computational thread, seed 0, 1 mm noise, same 
 
 Insertion: 0.852 -> 0.421 s/frame with exact branches (branch stage 0.467 -> 0.061 s) and -> 0.299 s with batched Stage 1 sensitivities; the tail shrinks more than the mean (p95 1.95 -> 0.38 s, max 4.75 -> 0.44 s) because no branch runs to the iteration cap. Rotation: 0.547 -> 0.456 -> 0.359 s (branch stage 0.136 -> 0.080 s here; in the loaded noiseless and 1 mm shadow runs of Section 4 the two angle profiles made the QP branches slower than fmincon's quick convergences, so the rotation branch speedup is case dependent). `qp_trust_fast` reproduces the `qp_trust` trajectory errors exactly, confirming that the batched sensitivities do not change results. Stage 1 (about 0.23 s unbatched) is now the largest single stage; its remaining cost is the finite-difference Jacobian of the geometric residual inside lsqnonlin. Under six concurrent processes all stages are roughly 1.7x slower (Section 7 timings).
 
+## 8b. Multi-contact and frictionless fixtures (follow-up, 2026-10-31)
+
+The recorded fixtures of the original benchmarks (material-curvature packets, two planes, 2-3 contacts, mu = 0 or 0.03, sensor std 1e-7 or 2.5e-5 /mm) exercise the multi-angle and frictionless paths of `qp_branch` that the inclined wall does not. `compare_multicontact.m` runs the reference chain (fmincon branches + BVP) and the QP chain (`qp`, no prior, exact history) frame by frame and scores them as `run_benchmarks` does. The reference chain is unaffected by `qp_branch` and was run once (about 8 h, dominated by fmincon: the three-contact first frame alone took 3.4 h); the QP chain was rerun with the final code.
+
+| Fixture | Frames | Contacts | Reference tip / contact RMSE N | QP tip / contact RMSE N | Reference worst frame tip N | QP worst frame tip N | Reference s/frame | QP s/frame | Reference failures |
+|---|---|---|---|---|---|---|---|---|---|
+| two_contact | 2 | 2 | 5 / 4.98 | 0.507 / 0.727 | 7.06 | 0.621 | 395 | 5.9 | 0 |
+| three_contact | 2 | 3 | 13 / 17.3 | 0.471 / 3.67 | 18.4 | 0.579 | 9580 | 21.9 | 0 |
+| spatial_sliding | 2 | 2 | 0.712 / 0.698 | 0.632 / 1.01 | 0.824 | 0.634 | 477 | 13.0 | 0 |
+| spatial_sliding_noisy | 2 | 2 | 1.27 / 1.62 | 0.894 / 1.23 | 1.27 | 1.24 | 404 | 14.0 | 1 |
+| spatial_three_channel | 2 | 2 | 3.08e+03 / 77.3 | 0.599 / 0.976 | 4.35e+03 | 0.634 | 526 | 6.0 | 0 |
+| s_channel_two_contact | 12 | 2 | 3.41 / 3.97 | 4.7 / 5.3 | 11.6 | 16.1 | 548 | 2.3 | 0 |
+| sliding_clean | 12 | 1 | 0.0168 / 0.0242 | 0.00176 / 0.0034 | 0.0579 | 0.00317 | 1 | 0.8 | 0 |
+
+Two changes came out of this check, both exact and without effect on the single-contact results above (re-checked to 5e-15 N):
+
+- A frictionless cone edge is tau = 0 for every angle, so it is fixed instead of profiled (one two-contact branch: 1016 -> 2 QPs, same optimum).
+- Branches with two or more friction angles first evaluate a coarse joint angle grid (13x13 for two angles, 9^3 for three) and run coordinate descent from the two best grid points. The earlier single-start coordinate descent was worse than fmincon on 7 multi-contact branches; on all six multi-contact fixtures' first frames (inputs independent of history) the final search is never worse than fmincon except one case. Branch comparisons from frame 2 on need the reference chain's states and were not repeated with the final search; the chain errors in the table are.
+
+The exception is the S-channel first frame, branch [2 2]: fmincon reports objective 1.04e7 with constraint violation exactly at its 1e-6 tolerance; with the tolerance tightened to 1e-9 fmincon returns 2.33e7, above the exactly feasible QP value 1.77e7. The QP chain is therefore worse than the reference only on this S-channel frame (tip error 16.1 vs 11.6 N, both large); the S-channel was deferred as an ill-conditioned fixture (first reaction changes by about 50 N per mm of wall displacement). From frame 2 on, both chains agree to within 0.01 N on most S-channel frames. `spatial_sliding_noisy` frame 1 threw an exception in the reference chain (scored as missing). Branches with several angles remain uncertified.
+
 ## 9. Limitations and open questions
 
-- One fixture (single planar contact, mu=0.3 known, constant base-pose knowledge); multiple simultaneous angle contacts use coordinate descent without a certificate.
+- The trajectory evaluation uses one fixture (single planar contact, mu=0.3 known); multi-contact evidence (Section 8b) covers only short recorded fixtures without noise sweeps. Several simultaneous friction angles use a joint grid plus coordinate descent without a certificate.
 - The force prior is a modeling assumption (random walk per frame, frame spacing is bookkeeping). It biases slowly varying tip loads (Section 6). Process stds should be chosen from the expected load dynamics of the application, not from this fixture.
 - Uncertain history uses the Stage 1 covariance of the current frame at the contact arc length; it ignores correlation between the previous estimate and current data and is conservative (it does not use mechanics information about the previous shape).
 - `modeFeasible`/full-mode-success counts are not comparable for uncertain-history runs, because nonlinear slip rows are no longer equalities.
@@ -240,6 +261,7 @@ Insertion: 0.852 -> 0.421 s/frame with exact branches (branch stage 0.467 -> 0.0
 
 ```matlab
 setup_tsfs; addpath('experiments/inclined_wall','experiments/robust_pass');
+test_qp_branch;   % qp_branch vs mode_branch on the same linearization, prior rows vs tsfs.evaluate
 % references (fresh stamp), then noise inputs for seeds 0..5
 run_fine_bvp_experiment('repro_20261024','truth');   % needs noise_payload.mat copied as in the 2026-10-13 handoff
 build_varying_tip_truth(struct('stepMm',.4,'folder',fullfile('results','runs','varying_tip_insertion_truth_repro_20261024')));

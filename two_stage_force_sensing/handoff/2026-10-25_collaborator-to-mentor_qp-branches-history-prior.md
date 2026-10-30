@@ -52,6 +52,7 @@ Held-out seeds 0, 3, 4, 5 (tuning used seeds 1, 2 only); every frame scored; RMS
 - The published 0.5 mm rotation frame 91 spike (12.7 N) is a local-optimizer failure: fmincon's selected objective is 687 units above the QP selection; with the QP branch the frame has 0.07 N tip error.
 - `bvpTrust` leaves forces unchanged and reduces 2 mm shape RMS (rotation 4.76 -> 1.13 mm). The reference method diverged once (2 mm rotation, seed 5; 176 N tip error with converged BVPs) and returned a non-finite state.
 - Exact slip history is the cause of the remaining rotation contact error once a prior is used (6.7 N vs 1.4 N with uncertain history, tuning seeds).
+- Follow-up 2026-10-31, recorded 2-3 contact fixtures (report Section 8b): QP chain better or equal on all except the deferred S-channel first frame, where fmincon's lower objective uses its 1e-6 constraint tolerance (tightened to 1e-9 it is worse than QP). Examples: three contacts tip RMSE 13.0 -> 0.47 N and 9580 -> 22 s/frame; spatial three-channel 3080 -> 0.60 N. The multi-angle search now starts from a joint angle grid; frictionless cone edges are fixed. New regression test `tests/test_qp_branch.m`.
 - Speed: branch time 0.69 -> 0.27 s/frame for insertion under equal load; solo timing in the report. Batched Stage 1 sensitivities (`fast`) give the same Stage 1 result to 1e-11 mm and are ~6x faster for that step.
 
 ## Failures and limits
@@ -59,7 +60,7 @@ Held-out seeds 0, 3, 4, 5 (tuning used seeds 1, 2 only); every frame scored; RMS
 - The prior cannot track slow tip-load changes along the weak tip/contact direction (varying-tip reference): bias instead of noise.
 - With uncertain history the estimator lags the 13 N friction flip at insertion reversal by several frames and occasionally selects sticking during steady sliding; hard history plus prior is better for steady insertion, worse for rotation.
 - Reproduction of the published 0.5 mm rotation, 1 mm insertion and 2 mm cases is not bitwise (recurrent amplification of floating-point differences, R2024a vs R2025b). Seed 0 differences are reported, not hidden.
-- Single fixture, single contact; several simultaneous friction angles use coordinate descent without a global certificate.
+- Trajectory statistics come from one fixture (single contact); multi-contact evidence is limited to short recorded fixtures. Several simultaneous friction angles use a joint grid plus coordinate descent without a global certificate.
 
 ## Reproduction
 

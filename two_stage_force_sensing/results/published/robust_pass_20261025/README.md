@@ -9,6 +9,9 @@ Compact outputs for [QP_BRANCHES_HISTORY_PRIOR_RESULTS.md](../../../docs/reports
 | `tuning_pooled.csv`, `tuning_trajectories.csv` | Tuning seeds 1, 2. `qp_soft_tip0.2_f1_gate` used an FBG-gated prior that was removed from the code after this test |
 | `shadow_summary.csv` | fmincon SQP vs profiled QP on identical inputs, seed 0 (`compare_branch_solvers.m`, `summarize_shadow.py`) |
 | `named_frames.csv` | Frames named in the 2026-10-13 handoff, all configurations, seed 0 |
+| `multicontact_summary.csv` | Recorded 2-3 contact fixtures: reference chain vs QP chain (final code), report Section 8b |
+| `multicontact_reference_chain_frames.csv`, `multicontact_qp_chain_frames.csv` | Per-frame scores of both chains (QP columns of the first file are from the earlier single-start search; use the second file) |
+| `multicontact_branches_single_start.csv` | Branch objectives on the reference chain's inputs, fmincon vs the earlier single-start QP search (kept for the record) |
 | `timing.csv` | Solo single-thread timing per stage, seed 0, 1 mm |
 | `plots/final_*_s0.png` | Seed 0 force components and errors: reference, `qp`, `qp_soft_tip0.2_f1` |
 | `plots/phase1_rotation_0p5mm_s0_reference_vs_qp.png` | Published-noise 0.5 mm rotation: fmincon vs exact branches |

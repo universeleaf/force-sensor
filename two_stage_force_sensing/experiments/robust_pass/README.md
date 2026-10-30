@@ -9,6 +9,7 @@ Paired comparison of the fine-step single-pass estimator with the opt-in switche
 | `run_robust_suite.m` | Noise inputs per seed (seed 0 = published payload) and insertion -> rotation (restored seed) -> varying-tip runs |
 | `build_varying_tip_truth.m` | Insertion reference with a time-varying applied tip load (copy of `build_inclined_truth` with a tip schedule) |
 | `compare_branch_solvers.m` | fmincon SQP vs `qp_branch` on identical inputs along the reference trajectory |
+| `compare_multicontact.m` | Same comparison on the recorded 2-3 contact fixtures (frictionless and mu=0.03) |
 | `summarize_robust.py`, `summarize_shadow.py`, `audit_frames.py`, `make_report_tables.py`, `plot_robust.py` | Analysis (NumPy, Matplotlib) |
 
-Requires `setup_tsfs` and `addpath('experiments/inclined_wall','experiments/robust_pass')`. References come from `run_fine_bvp_experiment(stamp,'truth')`; see report Section 10 for the full command sequence.
+Regression test: `tests/test_qp_branch.m`. Requires `setup_tsfs` and `addpath('experiments/inclined_wall','experiments/robust_pass')`. References come from `run_fine_bvp_experiment(stamp,'truth')`; see report Section 10 for the full command sequence.
